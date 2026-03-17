@@ -10,18 +10,19 @@ android {
 kotlin {
     sourceSets {
         maybeCreate("commonMain").dependencies {
-            implementation(libs.ktor.client.core) // [cite: 16]
-            implementation(libs.ktor.client.content.negotiation) // [cite: 16]
-            implementation(libs.ktor.serialization.kotlinx.json) // [cite: 16]
-            implementation(libs.kotlinx.serialization.json) // [cite: 17]
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.auth)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.kotlinx.serialization.json)
         }
 
         maybeCreate("androidMain").dependencies {
-            implementation(libs.ktor.client.android) // [cite: 17]
+            implementation(libs.ktor.client.android)
         }
 
         maybeCreate("iosMain").dependencies {
-            implementation(libs.ktor.client.darwin) //
+            implementation(libs.ktor.client.darwin)
         }
     }
 }
