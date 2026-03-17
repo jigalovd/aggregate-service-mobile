@@ -1,0 +1,61 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Kotlin
+.kotlin/
+*.class
+*.jar
+*.kt.js
+
+# IDE - IntelliJ / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+*.swp
+*.swo
+*~
+
+# Android
+*.apk
+*.aab
+*.ap_
+*.dex
+local.properties
+google-services.json
+
+# iOS / Xcode
+*.xcworkspace
+*.xcuserdata
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcuserstate
+project.xcworkspace/
+xcuserdata/
+DerivedData/
+*.ipa
+*.dSYM.zip
+
+# OS generated
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Secrets / Keystores
+*.jks
+*.p12
+*.keystore
+secrets.properties
+api_keys.properties
+
+# Logs & Dumps
+*.log
+*.hprof
+
+# Test & Reports
+test-results/
+test-reports/
