@@ -1,22 +1,22 @@
 [versions]
 # Core
-kotlin = "2.2.20" # Самая стабильная версия под новый Compose (2.3.20 только вышла, лучше подождать)
-compose-plugin = "1.10.2"
-compose-multiplatform = "1.10.2"
-agp = "8.12.0" # Оставляем ваш, если используете свежую Android Studio
+kotlin = "2.1.0" # Стабильная версия
+compose-plugin = "1.7.1"
+compose-multiplatform = "1.7.1"
+agp = "8.7.3" # Стабильная версия AGP
 
 # Network and Data
-ktor = "3.4.1" # Свежий патч-релиз (исправлены баги Flow и стриминга)
-serialization = "1.8.0"
-coroutines = "1.10.2"
-datastore = "1.1.4"
+ktor = "3.0.3" # Последняя стабильная версия Ktor 3.x
+serialization = "1.7.3"
+coroutines = "1.9.0"
+datastore = "1.1.1"
 
 # DI and Navigation
-koin = "4.1.1" # Стабильная версия (4.2.0 пока на стадии RC)
-voyager = "1.1.0-beta03" # Оставляем, но есть нюанс (см. ниже)
+koin = "4.0.2" # Стабильная версия
+voyager = "1.1.0-beta02" # Стабильная бета версия
 
 # Images and UI
-coil = "3.4.0" # Отлично работает в связке с новым Ktor 3.x
+coil = "3.0.4" # Стабильная версия Coil 3.x
 
 [libraries]
 # Kotlin
@@ -29,9 +29,11 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version 
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 
 # DI
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
@@ -49,6 +51,7 @@ datastore-preferences = { module = "androidx.datastore:datastore-preferences-cor
 # Image loading
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
+coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
 
 # Android
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version = "1.10.0" }
