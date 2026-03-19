@@ -5,10 +5,11 @@ plugins {
 
 android {
     namespace = "com.aggregateservice"
-    compileSdk = 34
+    compileSdk = 36
     defaultConfig {
         applicationId = "com.aggregateservice"
         minSdk = 24
+        //noinspection OldTargetApi
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"

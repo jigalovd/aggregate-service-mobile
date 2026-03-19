@@ -303,18 +303,17 @@ features/auth/
 
 ```toml
 [versions]
-kotlin = "1.9.22"
-agp = "8.2.2"
-compose = "1.6.0"
-compose-compiler = "1.5.8"
-compose-multiplatform = "1.6.0"
-ktor = "2.3.8"
-koin = "3.5.3"
-voyager = "1.0.0"
-coroutines = "1.8.0"
-serialization = "1.6.2"
-datastore = "1.1.0-beta01"
-coil = "3.0.0-alpha04"
+kotlin = "2.1.0"
+agp = "8.7.3"
+compose-plugin = "1.7.1"
+compose-multiplatform = "1.7.1"
+ktor = "3.0.3"
+koin = "4.0.2"
+voyager = "1.1.0-beta02"
+coroutines = "1.9.0"
+serialization = "1.7.3"
+datastore = "1.1.1"
+coil = "3.0.4"
 
 [libraries]
 # Kotlin
@@ -332,9 +331,11 @@ compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose-mu
 # Ktor
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
-ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 
 # DI
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
@@ -350,7 +351,11 @@ datastore-preferences = { module = "androidx.datastore:datastore-preferences-cor
 
 # Image loading
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
-coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor", version.ref = "coil" }
+coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
+coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
+
+# Android
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version = "1.10.0" }
 ```
 
 ---
@@ -395,15 +400,15 @@ coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor", version.ref
 ### 7.1. Начальный стек
 
 ```
-✅ Kotlin Multiplatform 1.9.22+
-✅ Compose Multiplatform 1.6.0+
-✅ Ktor Client (сетевые запросы)
-✅ Koin (DI)
-✅ Voyager (навигация)
-✅ DataStore (локальное хранение)
-✅ Coil 3 (изображения)
-✅ Kotlinx Serialization
-✅ Kotlinx DateTime
+✅ Kotlin Multiplatform 2.1.0+
+✅ Compose Multiplatform 1.7.1+
+✅ Ktor Client 3.0.3+ (сетевые запросы)
+✅ Koin 4.0.2 (DI)
+✅ Voyager 1.1.0-beta02 (навигация)
+✅ DataStore 1.1.1 (локальное хранение)
+✅ Coil 3.0.4 (изображения)
+✅ Kotlinx Serialization 1.7.3
+✅ Kotlinx Coroutines 1.9.0
 ```
 
 ### 7.2. Порядок внедрения (Feature-First)
@@ -443,4 +448,4 @@ Kotlin Multiplatform + Compose Multiplatform - оптимальный выбор
 
 ---
 
-**Last Updated**: 2026-03-15
+**Last Updated**: 2026-03-19

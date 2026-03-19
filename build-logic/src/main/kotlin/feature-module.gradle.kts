@@ -29,8 +29,7 @@ configure<org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension> {
         }
 
         maybeCreate("androidMain").dependencies {
-            implementation(libs.findLibrary("ktor.client.android").get())
-            implementation(libs.findLibrary("koin.android").get())
+            implementation(libs.findLibrary("ktor-client-okhttp").get())
         }
 
         maybeCreate("iosMain").dependencies {

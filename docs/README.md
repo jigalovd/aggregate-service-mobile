@@ -4,13 +4,29 @@ Beauty Service Aggregator Mobile App на базе Kotlin Multiplatform и Compo
 
 ## Обзор документов
 
+### Архитектура и анализ
+
 | Документ                                                     | Описание                                            |
 |--------------------------------------------------------------|-----------------------------------------------------|
 | [01_KMP_CMP_ANALYSIS.md](01_KMP_CMP_ANALYSIS.md)             | Анализ Kotlin Multiplatform и Compose Multiplatform |
+| [TECHNOLOGY_STACK_ANALYSIS.md](TECHNOLOGY_STACK_ANALYSIS.md) | 🔬 Анализ технологического стека (плюсы/минусы)    |
 | [02_MAP_PROVIDERS_ANALYSIS.md](02_MAP_PROVIDERS_ANALYSIS.md) | Сравнительный анализ поставщиков карт               |
-| [03_ONBOARDING_PLAN.md](03_ONBOARDING_PLAN.md)               | План Onboarding для новых разработчиков             |
 | [04_DESIGN_SYSTEM.md](04_DESIGN_SYSTEM.md)                   | Design System базового уровня                       |
 | [05_UX_GUIDELINES.md](05_UX_GUIDELINES.md)                   | UX Guidelines                                       |
+
+### Трекинг и статус
+
+| Документ                                                     | Описание                                            |
+|--------------------------------------------------------------|-----------------------------------------------------|
+| [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md)         | 📊 Статус реализации проекта (15% complete)         |
+| [CHANGELOG.md](../CHANGELOG.md)                             | 📝 Changelog проекта и миграции                      |
+
+### Планирование и ревью
+
+| Документ                                                     | Описание                                            |
+|--------------------------------------------------------------|-----------------------------------------------------|
+| [plans/01-quality-infrastructure-and-cicd.md](plans/01-quality-infrastructure-and-cicd.md) | 🎯 План внедрения качества кода и CI/CD (2 weeks) |
+| [reviews/2026-03-19-deep-code-review.md](reviews/2026-03-19-deep-code-review.md) | 🚨 Deep Code Review (Zero Tolerance Audit)         |
 
 ## Технологический стек
 
@@ -148,6 +164,6 @@ cd beauty-service/mobile
 
 ## Статус проекта
 
-**Phase**: Initial Setup  
-**Architecture**: Feature-First + Clean Architecture  
-**Last Updated**: 2026-03-15
+**Phase**: Initial Setup
+**Architecture**: Feature-First + Clean Architecture
+**Last Updated**: 2026-03-19
