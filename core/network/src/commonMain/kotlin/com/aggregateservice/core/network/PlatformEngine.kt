@@ -1,5 +1,6 @@
 package com.aggregateservice.core.network
 
+import com.aggregateservice.core.config.Config
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.HttpTimeout
@@ -13,14 +14,19 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-private const val TIMEOUT_MS = 30_000L
-
 expect val httpClientEngine: HttpClientEngine
 
+/**
+ * Создаёт HTTP клиент с централизованной конфигурацией
+ *
+ * Использует Config для получения настроек:
+ * - Base URL из конфигурации
+ * - Timeout из конфигурации
+ * - Logging флаг из конфигурации
+ * - API ключ автоматически добавляется в заголовки
+ */
 fun createHttpClient(
-    engine: HttpClientEngine,
-    baseUrl: String,
-    enableLogging: Boolean = false,
+    engine: HttpClientEngine = httpClientEngine,
 ): HttpClient =
     HttpClient(engine) {
         install(ContentNegotiation) {
@@ -35,25 +41,34 @@ fun createHttpClient(
         }
 
         install(HttpTimeout) {
-            requestTimeoutMillis = TIMEOUT_MS
-            connectTimeoutMillis = TIMEOUT_MS
-            socketTimeoutMillis = TIMEOUT_MS
+            requestTimeoutMillis = Config.networkTimeoutMs
+            connectTimeoutMillis = Config.networkTimeoutMs
+            socketTimeoutMillis = Config.networkTimeoutMs
         }
-        if (enableLogging) {
+
+        if (Config.enableLogging) {
             install(Logging) {
                 logger =
                     object : Logger {
                         override fun log(message: String) {
-                            // Implement your logging logic here
-                            println("AggregateService Log: $message")
+                            println("AggregateService Network: $message")
                         }
                     }
                 level = LogLevel.ALL
             }
         }
+
         // Дефолтный URL и заголовки для всех запросов
         defaultRequest {
-            url(baseUrl)
+            url(Config.apiBaseUrl)
             contentType(ContentType.Application.Json)
+
+            // Автоматическая инъекция API ключа
+            headers {
+                if (Config.apiKey.isNotEmpty()) {
+                    append("X-API-Key", Config.apiKey)
+                }
+                append("X-API-Version", Config.apiVersion)
+            }
         }
     }

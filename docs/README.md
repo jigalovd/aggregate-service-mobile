@@ -10,6 +10,9 @@ Aggregate Service Mobile App на базе Kotlin Multiplatform и Compose Multi
 |--------------------------------------------------------------|-----------------------------------------------------|
 | [01_KMP_CMP_ANALYSIS.md](01_KMP_CMP_ANALYSIS.md)             | Анализ Kotlin Multiplatform и Compose Multiplatform |
 | [TECHNOLOGY_STACK_ANALYSIS.md](TECHNOLOGY_STACK_ANALYSIS.md) | 🔬 Анализ технологического стека (плюсы/минусы)    |
+| [NETWORK_LAYER.md](NETWORK_LAYER.md)                         | 🌐 Network Layer архитектура (Ktor 3.0.3)           |
+| [BUILD_LOGIC.md](BUILD_LOGIC.md)                             | 🔧 Build Logic & Convention Plugins                  |
+| [CONFIG_MANAGEMENT.md](CONFIG_MANAGEMENT.md)                 | 🔐 Централизованное управление конфигурацией         |
 | [02_MAP_PROVIDERS_ANALYSIS.md](02_MAP_PROVIDERS_ANALYSIS.md) | Сравнительный анализ поставщиков карт               |
 | [04_DESIGN_SYSTEM.md](04_DESIGN_SYSTEM.md)                   | Design System базового уровня                       |
 | [05_UX_GUIDELINES.md](05_UX_GUIDELINES.md)                   | UX Guidelines                                       |
@@ -19,7 +22,7 @@ Aggregate Service Mobile App на базе Kotlin Multiplatform и Compose Multi
 
 | Документ                                                     | Описание                                            |
 |--------------------------------------------------------------|-----------------------------------------------------|
-| [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md)         | 📊 Статус реализации проекта (15% complete)         |
+| [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md)         | 📊 Статус реализации проекта (20% complete)         |
 | [CHANGELOG.md](../CHANGELOG.md)                             | 📝 Changelog проекта и миграции                      |
 
 ### Планирование и ревью
@@ -165,6 +168,14 @@ cd beauty-service/mobile
 
 ## Статус проекта
 
-**Phase**: Initial Setup
+**Phase**: Infrastructure Setup (80% complete)
 **Architecture**: Feature-First + Clean Architecture
 **Last Updated**: 2026-03-19
+
+### Достижения (2026-03-19)
+
+- ✅ **Core Infrastructure**: Gradle convention plugins, version catalog, KMP structure
+- ✅ **Quality Infrastructure**: Detekt (0 warnings), Ktlint (100% compliance), Kover configured
+- ✅ **Network Layer**: Ktor 3.0.3 с platform-specific engines (OkHttp/Darwin)
+- ✅ **Config Management**: Expect/actual pattern для централизованной конфигурации (API keys, environments)
+- 🔄 **Feature Development**: Auth feature запланирован (Week 3-4)

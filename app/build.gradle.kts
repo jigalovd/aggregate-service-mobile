@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.aggregateservice.app"
+    namespace = "com.aggregateservice.mobile.app"
 }
 
 kotlin {

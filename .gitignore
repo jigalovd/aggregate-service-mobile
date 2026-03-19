@@ -50,7 +50,10 @@ Desktop.ini
 *.p12
 *.keystore
 secrets.properties
+secrets.properties.local
+local.secrets.properties
 api_keys.properties
+
 
 # Logs & Dumps
 *.log
@@ -66,3 +69,4 @@ config/detekt/
 **/build/reports/detekt/
 
 /nul
+/secrets.properties.template

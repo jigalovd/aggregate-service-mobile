@@ -10,7 +10,13 @@ ktlint {
     android.set(true)
     outputToConsole.set(true)
     outputColorName.set("RED")
-    ignoreFailures.set(false) // Back to strict mode - we'll handle generated code via .editorconfig
+    ignoreFailures.set(false)
+
+    // Exclude generated code from ktlint checks
+    filter {
+        exclude("**/generated/**")
+        exclude("**/build/**")
+    }
 }
 
 // Configure Ktlint tasks
