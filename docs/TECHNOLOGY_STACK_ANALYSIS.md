@@ -1,7 +1,7 @@
-# 🔬 Анализ технологического стека - Beauty Service Aggregator
+# 🔬 Анализ технологического стека - Aggregate Service
 
 **Дата создания**: 2026-03-19
-**Проект**: Beauty Service Aggregator (KMP/CMP)
+**Проект**: Aggregate Service (KMP/CMP)
 **Назначение**: Обоснование выбора технологий с анализом плюсов и минусов
 
 ---
@@ -43,9 +43,10 @@
 | Технология | Версия | Краткое описание | Зачем выбрана |
 |-----------|--------|-----------------|----------------|
 | **Detekt** | 1.23.6 | Static analysis для Kotlin | Обнаруживает баги, запахи кода, KMP rules |
-| **Ktlint** | 1.2.1 | Code formatting для Kotlin | Auto-fix стиля, 100% compliance, EditorConfig |
+| **Ktlint** | 13.0.0 | Code formatting для Kotlin | Auto-fix стиля, 100% compliance, EditorConfig |
 | **Kover** | 0.8.3 | Test coverage reporting | 60%+ coverage target, HTML/XML reports |
 | **Mockk** | 1.13.9 | Mocking библиотека для KMP | KMP-friendly, корутин support, type-safe |
+| **Turbine** | 1.1.0 | Flow testing для Kotlin | Test Flow emissions, type-safe assertions |
 
 ### 🏛️ Architecture
 

@@ -1,0 +1,748 @@
+# Detekt configuration for KMP project
+#
+# This configuration enforces code quality rules for Aggregate Service project.
+# Target: Zero tolerance for code quality issues.
+#
+# Run: ./gradlew detektAll
+# Reports: HTML, MD, XML, SARIF in build/reports/detekt/
+
+build:
+  # Maximum number of issues to report
+  # 0 = zero tolerance mode
+  maxIssues: 0
+  # Don't exclude correctable issues from count
+  excludeCorrectable: false
+  # Weights for complexity scoring
+  weights:
+    complexity: 2
+    LongParameterList: 1
+    style: 1
+    comments: 1
+
+config:
+  # Validate Detekt config file
+  validation: true
+  # Treat warnings as errors (set to true for CI/CD)
+  warningsAsErrors: false
+  # Check all rule sets
+  checkExhaustiveness: false
+
+# Console output settings
+console-reports:
+  active: true
+
+# Report output settings
+output-reports:
+  active: true
+  # Exclude text and markdown reports (we use HTML/SARIF)
+  exclude:
+  - 'TxtOutputReport'
+  - 'MdOutputReport'
+
+# Process all source files
+processors:
+  active: true
+
+# Comments documentation rules
+comments:
+  active: true
+  # Don't require file license header
+  AbsentOrWrongFileLicense:
+    active: false
+  # Allow undocumented private functions
+  CommentOverPrivateFunction:
+    active: false
+  # Allow undocumented private properties
+  CommentOverPrivateProperty:
+    active: false
+  # Don't validate sentence endings
+  EndOfSentenceFormat:
+    active: false
+  # Don't require public class documentation
+  UndocumentedPublicClass:
+    active: false
+  # Don't require public function documentation
+  UndocumentedPublicFunction:
+    active: false
+  # Don't require public property documentation
+  UndocumentedPublicProperty:
+    active: false
+
+# Code complexity rules
+complexity:
+  active: true
+  # Detect complex boolean expressions
+  ComplexCondition:
+    active: true
+    threshold: 4
+  # Detect long methods
+  LongMethod:
+    active: true
+    threshold: 60
+  # Detect long parameter lists
+  LongParameterList:
+    active: true
+    functionThreshold: 6
+    constructorThreshold: 7
+  # Detect method overloading
+  MethodOverloading:
+    active: false
+  # Detect deeply nested blocks
+  NestedBlockDepth:
+    active: true
+    threshold: 4
+  # Detect duplicated string literals
+  StringLiteralDuplication:
+    active: false
+
+# Kotlin coroutines rules
+coroutines:
+  active: true
+  # Forbid GlobalScope usage
+  GlobalCoroutineUsage:
+    active: true
+  # Detect redundant suspend modifier
+  RedundantSuspendModifier:
+    active: true
+  # Detect suspend functions returning Flow
+  SuspendFunWithFlowReturnType:
+    active: true
+
+# Empty block detection
+empty-blocks:
+  active: true
+  # Detect empty class blocks
+  EmptyClassBlock:
+    active: true
+  # Detect empty function blocks
+  EmptyFunctionBlock:
+    active: true
+    ignoreOverridden: false
+  # Detect empty if blocks
+  EmptyIfBlock:
+    active: true
+  # Don't check empty Kotlin files
+  EmptyKtFile:
+    active: false
+  # Detect empty try blocks
+  EmptyTryBlock:
+    active: true
+  # Detect empty when blocks
+  EmptyWhenBlock:
+    active: true
+  # Detect empty while blocks
+  EmptyWhileBlock:
+    active: true
+
+# Exception handling rules
+exceptions:
+  active: true
+  # Detect exceptions in unexpected locations
+  ExceptionRaisedInUnexpectedLocation:
+    active: true
+  # Detect instanceof checks for exceptions
+  InstanceOfCheckForException:
+    active: true
+  # Detect NotImplementedException
+  NotImplementedDeclaration:
+    active: false
+  # Detect printStackTrace() usage
+  PrintStackTrace:
+    active: true
+  # Detect rethrow in catch blocks
+  RethrowCaughtException:
+    active: true
+  # Detect return from finally blocks
+  ReturnFromFinally:
+    active: true
+  # Detect swallowed exceptions
+  SwallowedException:
+    active: true
+    # Allow exception names starting with _
+    allowedExceptionNameRegex: '_|(expected|expected.*|foreseen)'
+    # Don't report these ignored exception types
+    ignoredExceptionTypes:
+      - InterruptedException
+      - NumberFormatException
+      - MalformedURLException
+      - ParseException
+  # Detect throwing exceptions from finally blocks
+  ThrowingExceptionFromFinally:
+    active: true
+  # Detect throwing exceptions in main()
+  ThrowingExceptionInMain:
+    active: false
+  # Detect exceptions without message or cause
+  ThrowingExceptionsWithoutMessageOrCause:
+    active: true
+  # Detect rethrowing same exception
+  ThrowingNewInstanceSameException:
+    active: true
+  # Detect catching too generic exceptions
+  TooGenericExceptionCaught:
+    active: true
+    exceptionNames:
+      - ArrayIndexOutOfBoundsException
+      - Error
+      - Exception
+      - IllegalMonitorStateException
+      - NullPointerException
+      - IndexOutOfBoundsException
+      - RuntimeException
+      - Throwable
+  # Detect throwing too generic exceptions
+  TooGenericExceptionThrown:
+    active: true
+
+# Code formatting rules (auto-fixable)
+formatting:
+  active: true
+  # Enable Android-specific rules
+  android: true
+  # Enable auto-correction
+  autoCorrect: true
+  # Annotation on separate line
+  annotationOnSeparateLine:
+    active: false
+  # Chain wrapping
+  chainWrapping:
+    active: true
+    autoCorrect: true
+  # Comment spacing
+  commentSpacing:
+    active: true
+    autoCorrect: true
+  # Enum wrapping
+  enumWrapping:
+    active: false
+  # Filename validation
+  filename:
+    active: true
+  # Final newline at end of file
+  finalNewline:
+    active: true
+    autoCorrect: true
+    insertFinalNewLine: true
+  # Import ordering
+  importOrdering:
+    active: false
+  # Indentation
+  indentation:
+    active: true
+    autoCorrect: true
+    consistentIndentationRelativeTo: firstParameterInConstructorList
+    indentSize: 4
+  # Max line length
+  maxLineLength:
+    active: true
+    maxLineLength: 120
+    excludePackageStatements: true
+    excludeImportStatements: true
+    excludeCommentStatements: false
+  # Modifier ordering
+  modifierOrdering:
+    active: true
+    autoCorrect: true
+  # No blank line before }
+  noBlankLineBeforeRbrace:
+    active: true
+    autoCorrect: true
+  # No consecutive blank lines
+  noConsecutiveBlankLines:
+    active: true
+    autoCorrect: true
+  # No empty class body
+  noEmptyClassBody:
+    active: true
+    autoCorrect: true
+  # No empty files
+  noEmptyFile:
+    active: false
+  # No line break after else
+  noLineBreakAfterElse:
+    active: true
+    autoCorrect: true
+  # No line break before assignment
+  noLineBreakBeforeAssignment:
+    active: true
+    autoCorrect: true
+  # No multiple spaces
+  noMultipleSpaces:
+    active: true
+    autoCorrect: true
+  # No semicolons
+  noSemicolons:
+    active: true
+    autoCorrect: true
+  # No trailing spaces
+  noTrailingSpaces:
+    active: true
+    autoCorrect: true
+  # No Unit return type
+  noUnitReturn:
+    active: true
+    autoCorrect: true
+  # No unused imports
+  noUnusedImports:
+    active: true
+    autoCorrect: true
+  # No wildcard imports
+  noWildcardImports:
+    active: true
+    autoCorrect: true
+  # Package naming
+  packageNaming:
+    active: true
+    autoCorrect: true
+  # Parameter list wrapping
+  parameterListWrapping:
+    active: true
+    autoCorrect: true
+    indentSize: 4
+  # Spacing around colon
+  spacingAroundColon:
+    active: true
+    autoCorrect: true
+  # Spacing around comma
+  spacingAroundComma:
+    active: true
+    autoCorrect: true
+  # Spacing around curly braces
+  spacingAroundCurly:
+    active: true
+    autoCorrect: true
+  # Spacing around dot
+  spacingAroundDot:
+    active: true
+    autoCorrect: true
+  # Spacing around double angle operator
+  spacingAroundDoubleAngleOperator:
+    active: false
+  # Spacing around keywords
+  spacingAroundKeyword:
+    active: true
+    autoCorrect: true
+  # Spacing around operators
+  spacingAroundOperators:
+    active: true
+    autoCorrect: true
+  # Spacing around parens
+  spacingAroundParens:
+    active: true
+    autoCorrect: true
+  # Spacing around range operator
+  spacingAroundRangeOperator:
+    active: true
+    autoCorrect: true
+  # Spacing between declarations with annotations
+  spacingBetweenDeclarationsWithAnnotations:
+    active: false
+  # Spacing between declarations with comments
+  spacingBetweenDeclarationsWithComments:
+    active: false
+  # Spacing between functions
+  spacingBetweenFunctions:
+    active: false
+  # String template
+  stringTemplate:
+    active: true
+    autoCorrect: true
+
+# Naming conventions
+naming:
+  active: true
+  # Class naming
+  ClassNaming:
+    active: true
+    classPattern: '[A-Z][a-zA-Z0-9]*'
+  # Constructor parameter naming
+  ConstructorParameterNaming:
+    active: true
+    parameterPattern: '[a-z][A-Za-z0-9]*'
+  # Enum naming
+  EnumNaming:
+    active: true
+    enumEntryPattern: '[A-Z][_a-zA-Z0-9]*'
+  # Forbidden class names
+  ForbiddenClassName:
+    active: false
+  # Function max length
+  FunctionMaxLength:
+    active: false
+  # Function min length
+  FunctionMinLength:
+    active: false
+  # Function naming
+  FunctionNaming:
+    active: true
+    functionPattern: '[a-z][a-zA-Z0-9]*'
+  # Function parameter naming
+  FunctionParameterNaming:
+    active: true
+    parameterPattern: '[a-z][A-Za-z0-9]*'
+  # Invalid package declaration
+  InvalidPackageDeclaration:
+    active: true
+  # Matching declaration name
+  MatchingDeclarationName:
+    active: true
+  # Member name equals class name
+  MemberNameEqualsClassName:
+    active: true
+  # Object property naming
+  ObjectPropertyNaming:
+    active: true
+    constantPattern: '[A-Za-z][_A-Za-z0-9]*'
+  # Package naming
+  PackageNaming:
+    active: true
+    packagePattern: '[a-z]+(\.[a-z][A-Za-z0-9]*)*'
+  # Top-level property naming
+  TopLevelPropertyNaming:
+    active: true
+    constantPattern: '[A-Z][_A-Z0-9]*'
+  # Variable max length
+  VariableMaxLength:
+    active: false
+  # Variable min length
+  VariableMinLength:
+    active: false
+  # Variable naming
+  VariableNaming:
+    active: true
+    variablePattern: '[a-z][A-Za-z0-9]*'
+
+# Performance optimizations
+performance:
+  active: true
+  # Use ArrayPrimitive instead of Array
+  ArrayPrimitive:
+    active: true
+  # Avoid forEach on ranges
+  ForEachOnRange:
+    active: true
+  # Avoid spread operator
+  SpreadOperator:
+    active: true
+  # Detect unnecessary temporary instantiation
+  UnnecessaryTemporaryInstantiation:
+    active: true
+
+# Potential bugs
+potential-bugs:
+  active: true
+  # Avoid referential equality
+  AvoidReferentialEquality:
+    active: true
+  # Detect nullable casts to non-null
+  CastToNullableType:
+    active: false
+  # Don't downcast collection types
+  DontDowncastCollectionTypes:
+    active: false
+  # Equals always returns true or false
+  EqualsAlwaysReturnsTrueOrFalse:
+    active: true
+  # Equals with hashcode exists
+  EqualsWithHashCodeExist:
+    active: true
+  # Detect explicit garbage collection
+  ExplicitGarbageCollectionCall:
+    active: true
+  # Detect platform types
+  HasPlatformType:
+    active: true
+  # Detect ignored return values
+  IgnoredReturnValue:
+    active: true
+  # Detect implicit default locale
+  ImplicitDefaultLocale:
+    active: true
+  # Detect implicit unit return type
+  ImplicitUnitReturnType:
+    active: false
+  # Detect invalid range
+  InvalidRange:
+    active: true
+  # Iterator hasNext calls next method
+  IteratorHasNextCallsNextMethod:
+    active: true
+  # Iterator not throwing NoSuchElementException
+  IteratorNotThrowingNoSuchElementException:
+    active: true
+  # Detect lateinit usage
+  LateinitUsage:
+    active: true
+  # Detect unsafe get on nullable
+  MapGetWithNotNullAssertionOperator:
+    active: true
+  # Missing package
+  MissingPackage:
+    active: false
+  # Detect missing when case
+  MissingWhenCase:
+    active: true
+  # Detect unnecessary not null operator
+  UnnecessaryNotNullOperator:
+    active: true
+  # Detect unnecessary safe call
+  UnnecessarySafeCall:
+    active: true
+  # Detect unreachable catch blocks
+  UnreachableCatchBlock:
+    active: true
+  # Detect unreachable code
+  UnreachableCode:
+    active: true
+  # Detect unsafe call on nullable
+  UnsafeCallOnNullableType:
+    active: true
+  # Detect unsafe cast
+  UnsafeCast:
+    active: true
+  # Detect useless postfix expression
+  UselessPostfixExpression:
+    active: true
+  # Detect wrong equals type parameter
+  WrongEqualsTypeParameter:
+    active: true
+
+# Style rules
+style:
+  active: true
+  # Class ordering
+  ClassOrdering:
+    active: false
+  # Collapse if statements
+  CollapsibleIfStatements:
+    active: false
+  # Detect data classes with functions
+  DataClassContainsFunctions:
+    active: false
+  # Detect data classes that should be immutable
+  DataClassShouldBeImmutable:
+    active: false
+  # Equals on signature line
+  EqualsOnSignatureLine:
+    active: false
+  # Detect explicit it lambda parameter
+  ExplicitItLambdaParameter:
+    active: false
+  # Expression body syntax
+  ExpressionBodySyntax:
+    active: false
+  # Detect forbidden comments
+  ForbiddenComment:
+    active: true
+    # Forbidden comment content
+    values:
+      - 'TODO:'
+      - 'FIXME:'
+      - 'STOPSHIP:'
+    # Allowed regex patterns for comments
+    allowedPatterns: ''
+  # Detect forbidden imports
+  ForbiddenImport:
+    active: false
+  # Detect forbidden method calls
+  ForbiddenMethodCall:
+    active: false
+  # Detect forbidden public data class
+  ForbiddenPublicDataClass:
+    active: true
+  # Detect forbidden void
+  ForbiddenVoid:
+    active: true
+  # Detect function returning constant
+  FunctionOnlyReturningConstant:
+    active: true
+  # Require library code to specify return type
+  LibraryCodeMustSpecifyReturnType:
+    active: true
+  # Detect library entities that shouldn't be public
+  LibraryEntitiesShouldNotBePublic:
+    active: false
+  # Detect loops with too many jump statements
+  LoopWithTooManyJumpStatements:
+    active: true
+    maxJumpCount: 1
+  # Detect magic numbers
+  MagicNumber:
+    active: true
+    # Ignored numbers for magic number rule
+    ignoreNumbers:
+      - '-1'
+      - '0'
+      - '1'
+      - '2'
+    # Ignore hashCode functions
+    ignoreHashCodeFunction: true
+    # Ignore property declarations
+    ignorePropertyDeclaration: false
+    # Ignore annotations
+    ignoreAnnotation: false
+    # Ignore named arguments
+    ignoreNamedArgument: true
+    # Ignore enums
+    ignoreEnums: false
+    # Ignore ranges
+    ignoreRanges: false
+    # Ignore extension functions
+    ignoreExtensionFunctions: true
+  # Require braces for if statements
+  MandatoryBracesIfStatements:
+    active: false
+  # Require braces for loops
+  MandatoryBracesLoops:
+    active: false
+  # Detect max line length
+  MaxLineLength:
+    active: true
+    maxLineLength: 120
+    # Exclude package statements
+    excludePackageStatements: true
+    # Exclude import statements
+    excludeImportStatements: true
+    # Exclude comment statements
+    excludeCommentStatements: false
+  # Detect may be const
+  MayBeConst:
+    active: true
+  # Detect modifier order
+  ModifierOrder:
+    active: true
+  # Detect multiline lambda it parameter
+  MultilineLambdaItParameter:
+    active: false
+  # Detect nested classes visibility
+  NestedClassesVisibility:
+    active: true
+  # Detect new line at end of file
+  NewLineAtEndOfFile:
+    active: true
+  # Detect tabs
+  NoTabs:
+    active: false
+  # Detect object literal to lambda
+  ObjectLiteralToLambda:
+    active: true
+  # Detect optional abstract keyword
+  OptionalAbstractKeyword:
+    active: true
+  # Detect optional unit
+  OptionalUnit:
+    active: false
+  # Detect prefer to over pair syntax
+  PreferToOverPairSyntax:
+    active: false
+  # Detect protected member in final class
+  ProtectedMemberInFinalClass:
+    active: true
+  # Detect redundant explicit type
+  RedundantExplicitType:
+    active: false
+  # Detect redundant higher order map usage
+  RedundantHigherOrderMapUsage:
+    active: true
+  # Detect redundant visibility modifier
+  RedundantVisibilityModifierRule:
+    active: false
+  # Detect return count
+  ReturnCount:
+    active: true
+    max: 2
+    # Excluded functions for return count
+    excludedFunctions: 'equals'
+  # Detect safe casts
+  SafeCast:
+    active: true
+  # Detect serial version UID in serializable class
+  SerialVersionUIDInSerializableClass:
+    active: true
+  # Detect spacing between package and imports
+  SpacingBetweenPackageAndImports:
+    active: false
+  # Detect throws count
+  ThrowsCount:
+    active: true
+    max: 2
+  # Detect trailing whitespace
+  TrailingWhitespace:
+    active: false
+  # Detect underscores in numeric literals
+  UnderscoresInNumericLiterals:
+    active: false
+  # Detect unnecessary abstract class
+  UnnecessaryAbstractClass:
+    active: true
+  # Detect unnecessary apply
+  UnnecessaryApply:
+    active: true
+  # Detect unnecessary inheritance
+  UnnecessaryInheritance:
+    active: true
+  # Detect unnecessary let
+  UnnecessaryLet:
+    active: false
+  # Detect unnecessary parentheses
+  UnnecessaryParentheses:
+    active: false
+  # Detect until instead of rangeTo
+  UntilInsteadOfRangeTo:
+    active: false
+  # Detect unused imports
+  UnusedImports:
+    active: false
+  # Detect unused private class
+  UnusedPrivateClass:
+    active: true
+  # Detect unused private member
+  UnusedPrivateMember:
+    active: true
+  # Detect array literals in annotations
+  UseArrayLiteralsInAnnotations:
+    active: true
+  # Detect requireNotNull
+  UseCheckNotNull:
+    active: true
+  # Detect require or error
+  UseCheckOrError:
+    active: true
+  # Detect data class
+  UseDataClass:
+    active: false
+  # Detect empty counterpart
+  UseEmptyCounterpart:
+    active: false
+  # Detect if empty or if blank
+  UseIfEmptyOrIfBlank:
+    active: false
+  # Detect if instead of when
+  UseIfInsteadOfWhen:
+    active: false
+  # Detect isNullOrEmpty
+  UseIsNullOrEmpty:
+    active: true
+  # Detect orEmpty
+  UseOrEmpty:
+    active: true
+  # Detect requireNullOrEmpty
+  RequireNullOrEmpty:
+    active: false
+  # Detect require
+  UseRequire:
+    active: true
+  # Detect useless call on not null
+  UselessCallOnNotNull:
+    active: true
+  # Detect utility class with public constructor
+  UtilityClassWithPublicConstructor:
+    active: true
+  # Detect var could be val
+  VarCouldBeVal:
+    active: true
+  # Detect wildcard imports
+  WildcardImport:
+    active: true
+    # Excluded patterns for wildcard imports
+    excludes: ['java.util.*', 'kotlinx.android.synthetic.*']

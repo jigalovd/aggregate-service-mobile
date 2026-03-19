@@ -1,6 +1,6 @@
 # Mobile Documentation - Kotlin Multiplatform
 
-Beauty Service Aggregator Mobile App на базе Kotlin Multiplatform и Compose Multiplatform.
+Aggregate Service Mobile App на базе Kotlin Multiplatform и Compose Multiplatform.
 
 ## Обзор документов
 
@@ -13,6 +13,7 @@ Beauty Service Aggregator Mobile App на базе Kotlin Multiplatform и Compo
 | [02_MAP_PROVIDERS_ANALYSIS.md](02_MAP_PROVIDERS_ANALYSIS.md) | Сравнительный анализ поставщиков карт               |
 | [04_DESIGN_SYSTEM.md](04_DESIGN_SYSTEM.md)                   | Design System базового уровня                       |
 | [05_UX_GUIDELINES.md](05_UX_GUIDELINES.md)                   | UX Guidelines                                       |
+| [CODE_QUALITY_GUIDE.md](CODE_QUALITY_GUIDE.md)               | 📚 Гайд по Detekt и Ktlint                          |
 
 ### Трекинг и статус
 

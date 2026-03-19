@@ -13,12 +13,16 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
+private const val TIMEOUT_MS = 30_000L
+
+expect val httpClientEngine: HttpClientEngine
+
 fun createHttpClient(
     engine: HttpClientEngine,
     baseUrl: String,
     enableLogging: Boolean = false,
-): HttpClient {
-    return HttpClient(engine) {
+): HttpClient =
+    HttpClient(engine) {
         install(ContentNegotiation) {
             json(
                 Json {
@@ -26,26 +30,26 @@ fun createHttpClient(
                     isLenient = true
                     ignoreUnknownKeys = true
                     explicitNulls = false
-                }
+                },
             )
         }
 
         install(HttpTimeout) {
-            requestTimeoutMillis = 30_000L
-            connectTimeoutMillis = 30_000L
-            socketTimeoutMillis = 30_000L
+            requestTimeoutMillis = TIMEOUT_MS
+            connectTimeoutMillis = TIMEOUT_MS
+            socketTimeoutMillis = TIMEOUT_MS
         }
         if (enableLogging) {
             install(Logging) {
-                logger = object : Logger {
-                    override fun log(message: String) {
-                        // Implement your logging logic here
-                        println("AggregateService Log: $message")
+                logger =
+                    object : Logger {
+                        override fun log(message: String) {
+                            // Implement your logging logic here
+                            println("AggregateService Log: $message")
+                        }
                     }
-                }
                 level = LogLevel.ALL
             }
-
         }
         // Дефолтный URL и заголовки для всех запросов
         defaultRequest {
@@ -53,5 +57,3 @@ fun createHttpClient(
             contentType(ContentType.Application.Json)
         }
     }
-}
-

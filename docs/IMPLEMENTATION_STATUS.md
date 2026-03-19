@@ -1,14 +1,15 @@
-# Статус реализации проекта - Beauty Service Aggregator
+# Статус реализации проекта - Aggregate Service
 
 ## 📊 Executive Summary
 
 | Метрика | Текущее значение | Цель | Прогресс |
 |---------|------------------|------|----------|
-| **Общий прогресс** | 15% | 100% | ██░░░░░░░░ |
-| **Core Infrastructure** | 60% | 100% | ██████░░░░ |
+| **Общий прогресс** | 20% | 100% | ██░░░░░░░░ |
+| **Core Infrastructure** | 75% | 100% | ███████░░░ |
+| **Quality Infrastructure** | 40% | 100% | ███░░░░░░░░ |
 | **Features Implemented** | 0/7 | 7 | ░░░░░░░░░░ |
 | **Test Coverage** | 0% | 80% | ░░░░░░░░░░ |
-| **Documentation** | 85% | 100% | ████████░░ |
+| **Documentation** | 90% | 100% | ████████░░ |
 
 **Last Updated**: 2026-03-19
 **Project Phase**: Initial Setup & Infrastructure
@@ -29,6 +30,8 @@
 | **Core Module Plugin** | ✅ Complete | 100% | `core-module.gradle.kts` |
 | **Feature Module Plugin** | ✅ Complete | 100% | `feature-module.gradle.kts` |
 | **App Module Plugin** | ✅ Complete | 100% | `app-module.gradle.kts` |
+| **Detekt Configuration** | ✅ Complete | 100% | `detekt-configuration.gradle.kts` |
+| **Ktlint Configuration** | ✅ Complete | 100% | `ktlint-configuration.gradle.kts` |
 
 ### Technology Stack Versions
 
@@ -44,6 +47,13 @@ coroutines = "1.9.0"          # ✅ Latest
 serialization = "1.7.3"       # ✅ Latest
 datastore = "1.1.1"           # ✅ Stable
 coil = "3.0.4"                # ✅ Latest
+
+# Code Quality & Testing (NEW - 2026-03-19)
+detekt = "1.23.6"             # ✅ Latest stable
+ktlint = "13.0.0"             # ✅ Latest (updated from 1.2.1)
+kover = "0.8.3"               # ✅ Latest
+mockk = "1.13.9"              # ✅ Latest
+turbine = "1.1.0"             # ✅ Latest
 ```
 
 ### Core Modules Status
@@ -76,17 +86,39 @@ coil = "3.0.4"                # ✅ Latest
 |----------|--------|----------|----------|
 | **Quality Infrastructure Plan** | ✅ Created | 100% | [`docs/plans/01-quality-infrastructure-and-cicd.md`](plans/01-quality-infrastructure-and-cicd.md) - 2-week план для Detekt, Ktlint, Kover, CI/CD |
 | **Deep Code Review** | ✅ Complete | 100% | [`docs/reviews/2026-03-19-deep-code-review.md`](reviews/2026-03-19-deep-code-review.md) - Zero Tolerance аудит кода |
-| **Changelog** | ✅ Created | 100% | [`CHANGELOG.md`](../CHANGELOG.md) - Changelog проекта и миграции |
+| **Changelog** | ✅ Complete | 100% | [`CHANGELOG.md`](../CHANGELOG.md) - Changelog проекта и миграции |
+| **Code Quality Guide** | ✅ Complete | 100% | [`docs/CODE_QUALITY_GUIDE.md`](CODE_QUALITY_GUIDE.md) - Полный гайд по Detekt и Ktlint |
 
-### Code Quality Tools Status (Target: Week 1-2)
+### Code Quality Tools Status (Day 1-2 Complete / Target: Week 1-2)
 
 | Инструмент | Статус | Прогресс | Заметки |
 |------------|--------|----------|---------|
-| **Detekt** | ⚪ Not Started | 0% | Static analysis для Kotlin (планируется в Week 1) |
-| **Ktlint** | ⚪ Not Started | 0% | Code formatting и стиль (планируется в Week 1) |
-| **Kover** | ⚪ Not Started | 0% | Test coverage reporting (планируется в Week 1) |
+| **Detekt** | ✅ Configured | 100% | Static analysis: `.detekt/config.yml` (zero tolerance: maxIssues: 0) |
+| **Ktlint** | ✅ Configured | 100% | Linter + Formatter: `.editorconfig` + `ktlint-configuration.gradle.kts` |
+| **Kover** | ✅ Configured | 100% | Test coverage reporting настроен (target: 60%+) |
 | **CI/CD** | ⚪ Not Started | 0% | GitHub Actions pipeline (планируется в Week 2) |
 | **Unit Tests** | ⚪ Not Started | 0% | Тесты для network слоя (планируются в Week 1) |
+
+### Code Quality Infrastructure Implementation Details
+
+**Day 1-2 Complete (2026-03-19):**
+
+| Компонент | Статус | Детали |
+|-----------|--------|---------|
+| **Detekt Configuration** | ✅ Complete | - `.detekt/config.yml` (600+ lines)<br>- Zero tolerance policy: maxIssues: 0<br>- All rule sets configured<br>- Auto-correction enabled for formatting |
+| **Ktlint Configuration** | ✅ Complete | - `.editorconfig` with KMP-friendly rules<br>- `ktlint-configuration.gradle.kts` (version 13.0.0)<br>- Disabled rules for Compose Resources<br>- Aggregate tasks: `ktlintCheckAll`, `ktlintFormatAll` |
+| **Convention Plugins** | ✅ Complete | - `detekt-configuration.gradle.kts`<br>- `ktlint-configuration.gradle.kts`<br>- Applied to all subprojects via `build.gradle.kts` |
+| **Aggregate Tasks** | ✅ Complete | - `detektAll` - Check all modules<br>- `ktlintCheckAll` - Lint all modules<br>- `ktlintFormatAll` - Format all modules<br>- `koverReportAll` - Generate coverage reports<br>- `koverVerifyAll` - Verify coverage thresholds |
+| **Build-Logic Integration** | ✅ Complete | - Updated `build-logic/build.gradle.kts` with quality plugins<br>- Quality plugins added to `libs.versions.toml`<br>- Gradle Plugin Portal added to `settings.gradle.kts` |
+
+**Quality Metrics (Current):**
+
+| Метрика | Текущее значение | Цель | Статус |
+|---------|------------------|------|--------|
+| **Detekt Issues** | 0 | 0 (zero tolerance) | ✅ PASS |
+| **Ktlint Violations** | 0 | 0 (all fixable) | ✅ PASS |
+| **Kover Coverage** | 0% | 60%+ | ⏳ PENDING |
+| **Test Count** | 0 | 100+ | ⏳ PENDING |
 
 ### Code Review Findings (2026-03-19)
 

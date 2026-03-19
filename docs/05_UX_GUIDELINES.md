@@ -1,8 +1,8 @@
-# UX Guidelines - Beauty Service Aggregator
+# UX Guidelines - Aggregate Service
 
 ## Обзор
 
-Базовые UX принципы и гайдлайны для мобильного приложения Beauty Service Aggregator.
+Базовые UX принципы и гайдлайны для мобильного приложения Aggregate Service.
 
 ---
 
@@ -1276,7 +1276,7 @@ Client Mode → Provider Mode:
 ──────────────────────────────────────────
 → Swipe ВПРАВО: ✓ Подтвердить
    └── Push уведомление клиенту
-   
+
 ← Swipe ВЛЕВО: ❌ Отклонить
    └── Причина: [Нет времени] [Занято] [Другое]
 
@@ -1284,7 +1284,7 @@ Client Mode → Provider Mode:
 ──────────────────────────────────────────
 → Swipe ВПРАВО: 📅 Перенести
    └── Выбор новой даты/времени
-   
+
 ← Swipe ВЛЕВО: ❌ Отменить
    └── Причина для клиента
 ```
@@ -2108,7 +2108,7 @@ SnackbarHost(
 │                                         │
 │              💇‍♀️                        │
 │                                         │
-│      Welcome to Beauty Service!         │
+│      Welcome to Aggregate Service!         │
 │                                         │
 │   Find the best beauty masters          │
 │          near you                       │

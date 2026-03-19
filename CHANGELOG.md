@@ -1,6 +1,6 @@
-# Changelog - Beauty Service Aggregator Mobile
+# Changelog - Aggregate Service Mobile
 
-All notable changes to the Beauty Service Aggregator mobile application will be documented in this file.
+All notable changes to the Aggregate Service mobile application will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Kotlinx Serialization 1.7.3
   - DataStore 1.1.1
   - Coil 3.0.4
+  - Detekt 1.23.6 (static analysis)
+  - Ktlint 13.0.0 (linter + formatter)
+  - Kover 0.8.3 (test coverage)
+  - Mockk 1.13.9, Turbine 1.1.0 (testing)
 
 - ✅ **Convention Plugins** (build-logic/src/main/kotlin/)
   - `kmp-base.gradle.kts` - Base KMP configuration
@@ -30,12 +34,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `core-module.gradle.kts` - Core module convention
   - `feature-module.gradle.kts` - Feature module convention (Clean Architecture)
   - `app-module.gradle.kts` - Application module convention
+  - `detekt-configuration.gradle.kts` - Detekt static analysis setup
+  - `ktlint-configuration.gradle.kts` - Ktlint linter setup
+
+- ✅ **Code Quality Infrastructure** (Day 1-2 Complete)
+  - Detekt 1.23.6 with zero tolerance policy (maxIssues: 0)
+  - Ktlint 13.0.0 with auto-formatting
+  - .editorconfig with KMP-friendly rules
+  - Aggregate tasks: detektAll, ktlintCheckAll, ktlintFormatAll, koverReportAll, koverVerifyAll
+  - Configured for all subprojects via build.gradle.kts
 
 - ✅ **Project Structure**
   - Multi-module KMP setup with Feature-First architecture
   - Android application module (`androidApp`)
   - Core modules: network, storage, theme, i18n, utils, navigation, di
   - Feature modules (planned): auth, catalog, booking, services, profile, favorites, reviews
+
+#### Documentation
+- ✅ **CODE_QUALITY_GUIDE.md** - Полный гайд по Detekt и Ktlint
+  - Инструкции по запуску и конфигурации
+  - Работа с baseline и Suppress
+  - Интеграция с IDE и CI/CD
+  - Troubleshooting и FAQ
 
 #### Core Modules
 - ✅ **:core:network** (60% complete)

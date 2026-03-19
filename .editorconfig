@@ -1,0 +1,40 @@
+root = true
+
+[*.{kt,kts}]
+charset = utf-8
+end_of_line = lf
+indent_size = 4
+indent_style = space
+insert_final_newline = true
+max_line_length = off
+tab_width = 4
+trim_trailing_whitespace = true
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+ktlint_standard_function-signature = disabled
+ktlint_standard_class-naming = disabled
+ktlint_standard_function-expression-body = disabled
+
+[*.{xml,json,yaml,yml,gradle}]
+charset = utf-8
+end_of_line = lf
+indent_size = 2
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.md]
+charset = utf-8
+end_of_line = lf
+indent_size = 2
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+max_line_length = off
+
+[*.{bat,cmd}]
+end_of_line = crlf
+
+[*.{sh,bash}]
+end_of_line = lf
+charset = utf-8

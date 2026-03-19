@@ -12,6 +12,9 @@ dependencies {
     compileOnly(libs.compose.gradlePlugin)
     compileOnly(libs.compose.compiler.gradlePlugin)
     compileOnly(libs.kotlin.serialization.gradlePlugin)
+    compileOnly(libs.detekt.gradlePlugin)
+    compileOnly(libs.ktlint.gradlePlugin)
+    compileOnly(libs.kover.gradlePlugin)
 
     // Подключаем плагины, чтобы они были доступны внутри .gradle.kts файлов
     implementation(libs.android.gradlePlugin)
@@ -19,6 +22,9 @@ dependencies {
     implementation(libs.compose.gradlePlugin)
     implementation(libs.kotlin.serialization.gradlePlugin)
     implementation(libs.compose.compiler.gradlePlugin)
+    implementation(libs.detekt.gradlePlugin)
+    implementation(libs.ktlint.gradlePlugin)
+    implementation(libs.kover.gradlePlugin)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {

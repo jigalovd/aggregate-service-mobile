@@ -59,3 +59,10 @@ api_keys.properties
 # Test & Reports
 test-results/
 test-reports/
+
+# Detekt & Ktlint
+config/detekt/
+**/detekt-baseline*.xml
+**/build/reports/detekt/
+
+/nul

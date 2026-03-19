@@ -2,7 +2,7 @@
 
 ## Обзор
 
-Документ содержит сравнительный анализ поставщиков карт для мобильного приложения Beauty Service Aggregator. Приоритет: **стабильность**.
+Документ содержит сравнительный анализ поставщиков карт для мобильного приложения Aggregate Service. Приоритет: **стабильность**.
 
 ---
 
@@ -284,7 +284,7 @@ expect fun MapView(
 @Composable
 actual fun MapView(...) {
     val cameraPositionState = rememberCameraPositionState()
-    
+
     GoogleMap(
         cameraPositionState = cameraPositionState,
         modifier = Modifier.fillMaxSize()
@@ -305,7 +305,7 @@ actual fun MapView(...) {
 @Composable
 actual fun MapView(...) {
     UIKitView(
-        factory = { 
+        factory = {
             GMSMapView(
                 frame = CGRectZero,
                 camera: GMSCameraPosition(...)
@@ -329,7 +329,7 @@ interface MapRepository {
         radius: Double,
         category: String?
     ): List<Provider>
-    
+
     suspend fun getPlaceDetails(placeId: String): PlaceDetails
 }
 ```
@@ -347,7 +347,7 @@ MAPS_API_KEY=your_api_key_here
 // build.gradle.kts
 android {
     defaultConfig {
-        manifestPlaceholders["MAPS_API_KEY"] = 
+        manifestPlaceholders["MAPS_API_KEY"] =
             localProperties.getProperty("MAPS_API_KEY")
     }
 }

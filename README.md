@@ -1,6 +1,6 @@
 # Mobile Application (KMP + CMP)
 
-Это мобильное приложение для Beauty Service Aggregator, построенное на базе Kotlin Multiplatform (KMP) и Compose
+Это мобильное приложение для Aggregate Service, построенное на базе Kotlin Multiplatform (KMP) и Compose
 Multiplatform (CMP).
 
 ## Структура

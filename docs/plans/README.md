@@ -1,4 +1,4 @@
-# Planning Documents - Beauty Service Aggregator
+# Planning Documents - Aggregate Service
 
 **Last Updated**: 2026-03-19
 **Status**: Active (1 plan in progress)

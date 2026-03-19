@@ -18,6 +18,13 @@ voyager = "1.1.0-beta02" # Стабильная бета версия
 # Images and UI
 coil = "3.0.4" # Стабильная версия Coil 3.x
 
+# Code Quality & Testing
+detekt = "1.23.6"
+ktlint = "13.0.0"
+kover = "0.8.3"
+mockk = "1.13.9"
+turbine = "1.1.0"
+
 [libraries]
 # Kotlin
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
@@ -55,12 +62,24 @@ coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version
 # Android
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version = "1.10.0" }
 
+# Code Quality & Testing
+# Detekt plugins for custom rules
+detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
+
+# Testing
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+
 # Gradle Plugins (for build-logic)
 android-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-serialization-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
 compose-gradlePlugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose-multiplatform" }
 compose-compiler-gradlePlugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
+detekt-gradlePlugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
+ktlint-gradlePlugin = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint" }
+kover-gradlePlugin = { module = "org.jetbrains.kotlinx.kover:org.jetbrains.kotlinx.kover.gradle.plugin", version.ref = "kover" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -69,6 +88,9 @@ jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-multip
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 
 # Convention Plugins
 kmp-base = { id = "kmp-base", version = "unspecified" }

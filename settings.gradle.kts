@@ -7,6 +7,7 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/patch")
+        maven("https://plugins.gradle.org/m2/")
     }
 }
 
