@@ -34,8 +34,8 @@ import kotlinx.serialization.json.Json
  * @see AppError
  */
 suspend inline fun <reified T : Any> safeApiCall(
-    maxRetries: Int = 3,
-    retryDelayMs: Long = 1000,
+    maxRetries: Int = NetworkConstants.MAX_RETRIES,
+    retryDelayMs: Long = NetworkConstants.RETRY_DELAY_MS,
     crossinline apiCall: suspend () -> HttpResponse,
 ): Result<T> {
     var lastException: Throwable? = null
@@ -236,7 +236,7 @@ data class ValidationErrorItem(
  */
 suspend fun parseRetryAfter(response: HttpResponse): Int {
     val retryAfter = response.headers["Retry-After"]
-    return retryAfter?.toIntOrNull() ?: 60
+    return retryAfter?.toIntOrNull() ?: NetworkConstants.DEFAULT_RETRY_AFTER_SECONDS
 }
 
 /**

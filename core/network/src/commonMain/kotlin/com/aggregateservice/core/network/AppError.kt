@@ -149,7 +149,7 @@ fun httpCodeToAppError(
         409 -> AppError.Conflict(message)
         422 -> AppError.ValidationError("unknown", message)
         423 -> AppError.AccountLocked(message)
-        429 -> AppError.RateLimitExceeded(60) // дефолтное значение
+        429 -> AppError.RateLimitExceeded(NetworkConstants.DEFAULT_RETRY_AFTER_SECONDS)
         in 400..499 -> AppError.NetworkError(code, message)
         in 500..599 -> AppError.NetworkError(code, message)
         else -> AppError.UnknownError(message = "Unexpected HTTP code: $code")
