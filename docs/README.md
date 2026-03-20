@@ -10,7 +10,7 @@ Aggregate Service Mobile App на базе Kotlin Multiplatform и Compose Multi
 |--------------------------------------------------------------|-----------------------------------------------------|
 | [01_KMP_CMP_ANALYSIS.md](01_KMP_CMP_ANALYSIS.md)             | Анализ Kotlin Multiplatform и Compose Multiplatform |
 | [TECHNOLOGY_STACK_ANALYSIS.md](TECHNOLOGY_STACK_ANALYSIS.md) | 🔬 Анализ технологического стека (плюсы/минусы)    |
-| [NETWORK_LAYER.md](NETWORK_LAYER.md)                         | 🌐 Network Layer архитектура (Ktor 3.0.3)           |
+| [NETWORK_LAYER.md](NETWORK_LAYER.md)                         | 🌐 Network Layer архитектура (Ktor 3.4.1)           |
 | [BUILD_LOGIC.md](BUILD_LOGIC.md)                             | 🔧 Build Logic & Convention Plugins                  |
 | [CONFIG_MANAGEMENT.md](CONFIG_MANAGEMENT.md)                 | 🔐 Централизованное управление конфигурацией         |
 | [02_MAP_PROVIDERS_ANALYSIS.md](02_MAP_PROVIDERS_ANALYSIS.md) | Сравнительный анализ поставщиков карт               |

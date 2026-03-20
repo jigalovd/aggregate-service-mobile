@@ -146,12 +146,23 @@ compose {
 **Назначение**: Convention для core модулей (:core:*)
 
 ```kotlin
+val libs = the<org.gradle.api.artifacts.VersionCatalogsExtension>().named("libs")
+
 plugins {
-    id("kmp-base")
-    id("kmp-android")
-    id("kmp-compose")
+    id("kmp-android")  // Включает kmp-base + Android configuration
+    id("testing")
+}
+
+configure<org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension> {
+    sourceSets {
+        maybeCreate("commonMain").dependencies {
+            implementation(libs.findLibrary("kotlinx.coroutines.core").get())
+        }
+    }
 }
 ```
+
+**Note**: `kmp-base` НЕ применяется напрямую - он уже включен в `kmp-android`.
 
 **Применяется к:**
 - ✅ :core:network
@@ -169,21 +180,42 @@ plugins {
 **Назначение**: Convention для feature модулей (Clean Architecture)
 
 ```kotlin
+val libs = the<org.gradle.api.artifacts.VersionCatalogsExtension>().named("libs")
+
 plugins {
-    id("kmp-base")
-    id("kmp-android")
-    id("kmp-compose")
+    id("kmp-android")    // Android target + KMP base
+    id("kmp-compose")    // Compose Multiplatform
+    id("testing")        // Test dependencies
+    kotlin("plugin.serialization")
 }
 
-kotlin {
+configure<org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension> {
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                // Core dependencies
-                implementation(libs.koin.core)
-                implementation(libs.voyager.navigator)
-                implementation(libs.voyager.screenModel)
-            }
+        maybeCreate("commonMain").dependencies {
+            // Core modules
+            api(project(":core:network"))
+            api(project(":core:storage"))
+            api(project(":core:theme"))
+            api(project(":core:i18n"))
+            api(project(":core:utils"))
+            api(project(":core:navigation"))
+            api(project(":core:di"))
+
+            // Feature libraries
+            implementation(libs.findLibrary("kotlinx.coroutines.core").get())
+            implementation(libs.findLibrary("kotlinx.serialization.json").get())
+            implementation(libs.findLibrary("koin.core").get())
+            implementation(libs.findLibrary("voyager.navigator").get())
+            implementation(libs.findLibrary("voyager.screenModel").get())
+            implementation(libs.findLibrary("voyager.koin").get())
+        }
+
+        maybeCreate("androidMain").dependencies {
+            implementation(libs.findLibrary("ktor-client-okhttp").get())
+        }
+
+        maybeCreate("iosMain").dependencies {
+            implementation(libs.findLibrary("ktor.client.darwin").get())
         }
     }
 }
@@ -426,9 +458,10 @@ include(":build-logic")
 | **kmp-base** | ✅ Complete | 100% |
 | **kmp-android** | ✅ Complete | 100% |
 | **kmp-compose** | ✅ Complete | 100% |
-| **core-module** | ✅ Complete | 100% |
+| **core-module** | ✅ Complete | 100% (fixed duplicate plugin) |
 | **feature-module** | ✅ Complete | 100% |
 | **app-module** | ✅ Complete | 100% |
+| **testing** | ✅ Complete | 100% |
 | **detekt-configuration** | ✅ Complete | 100% |
 | **ktlint-configuration** | ✅ Complete | 100% |
 
@@ -472,6 +505,6 @@ include(":build-logic")
 
 ---
 
-**Версия документа**: 1.1
-**Last Updated**: 2026-03-20
+**Версия документа**: 1.2
+**Last Updated**: 2026-03-20 (Fixed core-module duplicate plugin issue)
 **Maintainer**: Development Team

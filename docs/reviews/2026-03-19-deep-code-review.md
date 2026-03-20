@@ -26,7 +26,7 @@
 1. Build-Logic properly uses `maybeCreate()` in ALL convention plugins
 2. Version catalog access pattern is correct (`the<VersionCatalogsExtension>().named("libs")`)
 3. JVM 21 configured consistently across all modules
-4. Ktor 3.0.3 properly configured with platform-specific engines (OkHttp/Darwin)
+4. Ktor 3.4.1 properly configured with platform-specific engines (OkHttp/Darwin)
 5. Plugin order is correct (Compose plugins applied properly)
 
 **⚠️ CONCERNS:**

@@ -12,41 +12,41 @@
 
 | Технология | Версия | Краткое описание | Зачем выбрана |
 |-----------|--------|-----------------|----------------|
-| **Kotlin Multiplatform (KMP)** | 2.1.0 | Позволяет писать общий код для Android, iOS, Desktop, Web на Kotlin | 80-95% кода бизнес-логики общий, экономия 40-50% стоимости |
-| **Compose Multiplatform (CMP)** | 1.7.1 | Декларативный UI фреймворк, основанный на Jetpack Compose | 95% UI код общий, Material 3 из коробки, Hot Reload |
+| **Kotlin Multiplatform (KMP)** | 2.2.20 | Позволяет писать общий код для Android, iOS, Desktop, Web на Kotlin | 80-95% кода бизнес-логики общий, экономия 40-50% стоимости |
+| **Compose Multiplatform (CMP)** | 1.10.2 | Декларативный UI фреймворк, основанный на Jetpack Compose | 95% UI код общий, Material 3 из коробки, Hot Reload |
 
 ### 🏗️ Infrastructure
 
 | Технология | Версия | Краткое описание | Зачем выбрана |
 |-----------|--------|-----------------|----------------|
 | **Gradle (Kotlin DSL)** | 8.x | Build system с type-safe конфигурацией | Конфигурация как код, IDE поддержка, поддержка JetBrains |
-| **Ktor Client** | 3.0.3 | HTTP клиент для KMP с корутинами | 100% общий network код, плагины (Auth, Logging), type-safe |
-| **Kotlinx Serialization** | 1.7.3 | Compile-time JSON сериализация | @Serializable DTOs, быстрая, KMP-native |
-| **Coroutines** | 1.9.0 | Асинхронное программирование | Structured Concurrency, Flow для UI state |
+| **Ktor Client** | 3.4.1 | HTTP клиент для KMP с корутинами | 100% общий network код, плагины (Auth, Logging), type-safe |
+| **Kotlinx Serialization** | 1.10.0 | Compile-time JSON сериализация | @Serializable DTOs, быстрая, KMP-native |
+| **Coroutines** | 1.10.2 | Асинхронное программирование | Structured Concurrency, Flow для UI state |
 
 ### 🗂️ Dependency Injection & Navigation
 
 | Технология | Версия | Краткое описание | Зачем выбрана |
 |-----------|--------|-----------------|----------------|
-| **Koin** | 4.0.2 | DI фреймворк без кодогенерации | KMP-native, простой DSL, быстрая компиляция |
+| **Koin** | 4.2.0 | DI фреймворк без кодогенерации | KMP-native, простой DSL, быстрая компиляция |
 | **Voyager** | 1.1.0-beta02 | Navigation библиотека для KMP | Type-safe navigation, ScreenModel, KMP integration |
 
 ### 💾 Local Storage & UI
 
 | Технология | Версия | Краткое описание | Зачем выбрана |
 |-----------|--------|-----------------|----------------|
-| **DataStore** | 1.1.1 | Корутин-based key-value хранилище | Flow API, KMP support, замена SharedPreferences |
-| **Coil** | 3.0.4 | Загрузка изображений для KMP | KMP-native, Compose integration, memory cache |
+| **DataStore** | 1.2.1 | Корутин-based key-value хранилище | Flow API, KMP support, замена SharedPreferences |
+| **Coil** | 3.4.0 | Загрузка изображений для KMP | KMP-native, Compose integration, memory cache |
 
 ### 🔍 Code Quality & Testing
 
 | Технология | Версия | Краткое описание | Зачем выбрана |
 |-----------|--------|-----------------|----------------|
-| **Detekt** | 1.23.6 | Static analysis для Kotlin | Обнаруживает баги, запахи кода, KMP rules |
-| **Ktlint** | 13.0.0 | Code formatting для Kotlin | Auto-fix стиля, 100% compliance, EditorConfig |
-| **Kover** | 0.8.3 | Test coverage reporting | 60%+ coverage target, HTML/XML reports |
-| **Mockk** | 1.13.9 | Mocking библиотека для KMP | KMP-friendly, корутин support, type-safe |
-| **Turbine** | 1.1.0 | Flow testing для Kotlin | Test Flow emissions, type-safe assertions |
+| **Detekt** | 1.23.8 | Static analysis для Kotlin | Обнаруживает баги, запахи кода, KMP rules |
+| **Ktlint** | 13.1.0 | Code formatting для Kotlin | Auto-fix стиля, 100% compliance, EditorConfig |
+| **Kover** | 0.9.7 | Test coverage reporting | 60%+ coverage target, HTML/XML reports |
+| **Mockk** | 1.14.9 | Mocking библиотека для KMP | KMP-friendly, корутин support, type-safe |
+| **Turbine** | 1.2.1 | Flow testing для Kotlin | Test Flow emissions, type-safe assertions |
 
 ### 🏛️ Architecture
 
@@ -85,7 +85,7 @@
 
 ## 🎯 Core Technologies
 
-### 1. Kotlin Multiplatform (KMP) 2.1.0
+### 1. Kotlin Multiplatform (KMP) 2.2.20
 
 **🟢 CHOSEN:✅**
 
@@ -134,7 +134,7 @@ Kotlin Multiplatform - технология от JetBrains, позволяюща
 
 ---
 
-### 2. Compose Multiplatform (CMP) 1.7.1
+### 2. Compose Multiplatform (CMP) 1.10.2
 
 **🟢 CHOSEN:✅**
 
@@ -205,7 +205,7 @@ Compose Multiplatform - декларативный UI фреймворк от Je
 
 ---
 
-### 4. Ktor Client 3.0.3
+### 4. Ktor Client 3.4.1
 
 **🟢 CHOSEN:✅**
 
@@ -232,7 +232,7 @@ Compose Multiplatform - декларативный UI фреймворк от Je
 
 ---
 
-### 5. Kotlinx Serialization 1.7.3
+### 5. Kotlinx Serialization 1.10.0
 
 **🟢 CHOSEN:✅**
 
@@ -254,7 +254,7 @@ Compose Multiplatform - декларативный UI фреймворк от Je
 
 ---
 
-### 6. Coroutines 1.9.0
+### 6. Coroutines 1.10.2
 
 **🟢 CHOSEN:✅**
 
@@ -277,7 +277,7 @@ Compose Multiplatform - декларативный UI фреймворк от Je
 
 ## 🗂️ Dependency Injection & Navigation
 
-### 7. Koin 4.0.2
+### 7. Koin 4.2.0
 
 **🟢 CHOSEN:✅**
 
@@ -332,7 +332,7 @@ Compose Multiplatform - декларативный UI фреймворк от Je
 
 ## 💾 Local Storage & UI
 
-### 9. DataStore 1.1.1
+### 9. DataStore 1.2.1
 
 **🟢 CHOSEN:✅**
 
@@ -354,7 +354,7 @@ Compose Multiplatform - декларативный UI фреймворк от Je
 
 ---
 
-### 10. Coil 3.0.4
+### 10. Coil 3.4.0
 
 **🟢 CHOSEN:✅**
 
@@ -378,7 +378,7 @@ Compose Multiplatform - декларативный UI фреймворк от Je
 
 ## 🔍 Code Quality & Testing
 
-### 11. Detekt 1.23.6
+### 11. Detekt 1.23.8
 
 **🟢 CHOSEN:✅**
 
@@ -400,7 +400,7 @@ Compose Multiplatform - декларативный UI фреймворк от Je
 
 ---
 
-### 12. Ktlint 1.2.1
+### 12. Ktlint 13.1.0
 
 **🟢 CHOSEN:✅**
 
@@ -421,7 +421,7 @@ Compose Multiplatform - декларативный UI фреймворк от Je
 
 ---
 
-### 13. Mockk 1.13.9
+### 13. Mockk 1.14.9
 
 **🟢 CHOSEN:✅**
 
@@ -598,13 +598,13 @@ Compose Multiplatform - декларативный UI фреймворк от Je
 
 | Tech | Stability | KMP Support | Documentation | Community | Risk Level |
 |------|-----------|-------------|----------------|-----------|------------|
-| KMP 2.1.0 | ✅ Stable | ✅ 100% | Excellent | Growing | 🟢 Low |
-| CMP 1.7.1 | ✅ Stable | ✅ 100% | Excellent | Growing | 🟢 Low |
-| Ktor 3.0.3 | ✅ Stable | ✅ 100% | Excellent | Good | 🟢 Low |
-| Koin 4.0.2 | ✅ Stable | ✅ 100% | Good | Good | 🟢 Low |
+| KMP 2.2.20 | ✅ Stable | ✅ 100% | Excellent | Growing | 🟢 Low |
+| CMP 1.10.2 | ✅ Stable | ✅ 100% | Excellent | Growing | 🟢 Low |
+| Ktor 3.4.1 | ✅ Stable | ✅ 100% | Excellent | Good | 🟢 Low |
+| Koin 4.2.0 | ✅ Stable | ✅ 100% | Good | Good | 🟢 Low |
 | Voyager 1.1.0-beta02 | ⚠️ Beta | ✅ 100% | Good | Small | 🟡 Medium |
-| DataStore 1.1.1 | ✅ Stable | ✅ 90% | Good | Good | 🟢 Low |
-| Coil 3.0.4 | ✅ Stable | ✅ 100% | Good | Good | 🟢 Low |
+| DataStore 1.2.1 | ✅ Stable | ✅ 90% | Good | Good | 🟢 Low |
+| Coil 3.4.0 | ✅ Stable | ✅ 100% | Good | Good | 🟢 Low |
 
 **Overall Risk Level**: 🟢 **LOW** - Все технологии production-ready или beta-stable.
 
@@ -615,16 +615,16 @@ Compose Multiplatform - декларативный UI фреймворк от Je
 ### FOR BEAUTY SERVICE AGGREGATOR:
 
 **RECOMMENDED STACK:**
-1. ✅ **Kotlin Multiplatform 2.1.0** - Core business logic sharing
-2. ✅ **Compose Multiplatform 1.7.1** - 95% UI code sharing
-3. ✅ **Ktor 3.0.3** - Network layer (KMP-native)
-4. ✅ **Kotlinx Serialization 1.7.3** - JSON parsing (compile-time)
-5. ✅ **Coroutines 1.9.0** - Async programming (Structured Concurrency)
-6. ✅ **Koin 4.0.2** - DI (KMP-native, no codegen)
+1. ✅ **Kotlin Multiplatform 2.2.20** - Core business logic sharing
+2. ✅ **Compose Multiplatform 1.10.2** - 95% UI code sharing
+3. ✅ **Ktor 3.4.1** - Network layer (KMP-native)
+4. ✅ **Kotlinx Serialization 1.10.0** - JSON parsing (compile-time)
+5. ✅ **Coroutines 1.10.2** - Async programming (Structured Concurrency)
+6. ✅ **Koin 4.2.0** - DI (KMP-native, no codegen)
 7. ✅ **Voyager 1.1.0-beta02** - Navigation (type-safe, ScreenModel)
-8. ✅ **DataStore 1.1.1** - Local storage (Flow-based)
-9. ✅ **Coil 3.0.4** - Image loading (KMP-optimized)
-10. ✅ **Detekt/Ktlint/Kover** - Code quality (zero-tolerance)
+8. ✅ **DataStore 1.2.1** - Local storage (Flow-based)
+9. ✅ **Coil 3.4.0** - Image loading (KMP-optimized)
+10. ✅ **Detekt 1.23.8 / Ktlint 13.1.0 / Kover 0.9.7** - Code quality (zero-tolerance)
 11. ✅ **Feature-First + Clean Architecture** - Architecture (scalable)
 
 **EXPECTED OUTCOMES:**
@@ -638,6 +638,6 @@ Compose Multiplatform - декларативный UI фреймворк от Je
 
 ---
 
-**Last Updated**: 2026-03-19
+**Last Updated**: 2026-03-20
 **Next Review**: After MVP (2026-06-30)
 **Maintained By**: Senior Architect Team
