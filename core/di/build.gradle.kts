@@ -24,6 +24,7 @@ kotlin {
 
         maybeCreate("androidMain").dependencies {
             implementation(libs.koin.android)
+            implementation(libs.ktor.client.okhttp)
         }
     }
 }
