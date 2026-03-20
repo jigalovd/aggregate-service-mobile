@@ -10,6 +10,9 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
+import org.slf4j.LoggerFactory
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.LoggerContext
 
 /**
  * Main Application класс для Android.
@@ -17,14 +20,29 @@ import org.koin.core.logger.Level
  * **Responsibilities:**
  * - Инициализация Config
  * - Инициализация Koin DI
+ * - Настройка Logback логирования
  */
 class MainApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
 
+        initializeLogging()
         initializeConfig()
         initializeKoin()
+    }
+
+    private fun initializeLogging() {
+        val loggerContext = LoggerFactory.getILoggerFactory() as? LoggerContext
+        loggerContext?.let { context ->
+            val rootLogger = context.getLogger(Logger.ROOT_LOGGER_NAME)
+
+            if (BuildConfig.ENABLE_LOGGING) {
+                rootLogger.level = ch.qos.logback.classic.Level.DEBUG
+            } else {
+                rootLogger.level = ch.qos.logback.classic.Level.ERROR
+            }
+        }
     }
 
     private fun initializeConfig() {
