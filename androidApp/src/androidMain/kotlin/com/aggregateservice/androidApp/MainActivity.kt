@@ -4,11 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.navigation.AppNavHost
+import com.aggregateservice.core.theme.appTheme
 import com.aggregateservice.feature.auth.presentation.screen.LoginScreen
+import org.koin.java.KoinJavaComponent.inject
 
 /**
  * Главная Activity для Android приложения.
@@ -20,11 +22,16 @@ import com.aggregateservice.feature.auth.presentation.screen.LoginScreen
  * - Start screen = LoginScreen (пока нет аутентификации)
  */
 class MainActivity : ComponentActivity() {
+
+    private val i18nProvider: I18nProvider by inject(I18nProvider::class.java)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            MaterialTheme {
+            appTheme(
+                languageCode = i18nProvider.currentLocale.code,
+            ) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                 ) {

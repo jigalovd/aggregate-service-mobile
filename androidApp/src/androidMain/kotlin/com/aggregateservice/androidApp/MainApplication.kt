@@ -5,6 +5,7 @@ import com.aggregateservice.core.config.AppConfig
 import com.aggregateservice.core.config.Config
 import com.aggregateservice.core.di.androidCoreModule
 import com.aggregateservice.core.di.coreModule
+import com.aggregateservice.core.i18n.di.i18nModule
 import com.aggregateservice.feature.auth.di.authModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -71,6 +72,7 @@ class MainApplication : Application() {
                 // Core modules
                 androidCoreModule,
                 coreModule,
+                i18nModule,
                 // Feature modules
                 authModule,
                 // Add more feature modules here as they are implemented

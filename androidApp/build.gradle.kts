@@ -2,6 +2,42 @@ plugins {
     id("app-module")
 }
 
+// ============================================================
+// Environment Configuration (centralized)
+// ============================================================
+val envConfig = mapOf(
+    "debug" to mapOf(
+        "API_BASE_URL" to "https://api.dev.aggregateservice.com",
+        "ENVIRONMENT" to "DEV",
+        "DEBUG" to "true",
+        "ENABLE_LOGGING" to "true"
+    ),
+    "release" to mapOf(
+        "API_BASE_URL" to "https://api.staging.aggregateservice.com",
+        "ENVIRONMENT" to "STAGING",
+        "DEBUG" to "false",
+        "ENABLE_LOGGING" to "false"
+    )
+)
+
+// Helper function to apply BuildConfig fields
+fun com.android.build.api.dsl.DefaultConfig.buildConfigFromMap(config: Map<String, String>) {
+    buildConfigField("String", "API_BASE_URL", "\"${config["API_BASE_URL"]}\"")
+    buildConfigField("String", "API_KEY", "\"${project.findProperty("api.key") ?: System.getenv("API_KEY") ?: ""}\"")
+    buildConfigField("String", "ENVIRONMENT", "\"${config["ENVIRONMENT"]}\"")
+    buildConfigField("boolean", "DEBUG", config["DEBUG"]!!)
+    buildConfigField("boolean", "ENABLE_LOGGING", config["ENABLE_LOGGING"]!!)
+    buildConfigField("long", "NETWORK_TIMEOUT_MS", "30000L")
+    buildConfigField("String", "API_VERSION", "\"v1\"")
+}
+
+fun com.android.build.api.dsl.BuildType.buildConfigFromMap(config: Map<String, String>) {
+    buildConfigField("String", "API_BASE_URL", "\"${config["API_BASE_URL"]}\"")
+    buildConfigField("String", "ENVIRONMENT", "\"${config["ENVIRONMENT"]}\"")
+    buildConfigField("boolean", "DEBUG", config["DEBUG"]!!)
+    buildConfigField("boolean", "ENABLE_LOGGING", config["ENABLE_LOGGING"]!!)
+}
+
 android {
     namespace = "com.aggregateservice.androidApp"
     compileSdk = 36
@@ -11,6 +47,13 @@ android {
         buildConfig = true
     }
 
+    // Add centralized assets directory (logback.xml)
+    sourceSets {
+        getByName("main") {
+            assets.srcDirs("../config/logging")
+        }
+    }
+
     defaultConfig {
         applicationId = "com.aggregateservice"
         minSdk = 24
@@ -18,23 +61,14 @@ android {
         versionCode = 1
         versionName = "1.0.0"
 
-        // API Configuration (DEV by default)
-        buildConfigField("String", "API_BASE_URL", "\"https://api.dev.aggregateservice.com\"")
-        buildConfigField("String", "API_KEY", "\"${project.findProperty("api.key") ?: System.getenv("API_KEY") ?: "\""}")
-        buildConfigField("String", "ENVIRONMENT", "\"DEV\"")
-        buildConfigField("boolean", "DEBUG", "true")
-        buildConfigField("boolean", "ENABLE_LOGGING", "true")
-        buildConfigField("long", "NETWORK_TIMEOUT_MS", "30000L")
-        buildConfigField("String", "API_VERSION", "\"v1\"")
+        // Apply debug config as default
+        buildConfigFromMap(envConfig["debug"]!!)
     }
 
     buildTypes {
         debug {
-            // Debug configuration
-            buildConfigField("String", "API_BASE_URL", "\"https://api.dev.aggregateservice.com\"")
-            buildConfigField("String", "ENVIRONMENT", "\"DEV\"")
-            buildConfigField("boolean", "DEBUG", "true")
-            buildConfigField("boolean", "ENABLE_LOGGING", "true")
+            // Debug configuration (uses default)
+            buildConfigFromMap(envConfig["debug"]!!)
         }
 
         release {
@@ -44,10 +78,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            buildConfigField("String", "API_BASE_URL", "\"https://api.staging.aggregateservice.com\"")
-            buildConfigField("String", "ENVIRONMENT", "\"STAGING\"")
-            buildConfigField("boolean", "DEBUG", "false")
-            buildConfigField("boolean", "ENABLE_LOGGING", "false")
+            buildConfigFromMap(envConfig["release"]!!)
         }
     }
 
@@ -57,6 +88,11 @@ android {
     }
 }
 
+// ============================================================
+// Logback configuration from centralized location
+// Using Android sourceSets instead of Copy task for configuration cache compatibility
+// ============================================================
+
 kotlin {
     sourceSets {
         maybeCreate("androidMain").dependencies {
@@ -64,6 +100,8 @@ kotlin {
             implementation(project(":core:di"))
             implementation(project(":core:config"))
             implementation(project(":core:navigation"))
+            implementation(project(":core:theme"))
+            implementation(project(":core:i18n"))
             implementation(project(":feature:auth"))
             implementation(compose.runtime)
             implementation(compose.foundation)
