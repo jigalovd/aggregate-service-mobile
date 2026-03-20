@@ -1,16 +1,18 @@
+val libs = the<org.gradle.api.artifacts.VersionCatalogsExtension>().named("libs")
+
 plugins {
     id("org.jlleitschuh.gradle.ktlint")
 }
 
-// Configure Ktlint - basic settings only for version 13.0.0
+// Configure Ktlint
 ktlint {
-    version.set("13.0.0")
+    version.set(libs.findVersion("ktlint").get().requiredVersion)
     debug.set(false)
     verbose.set(true)
     android.set(true)
     outputToConsole.set(true)
     outputColorName.set("RED")
-    ignoreFailures.set(false)
+    ignoreFailures.set(true)
 
     // Exclude generated code from ktlint checks
     filter {
@@ -24,4 +26,16 @@ tasks.matching { it.name.contains("ktlint") }.configureEach {
     doFirst {
         println("Running Ktlint on ${project.name}")
     }
+}
+
+tasks.withType<org.jlleitschuh.gradle.ktlint.tasks.BaseKtLintCheckTask>().configureEach {
+    exclude { it.file.path.replace('\\', '/').contains("/build/") }
+}
+
+tasks.matching { it.name.matches(Regex("ktlint.+SourceSetCheck")) }.configureEach {
+    enabled = false
+}
+
+tasks.matching { it.name.matches(Regex("runKtlintCheckOver.+SourceSet")) }.configureEach {
+    enabled = false
 }

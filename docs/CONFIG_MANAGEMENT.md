@@ -556,6 +556,6 @@ NSBundle.mainBundle.objectForInfoDictionaryKey("ApiKey") // "ApiKey" с загл
 
 ---
 
-**Версия документа**: 1.0
-**Last Updated**: 2026-03-19
+**Версия документа**: 1.1
+**Last Updated**: 2026-03-20
 **Maintainer**: Development Team

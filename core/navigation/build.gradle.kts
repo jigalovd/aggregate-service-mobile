@@ -11,7 +11,11 @@ kotlin {
     sourceSets {
         maybeCreate("commonMain").dependencies {
             implementation(libs.voyager.navigator)
+            implementation(libs.voyager.transitions)
             implementation(libs.voyager.screenModel)
+            // ❌ НЕ добавляем зависимость на feature:auth
+            // Это вызовет циклическую зависимость:
+            // core:di → core:navigation → feature:auth → core:di
         }
     }
 }

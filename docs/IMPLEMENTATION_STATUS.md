@@ -11,7 +11,7 @@
 | **Test Coverage** | 0% | 80% | ░░░░░░░░░░ |
 | **Documentation** | 90% | 100% | ████████░░ |
 
-**Last Updated**: 2026-03-19
+**Last Updated**: 2026-03-20
 **Project Phase**: Initial Setup & Infrastructure
 **Architecture**: Feature-First + Clean Architecture
 
@@ -37,35 +37,39 @@
 
 ```toml
 [versions]
-kotlin = "2.1.0"              # ✅ Stable
-agp = "8.7.3"                 # ✅ Latest
-compose-multiplatform = "1.7.1"  # ✅ Stable
-ktor = "3.0.3"                # ✅ Latest stable
-koin = "4.0.2"                # ✅ Latest
-voyager = "1.1.0-beta02"      # ✅ Beta stable
-coroutines = "1.9.0"          # ✅ Latest
-serialization = "1.7.3"       # ✅ Latest
-datastore = "1.1.1"           # ✅ Stable
-coil = "3.0.4"                # ✅ Latest
+# ⬆️ UPDATED 2026-03-20
+kotlin = "2.2.20"             # ✅ Latest (from 2.1.0)
+agp = "8.12.3"                # ✅ Latest (from 8.7.3)
+compose-multiplatform = "1.10.2"  # ✅ Latest (from 1.7.1)
+ktor = "3.4.1"                # ✅ Latest (from 3.0.3)
+koin = "4.2.0"                # ✅ Latest (from 4.0.2)
+voyager = "1.0.1"             # ✅ Stable (from 1.1.0-beta02)
+coroutines = "1.10.2"         # ✅ Latest (from 1.9.0)
+serialization = "1.10.0"      # ✅ Latest (from 1.7.3)
+datastore = "1.2.1"           # ✅ Latest (from 1.1.1)
+coil = "3.4.0"                # ✅ Latest (from 3.0.4)
 
-# Code Quality & Testing (NEW - 2026-03-19)
-detekt = "1.23.6"             # ✅ Latest stable
-ktlint = "13.0.0"             # ✅ Latest (updated from 1.2.1)
-kover = "0.8.3"               # ✅ Latest
-mockk = "1.13.9"              # ✅ Latest
-turbine = "1.1.0"             # ✅ Latest
+# Code Quality & Testing (UPDATED 2026-03-20)
+detekt = "1.23.8"             # ✅ Latest (from 1.23.6)
+ktlint = "13.1.0"             # ✅ Latest (from 13.0.0)
+kover = "0.9.7"               # ✅ Latest (from 0.8.3)
+mockk = "1.14.9"              # ✅ Latest (from 1.13.9)
+turbine = "1.2.1"             # ✅ Latest (from 1.1.0)
+
+# Build System
+gradle = "8.14.4"             # ✅ Latest wrapper
 ```
 
 ### Core Modules Status
 
 | Модуль | Статус | Прогресс | Описание |
 |--------|--------|----------|----------|
-| **:core:network** | 🟢 Complete | 100% | Ktor 3.0.3, OkHttp/Darwin engines, ContentNegotiation, Logging, Auth, Config integration |
+| **:core:network** | 🟡 In Progress | 60% | Ktor 3.4.1, OkHttp/Darwin engines, ContentNegotiation, Logging, Auth, Config integration. **ОТсутствует:** safeApiCall, AppError, Auth Interceptor |
 | **:core:config** | 🟢 Complete | 100% | Expect/actual pattern, BuildConfig (Android), Info.plist (iOS), Secrets management |
-| **:core:storage** | ⚪ Not Started | 0% | DataStore Preferences |
+| **:core:storage** | ⚠️ Planned | 0% | DataStore Preferences (приоритет: CRITICAL для TokenStorage) |
 | **:core:theme** | ⚪ Not Started | 0% | Material 3 Theme |
-| **:core:i18n** | ⚪ Not Started | 0% | Localization (ru, he, en) |
-| **:core:utils** | ⚪ Not Started | 0% | Extensions, Validators |
+| **:core:i18n** | ⚠️ Planned | 0% | Localization (ru, he, en) + i18n helper для flatten `_i18n` полей |
+| **:core:utils** | ⚠️ Planned | 0% | Extensions, Validators, i18n helpers |
 | **:core:navigation** | ⚪ Not Started | 0% | Voyager setup |
 | **:core:di** | ⚪ Not Started | 0% | Koin modules |
 
@@ -133,15 +137,23 @@ turbine = "1.1.0"             # ✅ Latest
 | **Compose/UI** | N/A | ⚪ EMPTY | No UI code yet |
 | **Concurrency** | N/A | ⚪ EMPTY | No async code yet |
 
-**КРИТИЧЕСКИЕ ПРОБЛЕМЫ (выявленные Deep Code Review):**
+**КРИТИЧЕСКИЕ ПРОБЛЕМЫ (обновлено 2026-03-20 после анализа BACKEND_API_REFERENCE.md):**
 1. ✅ РЕШЕНО: Network layer基础结构完成 (PlatformEngine, createHttpClient)
-2. ❌ Нет `safeApiCall` wrapper для обработки ошибок
-3. ❌ Нет `AppError` sealed hierarchy
-4. ❌ Нет Domain Models (User, AuthTokens, Session)
-5. ❌ Нет Repository interfaces
-6. ❌ Нет UseCase implementations
+2. ❌ КРИТИЧНО: Нет `safeApiCall` wrapper для обработки ошибок (4xx, 5xx, rate limiting)
+3. ❌ КРИТИЧНО: Нет `AppError` sealed hierarchy (NetworkError, AccountLocked, ValidationError, SlotNotAvailable, RateLimitExceeded)
+4. ❌ КРИТИЧНО: Нет Auth Interceptor с автоматическим refresh token flow
+5. ❌ КРИТИЧНО: Нет TokenStorage (DataStore) для access/refresh tokens
+6. ❌ ВАЖНО: Нет i18n helper для flatten `_i18n` полей (title_i18n: Map<String, String> → title: String)
+7. ❌ ВАЖНО: Нет Domain Models (User с roles: List<String>, AuthTokens, Session)
+8. ❌ ВАЖНО: Нет Repository interfaces
+9. ❌ ВАЖНО: Нет UseCase implementations (SwitchRoleUseCase для multi-role users)
 
-**ПЛАН ИСПРАВЛЕНИЯ:** См. [`docs/plans/01-quality-infrastructure-and-cicd.md`](plans/01-quality-infrastructure-and-cicd.md) - Phase 3, 5, 6
+**ПЛАН ИСПРАВЛЕНИЯ:**
+1. **Priority 1 (CRITICAL):** safeApiCall → AppError → Auth Interceptor → TokenStorage
+2. **Priority 2 (IMPORTANT):** i18n helper → Domain Models (User с multi-role) → UseCases
+3. **Priority 3 (DESIRABLE):** Repository interfaces → API Services (Auth, Catalog, Booking)
+
+См. также: [`docs/BACKEND_API_REFERENCE.md`](BACKEND_API_REFERENCE.md) - детальное описание API
 
 ### Documentation Coverage
 
@@ -150,7 +162,7 @@ turbine = "1.1.0"             # ✅ Latest
 | **Architecture** | ✅ Good | 85% | KMP/CMP анализ, Design System, UX Guidelines |
 | **Planning** | ✅ Excellent | 100% | Quality Infrastructure план создан |
 | **Reviews** | ✅ Excellent | 100% | Deep Code Review проведён |
-| **API Docs** | ⚪ Missing | 0% | Требуется при реализации API |
+| **API Docs** | ✅ Complete | 100% | BACKEND_API_REFERENCE.md добавлен (2026-03-20) |
 | **KDoc** | ⚪ Missing | 0% | Требуется при написании кода |
 
 ---
@@ -380,12 +392,15 @@ turbine = "1.1.0"             # ✅ Latest
 - [x] Configure version catalog (libs.versions.toml)
 - [x] Setup KMP project structure
 - [x] Configure Android target (JVM 21, SDK 36)
-- [x] Complete core:network module
-- [ ] Implement safeApiCall wrapper for network layer
-- [ ] Implement core:storage module
-- [ ] Implement core:theme module
-- [ ] Implement core:di module
-- [ ] Setup basic navigation (Voyager)
+- [x] Complete core:network module (base infrastructure)
+- [ ] **CRITICAL**: Implement safeApiCall wrapper (Priority 1)
+- [ ] **CRITICAL**: Implement AppError sealed hierarchy (Priority 1)
+- [ ] **CRITICAL**: Implement Auth Interceptor (Priority 1, после TokenStorage)
+- [ ] **CRITICAL**: Implement core:storage module (Priority 1, для TokenStorage)
+- [ ] **IMPORTANT**: Implement i18n helper (Priority 2)
+- [ ] Implement core:theme module (Priority 3)
+- [ ] Implement core:di module (Priority 3)
+- [ ] Setup basic navigation (Voyager) (Priority 3)
 
 **Blockers**:
 - iOS setup requires macOS environment
@@ -424,28 +439,60 @@ turbine = "1.1.0"             # ✅ Latest
 
 ---
 
-## 🎯 Next Steps (Priority Order)
+## 🎯 Next Steps (Priority Order - обновлено 2026-03-20)
 
-1. **Complete Core Infrastructure** (Week 1-2)
-   - Finish :core:network (Ktor setup, error handling)
-   - Implement :core:storage (DataStore)
-   - Implement :core:theme (Material 3)
-   - Implement :core:di (Koin modules)
-   - Implement :core:navigation (Voyager)
+### Priority 1: CRITICAL (Week 1-2) 🚨
+**Блокер для Auth Feature**
 
-2. **Implement Auth Feature** (Week 3-4)
-   - Domain layer first (entities, use cases)
-   - Data layer (API, storage)
-   - Presentation layer (UI, state management)
+1. **Implement safeApiCall wrapper** (core/network/src/commonMain/kotlin/.../safeApiCall.kt)
+   - Обработка всех HTTP кодов (200, 201, 204, 400, 401, 403, 404, 409, 422, 423, 429, 500)
+   - Автоматический retry при 500 (max 3 попытки)
+   - Rate limiting обработка (X-RateLimit-* headers)
+   - Возвращает `Result<T>` или `AppError`
 
-3. **Setup CI/CD**
-   - GitHub Actions for Android builds
-   - Detekt/Ktlint checking
-   - Unit test execution
+2. **Implement AppError sealed hierarchy** (core/network/src/commonMain/kotlin/.../AppError.kt)
+   - NetworkError, Unauthorized, AccountLocked, ValidationError
+   - SlotNotAvailable, RateLimitExceeded, UnknownError
 
-4. **Implement Catalog Feature** (Week 5-6)
-   - Start with basic search/list
-   - Add maps integration later
+3. **Implement core:storage module** (core/storage/)
+   - DataStore Preferences для token storage
+   - TokenStorage interface (get/set/delete access & refresh tokens)
+
+4. **Implement Auth Interceptor** (core/network/src/commonMain/kotlin/.../AuthInterceptor.kt)
+   - Automatic token injection (Authorization: Bearer <token>)
+   - Token refresh flow при 401
+   - Logout при повторном 401
+
+### Priority 2: IMPORTANT (Week 2-3)
+**Требуется для Catalog/Booking Features**
+
+5. **Implement i18n helper** (core/utils/src/commonMain/kotlin/.../i18n/I18nExtensions.kt)
+   - Map<String, String>.localize(): String?
+   - Использование: val title = serviceDto.title_i18n.localize() ?: "Untitled"
+
+6. **Implement Domain Models** (feature/auth/domain/)
+   - User entity (roles: List<String>, currentRole: String?)
+   - AuthTokens value object
+   - UserContext DTO
+
+7. **Implement UseCases** (feature/auth/domain/)
+   - LoginUseCase (с AccountLockout handling)
+   - RefreshTokenUseCase (с token rotation)
+   - SwitchRoleUseCase (для multi-role users)
+
+### Priority 3: DESIRABLE (Week 3-4)
+
+8. **Implement Repository interfaces** (feature/auth/data/)
+   - AuthRepository interface
+   - AuthRepositoryImpl (Ktor + TokenStorage)
+
+9. **Implement API Services** (feature/auth/data/remote/)
+   - AuthApiService (POST /auth/login, /auth/register, /auth/refresh, /auth/logout)
+
+10. **Complete remaining core modules**
+    - :core:theme (Material 3)
+    - :core:di (Koin modules)
+    - :core:navigation (Voyager)
 
 ---
 
@@ -480,6 +527,6 @@ Sprint: 1/12
 
 ---
 
-**Documentation Version**: 1.0
-**Last Sync**: 2026-03-19 (Updated)
-**Next Review**: 2026-03-26
+**Documentation Version**: 1.1
+**Last Sync**: 2026-03-20 (Updated)
+**Next Review**: 2026-03-27

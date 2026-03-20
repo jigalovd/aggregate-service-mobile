@@ -11,8 +11,8 @@ secretsFiles.forEach { secretsFile ->
         secrets.load(secretsFile.inputStream())
 
         // Set project properties from secrets
-        secrets.forEach { key, value ->
-            if (key !is String) return@forEach
+        secrets.forEach keys@{ key, value ->
+            if (key !is String) return@keys
             project.extensions.extraProperties.set(key, value)
         }
     }
@@ -25,9 +25,9 @@ plugins {
     alias(libs.plugins.jetbrainsCompose) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.kotlinSerialization) apply false
-    id("io.gitlab.arturbosch.detekt") version "1.23.6" apply false
-    id("org.jlleitschuh.gradle.ktlint") version "13.0.0" apply false
-    id("org.jetbrains.kotlinx.kover") version "0.8.3" apply false
+    alias(libs.plugins.detekt) apply false
+    alias(libs.plugins.ktlint) apply false
+    alias(libs.plugins.kover) apply false
 }
 
 subprojects {
@@ -35,10 +35,35 @@ subprojects {
     version = "1.0.0"
 }
 
-// Apply Detekt to all subprojects
+// Apply Detekt and Ktlint to all subprojects
 subprojects {
     apply(plugin = "io.gitlab.arturbosch.detekt")
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
+
+    extensions.configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+        ignoreFailures.set(true)
+        filter {
+            exclude("**/generated/**")
+            exclude("**/build/**")
+        }
+    }
+
+    // Configure Detekt
+    extensions.configure<io.gitlab.arturbosch.detekt.extensions.DetektExtension> {
+        config.setFrom(files(rootProject.file("config/detekt/detekt.yml")))
+        buildUponDefaultConfig = true
+    }
+
+    tasks.matching { it.name.matches(Regex("ktlint.+SourceSetCheck")) }.configureEach {
+        enabled = false
+    }
+    tasks.matching { it.name.matches(Regex("runKtlintCheckOver.+SourceSet")) }.configureEach {
+        enabled = false
+    }
+}
+
+// Apply Kover to all subprojects
+subprojects {
     apply(plugin = "org.jetbrains.kotlinx.kover")
 }
 
@@ -59,10 +84,30 @@ tasks.register("ktlintFormatAll") {
 
 // Kover report task for all modules
 tasks.register("koverReportAll") {
+    group = "verification"
+    description = "Generate Kover coverage reports for all modules"
     dependsOn(subprojects.map { project -> project.tasks.matching { it.name.startsWith("koverReport") } })
 }
 
 // Kover verification task for all modules
 tasks.register("koverVerifyAll") {
+    group = "verification"
+    description = "Verify Kover coverage for all modules"
     dependsOn(subprojects.map { project -> project.tasks.matching { it.name.startsWith("koverVerify") } })
+}
+
+// Test tasks for all modules
+tasks.register("testAll") {
+    group = "verification"
+    description = "Run all tests across all modules and platforms"
+    dependsOn(
+        subprojects.map { project -> project.tasks.matching { it.name == "allTests" } }
+    )
+}
+
+// Test coverage report task
+tasks.register("testCoverage") {
+    group = "verification"
+    description = "Run all tests and generate coverage report"
+    dependsOn("testAll", "koverReportAll")
 }

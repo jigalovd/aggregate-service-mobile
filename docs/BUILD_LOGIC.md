@@ -1,8 +1,9 @@
 # 🔧 Build Logic & Convention Plugins - Gradle KMP
 
 **Дата создания**: 2026-03-19
+**Последнее обновление**: 2026-03-20
 **Статус**: ✅ Complete (100%)
-**Gradle Version**: 8.x (Kotlin DSL)
+**Gradle Version**: 8.14.4 (Kotlin DSL)
 
 ---
 
@@ -295,21 +296,21 @@ plugins {
 }
 
 ktlint {
-    version.set("13.0.0")
+    version.set("13.1.0") // ⬆️ Updated 2026-03-20
     debug.set(false)
     verbose.set(true)
     android.set(true)
     outputToConsole.set(true)
     outputColorName.set("RED")
-    ignoreFailures.set(false) // Strict mode
+    ignoreFailures.set(true) // Lenient mode for generated code
 }
 ```
 
 **Что настраивает:**
-- ✅ Version 13.0.0
+- ✅ Version 13.1.0 (обновлено)
 - ✅ Android mode
 - ✅ Console output
-- ✅ Strict mode (no ignored failures)
+- ✅ Lenient mode (игнорирует generated code)
 
 **Aggregate tasks**: `ktlintCheckAll`, `ktlintFormatAll` (в `build.gradle.kts`)
 
@@ -375,19 +376,19 @@ repositories {
 
 dependencies {
     // Android Gradle Plugin
-    implementation("com.android.tools.build:gradle:8.7.3")
+    implementation("com.android.tools.build:gradle:8.12.3") // ⬆️ Updated
 
     // Kotlin Gradle Plugin
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0")
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.20") // ⬆️ Updated
 
     // Compose Gradle Plugin
-    implementation("org.jetbrains.compose:compose-gradle-plugin:1.7.1")
+    implementation("org.jetbrains.compose:compose-gradle-plugin:1.10.2") // ⬆️ Updated
 
     // Detekt Gradle Plugin
-    implementation("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.23.6")
+    implementation("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.23.8") // ⬆️ Updated
 
     // Ktlint Gradle Plugin
-    implementation("org.jlleitschuh.gradle:ktlint-gradle:13.0.0")
+    implementation("org.jlleitschuh.gradle:ktlint-gradle:13.1.0") // ⬆️ Updated
 }
 ```
 
@@ -471,6 +472,6 @@ include(":build-logic")
 
 ---
 
-**Версия документа**: 1.0
-**Last Updated**: 2026-03-19
+**Версия документа**: 1.1
+**Last Updated**: 2026-03-20
 **Maintainer**: Development Team

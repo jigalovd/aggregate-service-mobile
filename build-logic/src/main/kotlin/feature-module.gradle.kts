@@ -3,6 +3,7 @@ val libs = the<org.gradle.api.artifacts.VersionCatalogsExtension>().named("libs"
 plugins {
     id("kmp-android")
     id("kmp-compose")
+    id("testing")
     kotlin("plugin.serialization")
 }
 

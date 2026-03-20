@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>API_BASE_URL</key>
+    <string>https://api.dev.aggregateservice.com</string>
+    <key>API_KEY</key>
+    <string></string>
+    <key>ENVIRONMENT</key>
+    <string>DEV</string>
+    <key>IS_DEBUG</key>
+    <true/>
+    <key>ENABLE_LOGGING</key>
+    <true/>
+    <key>NETWORK_TIMEOUT</key>
+    <integer>30000</integer>
+    <key>API_VERSION</key>
+    <string>v1</string>
+    <key>LANGUAGE</key>
+    <string>ru</string>
+</dict>
+</plist>

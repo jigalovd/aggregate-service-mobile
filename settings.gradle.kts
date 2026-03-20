@@ -27,8 +27,9 @@ include(":core:theme")
 include(":core:i18n")
 include(":core:utils")
 include(":core:navigation")
-include(":core:di")
 include(":core:config")
+include(":core:di")
+include(":core:test-utils")
 
 // Feature modules
 include(":feature:auth")

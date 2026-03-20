@@ -11,6 +11,7 @@ kotlin {
     sourceSets {
         maybeCreate("commonMain").dependencies {
             implementation(project(":core:config"))
+            implementation(project(":core:storage"))
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.client.auth)

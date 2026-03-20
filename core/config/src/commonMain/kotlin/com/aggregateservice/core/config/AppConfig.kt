@@ -11,6 +11,7 @@ expect class AppConfig(
     apiBaseUrl: String,
     apiKey: String,
     environment: String,
+    languageCode: String,
     isDebug: Boolean,
     enableLogging: Boolean,
     networkTimeoutMs: Long,
@@ -24,6 +25,9 @@ expect class AppConfig(
 
     /** Текущее окружение */
     val environment: Environment
+
+    /** Текущий язык приложения */
+    val language: Language
 
     /** Debug режим (включает логирование) */
     val isDebug: Boolean
@@ -67,6 +71,34 @@ enum class Environment {
 }
 
 /**
+ * Поддерживаемые языки приложения.
+ *
+ * @property ru Русский (дефолт)
+ * @property he Иврит
+ * @property en Английский
+ */
+enum class Language(
+    val code: String,
+    val displayName: String,
+) {
+    RU("ru", "Русский"),
+    HE("he", "עברית"),
+    EN("en", "English"),
+    ;
+
+    companion object {
+        /**
+         * Получает Language из кода языка.
+         *
+         * @param code Код языка (ru, he, en)
+         * @return Language или RU если не найден
+         */
+        fun fromCode(code: String?): Language =
+            entries.firstOrNull { it.code == code } ?: RU
+    }
+}
+
+/**
  * Singleton для доступа к конфигурации из общего кода
  *
  * Использование:
@@ -84,8 +116,24 @@ object Config {
 
     /**
      * Инициализация конфигурации (должна быть вызвана при старте приложения)
+     *
+     * @throws IllegalArgumentException если конфигурация невалидна
      */
     fun initialize(config: AppConfig) {
+        // Validate configuration
+        require(config.apiBaseUrl.isNotBlank()) {
+            "apiBaseUrl cannot be blank. Got: '${config.apiBaseUrl}'"
+        }
+        require(config.apiKey.isNotBlank()) {
+            "apiKey cannot be blank. Got: '${config.apiKey}'"
+        }
+        require(config.networkTimeoutMs > 0) {
+            "networkTimeoutMs must be positive. Got: ${config.networkTimeoutMs}"
+        }
+        require(config.apiVersion.isNotBlank()) {
+            "apiVersion cannot be blank. Got: '${config.apiVersion}'"
+        }
+
         _instance = config
     }
 
@@ -102,6 +150,7 @@ object Config {
     val apiBaseUrl: String get() = instance.apiBaseUrl
     val apiKey: String get() = instance.apiKey
     val environment: Environment get() = instance.environment
+    val language: Language get() = instance.language
     val isDebug: Boolean get() = instance.isDebug
     val enableLogging: Boolean get() = instance.enableLogging
     val networkTimeoutMs: Long get() = instance.networkTimeoutMs

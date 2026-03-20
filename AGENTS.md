@@ -5,8 +5,18 @@
 
 **Core Paradigm:** The project strictly follows **Feature-First modularization** combined with **Clean Architecture**.
 **Current Tech Stack:** Kotlin 2.2.20 / Compose Multiplatform 1.10.2 / AGP 8.12.0 / JVM 21.
-
-
+---
+### 🎯 ПРАВИЛА ДЛЯ ИЗБЕЖАНИЯ ЦИКЛИЧЕСКИХ ЗАВИСИМОСТЕЙ:
+```
+✅ core:di МОЖЕТ зависеть от: core:*
+❌ core:di НЕ МОЖЕТ зависеть от: feature:*
+```
+```
+✅ feature:* МОЖЕТ зависеть от: core:* (через Koin implementation)
+❌ core:navigation НЕ МОЖЕТ зависеть от: feature:*
+✅ Feature модули подключаются через: initializeKoin { modules(featureModule) }
+```
+---
 #### 🛑 1. Advanced Build-Logic & Version Catalog (`libs`)
 The `build-logic` module is an isolated build. It does not see the root project automatically. You must prevent compilation errors (Plugin not found, Extension not found).
 

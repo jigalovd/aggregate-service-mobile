@@ -1,3 +1,5 @@
+val libs = the<org.gradle.api.artifacts.VersionCatalogsExtension>().named("libs")
+
 plugins {
     id("io.gitlab.arturbosch.detekt")
 }
@@ -25,5 +27,5 @@ detekt {
 
 // Add Detekt formatting plugin
 dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.6")
+    detektPlugins(libs.findLibrary("detekt.formatting").get())
 }

@@ -42,7 +42,7 @@ android {
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
             buildConfigField("String", "API_BASE_URL", "\"https://api.staging.aggregateservice.com\"")
             buildConfigField("String", "ENVIRONMENT", "\"STAGING\"")
@@ -61,12 +61,19 @@ kotlin {
     sourceSets {
         maybeCreate("androidMain").dependencies {
             implementation(project(":app"))
+            implementation(project(":core:di"))
+            implementation(project(":core:config"))
+            implementation(project(":core:navigation"))
+            implementation(project(":feature:auth"))
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(libs.androidx.activity.compose)
             implementation(libs.koin.android)
+            implementation(libs.voyager.navigator)
+            implementation(libs.voyager.screenModel)
+            implementation(libs.voyager.transitions)
         }
     }
 }
