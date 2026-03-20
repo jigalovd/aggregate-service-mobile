@@ -46,11 +46,44 @@ class AuthRepositoryImpl(
     // Private mutable state
     private val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
 
-    // Init: загрузка текущего состояния из TokenStorage
-    init {
-        // TODO: Подгрузить сохраненный токен при старте
-        // Это требует coroutine scope, что не подходит для init блока
-        // Лучше делать это в отдельном методе initialize()
+    // Flag to track if initialization has been done
+    @Volatile var isInitialized: Boolean = false
+
+    /**
+     * Инициализирует репозиторий, загружая сохраненный токен из TokenStorage.
+     *
+     * **IMPORTANT:** Этот метод должен быть вызван при старте приложения
+     * (например, в Application.onCreate для Android или AppDelegate для iOS).
+     *
+     * **Why not in init block:**
+     * - Требует coroutine scope для async операций
+     * - Может блокировать UI если вызывать синхронно
+     * - Лучше явно контролировать когда происходит инициализация
+     *
+     * **Usage:**
+     * ```kotlin
+     * // In Application class
+     * lifecycleScope.launch {
+     *     authRepository.initialize()
+     * }
+     * ```
+     */
+    suspend fun initialize() {
+        if (isInitialized) {
+            return // Already initialized
+        }
+
+        // Загружаем сохраненный токен
+        val savedToken = tokenStorage.getAccessTokenSync()
+        if (!savedToken.isNullOrBlank()) {
+            // Токен есть, но нам также нужна информация о пользователе
+            // Для сейчас просто устанавливаем Authenticated без email
+            // В реальном приложении можно сделать вызов /auth/me для получения email
+            _authState.value = AuthState.authenticated(
+                token = savedToken,
+                email = null, // Email не сохранен, потребуется UI запрос
+            )
+        }
     }
 
     override suspend fun login(credentials: LoginCredentials): Result<AuthState> {
@@ -136,32 +169,4 @@ class AuthRepositoryImpl(
 
     override fun getCurrentAuthState(): AuthState =
         _authState.value
-
-    /**
-     * Выполняет защищенный API вызов с автоматическим обновлением токена.
-     *
-     * **Использует:** executeWithRefresh для автоматического refresh при 401
-     *
-     * **Usage Example:**
-     * ```kotlin
-     * val result = authenticatedApiCall<UserProfile> {
-     *     httpClient.get("auth/me") {
-     *         withAuth(tokenStorage)
-     *     }
-     * }
-     * ```
-     *
-     * @param T Тип ответа
-     * @param apiCall API вызов для выполнения
-     * @return Result с данными или AppError
-     */
-    private suspend inline fun <reified T : Any> authenticatedApiCall(
-        crossinline apiCall: suspend () -> io.ktor.client.statement.HttpResponse,
-    ): Result<T> {
-        return httpClient.executeWithRefresh(
-            tokenStorage = tokenStorage,
-            refreshTokenFunction = ::refreshToken,
-            apiCall = apiCall
-        )
-    }
 }

@@ -3,30 +3,20 @@ package com.aggregateservice.core.config
 import platform.Foundation.NSBundle
 import platform.darwin.getenv
 
-/**
- * iOS-специфичная реализация конфигурации
- *
- * Приоритет чтения конфигурации:
- * 1. Environment variables (для CI/CD)
- * 2. Info.plist (для production builds)
- * 3. Defaults (fallback)
- */
 actual class AppConfig actual constructor(
-    apiBaseUrl: String,
-    apiKey: String,
-    environment: String,
-    isDebug: Boolean,
-    enableLogging: Boolean,
-    networkTimeoutMs: Long,
-    apiVersion: String
+    actual val apiBaseUrl: String,
+    actual val apiKey: String,
+    actual val environmentCode: String,
+    actual val languageCode: String,
+    actual val isDebug: Boolean,
+    actual val enableLogging: Boolean,
+    actual val networkTimeoutMs: Long,
+    actual val apiVersion: String,
+    actual val passwordMinLength: Int,
+    actual val passwordMaxLength: Int,
 ) {
-    actual val apiBaseUrl: String = apiBaseUrl
-    actual val apiKey: String = apiKey
-    actual val environment: Environment = Environment.fromString(environment)
-    actual val isDebug: Boolean = isDebug
-    actual val enableLogging: Boolean = enableLogging
-    actual val networkTimeoutMs: Long = networkTimeoutMs
-    actual val apiVersion: String = apiVersion
+    actual override val environment: Environment = Environment.fromString(environmentCode)
+    actual override val language: Language = Language.fromCode(languageCode)
 
     override fun toString(): String = """
         |
@@ -34,38 +24,32 @@ actual class AppConfig actual constructor(
         |  - API Base URL: $apiBaseUrl
         |  - API Key: ${apiKey.take(3)}*** (hidden)
         |  - Environment: $environment
+        |  - Language: $language
         |  - Debug: $isDebug
         |  - Logging: $enableLogging
         |  - Network Timeout: ${networkTimeoutMs}ms
         |  - API Version: $apiVersion
+        |  - Password Min Length: $passwordMinLength
+        |  - Password Max Length: $passwordMaxLength
         |
     """.trimMargin()
 
     companion object {
-        /**
-         * Читает конфигурацию с приоритетом:
-         * 1. Environment variable
-         * 2. Info.plist
-         * 3. Default value
-         */
         private fun readConfigKey(
             envKey: String,
             plistKey: String,
             defaultValue: String
         ): String {
-            // 1. Попытка чтения из environment variable
             val envValue = getenv(envKey)?.toKString()
             if (!envValue.isNullOrBlank()) {
                 return envValue
             }
 
-            // 2. Попытка чтения из Info.plist
             val plistValue = NSBundle.mainBundle.objectForInfoDictionaryKey(plistKey) as? String
             if (!plistValue.isNullOrBlank()) {
                 return plistValue
             }
 
-            // 3. Fallback to default
             return defaultValue
         }
     }

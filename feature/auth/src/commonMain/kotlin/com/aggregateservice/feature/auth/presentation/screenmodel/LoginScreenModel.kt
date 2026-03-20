@@ -1,9 +1,11 @@
 package com.aggregateservice.feature.auth.presentation.screenmodel
 
-import androidx.compose.runtime.Stable
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.utils.EmailValidator
+import com.aggregateservice.core.utils.PasswordValidator
+import com.aggregateservice.core.utils.ValidationResult
 import com.aggregateservice.feature.auth.domain.model.LoginCredentials
 import com.aggregateservice.feature.auth.domain.usecase.LoginUseCase
 import com.aggregateservice.feature.auth.domain.usecase.ObserveAuthStateUseCase
@@ -51,30 +53,61 @@ class LoginScreenModel(
     }
 
     /**
-     * Обрабатывает ввод email.
+     * Обрабатывает ввод email с валидацией.
      *
      * **Intent:** Пользователь ввел email
+     *
+     * **Валидация:**
+     * - Проверяет формат email
+     * - Обновляет emailError если есть ошибка
+     * - Очищает ошибку если email валиден
      */
     fun onEmailChanged(email: String) {
-        _uiState.value = _uiState.value.copy(email = email)
+        val emailError = when (val result = EmailValidator.validate(email)) {
+            is ValidationResult.Invalid -> result.errorMessage
+            is ValidationResult.Valid -> null
+        }
+
+        _uiState.value = _uiState.value.copy(
+            email = email,
+            emailError = emailError
+        )
     }
 
     /**
-     * Обрабатывает ввод пароля.
+     * Обрабатывает ввод пароля с валидацией.
      *
      * **Intent:** Пользователь ввел пароль
+     *
+     * **Валидация:**
+     * - Проверяет длину пароля (минимум 8 символов)
+     * - Проверяет наличие букв
+     * - Обновляет passwordError если есть ошибка
+     * - Очищает ошибку если пароль валиден
      */
     fun onPasswordChanged(password: String) {
-        _uiState.value = _uiState.value.copy(password = password)
+        val passwordError = when (val result = PasswordValidator.validate(password)) {
+            is ValidationResult.Invalid -> result.errorMessage
+            is ValidationResult.Valid -> null
+        }
+
+        _uiState.value = _uiState.value.copy(
+            password = password,
+            passwordError = passwordError
+        )
     }
 
     /**
-     * Очищает сообщение об ошибке.
+     * Очищает все сообщения об ошибках.
      *
      * **Intent:** Пользователь закрыл error dialog
      */
     fun clearError() {
-        _uiState.value = _uiState.value.copy(errorMessage = null)
+        _uiState.value = _uiState.value.copy(
+            errorMessage = null,
+            emailError = null,
+            passwordError = null
+        )
     }
 
     /**
@@ -86,9 +119,9 @@ class LoginScreenModel(
         val state = _uiState.value
         if (!state.canLogin()) return
 
-        screenModelScope.launch {
-            _uiState.value = state.copy(isLoading = true, errorMessage = null)
+        _uiState.value = state.copy(isLoading = true, errorMessage = null)
 
+        screenModelScope.launch {
             val credentials = LoginCredentials(
                 email = state.email,
                 password = state.password,
@@ -97,7 +130,6 @@ class LoginScreenModel(
             loginUseCase(credentials)
                 .fold(
                     onSuccess = { authState ->
-                        // AuthState обновится автоматически через ObserveAuthStateUseCase
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
                             isLoginSuccess = true,

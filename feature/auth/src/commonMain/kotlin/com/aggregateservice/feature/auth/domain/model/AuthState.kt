@@ -23,8 +23,11 @@ data class AuthState(
 
         /**
          * Состояние успешной авторизации.
+         *
+         * @param token JWT access token
+         * @param email Email пользователя (может быть null при восстановлении сессии)
          */
-        fun authenticated(token: String, email: String) = AuthState(
+        fun authenticated(token: String, email: String?) = AuthState(
             isAuthenticated = true,
             accessToken = token,
             userEmail = email,

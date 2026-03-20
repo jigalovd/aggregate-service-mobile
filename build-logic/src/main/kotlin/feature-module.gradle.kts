@@ -11,7 +11,7 @@ configure<org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension> {
     sourceSets {
         // Используем maybeCreate для защиты от порядка выполнения плагинов
         maybeCreate("commonMain").dependencies {
-            // Общий Kernel
+            api(project(":core:config"))
             api(project(":core:network"))
             api(project(":core:storage"))
             api(project(":core:theme"))
