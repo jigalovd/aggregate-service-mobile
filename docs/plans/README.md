@@ -1,54 +1,56 @@
 # Planning Documents - Aggregate Service
 
-**Last Updated**: 2026-03-19
-**Status**: Active (1 plan in progress)
+**Last Updated**: 2026-03-21
+**Status**: Active Development
 **Architecture**: Feature-First + Clean Architecture
+**Current Progress**: 35%
 
 ---
 
-## 📋 Available Plans
+## 📋 Active Plans
 
-### 01. Quality Infrastructure & CI/CD (Week 1-2)
+### 02. Development Roadmap (12 Weeks) 🚀
 
-**Status:** 📝 PLANNED - Ready for execution
-**Created:** 2026-03-19
-**Timeline:** 2 weeks (10 business days)
+**Status:** ✅ ACTIVE - Main development plan
+**Created:** 2026-03-21
+**Timeline:** 12 weeks (MVP → Production)
 **Priority:** 🔴 CRITICAL
 
-**Scope:**
-- **Phase 1**: Code Quality Infrastructure (Days 1-3)
-  - Detekt (static analysis) - .detekt/config.yml
-  - Ktlint (code formatting) - .editorconfig
-  - Kover (code coverage) - 60%+ target
+**Phases:**
+- **Phase 1**: Core Foundation (Week 1-2) - theme, i18n modules
+- **Phase 2**: Catalog Feature (Week 3-4) - search & browse providers
+- **Phase 3**: Booking Feature (Week 5-6) - booking flow
+- **Phase 4**: Profile Feature (Week 7) - user management
+- **Phase 5**: Additional Features (Week 8) - favorites, reviews
+- **Phase 6**: Quality & CI/CD (Week 9-10) - production readiness
+- **Phase 7**: iOS Support (Week 11-12) - full iOS support
 
-- **Phase 2**: Testing Infrastructure (Days 3-5)
-  - Mockk, Turbine, Coroutines Test
-  - Test structure: commonTest/androidTest/iosTest
+**Milestones:**
+- M1: Core Foundation Complete (Week 2)
+- M2: Catalog Feature Complete (Week 4)
+- M3: Booking Feature Complete (Week 6)
+- M4: MVP Features Complete (Week 8)
+- M5: Production Ready (Week 10)
+- M6: iOS Support (Week 12)
 
-- **Phase 3**: Error Handling Foundation (Days 4-5)
-  - `AppError.kt` (sealed hierarchy, 5 error types)
-  - `safeApiCall.kt` (Ktor wrapper)
-  - Unit tests for error mapping
+**Details:** [02-development-roadmap.md](02-development-roadmap.md)
 
-- **Phase 4**: CI/CD Pipeline (Week 2, Days 1-3)
-  - GitHub Actions (4 jobs: lint, test, coverage, build)
-  - Lefthook (pre-commit hooks)
+---
 
-- **Phase 5**: Domain Models & Repository (Days 3-5)
-  - User, AuthTokens, Session (Domain entities)
-  - AuthRepository (interface)
-  - LoginUseCase, RegisterUseCase
+### 01. Quality Infrastructure & CI/CD ✅ COMPLETED
 
-- **Phase 6**: Dependency Injection (Days 4-5)
-  - Koin modules (NetworkModule, AuthModule)
-  - Koin init in Android app
+**Status:** ✅ COMPLETED
+**Created:** 2026-03-19
+**Completed:** 2026-03-20
+**Timeline:** 2 weeks
 
-**Deliverables:**
-- ✅ Detekt: 0 warnings baseline
+**Completed Deliverables:**
+- ✅ Detekt: 0 warnings (zero tolerance)
 - ✅ Ktlint: 100% style compliance
-- ✅ Kover: 60%+ coverage (network layer)
-- ✅ CI/CD: Automated checks on every PR
-- ✅ Tests: 100% network functions covered
+- ✅ Kover: Configured for coverage reporting
+- ✅ safeApiCall + AppError: Implemented
+- ✅ Network layer: Complete with AuthInterceptor
+- ✅ Auth Feature: Complete (Domain + Data + Presentation)
 
 **Details:** [01-quality-infrastructure-and-cicd.md](01-quality-infrastructure-and-cicd.md)
 
@@ -56,38 +58,13 @@
 
 ## 🎯 Upcoming Plans (Planned)
 
-### 02. Auth Feature Implementation (Week 3-4)
-**Status:** ⏳ Planned
+### 03. iOS Production Release
+**Status:** ⏳ Planned (Phase 7)
 **Timeline:** 2 weeks
 **Scope:**
-- Domain Layer: User, AuthTokens, Session entities
-- Data Layer: AuthApiService (Ktor), DTOs, TokenStorage
-- Presentation Layer: AuthState, LoginScreenModel, LoginScreen (Compose)
-
-### 03. Catalog Feature Implementation (Week 5-6)
-**Status:** ⏳ Planned
-**Timeline:** 2 weeks
-**Scope:**
-- Domain Layer: Provider, Service, Category entities
-- Data Layer: CatalogApiService, SearchStorage
-- Presentation Layer: CatalogState, SearchScreen, ProviderCard
-- **Integration**: Maps (Google Maps Android, Mapbox iOS)
-
-### 04. Booking Feature Implementation (Week 7-8)
-**Status:** ⏳ Planned
-**Timeline:** 2 weeks
-**Scope:**
-- Domain Layer: Booking, TimeSlot entities
-- Data Layer: BookingApiService, Local cache
-- Presentation Layer: BookingFlow, CalendarPicker, TimeSlotSelector
-
-### 05. Core:Storage & Core:DI Implementation (Week 2-3)
-**Status:** ⏳ Planned
-**Timeline:** 1 week
-**Scope:**
-- DataStore Preferences setup
-- Koin 4.0.2 modules configuration
-- Platform-specific storage (expect/actual)
+- Xcode project setup
+- iOS testing on real devices
+- App Store submission preparation
 
 ---
 
@@ -95,28 +72,34 @@
 
 | Metric | Value |
 |--------|-------|
-| **Total Active Plans** | 1 (Quality Infrastructure) |
-| **Total Phases** | 6 (plan 01) |
-| **Estimated Duration** | 2 weeks (plan 01) |
-| **Files to Create** | 15+ (configs, tests, domain models) |
-| **Files to Modify** | 10+ (gradle, docs, build-logic) |
+| **Total Active Plans** | 1 (Development Roadmap) |
+| **Total Completed Plans** | 1 (Quality Infrastructure) |
+| **Total Phases** | 7 phases (roadmap) |
+| **Estimated Duration** | 12 weeks (full roadmap) |
+| **Current Sprint** | Phase 1 (Core Foundation) |
+| **Files to Create** | 100+ (features, tests, configs) |
 
 ---
 
 ## 🔗 Related Documentation
 
 ### Project Tracking
-- [Implementation Status](../IMPLEMENTATION_STATUS.md) - Progress tracking (15% complete)
-- [Deep Code Review](../reviews/2026-03-19-deep-code-review.md) - Current state analysis (65/100)
+- [Implementation Status](../IMPLEMENTATION_STATUS.md) - Progress tracking (35% complete)
+- [Deep Code Review](../reports/DEEP_CODE_REVIEW_2026-03-20.md) - Latest review
 
 ### Architecture
 - [KMP/CMP Analysis](../01_KMP_CMP_ANALYSIS.md) - Technology stack analysis
 - [Design System](../04_DESIGN_SYSTEM.md) - UI/UX guidelines
 - [UX Guidelines](../05_UX_GUIDELINES.md) - User experience best practices
 
+### Features
+- [Auth Feature](../features/AUTH_FEATURE.md) - Authentication documentation
+- [User Stories](../business/USER_STORIES.md) - Business requirements
+
 ### Project
 - [Main README](../README.md) - Project overview
 - [Changelog](../../CHANGELOG.md) - Version history and migrations
+- [API Reference](../BACKEND_API_REFERENCE.md) - Backend API documentation
 
 ---
 
@@ -124,54 +107,61 @@
 
 ### How Plans Are Created
 
-1. **Trigger**: Deep Code Review выявляет критические проблемы
-2. **Analysis**: Senior Architect анализирует gap-ы
-3. **Planning**: Создаётся детальный план с phases, deliverables, timeline
+1. **Trigger**: Deep Code Review или завершение milestone
+2. **Analysis**: Анализ текущего состояния и gaps
+3. **Planning**: Создание детального плана с phases, deliverables, timeline
 4. **Review**: План обсуждается с командой
-5. **Execution**: План внедряется (см. Timeline)
+5. **Execution**: План внедряется по phases
 6. **Validation**: Detekt/Ktlint/Kover валидируют качество
 7. **Completion**: IMPLEMENTATION_STATUS обновляется
 
 ### Planning Principles
 
-- **Evidence-Based**: План базируется на Deep Code Review findings
-- **Measurable**: Each phase имеет concrete deliverables
-- **Time-Boxed**: Жёсткие timeline (1-2 недели на план)
+- **Evidence-Based**: План базируется на анализе кодовой базы
+- **Measurable**: Каждая phase имеет concrete deliverables
+- **Time-Boxed**: Жёсткие timeline (1-2 недели на phase)
 - **Risk-Aware**: Митигация рисков документирована
-- **Tested**: Code examples в плане проверены
+- **Tested**: Code coverage ≥ 60% для всех features
 
 ---
 
 ## 🎯 Success Criteria
 
-### Plan Completion Checklist
+### MVP Success Criteria (End of Week 8)
 
-- [ ] Все phases выполнены в timeline
-- [ ] Detekt: 0 warnings
+- [ ] Detekt: 0 warnings (zero tolerance)
 - [ ] Ktlint: 100% compliance
 - [ ] Kover: 60%+ coverage
 - [ ] CI/CD: Автоматические проверки работают
-- [ ] IMPLEMENTATION_STATUS обновлён
-- [ ] CHANGELOG включает изменения
+- [ ] All 7 features implemented
+- [ ] IMPLEMENTATION_STATUS: 100%
+- [ ] CHANGELOG включает все изменения
+
+### Production Success Criteria (End of Week 12)
+
+- [ ] iOS build successful
+- [ ] All features tested on iOS
+- [ ] Performance optimized
+- [ ] Ready for App Store submission
 
 ---
 
 ## 🚀 Next Steps
 
-**Immediate (This Week):**
-1. ✅ Start Phase 1: Detekt + Ktlint + Kover setup
-2. ✅ Create `.detekt/config.yml`
-3. ✅ Create `.editorconfig`
-4. ✅ Update `gradle/libs.versions.toml`
+**Immediate (This Week - Phase 1):**
+1. ⬜ Create `:core:theme` module
+2. ⬜ Create `:core:i18n` module
+3. ⬜ Implement Material 3 theme
+4. ⬜ Add localization (ru, he, en)
 
-**Upcoming (Week 2):**
-1. ⏳ Phase 4: CI/CD pipeline
-2. ⏳ Phase 5: Domain models (Auth feature)
-3. ⏳ Phase 6: Koin DI setup
+**Upcoming (Week 3-4 - Phase 2):**
+1. ⬜ Start Catalog Feature
+2. ⬜ Domain: Provider, Service entities
+3. ⬜ Data: CatalogApiService
+4. ⬜ Presentation: CatalogScreen
 
 ---
 
-**Last Updated**: 2026-03-19
-**Next Review**: 2026-04-02 (after plan 01 completion)
+**Last Updated**: 2026-03-21
+**Next Review**: Weekly sprint planning
 **Owner**: Development Team
-**Maintained By**: Senior Documentation Sync Engineer

@@ -2,7 +2,7 @@
 
 **Дата создания**: 2026-03-19
 **Статус**: ✅ Complete (100%)
-**Версия**: 1.0
+**Версия**: 1.1
 
 ---
 
@@ -19,6 +19,38 @@
 | **Secure** | API keys НЕ попадают в git |
 | **Flexible** | Лёгкое добавление новых параметров |
 | **KMP-Native** | 100% общий код для доступа к конфигурации |
+
+---
+
+## 📁 Структура директории config/
+
+Все конфигурационные файлы проекта централизованы в директории `config/`:
+
+```
+config/
+├── README.md                      # Главный индекс конфигов
+├── quality/
+│   ├── README.md                  # Документация quality tools
+│   ├── detekt.yml                 # Правила Detekt
+│   └── .editorconfig              # Справочник ktlint правил
+├── logging/
+│   ├── README.md                  # Документация логирования
+│   └── logback.xml                # Конфигурация Logback
+└── secrets/
+    ├── README.md                  # Инструкция по секретам
+    └── secrets.properties.template # Шаблон секретов
+```
+
+### Быстрый справочник
+
+| Что нужно | Где искать |
+|-----------|------------|
+| Изменить правило Detekt | `config/quality/detekt.yml` |
+| Изменить правило ktlint | `.editorconfig` (корень) |
+| Настроить логирование | `config/logging/logback.xml` |
+| Добавить секрет | `config/secrets/secrets.properties.template` → `secrets.properties` |
+| Добавить зависимость | `gradle/libs.versions.toml` |
+| Изменить Gradle JVM | `gradle.properties` |
 
 ---
 
@@ -173,7 +205,7 @@ fun createHttpClient(): HttpClient {
 #### 1. Создайте `secrets.properties` из template
 
 ```bash
-cp secrets.properties.template secrets.properties
+cp config/secrets/secrets.properties.template secrets.properties
 ```
 
 #### 2. Заполните реальные значения
@@ -358,7 +390,7 @@ actual class AppConfig actual constructor() {
 
 | Практика | Описание |
 |----------|----------|
-| **Template files** | `secrets.properties.template` с placeholder'ами |
+| **Template files** | `config/secrets/secrets.properties.template` с placeholder'ами |
 | **Environment variables** | CI/CD secrets через GitHub Secrets |
 | **.gitignore** | Игнорировать `secrets.properties`, `local.properties` |
 | **BuildConfig** | Генерировать значения через `buildConfigField` |

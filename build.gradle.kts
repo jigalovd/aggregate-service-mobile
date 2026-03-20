@@ -50,7 +50,7 @@ subprojects {
 
     // Configure Detekt
     extensions.configure<io.gitlab.arturbosch.detekt.extensions.DetektExtension> {
-        config.setFrom(files(rootProject.file("config/detekt/detekt.yml")))
+        config.setFrom(files(rootProject.file("config/quality/detekt.yml")))
         buildUponDefaultConfig = true
     }
 

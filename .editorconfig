@@ -1,3 +1,7 @@
+# EditorConfig Configuration
+# See config/quality/.editorconfig for ktlint-specific documentation
+# See config/README.md for full configuration structure
+
 root = true
 
 [*.{kt,kts}]

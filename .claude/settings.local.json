@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "mcp__idea__list_directory_tree"
+      "mcp__idea__list_directory_tree",
+      "Bash(./gradlew :androidApp:assembleDebug --no-daemon)",
+      "Bash(./gradlew :androidApp:installDebug --no-daemon)",
+      "Bash(git add:*)",
+      "mcp__idea__get_project_modules",
+      "mcp__idea__get_project_dependencies",
+      "mcp__idea__get_file_problems",
+      "mcp__idea__find_files_by_name_keyword",
+      "mcp__idea__get_repositories"
     ]
   }
 }
