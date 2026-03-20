@@ -5,6 +5,10 @@ compose-plugin = "1.10.2"
 compose-multiplatform = "1.10.2"
 agp = "8.12.3"
 
+# Logging
+slf4j = "2.0.16"
+logback = "3.0.0"
+
 # Network and Data
 ktor = "3.4.1"
 serialization = "1.10.0"
@@ -64,6 +68,10 @@ coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version
 
 # Android
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version = "1.13.0" }
+
+# Logging
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+logback-android = { module = "com.github.tony19:logback-android", version.ref = "logback" }
 
 # Code Quality & Testing
 # Detekt plugins for custom rules

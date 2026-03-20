@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Logback Configuration for Android
+
+  Features:
+  - Different log levels for debug/release builds
+  - Ktor HTTP logging
+  - Koin DI logging
+  - File-based logging for crash analysis
+  - Performance-optimized for production
+-->
+<configuration>
+    <!--
+      Property: LOG_LEVEL
+      Controlled via BuildConfig.ENABLE_LOGGING
+      Debug: DEBUG, Release: OFF
+    -->
+    <property name="LOG_LEVEL" value="${LOG_LEVEL:-DEBUG}" />
+
+    <!--
+      Property: LOG_DIR
+      External files directory for log files
+      Set programmatically in MainApplication
+    -->
+    <property name="LOG_DIR" value="${LOG_DIR:-/data/data/com.aggregateservice/files/logs}" />
+
+    <!-- Console Appender - for debug builds -->
+    <appender name="LOGCAT" class="ch.qos.logback.classic.android.LogcatAppender">
+        <tagEncoder>
+            <pattern>%logger{12}</pattern>
+        </tagEncoder>
+        <encoder>
+            <pattern>[%thread] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- File Appender - for crash analysis -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/aggregate-service.log</file>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/aggregate-service.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+            <totalSizeCap>10MB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!--
+      Ktor HTTP Client Logger
+      Logs all HTTP requests/responses in debug mode
+    -->
+    <logger name="io.ktor" level="${LOG_LEVEL}" additivity="false">
+        <appender-ref ref="LOGCAT" />
+    </logger>
+
+    <!--
+      Koin DI Logger
+      Logs dependency injection events
+    -->
+    <logger name="org.koin" level="ERROR" additivity="false">
+        <appender-ref ref="LOGCAT" />
+    </logger>
+
+    <!--
+      OkHttp Logger (used by Ktor)
+      Logs network connection details
+    -->
+    <logger name="okhttp3" level="WARN" additivity="false">
+        <appender-ref ref="LOGCAT" />
+    </logger>
+
+    <!--
+      Application Logger
+      Main logger for com.aggregateservice.* packages
+    -->
+    <logger name="com.aggregateservice" level="${LOG_LEVEL}" additivity="false">
+        <appender-ref ref="LOGCAT" />
+        <appender-ref ref="FILE" />
+    </logger>
+
+    <!-- Root Logger -->
+    <root level="WARN">
+        <appender-ref ref="LOGCAT" />
+    </root>
+</configuration>

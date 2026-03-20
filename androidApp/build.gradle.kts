@@ -74,6 +74,10 @@ kotlin {
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.screenModel)
             implementation(libs.voyager.transitions)
+
+            // Logging - SLF4J + Logback for Android
+            implementation(libs.slf4j.api)
+            implementation(libs.logback.android)
         }
     }
 }
