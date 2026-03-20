@@ -1,0 +1,43 @@
+# Ktlint Configuration Reference
+# ================================
+# Этот файл содержит справочник по ktlint правилам.
+# Реальная конфигурация находится в корневом .editorconfig
+# (ktlint требует .editorconfig в корне проекта)
+
+# Основные правила Kotlin (в корневом .editorconfig):
+# ---------------------------------------------------
+# [*.{kt,kts}]
+# charset = utf-8                    # Кодировка UTF-8
+# end_of_line = lf                   # Unix line endings
+# indent_size = 4                    # Отступ 4 пробела
+# indent_style = space               # Пробелы вместо табов
+# insert_final_newline = true        # Пустая строка в конце файла
+# max_line_length = off              # Без ограничения длины строки
+# tab_width = 4                      # Ширина таба
+# trim_trailing_whitespace = true    # Удалять пробелы в конце строк
+
+# IntelliJ Kotlin настройки:
+# ij_kotlin_allow_trailing_comma = true
+# ij_kotlin_allow_trailing_comma_on_call_site = true
+
+# Отключенные ktlint правила:
+# ktlint_standard_function-signature = disabled
+# ktlint_standard_class-naming = disabled
+# ktlint_standard_function-expression-body = disabled
+
+# Доступные ktlint правила:
+# -------------------------
+# ktlint_standard_filename - именование файлов
+# ktlint_standard_class-naming - именование классов
+# ktlint_standard_function-naming - именование функций
+# ktlint_standard_property-naming - именование свойств
+# ktlint_standard_max-line-length - длина строки
+# ktlint_standard_trailing-comma - trailing commas
+# ktlint_standard_indent - отступы
+# ktlint_standard_blank-lines-before-function - пустые строки перед функциями
+
+# Для отключения правила:
+# ktlint_standard_<rule-name> = disabled
+
+# Для включения правила:
+# ktlint_standard_<rule-name> = enabled

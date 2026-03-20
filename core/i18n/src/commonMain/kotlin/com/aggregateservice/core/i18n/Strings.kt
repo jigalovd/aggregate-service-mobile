@@ -1,0 +1,329 @@
+package com.aggregateservice.core.i18n
+
+/**
+ * Default string resources for all supported locales.
+ *
+ * These strings are loaded at application startup and can be overridden
+ * by platform-specific resources if needed.
+ */
+public object DefaultStrings {
+
+    /**
+     * English strings (default).
+     */
+    public val EN: Map<String, String> = mapOf(
+        // Common
+        "app_name" to "Aggregate Service",
+        "ok" to "OK",
+        "cancel" to "Cancel",
+        "save" to "Save",
+        "delete" to "Delete",
+        "edit" to "Edit",
+        "close" to "Close",
+        "done" to "Done",
+        "loading" to "Loading...",
+        "error" to "Error",
+        "success" to "Success",
+        "retry" to "Retry",
+        "search" to "Search",
+        "filter" to "Filter",
+        "sort" to "Sort",
+        "clear" to "Clear",
+        "apply" to "Apply",
+        "reset" to "Reset",
+
+        // Auth
+        "auth_login" to "Login",
+        "auth_logout" to "Logout",
+        "auth_email" to "Email",
+        "auth_password" to "Password",
+        "auth_email_hint" to "Enter your email",
+        "auth_password_hint" to "Enter your password",
+        "auth_forgot_password" to "Forgot password?",
+        "auth_no_account" to "Don't have an account?",
+        "auth_sign_up" to "Sign Up",
+        "auth_login_success" to "Login successful",
+        "auth_login_error" to "Login failed. Please check your credentials.",
+        "auth_invalid_email" to "Invalid email address",
+        "auth_invalid_password" to "Password must be at least 8 characters",
+        "auth_session_expired" to "Your session has expired. Please login again.",
+
+        // Navigation
+        "nav_home" to "Home",
+        "nav_catalog" to "Catalog",
+        "nav_booking" to "Bookings",
+        "nav_favorites" to "Favorites",
+        "nav_profile" to "Profile",
+        "nav_settings" to "Settings",
+
+        // Catalog
+        "catalog_title" to "Catalog",
+        "catalog_search_hint" to "Search providers...",
+        "catalog_filter_category" to "Filter by category",
+        "catalog_filter_location" to "Filter by location",
+        "catalog_sort_rating" to "Sort by rating",
+        "catalog_sort_distance" to "Sort by distance",
+        "catalog_no_results" to "No providers found",
+        "catalog_providers_nearby" to "Providers nearby",
+
+        // Booking
+        "booking_title" to "Booking",
+        "booking_select_service" to "Select service",
+        "booking_select_date" to "Select date",
+        "booking_select_time" to "Select time",
+        "booking_confirm" to "Confirm booking",
+        "booking_cancel" to "Cancel booking",
+        "booking_my_bookings" to "My bookings",
+        "booking_upcoming" to "Upcoming",
+        "booking_past" to "Past",
+        "booking_no_bookings" to "No bookings yet",
+        "booking_cancel_confirmation" to "Are you sure you want to cancel this booking?",
+        "booking_cancel_success" to "Booking cancelled successfully",
+
+        // Provider
+        "provider_services" to "Services",
+        "provider_reviews" to "Reviews",
+        "provider_rating" to "Rating",
+        "provider_working_hours" to "Working hours",
+        "provider_contact" to "Contact",
+        "provider_location" to "Location",
+        "provider_add_favorites" to "Add to favorites",
+        "provider_remove_favorites" to "Remove from favorites",
+
+        // Profile
+        "profile_title" to "Profile",
+        "profile_edit" to "Edit profile",
+        "profile_change_password" to "Change password",
+        "profile_notifications" to "Notifications",
+        "profile_language" to "Language",
+        "profile_theme" to "Theme",
+        "profile_logout" to "Logout",
+
+        // Error messages
+        "error_network" to "Network error. Please check your connection.",
+        "error_server" to "Server error. Please try again later.",
+        "error_unknown" to "An unexpected error occurred.",
+        "error_validation" to "Please check your input.",
+        "error_unauthorized" to "You are not authorized. Please login.",
+    )
+
+    /**
+     * Russian strings.
+     */
+    public val RU: Map<String, String> = mapOf(
+        // Common
+        "app_name" to "Aggregate Service",
+        "ok" to "ОК",
+        "cancel" to "Отмена",
+        "save" to "Сохранить",
+        "delete" to "Удалить",
+        "edit" to "Редактировать",
+        "close" to "Закрыть",
+        "done" to "Готово",
+        "loading" to "Загрузка...",
+        "error" to "Ошибка",
+        "success" to "Успешно",
+        "retry" to "Повторить",
+        "search" to "Поиск",
+        "filter" to "Фильтр",
+        "sort" to "Сортировка",
+        "clear" to "Очистить",
+        "apply" to "Применить",
+        "reset" to "Сбросить",
+
+        // Auth
+        "auth_login" to "Войти",
+        "auth_logout" to "Выйти",
+        "auth_email" to "Email",
+        "auth_password" to "Пароль",
+        "auth_email_hint" to "Введите ваш email",
+        "auth_password_hint" to "Введите ваш пароль",
+        "auth_forgot_password" to "Забыли пароль?",
+        "auth_no_account" to "Нет аккаунта?",
+        "auth_sign_up" to "Регистрация",
+        "auth_login_success" to "Вход выполнен успешно",
+        "auth_login_error" to "Ошибка входа. Проверьте данные.",
+        "auth_invalid_email" to "Некорректный email",
+        "auth_invalid_password" to "Пароль должен быть минимум 8 символов",
+        "auth_session_expired" to "Сессия истекла. Пожалуйста, войдите снова.",
+
+        // Navigation
+        "nav_home" to "Главная",
+        "nav_catalog" to "Каталог",
+        "nav_booking" to "Записи",
+        "nav_favorites" to "Избранное",
+        "nav_profile" to "Профиль",
+        "nav_settings" to "Настройки",
+
+        // Catalog
+        "catalog_title" to "Каталог",
+        "catalog_search_hint" to "Поиск мастеров...",
+        "catalog_filter_category" to "Фильтр по категории",
+        "catalog_filter_location" to "Фильтр по расположению",
+        "catalog_sort_rating" to "Сортировать по рейтингу",
+        "catalog_sort_distance" to "Сортировать по расстоянию",
+        "catalog_no_results" to "Мастера не найдены",
+        "catalog_providers_nearby" to "Мастера рядом",
+
+        // Booking
+        "booking_title" to "Бронирование",
+        "booking_select_service" to "Выберите услугу",
+        "booking_select_date" to "Выберите дату",
+        "booking_select_time" to "Выберите время",
+        "booking_confirm" to "Подтвердить запись",
+        "booking_cancel" to "Отменить запись",
+        "booking_my_bookings" to "Мои записи",
+        "booking_upcoming" to "Предстоящие",
+        "booking_past" to "Прошедшие",
+        "booking_no_bookings" to "Записей пока нет",
+        "booking_cancel_confirmation" to "Вы уверены, что хотите отменить запись?",
+        "booking_cancel_success" to "Запись успешно отменена",
+
+        // Provider
+        "provider_services" to "Услуги",
+        "provider_reviews" to "Отзывы",
+        "provider_rating" to "Рейтинг",
+        "provider_working_hours" to "Часы работы",
+        "provider_contact" to "Контакты",
+        "provider_location" to "Адрес",
+        "provider_add_favorites" to "В избранное",
+        "provider_remove_favorites" to "Убрать из избранного",
+
+        // Profile
+        "profile_title" to "Профиль",
+        "profile_edit" to "Редактировать профиль",
+        "profile_change_password" to "Сменить пароль",
+        "profile_notifications" to "Уведомления",
+        "profile_language" to "Язык",
+        "profile_theme" to "Тема",
+        "profile_logout" to "Выйти",
+
+        // Error messages
+        "error_network" to "Ошибка сети. Проверьте подключение.",
+        "error_server" to "Ошибка сервера. Попробуйте позже.",
+        "error_unknown" to "Произошла непредвиденная ошибка.",
+        "error_validation" to "Проверьте введённые данные.",
+        "error_unauthorized" to "Вы не авторизованы. Пожалуйста, войдите.",
+    )
+
+    /**
+     * Hebrew strings.
+     */
+    public val HE: Map<String, String> = mapOf(
+        // Common
+        "app_name" to "Aggregate Service",
+        "ok" to "אישור",
+        "cancel" to "ביטול",
+        "save" to "שמור",
+        "delete" to "מחק",
+        "edit" to "ערוך",
+        "close" to "סגור",
+        "done" to "סיום",
+        "loading" to "טוען...",
+        "error" to "שגיאה",
+        "success" to "הצלחה",
+        "retry" to "נסה שוב",
+        "search" to "חיפוש",
+        "filter" to "סינון",
+        "sort" to "מיון",
+        "clear" to "נקה",
+        "apply" to "החל",
+        "reset" to "איפוס",
+
+        // Auth
+        "auth_login" to "התחברות",
+        "auth_logout" to "התנתקות",
+        "auth_email" to "אימייל",
+        "auth_password" to "סיסמה",
+        "auth_email_hint" to "הזן את האימייל שלך",
+        "auth_password_hint" to "הזן את הסיסמה שלך",
+        "auth_forgot_password" to "שכחת סיסמה?",
+        "auth_no_account" to "אין לך חשבון?",
+        "auth_sign_up" to "הרשמה",
+        "auth_login_success" to "התחברות הצליחה",
+        "auth_login_error" to "התחברות נכשלה. בדוק את הפרטים.",
+        "auth_invalid_email" to "כתובת אימייל לא חוקית",
+        "auth_invalid_password" to "הסיסמה חייבת להכיל לפחות 8 תווים",
+        "auth_session_expired" to "הסשן פג. אנא התחבר מחדש.",
+
+        // Navigation
+        "nav_home" to "בית",
+        "nav_catalog" to "קטלוג",
+        "nav_booking" to "הזמנות",
+        "nav_favorites" to "מועדפים",
+        "nav_profile" to "פרופיל",
+        "nav_settings" to "הגדרות",
+
+        // Catalog
+        "catalog_title" to "קטלוג",
+        "catalog_search_hint" to "חיפוש בעלי מקצוע...",
+        "catalog_filter_category" to "סינון לפי קטגוריה",
+        "catalog_filter_location" to "סינון לפי מיקום",
+        "catalog_sort_rating" to "מיון לפי דירוג",
+        "catalog_sort_distance" to "מיון לפי מרחק",
+        "catalog_no_results" to "לא נמצאו בעלי מקצוע",
+        "catalog_providers_nearby" to "בעלי מקצוע בקרבת מקום",
+
+        // Booking
+        "booking_title" to "הזמנה",
+        "booking_select_service" to "בחר שירות",
+        "booking_select_date" to "בחר תאריך",
+        "booking_select_time" to "בחר שעה",
+        "booking_confirm" to "אשר הזמנה",
+        "booking_cancel" to "בטל הזמנה",
+        "booking_my_bookings" to "ההזמנות שלי",
+        "booking_upcoming" to "קרובות",
+        "booking_past" to "עברו",
+        "booking_no_bookings" to "אין הזמנות עדיין",
+        "booking_cancel_confirmation" to "האם אתה בטוח שברצונך לבטל הזמנה זו?",
+        "booking_cancel_success" to "ההזמנה בוטלה בהצלחה",
+
+        // Provider
+        "provider_services" to "שירותים",
+        "provider_reviews" to "ביקורות",
+        "provider_rating" to "דירוג",
+        "provider_working_hours" to "שעות עבודה",
+        "provider_contact" to "יצירת קשר",
+        "provider_location" to "מיקום",
+        "provider_add_favorites" to "הוסף למועדפים",
+        "provider_remove_favorites" to "הסר ממועדפים",
+
+        // Profile
+        "profile_title" to "פרופיל",
+        "profile_edit" to "ערוך פרופיל",
+        "profile_change_password" to "החלף סיסמה",
+        "profile_notifications" to "התראות",
+        "profile_language" to "שפה",
+        "profile_theme" to "ערכת נושא",
+        "profile_logout" to "התנתקות",
+
+        // Error messages
+        "error_network" to "שגיאת רשת. בדוק את החיבור.",
+        "error_server" to "שגיאת שרת. נסה מאוחר יותר.",
+        "error_unknown" to "אירעה שגיאה בלתי צפויה.",
+        "error_validation" to "בדוק את הנתונים שהוזנו.",
+        "error_unauthorized" to "אינך מורשה. אנא התחבר.",
+    )
+
+    /**
+     * Get all default resources as a map.
+     */
+    public fun all(): Map<AppLocale, Map<String, String>> = mapOf(
+        AppLocale.EN to EN,
+        AppLocale.RU to RU,
+        AppLocale.HE to HE,
+    )
+}
+
+/**
+ * Creates the default I18n provider with all built-in strings.
+ *
+ * @param initialLocale The initial locale to use.
+ * @return A configured [I18nProvider] with default strings.
+ */
+public fun createDefaultI18nProvider(
+    initialLocale: AppLocale = AppLocale.DEFAULT,
+): I18nProvider = I18nProviderImpl(
+    initialLocale = initialLocale,
+    resources = DefaultStrings.all(),
+)
