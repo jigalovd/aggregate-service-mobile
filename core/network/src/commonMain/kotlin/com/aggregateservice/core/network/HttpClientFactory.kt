@@ -2,6 +2,7 @@ package com.aggregateservice.core.network
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
@@ -40,11 +41,21 @@ private object SensitiveDataLogger : io.ktor.client.plugins.logging.Logger {
     }
 }
 
+/**
+ * Creates configured HttpClient with all necessary plugins.
+ *
+ * @param engine Platform-specific HTTP engine
+ * @param apiBaseUrl API base URL (without protocol)
+ * @param apiVersion API version (default: v1)
+ * @param enableLogging Enable HTTP logging for debugging
+ * @param networkTimeoutMs Timeout in milliseconds (default: 30_000)
+ */
 fun createHttpClient(
     engine: HttpClientEngine,
     apiBaseUrl: String,
     apiVersion: String = "v1",
     enableLogging: Boolean = false,
+    networkTimeoutMs: Long = NetworkConstants.TIMEOUT_MS,
 ): HttpClient = HttpClient(engine) {
     install(ContentNegotiation) {
         json(Json {
@@ -52,6 +63,12 @@ fun createHttpClient(
             isLenient = true
             prettyPrint = false
         })
+    }
+
+    install(HttpTimeout) {
+        requestTimeoutMillis = networkTimeoutMs
+        connectTimeoutMillis = networkTimeoutMs
+        socketTimeoutMillis = networkTimeoutMs
     }
 
     if (enableLogging) {

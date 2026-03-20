@@ -47,7 +47,9 @@ class AuthRepositoryImpl(
     private val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
 
     // Flag to track if initialization has been done
-    @Volatile var isInitialized: Boolean = false
+    // Note: Simple boolean is sufficient for single-threaded initialization on app startup
+    var isInitialized: Boolean = false
+        private set
 
     /**
      * Инициализирует репозиторий, загружая сохраненный токен из TokenStorage.

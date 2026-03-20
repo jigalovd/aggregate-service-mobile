@@ -3,7 +3,13 @@ package com.aggregateservice.androidApp
 import android.app.Application
 import com.aggregateservice.core.config.AppConfig
 import com.aggregateservice.core.config.Config
+import com.aggregateservice.core.di.androidCoreModule
+import com.aggregateservice.core.di.coreModule
+import com.aggregateservice.feature.auth.di.authModule
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
 
 /**
  * Main Application класс для Android.
@@ -41,8 +47,19 @@ class MainApplication : Application() {
 
     private fun initializeKoin() {
         startKoin {
-            // Feature modules will be added here when ready
-            // modules(authModule, catalogModule, etc.)
+            androidLogger(Level.ERROR)
+            androidContext(this@MainApplication)
+            modules(
+                // Core modules
+                androidCoreModule,
+                coreModule,
+                // Feature modules
+                authModule,
+                // Add more feature modules here as they are implemented
+                // catalogModule,
+                // bookingModule,
+                // profileModule,
+            )
         }
     }
 }

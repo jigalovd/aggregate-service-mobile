@@ -180,8 +180,9 @@ fun LoginScreenContent(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Forgot password button
+            // Feature: Forgot password navigation planned for v1.1
             TextButton(
-                onClick = { /* TODO: Navigate to forgot password */ },
+                onClick = { /* No-op: Forgot password feature pending */ },
                 enabled = !uiState.isLoading,
             ) {
                 Text("Забыли пароль?")

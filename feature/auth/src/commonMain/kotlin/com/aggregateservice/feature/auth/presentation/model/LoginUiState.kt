@@ -1,5 +1,7 @@
 package com.aggregateservice.feature.auth.presentation.model
 
+import androidx.compose.runtime.Stable
+
 /**
  * UI State для экрана логина (Presentation слой).
  *
@@ -7,6 +9,10 @@ package com.aggregateservice.feature.auth.presentation.model
  * - UI отображает state
  * - UI отправляет intents (события)
  * - ScreenModel обрабатывает intents и обновляет state
+ *
+ * **Compose Optimization:**
+ * - @Stable аннотация позволяет Comose compiler оптимизировать рекомпозицию
+ * - Все параметры immutable (val), что гарантирует стабильность
  *
  * @property email Текущий email
  * @property password Текущий пароль
@@ -16,6 +22,7 @@ package com.aggregateservice.feature.auth.presentation.model
  * @property errorMessage Сообщение об ошибке (если есть)
  * @property isLoginSuccess Флаг успешного входа
  */
+@Stable
 data class LoginUiState(
     val email: String = "",
     val password: String = "",
