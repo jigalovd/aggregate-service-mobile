@@ -11,5 +11,9 @@ kotlin {
         maybeCreate("commonMain").dependencies {
             implementation(project(":core:config"))
         }
+
+        maybeCreate("commonTest").dependencies {
+            implementation(kotlin("test"))
+        }
     }
 }

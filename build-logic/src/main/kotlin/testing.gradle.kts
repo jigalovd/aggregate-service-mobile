@@ -10,9 +10,9 @@ kotlin {
     // Common tests - shared across all platforms
     sourceSets {
         maybeCreate("commonTest").dependencies {
+            implementation(kotlin("test"))
             implementation(libs.findLibrary("kotlinx.coroutines.test").get())
-            implementation(libs.findLibrary("mockk").get())
-            implementation(libs.findLibrary("turbine").get())
+            implementation(libs.findLibrary("ktor-client-mock").get())
         }
 
         // Android unit tests
