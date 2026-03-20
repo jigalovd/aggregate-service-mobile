@@ -26,12 +26,14 @@ class MainApplication : Application() {
             apiBaseUrl = BuildConfig.API_BASE_URL.takeIf { it.isNotEmpty() }
                 ?: "https://api.dev.aggregateservice.com",
             apiKey = BuildConfig.API_KEY.takeIf { it.isNotEmpty() } ?: "",
-            environment = BuildConfig.BUILD_TYPE,
+            environmentCode = BuildConfig.BUILD_TYPE,
             languageCode = "ru",
             isDebug = BuildConfig.DEBUG,
             enableLogging = BuildConfig.DEBUG,
             networkTimeoutMs = 30000L,
             apiVersion = "v1",
+            passwordMinLength = 12,
+            passwordMaxLength = 128,
         )
 
         Config.initialize(config)
