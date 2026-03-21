@@ -14,8 +14,8 @@
 │   ├── utils/              # Validators, Extensions
 │   ├── navigation/         # Voyager navigation setup
 │   ├── di/                 # Koin modules
-│   ├── theme/              # Material 3 Theme (planned)
-│   └── i18n/               # Localization (planned)
+│   ├── theme/              # ✅ Material 3 Theme, colors, typography, RTL
+│   └── i18n/               # ✅ Localization (ru, he, en)
 ├── feature/
 │   ├── auth/               # ✅ Authentication feature (Clean Architecture)
 │   ├── catalog/            # Catalog feature (planned)
@@ -56,6 +56,8 @@
 | Компонент | Статус |
 |-----------|--------|
 | Core Infrastructure | ✅ 100% |
+| Core Theme | ✅ 100% |
+| Core i18n | ✅ 100% |
 | Auth Feature | ✅ 100% |
 | Catalog Feature | ⚪ Planned |
 | Booking Feature | ⚪ Planned |
