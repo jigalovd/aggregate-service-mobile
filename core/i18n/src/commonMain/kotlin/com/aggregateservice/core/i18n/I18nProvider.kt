@@ -173,4 +173,65 @@ object StringKey {
         const val VALIDATION = "error_validation"
         const val UNAUTHORIZED = "error_unauthorized"
     }
+
+    // Onboarding
+    object Onboarding {
+        const val SELECT_LANGUAGE = "onboarding_select_language"
+        const val WELCOME = "onboarding_welcome"
+        const val WELCOME_SUBTITLE = "onboarding_welcome_subtitle"
+        const val GET_STARTED = "onboarding_get_started"
+        const val ALREADY_HAVE_ACCOUNT = "onboarding_already_have_account"
+        const val SIGN_IN = "onboarding_sign_in"
+    }
+
+    // Map
+    object Map {
+        const val NEARBY_PROVIDERS = "map_nearby_providers"
+        const val YOUR_LOCATION = "map_your_location"
+        const val SEARCH_THIS_AREA = "map_search_this_area"
+        const val KM_AWAY = "map_km_away"
+        const val SHOW_LIST = "map_show_list"
+        const val SHOW_MAP = "map_show_map"
+    }
+
+    // Scheduling
+    object Scheduling {
+        const val SELECT_DATE = "scheduling_select_date"
+        const val SELECT_TIME = "scheduling_select_time"
+        const val AVAILABLE_SLOTS = "scheduling_available_slots"
+        const val NO_SLOTS_AVAILABLE = "scheduling_no_slots"
+        const val MORNING = "scheduling_morning"
+        const val AFTERNOON = "scheduling_afternoon"
+        const val EVENING = "scheduling_evening"
+        const val TIMEZONE_NOTE = "scheduling_timezone_note"
+    }
+
+    // Confirmation
+    object Confirmation {
+        const val TITLE = "confirmation_title"
+        const val ALMOST_DONE = "confirmation_almost_done"
+        const val REVIEW_DETAILS = "confirmation_review_details"
+        const val ADD_TO_CALENDAR = "confirmation_add_to_calendar"
+        const val BOOKING_CONFIRMED = "confirmation_booking_confirmed"
+        const val SEE_YOU = "confirmation_see_you"
+    }
+
+    // Reviews (Phase 2)
+    object Reviews {
+        const val TITLE = "reviews_title"
+        const val WRITE_REVIEW = "reviews_write"
+        const val RATING = "reviews_rating"
+        const val NO_REVIEWS = "reviews_none"
+        const val HELPFUL = "reviews_helpful"
+        const val REPORT = "reviews_report"
+    }
+
+    // Common plurals (for formatting)
+    object Plurals {
+        const val REVIEWS_COUNT = "plurals_reviews_count"
+        const val SERVICES_COUNT = "plurals_services_count"
+        const val MINUTES = "plurals_minutes"
+        const val HOURS = "plurals_hours"
+        const val KILOMETERS = "plurals_kilometers"
+    }
 }

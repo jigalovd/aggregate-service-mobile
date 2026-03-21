@@ -105,6 +105,55 @@ public object DefaultStrings {
         "error_unknown" to "An unexpected error occurred.",
         "error_validation" to "Please check your input.",
         "error_unauthorized" to "You are not authorized. Please login.",
+
+        // Onboarding
+        "onboarding_select_language" to "Select Language",
+        "onboarding_welcome" to "Welcome to Aggregate Service",
+        "onboarding_welcome_subtitle" to "Find beauty professionals near you",
+        "onboarding_get_started" to "Get Started",
+        "onboarding_already_have_account" to "Already have an account?",
+        "onboarding_sign_in" to "Sign In",
+
+        // Map
+        "map_nearby_providers" to "Nearby providers",
+        "map_your_location" to "Your location",
+        "map_search_this_area" to "Search this area",
+        "map_km_away" to "{km} km away",
+        "map_show_list" to "Show list",
+        "map_show_map" to "Show map",
+
+        // Scheduling
+        "scheduling_select_date" to "Select date",
+        "scheduling_select_time" to "Select time",
+        "scheduling_available_slots" to "Available slots",
+        "scheduling_no_slots" to "No available slots for this date",
+        "scheduling_morning" to "Morning",
+        "scheduling_afternoon" to "Afternoon",
+        "scheduling_evening" to "Evening",
+        "scheduling_timezone_note" to "Times shown in your local timezone",
+
+        // Confirmation
+        "confirmation_title" to "Confirmation",
+        "confirmation_almost_done" to "Almost done!",
+        "confirmation_review_details" to "Review your booking details",
+        "confirmation_add_to_calendar" to "Add to calendar",
+        "confirmation_booking_confirmed" to "Booking confirmed!",
+        "confirmation_see_you" to "See you on {date}",
+
+        // Reviews (Phase 2)
+        "reviews_title" to "Reviews",
+        "reviews_write" to "Write a review",
+        "reviews_rating" to "Rating",
+        "reviews_none" to "No reviews yet",
+        "reviews_helpful" to "Helpful",
+        "reviews_report" to "Report",
+
+        // Plurals
+        "plurals_reviews_count" to "{count} reviews",
+        "plurals_services_count" to "{count} services",
+        "plurals_minutes" to "{count} minutes",
+        "plurals_hours" to "{count} hours",
+        "plurals_kilometers" to "{count} km",
     )
 
     /**
@@ -204,6 +253,55 @@ public object DefaultStrings {
         "error_unknown" to "Произошла непредвиденная ошибка.",
         "error_validation" to "Проверьте введённые данные.",
         "error_unauthorized" to "Вы не авторизованы. Пожалуйста, войдите.",
+
+        // Onboarding
+        "onboarding_select_language" to "Выберите язык",
+        "onboarding_welcome" to "Добро пожаловать в Aggregate Service",
+        "onboarding_welcome_subtitle" to "Найдите мастеров красоты рядом с вами",
+        "onboarding_get_started" to "Начать",
+        "onboarding_already_have_account" to "Уже есть аккаунт?",
+        "onboarding_sign_in" to "Войти",
+
+        // Map
+        "map_nearby_providers" to "Мастера рядом",
+        "map_your_location" to "Ваше местоположение",
+        "map_search_this_area" to "Искать здесь",
+        "map_km_away" to "{km} км",
+        "map_show_list" to "Показать список",
+        "map_show_map" to "Показать карту",
+
+        // Scheduling
+        "scheduling_select_date" to "Выберите дату",
+        "scheduling_select_time" to "Выберите время",
+        "scheduling_available_slots" to "Доступные слоты",
+        "scheduling_no_slots" to "Нет доступных слотов на эту дату",
+        "scheduling_morning" to "Утро",
+        "scheduling_afternoon" to "День",
+        "scheduling_evening" to "Вечер",
+        "scheduling_timezone_note" to "Время показано в вашем часовом поясе",
+
+        // Confirmation
+        "confirmation_title" to "Подтверждение",
+        "confirmation_almost_done" to "Почти готово!",
+        "confirmation_review_details" to "Проверьте детали записи",
+        "confirmation_add_to_calendar" to "Добавить в календарь",
+        "confirmation_booking_confirmed" to "Запись подтверждена!",
+        "confirmation_see_you" to "До встречи {date}",
+
+        // Reviews (Phase 2)
+        "reviews_title" to "Отзывы",
+        "reviews_write" to "Написать отзыв",
+        "reviews_rating" to "Рейтинг",
+        "reviews_none" to "Отзывов пока нет",
+        "reviews_helpful" to "Полезно",
+        "reviews_report" to "Пожаловаться",
+
+        // Plurals
+        "plurals_reviews_count" to "{count} отзывов",
+        "plurals_services_count" to "{count} услуг",
+        "plurals_minutes" to "{count} минут",
+        "plurals_hours" to "{count} часов",
+        "plurals_kilometers" to "{count} км",
     )
 
     /**
@@ -303,6 +401,55 @@ public object DefaultStrings {
         "error_unknown" to "אירעה שגיאה בלתי צפויה.",
         "error_validation" to "בדוק את הנתונים שהוזנו.",
         "error_unauthorized" to "אינך מורשה. אנא התחבר.",
+
+        // Onboarding
+        "onboarding_select_language" to "בחר שפה",
+        "onboarding_welcome" to "Aggregate Service",
+        "onboarding_welcome_subtitle" to "מצאו אנשי מקצוע קרוב אליך",
+        "onboarding_get_started" to "התחל",
+        "onboarding_already_have_account" to "יש לך חשבון?",
+        "onboarding_sign_in" to "התחברות",
+
+        // Map
+        "map_nearby_providers" to "בעלי מקצוע בקרבת מקום",
+        "map_your_location" to "המיקום שלך",
+        "map_search_this_area" to "חפש באזור זו",
+        "map_km_away" to "{km} ק\"מ ממך",
+        "map_show_list" to "הצג רשימה",
+        "map_show_map" to "הצג מפה",
+
+        // Scheduling
+        "scheduling_select_date" to "בחר תאריך",
+        "scheduling_select_time" to "בחר שעה",
+        "scheduling_available_slots" to "משבצות זמינות",
+        "scheduling_no_slots" to "אין משבצות זמינות לתאריך זה",
+        "scheduling_morning" to "בוקר",
+        "scheduling_afternoon" to "צהריים",
+        "scheduling_evening" to "ערב",
+        "scheduling_timezone_note" to "הזמנים מוצגים לפי אזור הזמן שלך",
+
+        // Confirmation
+        "confirmation_title" to "אישור",
+        "confirmation_almost_done" to "כמעט סיימ!",
+        "confirmation_review_details" to "סקור את פרטי ההזמנה",
+        "confirmation_add_to_calendar" to "הוסף ללוח שנה",
+        "confirmation_booking_confirmed" to "ההזמנה אושרה!",
+        "confirmation_see_you" to "נתראה ב-{date}",
+
+        // Reviews (Phase 2)
+        "reviews_title" to "ביקורות",
+        "reviews_write" to "כתוב ביקורת",
+        "reviews_rating" to "דירוג",
+        "reviews_none" to "אין ביקורות עדיין",
+        "reviews_helpful" to "מועיל",
+        "reviews_report" to "דווח",
+
+        // Plurals
+        "plurals_reviews_count" to "{count} ביקורות",
+        "plurals_services_count" to "{count} שירותים",
+        "plurals_minutes" to "{count} דקות",
+        "plurals_hours" to "{count} שעות",
+        "plurals_kilometers" to "{count} ק\"מ",
     )
 
     /**
