@@ -1,0 +1,51 @@
+package com.aggregateservice.feature.catalog.di
+
+import com.aggregateservice.feature.catalog.data.api.CatalogApiService
+import com.aggregateservice.feature.catalog.data.repository.CatalogRepositoryImpl
+import com.aggregateservice.feature.catalog.domain.repository.CatalogRepository
+import com.aggregateservice.feature.catalog.domain.usecase.GetCategoriesUseCase
+import com.aggregateservice.feature.catalog.domain.usecase.GetProviderDetailsUseCase
+import com.aggregateservice.feature.catalog.domain.usecase.GetProviderServicesUseCase
+import com.aggregateservice.feature.catalog.domain.usecase.SearchProvidersUseCase
+import com.aggregateservice.feature.catalog.presentation.screenmodel.CatalogScreenModel
+import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.module
+
+/**
+ * Catalog feature DI модуль.
+ *
+ * Предоставляет зависимости для feature:catalog:
+ * - Repository (implementation)
+ * - UseCases (domain layer)
+ * - ScreenModels (presentation layer)
+ *
+ * **Dependency Graph:**
+ * ```
+ * CatalogScreenModel
+ *   ├── SearchProvidersUseCase
+ *   │     └── CatalogRepository
+ *   │           └── CatalogApiService (HttpClient)
+ *   └── GetCategoriesUseCase
+ *         └── CatalogRepository
+ * ```
+ *
+ * **Important:** Все зависимости разрешаются через Koin DI container.
+ */
+val catalogModule = module {
+    // Repository
+    single<CatalogRepository> {
+        CatalogRepositoryImpl(
+            apiService = get(),
+        )
+    }
+
+    // UseCases (Domain layer)
+    factoryOf(::SearchProvidersUseCase)
+    factoryOf(::GetProviderDetailsUseCase)
+    factoryOf(::GetProviderServicesUseCase)
+    factoryOf(::GetCategoriesUseCase)
+
+    // ScreenModels (Presentation layer)
+    factoryOf(::CatalogScreenModel)
+}
