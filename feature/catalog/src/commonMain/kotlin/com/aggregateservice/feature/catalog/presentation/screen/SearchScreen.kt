@@ -31,6 +31,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -95,6 +96,16 @@ fun SearchScreenContent(
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
 
+    // Derived state for pagination - prevents redundant onLoadMore calls
+    val shouldLoadMore by remember {
+        derivedStateOf {
+            val layoutInfo = listState.layoutInfo
+            val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()?.index
+            val totalItems = layoutInfo.totalItemsCount
+            lastVisibleItem != null && lastVisibleItem >= totalItems - 5
+        }
+    }
+
     // Show error
     LaunchedEffect(uiState.error) {
         uiState.error?.let { error ->
@@ -106,12 +117,8 @@ fun SearchScreenContent(
     }
 
     // Load more when scrolled to end
-    LaunchedEffect(listState) {
-        val layoutInfo = listState.layoutInfo
-        val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()?.index
-        val totalItems = layoutInfo.totalItemsCount
-
-        if (lastVisibleItem != null && lastVisibleItem >= totalItems - 5) {
+    LaunchedEffect(shouldLoadMore) {
+        if (shouldLoadMore) {
             onLoadMore()
         }
     }

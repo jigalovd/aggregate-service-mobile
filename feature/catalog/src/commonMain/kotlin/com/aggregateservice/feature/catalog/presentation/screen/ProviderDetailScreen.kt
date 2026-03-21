@@ -129,15 +129,15 @@ fun ProviderDetailScreenContent(
                 error = uiState.error!!,
                 onRetry = onRetry,
             )
-            uiState.isLoaded -> ProviderDetailContent(
-                provider = uiState.provider!!,
+            uiState.isLoaded && uiState.provider != null -> ProviderDetailContent(
+                provider = uiState.provider,
                 services = uiState.filteredServices,
                 serviceCategories = uiState.serviceCategories,
                 selectedCategoryId = uiState.selectedCategoryId,
                 isLoadingServices = uiState.isLoadingServices,
                 isOpenNow = uiState.isOpenNow,
                 onCategorySelected = onCategorySelected,
-                onServiceClick = onServiceClick,
+                onServiceClick = { service -> onServiceClick(service) },
                 modifier = Modifier.padding(paddingValues),
             )
         }
