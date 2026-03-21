@@ -52,7 +52,11 @@ class LoginUseCaseTest {
         val email = "test@example.com"
         val password = "ValidPassword123"
         val accessToken = "test_access_token"
-        val expectedState = AuthState.authenticated(accessToken, email)
+        val expectedState = AuthState.Authenticated(
+            accessToken = accessToken,
+            userId = email,
+            userEmail = email
+        )
         mockRepository.loginResult = Result.success(expectedState)
 
         val credentials = LoginCredentials(email = email, password = password)
@@ -136,7 +140,11 @@ class LoginUseCaseTest {
         val email = "a".repeat(243) + "@example.com" // 243 + 12 = 255
         assertEquals(255, email.length)
 
-        val expectedState = AuthState.authenticated("token", email)
+        val expectedState = AuthState.Authenticated(
+            accessToken = "token",
+            userId = email,
+            userEmail = email
+        )
         mockRepository.loginResult = Result.success(expectedState)
 
         val credentials = LoginCredentials(email = email, password = "ValidPassword123")
@@ -149,7 +157,13 @@ class LoginUseCaseTest {
     fun `should pass credentials exactly as provided to repository`() = runTest {
         val email = "Test.User+tag@Example.Com" // Mixed case with special chars
         val password = "ComplexPassword!@#$%123"
-        mockRepository.loginResult = Result.success(AuthState.authenticated("token", email))
+        mockRepository.loginResult = Result.success(
+            AuthState.Authenticated(
+                accessToken = "token",
+                userId = email,
+                userEmail = email
+            )
+        )
 
         val credentials = LoginCredentials(email = email, password = password)
         loginUseCase(credentials)

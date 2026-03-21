@@ -78,7 +78,9 @@ class LoginScreenModelTest {
     @Test
     fun `initial state has empty email and password`() {
         loginUseCase = LoginUseCase(
-            repository = createMockRepository(Result.success(AuthState.authenticated("token", "test@test.com")))
+            repository = createMockRepository(Result.success(
+                AuthState.Authenticated(accessToken = "token", userId = "test@test.com", userEmail = "test@test.com")
+            ))
         )
         screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase)
 
@@ -198,7 +200,9 @@ class LoginScreenModelTest {
 
     @Test
     fun `onLoginClick sets loading state during login`() = runTest {
-        loginUseCase = LoginUseCase(createMockRepository(Result.success(AuthState.authenticated("token", "test@test.com"))))
+        loginUseCase = LoginUseCase(createMockRepository(Result.success(
+            AuthState.Authenticated(accessToken = "token", userId = "test@test.com", userEmail = "test@test.com")
+        )))
         screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase)
 
         screenModel.onEmailChanged("test@example.com")
@@ -212,7 +216,9 @@ class LoginScreenModelTest {
 
     @Test
     fun `onLoginClick sets isLoginSuccess on successful login`() = runTest {
-        loginUseCase = LoginUseCase(createMockRepository(Result.success(AuthState.authenticated("token", "test@test.com"))))
+        loginUseCase = LoginUseCase(createMockRepository(Result.success(
+            AuthState.Authenticated(accessToken = "token", userId = "test@test.com", userEmail = "test@test.com")
+        )))
         screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase)
 
         screenModel.onEmailChanged("test@example.com")
@@ -283,7 +289,9 @@ class LoginScreenModelTest {
 
     @Test
     fun `onLoginClick does nothing when canLogin is false`() = runTest {
-        loginUseCase = LoginUseCase(createMockRepository(Result.success(AuthState.authenticated("token", "test@test.com"))))
+        loginUseCase = LoginUseCase(createMockRepository(Result.success(
+            AuthState.Authenticated(accessToken = "token", userId = "test@test.com", userEmail = "test@test.com")
+        )))
         screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase)
 
         screenModel.onLoginClick()

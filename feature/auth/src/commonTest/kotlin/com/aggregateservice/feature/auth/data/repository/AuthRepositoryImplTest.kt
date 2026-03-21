@@ -93,8 +93,13 @@ class AuthRepositoryImplTest {
 
         val authState = result.getOrNull()!!
         assertTrue(authState.isAuthenticated, "Auth state should be authenticated")
-        assertEquals(accessToken, authState.accessToken)
-        assertEquals(email, authState.userEmail)
+        when (authState) {
+            is AuthState.Authenticated -> {
+                assertEquals(accessToken, authState.accessToken)
+                assertEquals(email, authState.userEmail)
+            }
+            is AuthState.Guest -> throw AssertionError("Expected Authenticated state")
+        }
     }
 
     @Test

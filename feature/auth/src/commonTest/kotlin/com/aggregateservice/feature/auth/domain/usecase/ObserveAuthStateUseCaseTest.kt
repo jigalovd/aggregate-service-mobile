@@ -54,7 +54,7 @@ class ObserveAuthStateUseCaseTest {
         val state = stateFlow.first()
 
         assertFalse(state.isAuthenticated)
-        assertEquals(AuthState.Initial, state)
+        assertEquals(AuthState.Guest, state)
     }
 
     @Test
@@ -67,8 +67,13 @@ class ObserveAuthStateUseCaseTest {
         val state = stateFlow.first()
 
         assertTrue(state.isAuthenticated)
-        assertEquals(token, state.accessToken)
-        assertEquals(email, state.userEmail)
+        when (state) {
+            is AuthState.Authenticated -> {
+                assertEquals(token, state.accessToken)
+                assertEquals(email, state.userEmail)
+            }
+            is AuthState.Guest -> throw AssertionError("Expected Authenticated state")
+        }
     }
 
     @Test
@@ -124,7 +129,10 @@ class ObserveAuthStateUseCaseTest {
         val state = stateFlow.first()
 
         assertTrue(state.isAuthenticated)
-        assertEquals(email, state.userEmail)
+        when (state) {
+            is AuthState.Authenticated -> assertEquals(email, state.userEmail)
+            is AuthState.Guest -> throw AssertionError("Expected Authenticated state")
+        }
     }
 
     @Test
@@ -136,21 +144,28 @@ class ObserveAuthStateUseCaseTest {
         val state = stateFlow.first()
 
         assertTrue(state.isAuthenticated)
-        assertEquals(token, state.accessToken)
+        when (state) {
+            is AuthState.Authenticated -> assertEquals(token, state.accessToken)
+            is AuthState.Guest -> throw AssertionError("Expected Authenticated state")
+        }
     }
 
     /**
      * Mock implementation of AuthRepository for testing
      */
     private class MockAuthRepository : AuthRepository {
-        private val authStateFlow = MutableStateFlow<AuthState>(AuthState.Initial)
+        private val authStateFlow = MutableStateFlow<AuthState>(AuthState.Guest)
 
         fun setAuthenticated(token: String, email: String) {
-            authStateFlow.value = AuthState.authenticated(token, email)
+            authStateFlow.value = AuthState.Authenticated(
+                accessToken = token,
+                userId = email,
+                userEmail = email
+            )
         }
 
         fun setUnauthenticated() {
-            authStateFlow.value = AuthState.Initial
+            authStateFlow.value = AuthState.Guest
         }
 
         override fun observeAuthState(): StateFlow<AuthState> = authStateFlow
@@ -158,13 +173,17 @@ class ObserveAuthStateUseCaseTest {
         override fun getCurrentAuthState(): AuthState = authStateFlow.value
 
         override suspend fun login(credentials: LoginCredentials): Result<AuthState> {
-            val state = AuthState.authenticated("token", credentials.email)
+            val state = AuthState.Authenticated(
+                accessToken = "token",
+                userId = credentials.email,
+                userEmail = credentials.email
+            )
             authStateFlow.value = state
             return Result.success(state)
         }
 
         override suspend fun logout() {
-            authStateFlow.value = AuthState.Initial
+            authStateFlow.value = AuthState.Guest
         }
 
         override suspend fun refreshToken(): Result<String> {

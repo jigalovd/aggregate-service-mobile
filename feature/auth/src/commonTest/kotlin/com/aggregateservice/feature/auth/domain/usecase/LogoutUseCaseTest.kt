@@ -114,7 +114,11 @@ class LogoutUseCaseTest {
         var isLogoutCalled = false
 
         fun setAuthenticated(token: String, email: String) {
-            authStateFlow.value = AuthState.authenticated(token, email)
+            authStateFlow.value = AuthState.Authenticated(
+                accessToken = token,
+                userId = email,
+                userEmail = email
+            )
         }
 
         override fun observeAuthState(): StateFlow<AuthState> = authStateFlow
@@ -122,7 +126,11 @@ class LogoutUseCaseTest {
         override fun getCurrentAuthState(): AuthState = authStateFlow.value
 
         override suspend fun login(credentials: LoginCredentials): Result<AuthState> {
-            val state = AuthState.authenticated("token", credentials.email)
+            val state = AuthState.Authenticated(
+                accessToken = "token",
+                userId = credentials.email,
+                userEmail = credentials.email
+            )
             authStateFlow.value = state
             return Result.success(state)
         }

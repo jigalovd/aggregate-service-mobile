@@ -8,6 +8,7 @@ import com.aggregateservice.core.network.AppError
 import com.aggregateservice.core.storage.TokenStorage
 import com.aggregateservice.feature.auth.data.dto.AuthResponse
 import com.aggregateservice.feature.auth.data.dto.RefreshTokenResponse
+import com.aggregateservice.feature.auth.domain.model.AuthState
 import com.aggregateservice.feature.auth.domain.model.LoginCredentials
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -300,7 +301,10 @@ class AuthRepositoryErrorHandlingTest {
         // After initialization, auth state should reflect saved token
         val authState = repository.getCurrentAuthState()
         assertTrue(authState.isAuthenticated, "Should be authenticated with saved token")
-        assertEquals(savedToken, authState.accessToken)
+        when (authState) {
+            is AuthState.Authenticated -> assertEquals(savedToken, authState.accessToken)
+            is AuthState.Guest -> throw AssertionError("Expected Authenticated state")
+        }
     }
 
     @Test

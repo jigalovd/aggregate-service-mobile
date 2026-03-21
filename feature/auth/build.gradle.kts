@@ -9,6 +9,9 @@ android {
 kotlin {
     sourceSets {
         maybeCreate("commonMain").dependencies {
+            // Core modules
+            implementation(project(":core:navigation"))
+
             // Network (для Repository)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)

@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.navigation.AppNavHost
 import com.aggregateservice.core.theme.appTheme
-import com.aggregateservice.feature.auth.presentation.screen.LoginScreen
+import com.aggregateservice.feature.catalog.presentation.screen.CatalogScreen
 import org.koin.java.KoinJavaComponent.inject
 
 /**
@@ -19,7 +19,11 @@ import org.koin.java.KoinJavaComponent.inject
  * - Entry point для Android
  * - Использует Compose для UI
  * - Навигация через Voyager (AppNavHost)
- * - Start screen = LoginScreen (пока нет аутентификации)
+ * - Start screen = CatalogScreen (guest mode by default)
+ *
+ * **Guest Mode:**
+ * - Unregistered users can browse catalog
+ * - Registration required for booking/reviews
  */
 class MainActivity : ComponentActivity() {
 
@@ -36,7 +40,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     AppNavHost(
-                        startScreen = LoginScreen(),
+                        startScreen = CatalogScreen(),
                     )
                 }
             }

@@ -81,9 +81,10 @@ class AuthRepositoryImpl(
             // Токен есть, но нам также нужна информация о пользователе
             // Для сейчас просто устанавливаем Authenticated без email
             // В реальном приложении можно сделать вызов /auth/me для получения email
-            _authState.value = AuthState.authenticated(
-                token = savedToken,
-                email = null, // Email не сохранен, потребуется UI запрос
+            _authState.value = AuthState.Authenticated(
+                accessToken = savedToken,
+                userId = "restored", // Placeholder userId for restored sessions
+                userEmail = null, // Email not stored, will need UI to fetch
             )
         }
     }
@@ -112,9 +113,11 @@ class AuthRepositoryImpl(
                 tokenStorage.saveAccessToken(newToken)
 
                 // 5. Маппим DTO → Domain модель
-                val newState = AuthState.authenticated(
-                    token = newToken,
-                    email = credentials.email,
+                // Note: userId from API would be ideal, using email-based placeholder for now
+                val newState = AuthState.Authenticated(
+                    accessToken = newToken,
+                    userId = credentials.email, // Use email as userId until API returns proper userId
+                    userEmail = credentials.email,
                 )
 
                 // 6. Обновляем состояние
@@ -135,8 +138,8 @@ class AuthRepositoryImpl(
         // Очищаем токены
         tokenStorage.clearTokens()
 
-        // Сбрасываем состояние
-        _authState.value = AuthState.Initial
+        // Сбрасываем состояние в Guest
+        _authState.value = AuthState.Guest
     }
 
     override suspend fun refreshToken(): Result<String> {
