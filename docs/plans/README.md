@@ -3,11 +3,34 @@
 **Last Updated**: 2026-03-21
 **Status**: Active Development
 **Architecture**: Feature-First + Clean Architecture
-**Current Progress**: 45%
+**Current Progress**: 35% → 55% (sprint target)
 
 ---
 
 ## 📋 Active Plans
+
+### 03. Sprint: Catalog Feature Completion 🎯 CURRENT
+
+**Status:** 🔄 ACTIVE - Current sprint
+**Created:** 2026-03-21
+**Timeline:** 2 weeks
+**Priority:** 🔴 CRITICAL
+
+**Sprint Goals:**
+- Complete Catalog Presentation Layer (ProviderDetailScreen, SearchScreen, CategorySelectionScreen)
+- Add 30+ Unit tests for Catalog
+- Raise Test Coverage from 25% to 40%+
+- Prepare foundation for Booking Feature
+
+**Daily Breakdown:**
+- Days 1-4: ProviderDetailScreen + ScreenModel
+- Days 5-7: SearchScreen + Filters
+- Days 8-9: Tests (UseCases, Mappers, ScreenModels)
+- Day 10: CI/CD Setup (optional)
+
+**Details:** [03-sprint-catalog-completion.md](03-sprint-catalog-completion.md)
+
+---
 
 ### 02. Development Roadmap (12 Weeks) 🚀
 
@@ -18,7 +41,7 @@
 
 **Phases:**
 - **Phase 1**: Core Foundation (Week 1-2) - ✅ COMPLETE - theme, i18n modules
-- **Phase 2**: Catalog Feature (Week 3-4) - 🔄 CURRENT - search & browse providers
+- **Phase 2**: Catalog Feature (Week 3-4) - 🔄 CURRENT (70% → 100%)
 - **Phase 3**: Booking Feature (Week 5-6) - booking flow
 - **Phase 4**: Profile Feature (Week 7) - user management
 - **Phase 5**: Additional Features (Week 8) - favorites, reviews
@@ -72,12 +95,13 @@
 
 | Metric | Value |
 |--------|-------|
-| **Total Active Plans** | 1 (Development Roadmap) |
+| **Total Active Plans** | 2 (Sprint + Roadmap) |
 | **Total Completed Plans** | 1 (Quality Infrastructure) |
-| **Total Phases** | 7 phases (roadmap) |
-| **Estimated Duration** | 12 weeks (full roadmap) |
-| **Current Sprint** | Phase 2 (Catalog Feature) |
-| **Files to Create** | 100+ (features, tests, configs) |
+| **Current Sprint** | Sprint 5 - Catalog Completion |
+| **Sprint Duration** | 2 weeks |
+| **Sprint Progress Target** | 35% → 55% |
+| **Test Coverage Target** | 25% → 40%+ |
+| **Files to Create (Sprint)** | 15+ (screens, tests) |
 
 ---
 
@@ -148,22 +172,28 @@
 
 ## 🚀 Next Steps
 
-**Completed (Phase 1 - Core Foundation):**
-1. ✅ Create `:core:theme` module
-2. ✅ Create `:core:i18n` module
-3. ✅ Implement Material 3 theme (colors, typography, shapes, spacing)
-4. ✅ Add localization (ru, he, en)
-5. ✅ RTL support for Hebrew/Arabic
-6. ✅ MainActivity integration
+**Completed (Sprint 1-4):**
+1. ✅ Core Infrastructure (build-logic, network, storage, navigation)
+2. ✅ Auth Feature (Domain + Data + presentation + Guest Mode)
+3. ✅ Core:Theme module (Material 3, RTL)
+4. ✅ Core:I18n module (ru, he, en)
+5. ✅ Catalog Domain Layer (Provider, Service, Category, UseCases)
+6. ✅ Catalog Data Layer (DTOs, Mappers, Repository)
 
-**Immediate (This Week - Phase 2):**
-1. ⬜ Start Catalog Feature
-2. ⬜ Domain: Provider, Service, Category entities
-3. ⬜ Data: CatalogApiService, DTOs, Repository
-4. ⬜ Presentation: CatalogScreen, SearchScreen
+**Immediate (Sprint 5 - This Week):**
+1. ⬜ ProviderDetailScreen + ScreenModel
+2. ⬜ SearchScreen + Filters
+3. ⬜ CategorySelectionScreen
+4. ⬜ Catalog Unit Tests (30+ tests)
+5. ⬜ CI/CD Setup (GitHub Actions)
+
+**Next Sprint (Sprint 6):**
+1. ⬜ Booking Feature Domain Layer
+2. ⬜ Booking Feature Data Layer
+3. ⬜ Booking Flow Screens
 
 ---
 
 **Last Updated**: 2026-03-21
-**Next Review**: Weekly sprint planning
+**Next Review**: 2026-03-28 (End of Sprint 5)
 **Owner**: Development Team
