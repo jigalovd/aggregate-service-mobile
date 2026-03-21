@@ -21,6 +21,7 @@ package com.aggregateservice.feature.catalog.domain.model
  * @property pageSize Размер страницы
  */
 data class SearchFilters(
+    val query: String? = null,
     val categoryIds: List<String> = emptyList(),
     val latitude: Double? = null,
     val longitude: Double? = null,
