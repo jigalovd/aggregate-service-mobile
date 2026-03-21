@@ -1,76 +1,49 @@
-# 📊 Business Documentation
+# Business Documentation
 
-**Дата:** 27.02.2026 | **Прогресс:** ~50-55%
-
----
-
-## 📚 Документы
-
-### Управление проектом
-
-| Документ                                                     | Описание                        | Обновлён   |
-|--------------------------------------------------------------|---------------------------------|------------|
-| [00_IMPLEMENTATION_STATUS.md](./00_IMPLEMENTATION_STATUS.md) @./00_IMPLEMENTATION_STATUS.md | Статус реализации, Gap Analysis | 27.02.2026 |
-| [11_MVP_SCOPE.md](./11_MVP_SCOPE.md) @./11_MVP_SCOPE.md                         | MVP определение, IN/OUT Scope   | 27.02.2026 |
-| [BACKLOG.md](./BACKLOG.md) @./BACKLOG.md                                   | Задачи и приоритеты             | 27.02.2026 |
-| [10_KPIS_AND_METRICS.md](./10_KPIS_AND_METRICS.md) @./10_KPIS_AND_METRICS.md           | KPIs и метрики                  | 27.02.2026 |
-
-### Требования
-
-| Документ                                   | Описание               |
-|--------------------------------------------|------------------------|
-| [01_USER_STORIES.md](./01_USER_STORIES.md) @./01_USER_STORIES.md | User Stories по эпикам |
-| [02_USE_CASES.md](./02_USE_CASES.md) @./02_USE_CASES.md       | Детальные сценарии     |
-| [03_USER_FLOW.md](./03_USER_FLOW.md) @./03_USER_FLOW.md       | UI/UX потоки           |
-
-### Стратегия
-
-| Документ                                                 | Описание                              |
-|----------------------------------------------------------|---------------------------------------|
-| [07_USER_PERSONAS.md](./07_USER_PERSONAS.md) @./07_USER_PERSONAS.md             | 4 персоны (Мария, Анна, Елена, Ольга) |
-| [08_CUSTOMER_JOURNEY.md](./08_CUSTOMER_JOURNEY.md) @./08_CUSTOMER_JOURNEY.md       | Customer Journey Maps                 |
-| [09_COMPETITOR_ANALYSIS.md](./09_COMPETITOR_ANALYSIS.md) @./09_COMPETITOR_ANALYSIS.md | Анализ конкурентов                    |
-| [05_I18N_STRATEGY.md](./05_I18N_STRATEGY.md) @./05_I18N_STRATEGY.md             | Интернационализация                   |
-| [06_REPUTATION_STRATEGY.md](./06_REPUTATION_STRATEGY.md) @./06_REPUTATION_STRATEGY.md | Рейтинговая система                   |
+**Важное:** Эти документы из бэкенд-проекта и содержат примеры на Flutter/Dart. Для Kotlin Multiplatform версий см. [docs/mobile/](../mobile/)
 
 ---
 
-## 🎯 Quick Links
+## Справочные материалы (Reference Only)
 
-| Роль       | Ключевые документы                                                        |
-|------------|---------------------------------------------------------------------------|
-| Аналитик   | [Personas](./07_USER_PERSONAS.md) @./07_USER_PERSONAS.md, [Journey](./08_CUSTOMER_JOURNEY.md) @./08_CUSTOMER_JOURNEY.md    |
-| PM         | [MVP Scope](./11_MVP_SCOPE.md) @./11_MVP_SCOPE.md, [Backlog](./BACKLOG.md) @./BACKLOG.md                   |
-| Архитектор | [Статус](./00_IMPLEMENTATION_STATUS.md) @./00_IMPLEMENTATION_STATUS.md, [KPIs](./10_KPIS_AND_METRICS.md) @./10_KPIS_AND_METRICS.md |
-
----
-
-## 📊 Краткое резюме
-
-### MVP Scope
-
-**IN:** E1 (Auth), E2 (Catalog), E3 (Booking)
-**OUT (Phase 2):** E4 (Service Management), E5 (Reviews), E6 (Push)
-
-### Target Metrics (Month 1)
-
-| Метрика            | Цель |
-|--------------------|------|
-| Completed Bookings | 50   |
-| Registered Users   | 100  |
-| Active Providers   | 50   |
-
-### UVP
-
-1. Multi-Role System - мастера могут быть клиентами
-2. Geo-Search "Здесь и сейчас"
-3. Focus on Freelancers (underserved segment)
-4. Free for Providers (vs $30-90/месяц у конкурентов)
+| Документ | Описание |
+|----------|----------|
+| [01_USER_STORIES.md](01_USER_STORIES.md) | User stories + API endpoints |
+| [02_USE_CASES.md](02_USE_CASES.md) | Детальные сценарии использования |
+| [03_USER_FLOW.md](03_USER_FLOW.md) | UI/UX потоки (wireframes) |
+| [05_I18N_STRATEGY.md](05_I18N_STRATEGY.md) | i18n стратегия (Flutter examples) |
+| [07_USER_PERSONAS.md](07_USER_PERSONAS.md) | Персоны пользователей |
+| [08_CUSTOMER_JOURNEY.md](08_CUSTOMER_JOURNEY.md) | Customer Journey Maps |
+| [11_MVP_SCOPE.md](11_MVP_SCOPE.md) | MVP scope definition |
 
 ---
 
-## 🔗 Связанные разделы
+## Адаптированные документы (KMP/CMP)
 
-- [Backend Architecture](../architecture/backend/README.md) @../architecture/backend/README.md
-- [Role-based Guides](../role/) @../role/
-- [Archive](../archive/) @../archive/ - исторические документы
+| Документ | Расположение | Описание |
+|----------|--------------|----------|
+| I18N_STRATEGY.md | [mobile/I18N_STRATEGY.md](../mobile/I18N_STRATEGY.md) | Адаптировано под KMP/CMP |
+| IMPLEMENTATION_GAP.md | [mobile/IMPLEMENTATION_GAP.md](../mobile/IMPLEMENTATION_GAP.md) | Gap analysis backend vs mobile |
+| USER_FLOW_UX_COMPLIANCE.md | [mobile/USER_FLOW_UX_COMPLIANCE.md](../mobile/USER_FLOW_UX_COMPLIANCE.md) | UX compliance report |
+
+---
+
+## API Reference
+
+| Endpoint | Описание |
+|----------|----------|
+| `POST /auth/login` | Авторизация |
+| `POST /auth/register` | Регистрация |
+| `POST /auth/refresh` | Обновление токена |
+| `GET /providers` | Поиск мастеров |
+| `GET /providers/{id}` | Профиль мастера |
+| `GET /providers/{id}/services` | Услуги мастера |
+| `GET /slots` | Доступные слоты |
+| `POST /bookings` | Создание записи |
+| `PATCH /bookings/{id}/cancel` | Отмена записи |
+
+Полный API reference: [BACKEND_API_REFERENCE.md](../BACKEND_API_REFERENCE.md)
+
+---
+
+**Last Updated:** 2026-03-21

@@ -4,12 +4,14 @@
 
 | Метрика | Текущее значение | Цель | Прогресс |
 |---------|------------------|------|----------|
-| **Общий прогресс** | 45% | 100% | ████░░░░░░ |
+| **Общий прогресс** | 20% | 100% | ██░░░░░░░░ |
 | **Core Infrastructure** | 100% | 100% | ██████████ |
 | **Quality Infrastructure** | 100% | 100% | ██████████ |
 | **Features Implemented** | 1/7 | 7 | █░░░░░░░░░ |
 | **Test Coverage** | 25% | 80% | ██░░░░░░░░ |
 | **Documentation** | 100% | 100% | ██████████ |
+
+**⚠️ Gap Analysis:** Backend MVP готов на 100%, mobile реализует только Auth login (~30% Auth feature). Критические пропуски: Registration, Catalog, Booking.
 
 **Last Updated**: 2026-03-21
 **Project Phase**: Phase 1 Complete - Core Foundation

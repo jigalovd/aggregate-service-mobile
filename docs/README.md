@@ -166,6 +166,32 @@ cd beauty-service/mobile
 - [Coding Standards](../architecture/CODING_STANDARDS.md) - стандарты кода
 - [API Design](../architecture/backend/01_API_DESIGN.md) - API спецификация
 
+---
+
+## Business Documentation Integration
+
+### Адаптированные документы (docs/mobile/)
+
+Документы, адаптированные под Kotlin Multiplatform + Compose Multiplatform:
+
+| Документ | Описание |
+|----------|----------|
+| [mobile/I18N_STRATEGY.md](mobile/I18N_STRATEGY.md) | Стратегия локализации с KMP/CMP примерами |
+| [mobile/UI_FLOWS.md](mobile/UI_FLOWS.md) | UI/UX потоки с Compose примерами (planned) |
+| [mobile/USER_STORIES.md](mobile/USER_STORIES.md) | User stories для mobile (planned) |
+
+### Reference документы (docs/business/)
+
+Оригинальные документы из бэкенд-проекта - использовать как справочные материалы:
+
+| Документ | Описание |
+|----------|----------|
+| [business/01_USER_STORIES.md](business/01_USER_STORIES.md) | Полные user stories |
+| [business/03_USER_FLOW.md](business/03_USER_FLOW.md) | Детальные UI/UX потоки |
+| [business/05_I18N_STRATEGY.md](business/05_I18N_STRATEGY.md) | Оригинальная i18n стратегия |
+| [business/07_USER_PERSONAS.md](business/07_USER_PERSONAS.md) | Персоны пользователей |
+| [business/11_MVP_SCOPE.md](business/11_MVP_SCOPE.md) | MVP scope definition |
+
 ## Статус проекта
 
 **Phase**: Infrastructure Setup (80% complete)

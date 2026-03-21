@@ -11,6 +11,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added - 2026-03-21
 
+#### Business Documentation Integration
+
+- ✅ **docs/mobile/ directory created**
+  - `README.md` - Index for mobile-specific documentation
+  - `I18N_STRATEGY.md` - Adapted i18n strategy for KMP/CMP
+  - `IMPLEMENTATION_GAP.md` - Gap analysis between backend and mobile
+
+- ✅ **docs/ updates**
+  - `docs/README.md` - Added Business Documentation Integration section
+  - `docs/business/README.md` - Added disclaimer about Flutter examples
+  - `docs/IMPLEMENTATION_STATUS.md` - Updated with realistic progress (20%)
+
+- ✅ **core:i18n extended**
+  - Added 30+ new StringKey entries (Onboarding, Map, Scheduling, Confirmation, Reviews, Plurals)
+  - Added translations for all new keys in RU/HE/EN
+
+- ✅ **Gap Analysis Completed**
+  - Identified 80% gap between backend MVP readiness and mobile implementation
+  - Documented critical missing features: Registration, Catalog, Booking
+  - Created prioritized timeline for MVP completion
+
+- ✅ **USER_FLOW vs UX Guidelines Compliance**
+  - Created compliance report: 6.2/10 score
+  - Identified critical violations: Short Flows, Smart Defaults, Progressive Disclosure
+  - Recommendations for flow simplification (7-8 → 2-3 steps)
+
+- ✅ **Business Documentation Cleanup**
+  - Removed backend-specific files (Epics/, AUDIT_FINDINGS, BACKLOG, etc.)
+  - Kept only mobile-relevant references: USER_STORIES, USER_FLOW, I18N, PERSONAS, MVP_SCOPE
+  - Updated README.md with clear reference-only notices
+
 #### Phase 1: Core Foundation (Complete) 🎉
 
 - ✅ **:core:theme - 100%**
