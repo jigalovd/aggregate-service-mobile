@@ -4,14 +4,14 @@
 
 | Метрика | Текущее значение | Цель | Прогресс |
 |---------|------------------|------|----------|
-| **Общий прогресс** | 20% | 100% | ██░░░░░░░░ |
+| **Общий прогресс** | 35% | 100% | ███░░░░░░░ |
 | **Core Infrastructure** | 100% | 100% | ██████████ |
 | **Quality Infrastructure** | 100% | 100% | ██████████ |
-| **Features Implemented** | 1/7 | 7 | █░░░░░░░░░ |
+| **Features Implemented** | 2/7 | 7 | ██░░░░░░░░ |
 | **Test Coverage** | 25% | 80% | ██░░░░░░░░ |
 | **Documentation** | 100% | 100% | ██████████ |
 
-**⚠️ Gap Analysis:** Backend MVP готов на 100%, mobile реализует только Auth login (~30% Auth feature). Критические пропуски: Registration, Catalog, Booking.
+**⚠️ Gap Analysis:** Backend MVP готов на 100%, mobile реализует Auth (100%) + Catalog Phase 1 (70%). Критические пропуски: Registration, Booking, remaining Catalog screens.
 
 **Last Updated**: 2026-03-21
 **Project Phase**: Phase 1 Complete - Core Foundation
@@ -149,7 +149,7 @@ gradle = "8.14.4"             # ✅ Latest wrapper
 | Эпик | Feature | Domain | Data | Presentation | UI | 总 Progress |
 |------|---------|--------|------|--------------|-----|-------------|
 | **E1** | Auth | ✅ 100% | ✅ 100% | ✅ 100% | ✅ 100% | ██████████ 100% |
-| **E2** | Catalog | ⚪ 0% | ⚪ 0% | ⚪ 0% | ⚪ 0% | ░░░░░░░░░░ 0% |
+| **E2** | Catalog | ✅ 100% | ✅ 100% | 🟡 70% | ⚪ 0% | ███████░░░ 70% |
 | **E3** | Booking | ⚪ 0% | ⚪ 0% | ⚪ 0% | ⚪ 0% | ░░░░░░░░░░ 0% |
 | **E4** | Services | ⚪ 0% | ⚪ 0% | ⚪ 0% | ⚪ 0% | ░░░░░░░░░░ 0% |
 | **E5** | Profile | ⚪ 0% | ⚪ 0% | ⚪ 0% | ⚪ 0% | ░░░░░░░░░░ 0% |
@@ -242,13 +242,91 @@ feature/auth/
 
 ---
 
-#### E2: Catalog (Каталог мастеров)
+#### E2: Catalog (Каталог мастеров) 🟡 IN PROGRESS (70%)
+
 **Business Value**: Позволяет пользователям искать и просматривать мастеров и услуги
 
 **Components Status**:
-- **Domain Layer** ⚪ Not Started
-- **Data Layer** ⚪ Not Started
-- **Presentation Layer** ⚪ Not Started
+- **Domain Layer** ✅ Complete
+  - [x] Provider (entity with location, workingHours, rating)
+  - [x] Service (entity with pricing, duration)
+  - [x] Category (hierarchical categories)
+  - [x] Location (value object for geo coordinates)
+  - [x] WorkingHours (weekly schedule with breaks)
+  - [x] SearchFilters (pagination, sorting, filtering)
+  - [x] SearchResult (paginated result wrapper)
+  - [x] CatalogRepository interface
+  - [x] SearchProvidersUseCase
+  - [x] GetCategoriesUseCase
+  - [x] GetProviderDetailsUseCase
+  - [x] GetProviderServicesUseCase
+
+- **Data Layer** ✅ Complete
+  - [x] ProviderDto, CategoryDto, ServiceDto, WorkingHoursDto
+  - [x] ProviderMapper, CategoryMapper, ServiceMapper
+  - [x] CatalogApiService (Ktor + safeApiCall)
+  - [x] CatalogRepositoryImpl
+
+- **Presentation Layer** 🟡 In Progress (70%)
+  - [x] CatalogUiState (@Stable, MVI pattern)
+  - [x] CatalogScreenModel (Voyager ScreenModel + StateFlow)
+  - [x] CatalogScreen (Compose UI with LazyColumn pagination)
+  - [ ] SearchScreen + SearchScreenModel
+  - [ ] ProviderDetailScreen
+  - [ ] CategorySelectionScreen
+
+- **DI Layer** ✅ Complete
+  - [x] CatalogModule (Koin)
+
+- **Test Coverage** ⚪ Not Started
+  - [ ] Unit tests for UseCases
+  - [ ] Unit tests for Mappers
+  - [ ] UI tests for CatalogScreenModel
+
+**Files**:
+```
+feature/catalog/
+├── src/commonMain/kotlin/
+│   ├── domain/
+│   │   ├── model/
+│   │   │   ├── Category.kt
+│   │   │   ├── Location.kt
+│   │   │   ├── Provider.kt
+│   │   │   ├── SearchFilters.kt
+│   │   │   ├── SearchResult.kt
+│   │   │   ├── Service.kt
+│   │   │   └── WorkingHours.kt
+│   │   ├── repository/
+│   │   │   └── CatalogRepository.kt
+│   │   └── usecase/
+│   │       ├── GetCategoriesUseCase.kt
+│   │       ├── GetProviderDetailsUseCase.kt
+│   │       ├── GetProviderServicesUseCase.kt
+│   │       └── SearchProvidersUseCase.kt
+│   ├── data/
+│   │   ├── api/
+│   │   │   └── CatalogApiService.kt
+│   │   ├── dto/
+│   │   │   ├── CategoryDto.kt
+│   │   │   ├── ProviderDto.kt
+│   │   │   ├── ServiceDto.kt
+│   │   │   └── WorkingHoursDto.kt
+│   │   ├── mapper/
+│   │   │   ├── CategoryMapper.kt
+│   │   │   ├── ProviderMapper.kt
+│   │   │   └── ServiceMapper.kt
+│   │   └── repository/
+│   │       └── CatalogRepositoryImpl.kt
+│   ├── presentation/
+│   │   ├── model/
+│   │   │   └── CatalogUiState.kt
+│   │   ├── screen/
+│   │   │   └── CatalogScreen.kt
+│   │   └── screenmodel/
+│   │       └── CatalogScreenModel.kt
+│   └── di/
+│       └── CatalogModule.kt
+```
 
 **Dependencies**: `:core:network`, `:core:storage`, `:core:navigation`
 
@@ -354,34 +432,64 @@ feature/auth/
 - [x] Deep code review passed (99/100 score)
 - [x] All detekt/ktlint checks pass (0 violations)
 
+### Sprint 4: Catalog Feature Phase 1 🟡 IN PROGRESS (70%)
+
+**Completed Tasks**:
+- [x] Domain: Provider, Service, Category entities
+- [x] Domain: Location, WorkingHours value objects
+- [x] Domain: SearchFilters with pagination and sorting
+- [x] Domain: CatalogRepository interface
+- [x] Domain: 4 UseCases (Search, GetCategories, GetProviderDetails, GetProviderServices)
+- [x] Data: DTOs (ProviderDto, CategoryDto, ServiceDto, WorkingHoursDto)
+- [x] Data: Mappers (ProviderMapper, CategoryMapper, ServiceMapper)
+- [x] Data: CatalogApiService with safeApiCall
+- [x] Data: CatalogRepositoryImpl
+- [x] Presentation: CatalogUiState (@Stable, MVI pattern)
+- [x] Presentation: CatalogScreenModel (Voyager + StateFlow)
+- [x] Presentation: CatalogScreen (Compose UI with LazyColumn pagination)
+- [x] DI: CatalogModule (Koin)
+- [x] Deep code review fixes (safeApiCall, workingHours mapping)
+
+**Pending Tasks**:
+- [ ] Presentation: SearchScreen + SearchScreenModel
+- [ ] Presentation: ProviderDetailScreen
+- [ ] Presentation: CategorySelectionScreen
+- [ ] Tests: Unit tests for UseCases
+- [ ] Tests: UI tests for CatalogScreenModel
+
 ---
 
 ## 📋 Next Steps (Priority Order)
 
-### Priority 1: Catalog Feature (Week 4-5) 🎯 CURRENT
+### Priority 1: Catalog Feature Phase 2 🎯 CURRENT
 
-1. **Implement Catalog Feature**
-   - Domain: Provider, Service, Category entities
-   - Data: CatalogApiService, DTOs, Repository
-   - Presentation: CatalogScreen, SearchScreen
+1. **Complete Catalog Presentation Layer**
+   - SearchScreen + SearchScreenModel (filters, search bar)
+   - ProviderDetailScreen (profile, services, reviews)
+   - CategorySelectionScreen (category picker)
 
-2. **Maps Integration**
+2. **Add Unit Tests for Catalog**
+   - UseCase tests (SearchProvidersUseCase, GetCategoriesUseCase)
+   - Mapper tests (ProviderMapper, CategoryMapper)
+   - CatalogScreenModel tests
+
+3. **Maps Integration**
    - Google Maps Android
    - Mapkit/Google Maps iOS interop
 
-### Priority 2: Booking Feature (Week 5-6)
+### Priority 2: Booking Feature (Week 6-7)
 
-3. **Implement Booking Feature**
+4. **Implement Booking Feature**
    - Domain: Booking, TimeSlot entities
    - Data: BookingApiService, Repository
    - Presentation: BookingFlow screens
 
-### Priority 3: Additional Features (Week 6-8)
+### Priority 3: Additional Features (Week 7-10)
 
-4. **Implement Services Feature** (Provider management)
-5. **Implement Profile Feature**
-6. **Implement Favorites Feature**
-7. **Implement Reviews Feature**
+5. **Implement Services Feature** (Provider management)
+6. **Implement Profile Feature**
+7. **Implement Favorites Feature**
+8. **Implement Reviews Feature**
 
 ---
 
@@ -394,15 +502,16 @@ feature/auth/
 | W1-2 | Infrastructure | 12 tasks | 12 tasks | 100% |
 | W3-4 | Auth Feature | 10 tasks | 10 tasks | 100% |
 | W4-5 | Core Foundation | 8 tasks | 8 tasks | 100% |
-| W5-6 | Catalog | 15 tasks | 0 tasks | 0% |
+| W5-6 | Catalog Phase 1 | 15 tasks | 11 tasks | 73% |
+| W6-7 | Catalog Phase 2 | 12 tasks | 0 tasks | 0% |
 
 ### Burndown Chart
 
 ```
 Total Story Points: ~200 (estimated)
-Remaining: 110
-Completed: 90
-Sprint: 3/12
+Remaining: 80
+Completed: 120
+Sprint: 4/12
 ```
 
 ---
@@ -421,6 +530,6 @@ Sprint: 3/12
 
 ---
 
-**Documentation Version**: 2.1
-**Last Sync**: 2026-03-21 (Updated after Phase 1 - Core Foundation completion)
+**Documentation Version**: 2.2
+**Last Sync**: 2026-03-21 (Updated after Catalog Feature Phase 1 - 70% complete)
 **Next Review**: 2026-03-28

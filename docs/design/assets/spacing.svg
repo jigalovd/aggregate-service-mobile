@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <style>
+      .title { font-family: 'Segoe UI', Arial, sans-serif; font-size: 24px; font-weight: 600; fill: #1C1B1F; }
+      .subtitle { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; fill: #49454F; }
+      .section-title { font-family: 'Segoe UI', Arial, sans-serif; font-size: 16px; font-weight: 600; fill: #6750A4; }
+      .label { font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; fill: #1C1B1F; }
+      .spec { font-family: 'Consolas', monospace; font-size: 11px; fill: #49454F; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="500" fill="#FFFBFE"/>
+
+  <!-- Title -->
+  <text x="40" y="45" class="title">Aggregate Service — Spacing System</text>
+  <text x="40" y="65" class="subtitle">8dp Grid System</text>
+
+  <!-- Spacing Tokens Section -->
+  <text x="40" y="110" class="section-title">Spacing Tokens</text>
+
+  <!-- None -->
+  <rect x="40" y="125" width="0" height="30" fill="#6750A4"/>
+  <text x="60" y="145" class="label">None</text>
+  <text x="130" y="145" class="spec">0dp</text>
+
+  <!-- XXS -->
+  <rect x="40" y="165" width="2" height="30" fill="#6750A4"/>
+  <text x="60" y="185" class="label">XXS</text>
+  <text x="130" y="185" class="spec">2dp — Minimal spacing</text>
+
+  <!-- XS -->
+  <rect x="40" y="205" width="4" height="30" fill="#6750A4"/>
+  <text x="60" y="225" class="label">XS</text>
+  <text x="130" y="225" class="spec">4dp — Icon padding, badges</text>
+
+  <!-- SM -->
+  <rect x="40" y="245" width="8" height="30" fill="#6750A4"/>
+  <text x="60" y="265" class="label">SM</text>
+  <text x="130" y="265" class="spec">8dp — Internal component padding</text>
+
+  <!-- MD -->
+  <rect x="40" y="285" width="16" height="30" fill="#6750A4"/>
+  <text x="70" y="305" class="label">MD</text>
+  <text x="130" y="305" class="spec">16dp — Standard padding</text>
+
+  <!-- LG -->
+  <rect x="40" y="325" width="24" height="30" fill="#6750A4"/>
+  <text x="78" y="345" class="label">LG</text>
+  <text x="130" y="345" class="spec">24dp — Section spacing</text>
+
+  <!-- XL -->
+  <rect x="40" y="365" width="32" height="30" fill="#6750A4"/>
+  <text x="86" y="385" class="label">XL</text>
+  <text x="130" y="385" class="spec">32dp — Large block spacing</text>
+
+  <!-- XXL -->
+  <rect x="40" y="405" width="48" height="30" fill="#6750A4"/>
+  <text x="102" y="425" class="label">XXL</text>
+  <text x="130" y="425" class="spec">48dp — Extra large blocks</text>
+
+  <!-- 8dp Grid Visualization -->
+  <text x="400" y="110" class="section-title">8dp Grid Visualization</text>
+
+  <!-- Grid -->
+  <rect x="400" y="125" width="360" height="200" fill="#E7E0EC" rx="8"/>
+
+  <!-- Grid lines -->
+  <line x1="400" y1="141" x2="760" y2="141" stroke="#CAC4D0" stroke-width="0.5" stroke-dasharray="2,2"/>
+  <line x1="400" y1="157" x2="760" y2="157" stroke="#CAC4D0" stroke-width="0.5" stroke-dasharray="2,2"/>
+  <line x1="400" y1="173" x2="760" y2="173" stroke="#CAC4D0" stroke-width="0.5" stroke-dasharray="2,2"/>
+  <line x1="400" y1="189" x2="760" y2="189" stroke="#CAC4D0" stroke-width="0.5" stroke-dasharray="2,2"/>
+  <line x1="400" y1="205" x2="760" y2="205" stroke="#CAC4D0" stroke-width="0.5" stroke-dasharray="2,2"/>
+  <line x1="400" y1="221" x2="760" y2="221" stroke="#CAC4D0" stroke-width="0.5" stroke-dasharray="2,2"/>
+  <line x1="400" y1="237" x2="760" y2="237" stroke="#CAC4D0" stroke-width="0.5" stroke-dasharray="2,2"/>
+  <line x1="400" y1="253" x2="760" y2="253" stroke="#CAC4D0" stroke-width="0.5" stroke-dasharray="2,2"/>
+  <line x1="400" y1="269" x2="760" y2="269" stroke="#CAC4D0" stroke-width="0.5" stroke-dasharray="2,2"/>
+  <line x1="400" y1="285" x2="760" y2="285" stroke="#CAC4D0" stroke-width="0.5" stroke-dasharray="2,2"/>
+  <line x1="400" y1="301" x2="760" y2="301" stroke="#CAC4D0" stroke-width="0.5" stroke-dasharray="2,2"/>
+
+  <!-- Sample Card -->
+  <rect x="424" y="141" width="312" height="168" rx="12" fill="#FFFBFE" stroke="#79747E" stroke-width="1"/>
+
+  <!-- Card content with 16dp padding -->
+  <rect x="440" y="157" width="56" height="56" rx="28" fill="#6750A4"/>
+  <rect x="512" y="165" width="200" height="12" rx="6" fill="#E7E0EC"/>
+  <rect x="512" y="185" width="150" height="8" rx="4" fill="#CAC4D0"/>
+  <rect x="512" y="201" width="100" height="8" rx="4" fill="#CAC4D0"/>
+
+  <!-- Button with 8dp internal padding -->
+  <rect x="440" y="249" width="120" height="40" rx="20" fill="#6750A4"/>
+  <text x="470" y="274" style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; font-weight: 500; fill: #FFFFFF;">Button</text>
+
+  <!-- Labels -->
+  <text x="424" y="335" class="spec">Card padding: 16dp (MD)</text>
+  <text x="424" y="350" class="spec">Button height: 40dp (5 × 8dp)</text>
+  <text x="424" y="365" class="spec">Avatar: 56dp (7 × 8dp)</text>
+
+  <!-- Dimensions Section -->
+  <text x="400" y="410" class="section-title">Component Dimensions</text>
+
+  <rect x="400" y="425" width="32" height="32" rx="4" fill="#EADDFF" stroke="#6750A4" stroke-width="1"/>
+  <text x="440" y="445" class="spec">Icon SM: 20dp</text>
+
+  <rect x="540" y="420" width="48" height="48" rx="4" fill="#EADDFF" stroke="#6750A4" stroke-width="1"/>
+  <text x="595" y="445" class="spec">Touch target: 48dp min</text>
+
+  <rect x="400" y="470" width="120" height="40" rx="8" fill="#E8DEF8" stroke="#625B71" stroke-width="1"/>
+  <text x="530" y="495" class="spec">Button SM: 32dp, MD: 40dp, LG: 48dp</text>
+</svg>

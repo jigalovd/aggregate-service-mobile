@@ -11,6 +11,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added - 2026-03-21
 
+#### Catalog Feature Phase 1 (70% Complete) 🎯
+
+- ✅ **Feature: Catalog - Domain Layer**
+  - `Provider` entity (businessName, rating, location, workingHours, isVerified)
+  - `Service` entity (name, description, basePrice, durationMinutes)
+  - `Category` entity (hierarchical with parentId, children)
+  - `Location` value object (latitude, longitude, city, address)
+  - `WorkingHours` value object (monday-sunday with breaks)
+  - `SearchFilters` (pagination, sorting, category filtering, geo-radius)
+  - `SearchResult<T>` (paginated result wrapper)
+  - `CatalogRepository` interface
+  - `SearchProvidersUseCase`, `GetCategoriesUseCase`, `GetProviderDetailsUseCase`, `GetProviderServicesUseCase`
+
+- ✅ **Feature: Catalog - Data Layer**
+  - `ProviderDto`, `CategoryDto`, `ServiceDto`, `WorkingHoursDto` DTOs
+  - `ProviderMapper`, `CategoryMapper`, `ServiceMapper` (DTO → Domain)
+  - `CatalogApiService` with `safeApiCall` wrapper
+  - `CatalogRepositoryImpl`
+
+- ✅ **Feature: Catalog - Presentation Layer**
+  - `CatalogUiState` (@Stable, MVI pattern with pagination)
+  - `CatalogScreenModel` (Voyager ScreenModel + StateFlow)
+  - `CatalogScreen` (Compose UI with LazyColumn, category chips, error handling)
+
+- ✅ **Feature: Catalog - DI Layer**
+  - `CatalogModule` (Koin module with factoryOf)
+
+- ✅ **Deep Code Review Fixes**
+  - Fixed `CatalogApiService`: replaced raw try-catch with `safeApiCall`
+  - Fixed `ProviderMapper`: added proper `workingHours` mapping
+
+- ✅ **Documentation**
+  - `CATALOG_FEATURE.md` - Complete feature documentation
+  - Updated `IMPLEMENTATION_STATUS.md` with Catalog progress (70%)
+
+#### Auth Feature Tests
+
+- ✅ **Auth Feature Unit Tests (79 → 82 tests)**
+  - `AuthRepositoryErrorHandlingTest` - 15 tests for HTTP error scenarios
+  - `AuthStateTest` - 12 tests for AuthState sealed class
+  - `LoginCredentialsTest` - 14 tests for credentials validation
+  - `LoginUseCaseTest` - 9 tests for login business logic
+  - `LogoutUseCaseTest` - 5 tests for logout flow
+  - `ObserveAuthStateUseCaseTest` - 6 tests for auth state observation
+
 #### Business Documentation Integration
 
 - ✅ **docs/mobile/ directory created**
@@ -371,11 +416,12 @@ implementation(libs.findLibrary("ktor-client-darwin").get())
 
 ## Future Plans
 
-### [0.2.0] - Planned (Week 4-5)
-- 🎯 Catalog feature implementation
-- 🗺️ Maps integration (Google Maps)
+### [0.2.0] - In Progress (Week 5-6)
+- 🟡 Catalog feature Phase 2 (SearchScreen, ProviderDetailScreen)
+- 🎯 Maps integration (Google Maps)
+- 🧪 Unit tests for Catalog feature
 
-### [0.3.0] - Planned (Week 5-6)
+### [0.3.0] - Planned (Week 6-7)
 - 🎯 Booking feature implementation
 - 📍 Location services
 
@@ -389,6 +435,6 @@ implementation(libs.findLibrary("ktor-client-darwin").get())
 
 ---
 
-**Changelog Version**: 2.1
+**Changelog Version**: 2.2
 **Last Updated**: 2026-03-21
 **Maintained By**: Development Team

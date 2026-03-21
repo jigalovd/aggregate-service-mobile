@@ -2,59 +2,80 @@
 
 Aggregate Service Mobile App на базе Kotlin Multiplatform и Compose Multiplatform.
 
-## Обзор документов
+**👉 [Полный индекс документации](00_INDEX.md)**
 
-### Архитектура и анализ
+---
 
-| Документ                                                     | Описание                                            |
-|--------------------------------------------------------------|-----------------------------------------------------|
-| [01_KMP_CMP_ANALYSIS.md](01_KMP_CMP_ANALYSIS.md)             | Анализ Kotlin Multiplatform и Compose Multiplatform |
-| [TECHNOLOGY_STACK_ANALYSIS.md](TECHNOLOGY_STACK_ANALYSIS.md) | 🔬 Анализ технологического стека (плюсы/минусы)    |
-| [NETWORK_LAYER.md](NETWORK_LAYER.md)                         | 🌐 Network Layer архитектура (Ktor 3.4.1)           |
-| [BUILD_LOGIC.md](BUILD_LOGIC.md)                             | 🔧 Build Logic & Convention Plugins                  |
-| [CONFIG_MANAGEMENT.md](CONFIG_MANAGEMENT.md)                 | 🔐 Централизованное управление конфигурацией         |
-| [02_MAP_PROVIDERS_ANALYSIS.md](02_MAP_PROVIDERS_ANALYSIS.md) | Сравнительный анализ поставщиков карт               |
-| [04_DESIGN_SYSTEM.md](04_DESIGN_SYSTEM.md)                   | Design System базового уровня                       |
-| [05_UX_GUIDELINES.md](05_UX_GUIDELINES.md)                   | UX Guidelines                                       |
-| [CODE_QUALITY_GUIDE.md](CODE_QUALITY_GUIDE.md)               | 📚 Гайд по Detekt и Ktlint                          |
+## 📊 Статус проекта
 
-### Трекинг и статус
+| Метрика | Значение |
+|---------|----------|
+| **Общий прогресс** | 45% |
+| **Core Infrastructure** | 100% |
+| **Features Implemented** | 1/7 (Auth) |
+| **Architecture** | Feature-First + Clean Architecture |
 
-| Документ                                                     | Описание                                            |
-|--------------------------------------------------------------|-----------------------------------------------------|
-| [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md)         | 📊 Статус реализации проекта (20% complete)         |
-| [CHANGELOG.md](../CHANGELOG.md)                             | 📝 Changelog проекта и миграции                      |
+---
 
-### Планирование и ревью
+## 📁 Структура документации
 
-| Документ                                                     | Описание                                            |
-|--------------------------------------------------------------|-----------------------------------------------------|
-| [plans/01-quality-infrastructure-and-cicd.md](plans/01-quality-infrastructure-and-cicd.md) | 🎯 План внедрения качества кода и CI/CD (2 weeks) |
-| [reviews/2026-03-19-deep-code-review.md](reviews/2026-03-19-deep-code-review.md) | 🚨 Deep Code Review (Zero Tolerance Audit)         |
+```
+docs/
+├── 00_INDEX.md           # 📚 Полный индекс документации
+├── README.md             # Этот файл
+├── IMPLEMENTATION_STATUS.md  # 📊 Статус реализации
+│
+├── architecture/         # 🏗️ Архитектура и технологии
+├── design/               # 🎨 UI/UX и Design System
+├── quality/              # ✅ Качество кода и тестирование
+├── business/             # 💼 Бизнес-требования (reference)
+├── mobile/               # 📱 Мобильная разработка KMP/CMP
+├── features/             # 🔐 Документация по фичам
+├── plans/                # 📋 Планы развития
+├── reports/              # 📊 Ревью и отчёты
+├── reviews/              # 📋 Code reviews
+└── api/                  # 🔗 Backend API
+```
 
-## Технологический стек
+---
 
-### Core
+## 🚀 Быстрый старт
 
-- **Kotlin Multiplatform** - кроссплатформенная разработка
-- **Compose Multiplatform** - декларативный UI
-- **Coroutines** - асинхронное программирование
-- **Ktor Client** - сетевые запросы
-- **Kotlinx Serialization** - сериализация JSON
+### Ключевые документы
 
-### Platform-specific
+| Документ | Описание |
+|----------|----------|
+| [00_INDEX.md](00_INDEX.md) | 📚 Полный индекс всей документации |
+| [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) | 📊 Статус реализации (45% complete) |
+| [Development Roadmap](plans/02-development-roadmap.md) | 🗺️ Roadmap на 12 недель |
 
-- **Android**: Jetpack Compose, Material 3
-- **iOS**: Compose UI (Skia rendering)
+### Архитектура
 
-### Infrastructure
+| Документ | Описание |
+|----------|----------|
+| [KMP/CMP Analysis](architecture/01_KMP_CMP_ANALYSIS.md) | Анализ Kotlin Multiplatform + Compose Multiplatform |
+| [Network Layer](architecture/NETWORK_LAYER.md) | Network Layer архитектура (Ktor 3.4.1) |
+| [Build Logic](architecture/BUILD_LOGIC.md) | Build Logic & Convention Plugins |
 
-- **Koin** - Dependency Injection
-- **Voyager / Decompose** - Navigation
-- **DataStore** - локальное хранение
-- **Coil** - загрузка изображений
+### UI/UX
 
-## Архитектура: Feature-First + Clean Architecture
+| Документ | Описание |
+|----------|----------|
+| [Design System](design/04_DESIGN_SYSTEM.md) | Design System базового уровня |
+| [UX Guidelines](design/05_UX_GUIDELINES.md) | UX Guidelines |
+
+### Качество
+
+| Документ | Описание |
+|----------|----------|
+| [Code Quality Guide](quality/CODE_QUALITY_GUIDE.md) | Гайд по Detekt и Ktlint |
+| [Testing Infrastructure](quality/TESTING_INFRASTRUCTURE.md) | Инфраструктура тестирования |
+
+---
+
+## 🏗️ Архитектура проекта
+
+### Feature-First + Clean Architecture
 
 ```
 mobile/
@@ -68,66 +89,18 @@ mobile/
 │   │   │   └── utils/                # Utilities
 │   │   │
 │   │   └── features/                 # 🎯 Feature-First: Бизнес-фичи
-│   │       ├── auth/                 # Фича "Аутентификация"
-│   │       │   ├── domain/           # Domain layer (100% shared)
-│   │       │   │   ├── model/        # User, AuthTokens
-│   │       │   │   ├── repository/   # AuthRepository (interface)
-│   │       │   │   └── usecase/      # LoginUseCase, RegisterUseCase
-│   │       │   │
-│   │       │   ├── data/             # Data layer (100% shared)
-│   │       │   │   ├── remote/       # AuthApiService
-│   │       │   │   ├── local/        # TokenStorage
-│   │       │   │   └── repository/   # AuthRepositoryImpl
-│   │       │   │
-│   │       │   └── presentation/     # Presentation layer (100% shared)
-│   │       │       ├── model/        # UI State models
-│   │       │       ├── viewmodel/    # AuthViewModel
-│   │       │       └── ui/           # LoginScreen, RegisterScreen
-│   │       │
-│   │       ├── catalog/              # Фича "Каталог"
-│   │       │   ├── domain/
-│   │       │   ├── data/
-│   │       │   └── presentation/
-│   │       │
+│   │       ├── auth/                 # Фича "Аутентификация" ✅
+│   │       ├── catalog/              # Фича "Каталог" 🔄
 │   │       ├── booking/              # Фича "Бронирование"
-│   │       │   ├── domain/
-│   │       │   ├── data/
-│   │       │   └── presentation/
-│   │       │
 │   │       ├── profile/              # Фича "Профиль"
-│   │       │   ├── domain/
-│   │       │   ├── data/
-│   │       │   └── presentation/
-│   │       │
 │   │       └── favorites/            # Фича "Избранное"
-│   │           ├── domain/
-│   │           ├── data/
-│   │           └── presentation/
 │   │
 │   ├── androidMain/kotlin/           # Android-specific
-│   │   └── platform/
-│   │
 │   └── iosMain/kotlin/               # iOS-specific
-│       └── platform/
 │
 ├── androidApp/                       # Android Application
-│   └── src/main/
-│
 └── iosApp/                           # iOS Application
-    └── iosApp/
 ```
-
-## Feature-First принципы
-
-### Правила организации кода
-
-| Правило                | Описание                                            |
-|------------------------|-----------------------------------------------------|
-| **Feature = папка**    | Каждая фича в отдельной папке `features/{feature}/` |
-| **3 слоя внутри**      | domain, data, presentation внутри каждой фичи       |
-| **Domain независим**   | Domain layer не зависит от фреймворков              |
-| **Zero cross-imports** | Фичи не импортируют друг друга напрямую             |
-| **Shared Kernel**      | Общий код в `core/`, не в фичах                     |
 
 ### Зависимости слоев
 
@@ -146,62 +119,50 @@ mobile/
 └─────────────────────────────────────────────────┘
 ```
 
-## Быстрый старт
+---
 
-```bash
-# Клонировать репозиторий
-git clone <repo-url>
-cd beauty-service/mobile
+## 🔧 Технологический стек
 
-# Сборка Android
-./gradlew :androidApp:assembleDebug
+### Core
 
-# Сборка iOS (требуется macOS)
-./gradlew :shared:linkDebugFrameworkIos
-```
+| Технология | Версия | Назначение |
+|------------|--------|------------|
+| **Kotlin Multiplatform** | 2.2.20 | Кроссплатформенная разработка |
+| **Compose Multiplatform** | 1.10.2 | Декларативный UI |
+| **Ktor Client** | 3.4.1 | Сетевые запросы |
+| **Koin** | 4.2.0 | Dependency Injection |
+| **Voyager** | 1.1.0-beta02 | Navigation |
+| **DataStore** | 1.2.1 | Локальное хранение |
+| **Coil** | 3.4.0 | Загрузка изображений |
 
-## Связанные документы
+### Code Quality
 
-- [Backend Architecture](../architecture/backend/README.md) - архитектура backend
-- [Coding Standards](../architecture/CODING_STANDARDS.md) - стандарты кода
-- [API Design](../architecture/backend/01_API_DESIGN.md) - API спецификация
+| Инструмент | Версия | Назначение |
+|------------|--------|------------|
+| **Detekt** | 1.23.8 | Static analysis (zero tolerance) |
+| **Ktlint** | 13.1.0 | Linter + Formatter |
+| **Kover** | 0.9.7 | Test coverage (target: 60%+) |
 
 ---
 
-## Business Documentation Integration
+## 📋 Текущий спринт
 
-### Адаптированные документы (docs/mobile/)
+**Phase 2: Catalog Feature (Week 3-4)**
 
-Документы, адаптированные под Kotlin Multiplatform + Compose Multiplatform:
+- [ ] Domain: Provider, Service, Category entities
+- [ ] Data: CatalogApiService, DTOs, Repository
+- [ ] Presentation: CatalogScreen, SearchScreen
 
-| Документ | Описание |
-|----------|----------|
-| [mobile/I18N_STRATEGY.md](mobile/I18N_STRATEGY.md) | Стратегия локализации с KMP/CMP примерами |
-| [mobile/UI_FLOWS.md](mobile/UI_FLOWS.md) | UI/UX потоки с Compose примерами (planned) |
-| [mobile/USER_STORIES.md](mobile/USER_STORIES.md) | User stories для mobile (planned) |
+---
 
-### Reference документы (docs/business/)
+## 🔗 Связанные ресурсы
 
-Оригинальные документы из бэкенд-проекта - использовать как справочные материалы:
+- [Backend API Reference](api/BACKEND_API_REFERENCE.md) - API документация
+- [Changelog](../CHANGELOG.md) - История изменений
+- [Business Requirements](business/) - Бизнес-требования
 
-| Документ | Описание |
-|----------|----------|
-| [business/01_USER_STORIES.md](business/01_USER_STORIES.md) | Полные user stories |
-| [business/03_USER_FLOW.md](business/03_USER_FLOW.md) | Детальные UI/UX потоки |
-| [business/05_I18N_STRATEGY.md](business/05_I18N_STRATEGY.md) | Оригинальная i18n стратегия |
-| [business/07_USER_PERSONAS.md](business/07_USER_PERSONAS.md) | Персоны пользователей |
-| [business/11_MVP_SCOPE.md](business/11_MVP_SCOPE.md) | MVP scope definition |
+---
 
-## Статус проекта
-
-**Phase**: Infrastructure Setup (80% complete)
-**Architecture**: Feature-First + Clean Architecture
-**Last Updated**: 2026-03-19
-
-### Достижения (2026-03-19)
-
-- ✅ **Core Infrastructure**: Gradle convention plugins, version catalog, KMP structure
-- ✅ **Quality Infrastructure**: Detekt (0 warnings), Ktlint (100% compliance), Kover configured
-- ✅ **Network Layer**: Ktor 3.0.3 с platform-specific engines (OkHttp/Darwin)
-- ✅ **Config Management**: Expect/actual pattern для централизованной конфигурации (API keys, environments)
-- 🔄 **Feature Development**: Auth feature запланирован (Week 3-4)
+**Last Updated:** 2026-03-21
+**Architecture:** Feature-First + Clean Architecture
+**Phase:** Phase 2 - Catalog Feature
