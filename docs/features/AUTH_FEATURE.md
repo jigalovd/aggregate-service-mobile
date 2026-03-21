@@ -3,21 +3,38 @@
 **Feature Name**: Authentication
 **Epic**: E1
 **Status**: ✅ Complete (100%)
-**Last Updated**: 2026-03-20
+**Last Updated**: 2026-03-21
 
 ---
 
 ## 📋 Overview
 
-Auth Feature реализует полный цикл аутентификации пользователей: вход в систему, автоматическое обновление токенов и выход из системы. Построена на принципах Clean Architecture с полным разделением на Domain, Data, Presentation и DI слои.
+Auth Feature реализует полный цикл аутентификации пользователей с поддержкой **Guest Mode**: незарегистрированные пользователи могут просматривать каталог, а для действий требующих записи (бронирование, отзывы, избранное) им предлагается зарегистрироваться. Построена на принципах Clean Architecture с полным разделением на Domain, Data, Presentation и DI слои.
 
 ### Бизнес-ценность
 
 | Функция | Описание | Ценность |
 |---------|----------|----------|
+| **Guest Mode** | Просмотр каталога без регистрации | Низкий барьер входа для новых пользователей |
 | **Login** | Вход по email/паролю | Пользователи получают доступ к персонализированному контенту |
 | **Auto Refresh** | Автоматическое обновление токенов | Бесшовный опыт без повторного логина |
-| **Logout** | Безопасный выход | Защита данных пользователя |
+| **Logout** | Безопасный выход в Guest состояние | Защита данных пользователя |
+
+### Guest Mode Flow
+
+```
+┌─────────────┐    Browse    ┌──────────────┐
+│   Guest     │ ──────────►  │   Catalog    │
+│  (default)  │              │   Screen     │
+└─────────────┘              └──────────────┘
+      │
+      │  Attempt: Booking/Review/Favorites
+      ▼
+┌─────────────┐              ┌──────────────┐
+│ AuthPrompt  │ ──────────►  │  Login or    │
+ │   Dialog   │              │  Register    │
+└─────────────┘              └──────────────┘
+```
 
 ---
 
@@ -27,11 +44,59 @@ Auth Feature реализует полный цикл аутентификаци
 
 **Пакет**: `feature/auth/src/commonMain/kotlin/domain/`
 
+#### AuthState Model
+
+```kotlin
+// AuthState.kt
+sealed class AuthState {
+
+    abstract val userId: String?
+    abstract val isAuthenticated: Boolean
+    abstract val canWrite: Boolean
+
+    /**
+     * Guest state - unregistered user with read-only access.
+     * - No token stored
+     * - Can browse catalog
+     * - Cannot book, review, or save favorites
+     */
+    data object Guest : AuthState() {
+        override val userId: String? = null
+        override val isAuthenticated: Boolean = false
+        override val canWrite: Boolean = false
+    }
+
+    /**
+     * Authenticated state - registered user with full access.
+     * @property accessToken JWT access token for API calls
+     * @property userId User identifier
+     * @property userEmail User email (nullable for session restoration)
+     */
+    data class Authenticated(
+        val accessToken: String,
+        override val userId: String,
+        val userEmail: String? = null,
+    ) : AuthState() {
+        override val isAuthenticated: Boolean = true
+        override val canWrite: Boolean = true
+    }
+
+    companion object {
+        val Initial: AuthState = Guest
+    }
+}
+```
+
+| Состояние | isAuthenticated | canWrite | Описание |
+|-----------|-----------------|----------|----------|
+| `Guest` | `false` | `false` | Незарегистрированный пользователь |
+| `Authenticated` | `true` | `true` | Зарегистрированный пользователь |
+
 #### Models
 
 | Класс | Описание |
 |-------|----------|
-| `AuthState` | Sealed class для состояния аутентификации (Initial, Authenticated) |
+| `AuthState` | Sealed class: Guest / Authenticated с `canWrite` property |
 | `LoginCredentials` | Value object для учётных данных (email, password) |
 
 #### Repository Interface
@@ -52,7 +117,7 @@ interface AuthRepository {
 | UseCase | Описание | Параметры | Возврат |
 |---------|----------|-----------|---------|
 | `LoginUseCase` | Аутентификация пользователя | LoginCredentials | Result<AuthState> |
-| `LogoutUseCase` | Выход из системы | - | Result<Unit> |
+| `LogoutUseCase` | Выход в Guest состояние | - | Result<Unit> |
 | `ObserveAuthStateUseCase` | Наблюдение за состоянием | - | StateFlow<AuthState> |
 
 ---
@@ -95,14 +160,21 @@ class AuthRepositoryImpl(
     private val ioDispatcher: CoroutineDispatcher
 ) : AuthRepository {
 
-    override val authState: StateFlow<AuthState> = flow {
-        emit(AuthState.Initial)
-        // Наблюдение за токенами
-    }.stateIn(
-        scope = CoroutineScope(ioDispatcher),
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = AuthState.Initial
-    )
+    private val _authState = MutableStateFlow<AuthState>(AuthState.Guest)
+    override val authState: StateFlow<AuthState> = _authState.asStateFlow()
+
+    init {
+        // Restore session from stored token
+        ioScope.launch {
+            tokenStorage.getAccessToken()?.let { savedToken ->
+                _authState.value = AuthState.Authenticated(
+                    accessToken = savedToken,
+                    userId = "restored",
+                    userEmail = null
+                )
+            }
+        }
+    }
 
     override suspend fun login(credentials: LoginCredentials): Result<AuthState> {
         return safeApiCall<AuthResponse> {
@@ -116,38 +188,24 @@ class AuthRepositoryImpl(
                     accessToken = response.accessToken,
                     refreshToken = response.refreshToken
                 )
-                Result.success(AuthState.Authenticated(
-                    email = credentials.email,
-                    token = response.accessToken
-                ))
+                val newState = AuthState.Authenticated(
+                    accessToken = response.accessToken,
+                    userId = credentials.email,
+                    userEmail = credentials.email
+                )
+                _authState.value = newState
+                Result.success(newState)
             },
             onFailure = { Result.failure(it) }
         )
     }
 
     override suspend fun logout(): Result<Unit> {
-        return safeApiCall<Unit> {
-            httpClient.post("auth/logout")
-        }.fold(
-            onSuccess = {
-                tokenStorage.clearTokens()
-                Result.success(Unit)
-            },
-            onFailure = { Result.failure(it) }
-        )
+        tokenStorage.clearTokens()
+        _authState.value = AuthState.Guest  // Transition to Guest, not Initial
+        return Result.success(Unit)
     }
 }
-```
-
-#### Helper Functions
-
-```kotlin
-// authenticatedApiCall - обёртка для API вызовов с автоматическим refresh
-suspend inline fun <reified T : Any> authenticatedApiCall(
-    httpClient: HttpClient,
-    tokenStorage: TokenStorage,
-    crossinline apiCall: suspend () -> HttpResponse
-): Result<T>
 ```
 
 ---
@@ -155,6 +213,35 @@ suspend inline fun <reified T : Any> authenticatedApiCall(
 ### Presentation Layer (100% shared)
 
 **Пакет**: `feature/auth/src/commonMain/kotlin/presentation/`
+
+#### AuthPromptDialog (Guest Registration Prompt)
+
+```kotlin
+// AuthPromptDialog.kt
+@Composable
+fun AuthPromptDialog(
+    trigger: AuthPromptTrigger,
+    onDismiss: () -> Unit,
+    onSignIn: () -> Unit,
+    onCreateAccount: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(trigger.title) },
+        text = { Text(trigger.message) },
+        confirmButton = {
+            TextButton(onClick = onCreateAccount) {
+                Text(stringResource("guest_create_account"))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onSignIn) {
+                Text(stringResource("guest_sign_in"))
+            }
+        }
+    )
+}
+```
 
 #### UI State (UDF Pattern)
 
@@ -171,160 +258,56 @@ data class LoginUiState(
 )
 ```
 
-#### ScreenModel (Voyager)
+---
+
+### Navigation Layer - AuthGuard
+
+**Пакет**: `core/navigation/src/commonMain/kotlin/`
+
+#### AuthGuard Component
 
 ```kotlin
-// LoginScreenModel.kt
-class LoginScreenModel(
-    private val loginUseCase: LoginUseCase,
-    private val emailValidator: EmailValidator,
-    private val passwordValidator: PasswordValidator
-) : ScreenModel {
+// AuthGuard.kt
+enum class AuthPromptTrigger {
+    Booking,
+    Review,
+    Favorites;
 
-    private val _uiState = MutableStateFlow(LoginUiState())
-    val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
-
-    fun updateEmail(email: String) {
-        _uiState.update { state ->
-            state.copy(
-                email = email,
-                emailError = emailValidator.validate(email).getErrorOrNull(),
-                isFormValid = validateForm(email, state.password)
-            )
-        }
+    val title: StringKey = when (this) {
+        Booking -> StringKey.GUEST_PROMPT_BOOKING_TITLE
+        Review -> StringKey.GUEST_PROMPT_REVIEW_TITLE
+        Favorites -> StringKey.GUEST_PROMPT_FAVORITES_TITLE
     }
+}
 
-    fun updatePassword(password: String) {
-        _uiState.update { state ->
-            state.copy(
-                password = password,
-                passwordError = passwordValidator.validate(password).getErrorOrNull(),
-                isFormValid = validateForm(state.email, password)
-            )
-        }
-    }
-
-    suspend fun login(): Boolean {
-        _uiState.update { it.copy(isLoading = true, generalError = null) }
-
-        val result = loginUseCase(
-            LoginCredentials(
-                email = _uiState.value.email,
-                password = _uiState.value.password
-            )
-        )
-
-        return when {
-            result.isSuccess -> true
-            else -> {
-                _uiState.update { state ->
-                    state.copy(
-                        isLoading = false,
-                        generalError = (result.exceptionOrNull() as? AppError)
-                            ?.toUserMessage() ?: "Unknown error"
-                    )
-                }
-                false
-            }
+@Composable
+fun AuthGuard(
+    isAuthenticated: Boolean,
+    trigger: AuthPromptTrigger,
+    onShowPrompt: (AuthPromptTrigger) -> Unit,
+    content: @Composable () -> Unit
+) {
+    if (isAuthenticated) {
+        content()
+    } else {
+        // Show prompt instead of protected content
+        LaunchedEffect(trigger) {
+            onShowPrompt(trigger)
         }
     }
 }
 ```
 
-#### Screen (Compose)
+**Usage Example:**
 
 ```kotlin
-// LoginScreen.kt
-class LoginScreen : Screen {
-
-    @Composable
-    override fun Content() {
-        val screenModel = rememberScreenModel { LoginScreenModel(get(), get(), get()) }
-        val uiState by screenModel.uiState.collectAsState()
-        val navigator = LocalNavigator.currentOrThrow
-
-        LoginScreenContent(
-            uiState = uiState,
-            onEmailChange = screenModel::updateEmail,
-            onPasswordChange = screenModel::updatePassword,
-            onLoginClick = {
-                CoroutineScope(Dispatchers.Main).launch {
-                    if (screenModel.login()) {
-                        navigator.push(MainScreen)
-                    }
-                }
-            },
-            onRegisterClick = { /* Navigate to register */ }
-        )
-    }
-}
-
-@Composable
-fun LoginScreenContent(
-    uiState: LoginUiState,
-    onEmailChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit,
-    onLoginClick: () -> Unit,
-    onRegisterClick: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        // Email Field
-        OutlinedTextField(
-            value = uiState.email,
-            onValueChange = onEmailChange,
-            label = { Text("Email") },
-            isError = uiState.emailError != null,
-            supportingText = uiState.emailError?.let { { Text(it) } },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Password Field
-        OutlinedTextField(
-            value = uiState.password,
-            onValueChange = onPasswordChange,
-            label = { Text("Password") },
-            isError = uiState.passwordError != null,
-            supportingText = uiState.passwordError?.let { { Text(it) } },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        // Error Message
-        uiState.generalError?.let { error ->
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = error,
-                color = MaterialTheme.colorScheme.error
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Login Button
-        Button(
-            onClick = onLoginClick,
-            enabled = uiState.isFormValid && !uiState.isLoading,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            if (uiState.isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-            } else {
-                Text("Login")
-            }
-        }
-    }
-}
+// In BookingScreen or similar
+AuthGuard(
+    isAuthenticated = authState.canWrite,
+    trigger = AuthPromptTrigger.Booking,
+    onShowPrompt = { trigger -> showAuthPrompt(trigger) },
+    content = { BookingButton() }
+)
 ```
 
 ---
@@ -366,6 +349,21 @@ val authModule = module {
 
 ---
 
+## 🌐 I18n Keys (Guest Mode)
+
+| Key | EN | RU | HE |
+|-----|-----|-----|-----|
+| `guest_continue_as_guest` | Continue as Guest | Продолжить как гость | המשך כאורח |
+| `guest_prompt_booking_title` | Book this service? | Записаться на услугу? | להזמין שירות? |
+| `guest_prompt_booking_message` | Create an account to book... | Создайте аккаунт для записи... | צור חשבון להזמנת תורים... |
+| `guest_prompt_review_title` | Share your experience? | Поделиться опытом? | לשתף ניסיון? |
+| `guest_prompt_favorites_title` | Save for later? | Сохранить? | לשמור? |
+| `guest_create_account` | Create Account | Создать аккаунт | צור חשבון |
+| `guest_sign_in` | Sign In | Войти | התחברות |
+| `guest_maybe_later` | Maybe Later | Позже | אולי מאוחר יותר |
+
+---
+
 ## ⚠️ Error Handling
 
 ### AppError Mapping
@@ -397,7 +395,7 @@ feature/auth/
     ├── commonMain/kotlin/com/aggregateservice/feature/auth/
     │   ├── domain/
     │   │   ├── model/
-    │   │   │   ├── AuthState.kt
+    │   │   │   ├── AuthState.kt           # sealed class: Guest, Authenticated
     │   │   │   └── LoginCredentials.kt
     │   │   ├── repository/
     │   │   │   └── AuthRepository.kt
@@ -415,6 +413,8 @@ feature/auth/
     │   │       └── AuthRepositoryImpl.kt
     │   │
     │   ├── presentation/
+    │   │   ├── component/
+    │   │   │   └── AuthPromptDialog.kt    # Guest registration prompt
     │   │   ├── model/
     │   │   │   └── LoginUiState.kt
     │   │   ├── screenmodel/
@@ -426,8 +426,25 @@ feature/auth/
     │       └── AuthModule.kt
     │
     └── commonTest/kotlin/com/aggregateservice/feature/auth/
-        └── data/repository/
-            └── AuthRepositoryImplTest.kt
+        ├── domain/
+        │   ├── model/
+        │   │   ├── AuthStateTest.kt       # Tests for Guest/Authenticated states
+        │   │   └── LoginCredentialsTest.kt
+        │   └── usecase/
+        │       ├── LoginUseCaseTest.kt
+        │       ├── LogoutUseCaseTest.kt
+        │       └── ObserveAuthStateUseCaseTest.kt
+        ├── data/
+        │   └── repository/
+        │       ├── AuthRepositoryImplTest.kt
+        │       └── AuthRepositoryErrorHandlingTest.kt
+        └── presentation/
+            └── screenmodel/
+                └── LoginScreenModelTest.kt
+
+core/navigation/
+└── src/commonMain/kotlin/
+    └── AuthGuard.kt                       # Write operation protection
 ```
 
 ---
@@ -442,37 +459,63 @@ Auth Feature зависит от следующих core модулей:
 | `:core:storage` | TokenStorage для хранения токенов |
 | `:core:di` | Koin интеграция |
 | `:core:utils` | EmailValidator, PasswordValidator |
-| `:core:navigation` | Voyager Navigator, Screen sealed class |
+| `:core:navigation` | Voyager Navigator, Screen, AuthGuard |
+| `:core:i18n` | StringKey для Guest Mode строк |
 
 ---
 
 ## 🧪 Testing
 
-### Unit Tests
+### Unit Tests (79 tests)
 
 | Test | Описание | Coverage |
 |------|----------|----------|
-| `AuthRepositoryImplTest` | Тестирование репозитория | Login, Logout, Refresh |
-| `LoginScreenModelTest` | Тестирование ScreenModel | State updates, validation |
-| `EmailValidatorTest` | Валидация email | Valid/invalid cases |
-| `PasswordValidatorTest` | Валидация пароля | Strength requirements |
+| `AuthStateTest` | Тестирование Guest/Authenticated states | 12 tests |
+| `LoginCredentialsTest` | Value object validation | 14 tests |
+| `LoginUseCaseTest` | UseCase с валидацией | 9 tests |
+| `LogoutUseCaseTest` | Logout → Guest transition | 5 tests |
+| `ObserveAuthStateUseCaseTest` | StateFlow observation | 6 tests |
+| `AuthRepositoryImplTest` | Repository implementation | 3 tests |
+| `AuthRepositoryErrorHandlingTest` | Error scenarios | 15 tests |
+| `LoginScreenModelTest` | ScreenModel state management | 14 tests |
 
-### Integration Tests
+### Test Example: AuthState
 
-- Полный flow login -> authenticated request -> logout
-- Token refresh scenarios
-- Error handling scenarios
+```kotlin
+@Test
+fun `Guest state should not be authenticated`() {
+    val state = AuthState.Guest
+
+    assertFalse(state.isAuthenticated)
+    assertFalse(state.canWrite)
+    assertNull(state.userId)
+}
+
+@Test
+fun `Authenticated state should have write access`() {
+    val state = AuthState.Authenticated(
+        accessToken = "token",
+        userId = "user_123",
+        userEmail = "user@example.com"
+    )
+
+    assertTrue(state.isAuthenticated)
+    assertTrue(state.canWrite)
+    assertEquals("user_123", state.userId)
+}
+```
 
 ---
 
 ## 🔗 Related Documentation
 
-- [Network Layer](../NETWORK_LAYER.md) - Ktor configuration, safeApiCall
+- [Network Layer](../architecture/NETWORK_LAYER.md) - Ktor configuration, safeApiCall
 - [Implementation Status](../IMPLEMENTATION_STATUS.md) - Общий статус проекта
-- [Backend API Reference](../BACKEND_API_REFERENCE.md) - API endpoints
+- [Backend API Reference](../api/BACKEND_API_REFERENCE.md) - API endpoints
+- [UX Guidelines](../design/05_UX_GUIDELINES.md) - User experience best practices
 
 ---
 
-**Версия документа**: 1.0
-**Last Updated**: 2026-03-20
+**Версия документа**: 2.0
+**Last Updated**: 2026-03-21
 **Maintainer**: Development Team

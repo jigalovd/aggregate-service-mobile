@@ -71,7 +71,7 @@ gradle = "8.14.4"             # ✅ Latest wrapper
 | **:core:config** | 🟢 Complete | 100% | Expect/actual pattern, BuildConfig (Android), Info.plist (iOS), Secrets management |
 | **:core:storage** | 🟢 Complete | 100% | DataStore Preferences, TokenStorage interface + impl (Android/iOS) |
 | **:core:utils** | 🟢 Complete | 100% | EmailValidator, PasswordValidator, ValidationResult, I18nExtensions |
-| **:core:navigation** | 🟢 Complete | 100% | Voyager setup, Screen sealed class, Navigator, AppNavHost |
+| **:core:navigation** | 🟢 Complete | 100% | Voyager setup, Screen sealed class, Navigator, AppNavHost, AuthGuard for write operations |
 | **:core:di** | 🟢 Complete | 100% | CoreModule (HttpClient, Config), AndroidCoreModule (TokenStorage) |
 | **:core:theme** | 🟢 Complete | 100% | Material 3 Theme, Color scheme (light/dark), Typography, Spacing, Dimensions, RTL support |
 | **:core:i18n** | 🟢 Complete | 100% | Localization (ru, he, en), I18nProvider, StringKey, FlattenI18n helper |
@@ -160,17 +160,17 @@ gradle = "8.14.4"             # ✅ Latest wrapper
 
 #### E1: Authentication (Аутентификация) ✅ COMPLETE
 
-**Business Value**: Позволяет пользователям регистрироваться и входить в систему
+**Business Value**: Позволяет пользователям регистрироваться и входить в систему. Поддерживает Guest Mode - незарегистрированные пользователи могут просматривать каталог.
 
 **Documentation**: [Auth Feature Documentation](features/AUTH_FEATURE.md)
 
 **Components Status**:
 - **Domain Layer** ✅ Complete
-  - [x] AuthState (sealed class with Initial, Authenticated states)
+  - [x] AuthState (sealed class: Guest, Authenticated with canWrite property)
   - [x] LoginCredentials (value object)
   - [x] AuthRepository interface
   - [x] LoginUseCase (with validation)
-  - [x] LogoutUseCase
+  - [x] LogoutUseCase (transitions to Guest state)
   - [x] ObserveAuthStateUseCase
 
 - **Data Layer** ✅ Complete
@@ -184,8 +184,13 @@ gradle = "8.14.4"             # ✅ Latest wrapper
   - [x] LoginUiState (UDF pattern)
   - [x] LoginScreenModel (Voyager)
   - [x] LoginScreen (Compose)
+  - [x] AuthPromptDialog (guest registration prompt)
   - [x] Error handling with AppError.toUserMessage()
   - [x] Form validation (email, password)
+
+- **Navigation Layer** ✅ Complete
+  - [x] AuthGuard (component for protecting write operations)
+  - [x] AuthPromptTrigger enum (Booking, Review, Favorites)
 
 - **DI Layer** ✅ Complete
   - [x] AuthModule (Koin)
@@ -205,7 +210,7 @@ gradle = "8.14.4"             # ✅ Latest wrapper
 feature/auth/
 ├── src/commonMain/kotlin/
 │   ├── domain/
-│   │   ├── model/AuthState.kt
+│   │   ├── model/AuthState.kt          # sealed class: Guest, Authenticated
 │   │   ├── model/LoginCredentials.kt
 │   │   ├── repository/AuthRepository.kt
 │   │   └── usecase/
@@ -218,13 +223,14 @@ feature/auth/
 │   │   ├── dto/RefreshTokenResponse.kt
 │   │   └── repository/AuthRepositoryImpl.kt
 │   ├── presentation/
+│   │   ├── component/AuthPromptDialog.kt  # Guest registration prompt
 │   │   ├── model/LoginUiState.kt
 │   │   ├── screenmodel/LoginScreenModel.kt
 │   │   └── screen/LoginScreen.kt
 │   └── di/AuthModule.kt
 └── src/commonTest/kotlin/
     ├── domain/
-    │   ├── model/AuthStateTest.kt
+    │   ├── model/AuthStateTest.kt        # Tests for Guest/Authenticated states
     │   ├── model/LoginCredentialsTest.kt
     │   └── usecase/
     │       ├── LoginUseCaseTest.kt
@@ -236,6 +242,10 @@ feature/auth/
     │       └── AuthRepositoryErrorHandlingTest.kt
     └── presentation/
         └── screenmodel/LoginScreenModelTest.kt
+
+core/navigation/
+└── src/commonMain/kotlin/
+    └── AuthGuard.kt                      # Write operation protection component
 ```
 
 **Dependencies**: `:core:network`, `:core:storage`, `:core:di`, `:core:utils`, `:core:navigation`
@@ -530,6 +540,6 @@ Sprint: 4/12
 
 ---
 
-**Documentation Version**: 2.2
-**Last Sync**: 2026-03-21 (Updated after Catalog Feature Phase 1 - 70% complete)
+**Documentation Version**: 2.3
+**Last Sync**: 2026-03-21 (Updated: Guest Mode implementation with sealed AuthState)
 **Next Review**: 2026-03-28

@@ -11,6 +11,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added - 2026-03-21
 
+#### Guest Mode Implementation 🔐
+
+- ✅ **AuthState Refactored to Sealed Class**
+  - `AuthState.Guest` - unregistered user with read-only access
+  - `AuthState.Authenticated` - registered user with full write permissions
+  - `canWrite` property for guarding write operations
+  - `AuthState.Initial` now equals `Guest`
+
+- ✅ **New Components**
+  - `AuthGuard` composable in `:core:navigation` for protecting write operations
+  - `AuthPromptTrigger` enum (Booking, Review, Favorites)
+  - `AuthPromptDialog` composable for guest registration prompts
+
+- ✅ **I18n Support**
+  - Added 13 Guest Mode string keys (EN/RU/HE)
+  - `guest_continue_as_guest`, `guest_create_account`, `guest_sign_in`, etc.
+
+- ✅ **Navigation Update**
+  - MainActivity now starts with `CatalogScreen` (guest entry point)
+  - Users can browse catalog before registration
+
+- ✅ **Tests Updated**
+  - All 79 auth tests updated for new `AuthState` sealed class
+  - Pattern matching tests for `when` expressions
+
+- ⚠️ **BREAKING CHANGE**: `AuthState.authenticated()` factory removed
+  - Migrate to `AuthState.Authenticated(accessToken, userId, userEmail)`
+
 #### Catalog Feature Phase 1 (70% Complete) 🎯
 
 - ✅ **Feature: Catalog - Domain Layer**
