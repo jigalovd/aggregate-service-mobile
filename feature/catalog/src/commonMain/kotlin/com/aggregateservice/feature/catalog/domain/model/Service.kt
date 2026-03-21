@@ -25,6 +25,7 @@ data class Service(
     val id: String,
     val providerId: String,
     val categoryId: String,
+    val categoryName: String = "",
     val name: String,
     val description: String? = null,
     val price: Price,
@@ -37,6 +38,12 @@ data class Service(
      */
     val formattedDuration: String
         get() = "${durationMinutes} min"
+
+    /**
+     * Форматированная цена (делегирует к Price.formatted).
+     */
+    val formattedPrice: String
+        get() = price.formatted
 
     /**
      * Короткое описание для карточки (первые 100 символов description).

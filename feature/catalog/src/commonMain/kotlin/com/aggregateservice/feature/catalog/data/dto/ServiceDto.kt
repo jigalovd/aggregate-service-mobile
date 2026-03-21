@@ -25,6 +25,8 @@ data class ServiceDto(
     val id: String,
     val providerId: String,
     val categoryId: String,
+    @SerialName("category_name")
+    val categoryName: String? = null,
     val name: String,
     val description: String? = null,
     @SerialName("price") val price: Double,

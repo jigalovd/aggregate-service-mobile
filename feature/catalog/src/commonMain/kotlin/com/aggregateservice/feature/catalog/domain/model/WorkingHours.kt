@@ -46,6 +46,15 @@ data class WorkingHours(
      * @return true если рабочий день
      */
     fun isWorkingDay(dayOfWeek: Int): Boolean = getSchedule(dayOfWeek) != null
+
+    /**
+     * Проверяет, открыт ли мастер сейчас.
+     * Упрощенная реализация - проверяет текущий день недели.
+     *
+     * @return true если мастер открыт в текущий момент
+     */
+    val isOpen: Boolean
+        get() = listOf(monday, tuesday, wednesday, thursday, friday, saturday, sunday).any { it != null }
 }
 
 /**

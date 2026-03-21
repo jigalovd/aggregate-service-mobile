@@ -19,6 +19,7 @@ object ServiceMapper {
         id = dto.id,
         providerId = dto.providerId,
         categoryId = dto.categoryId,
+        categoryName = dto.categoryName ?: "",
         name = dto.name,
         description = dto.description,
         price = Price(

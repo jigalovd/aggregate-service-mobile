@@ -8,6 +8,7 @@ import com.aggregateservice.feature.catalog.domain.usecase.GetProviderDetailsUse
 import com.aggregateservice.feature.catalog.domain.usecase.GetProviderServicesUseCase
 import com.aggregateservice.feature.catalog.domain.usecase.SearchProvidersUseCase
 import com.aggregateservice.feature.catalog.presentation.screenmodel.CatalogScreenModel
+import com.aggregateservice.feature.catalog.presentation.screenmodel.ProviderDetailScreenModel
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -27,6 +28,12 @@ import org.koin.dsl.module
  *   │     └── CatalogRepository
  *   │           └── CatalogApiService (HttpClient)
  *   └── GetCategoriesUseCase
+ *         └── CatalogRepository
+ *
+ * ProviderDetailScreenModel
+ *   ├── GetProviderDetailsUseCase
+ *   │     └── CatalogRepository
+ *   └── GetProviderServicesUseCase
  *         └── CatalogRepository
  * ```
  *
@@ -48,4 +55,5 @@ val catalogModule = module {
 
     // ScreenModels (Presentation layer)
     factoryOf(::CatalogScreenModel)
+    factoryOf(::ProviderDetailScreenModel)
 }

@@ -37,6 +37,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.presentation.model.CatalogUiState
@@ -68,6 +70,7 @@ class CatalogScreen : Screen {
 
     @Composable
     override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
         val screenModel = koinScreenModel<CatalogScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
 
@@ -79,7 +82,7 @@ class CatalogScreen : Screen {
             onClearFilters = screenModel::onClearFilters,
             onLoadMore = screenModel::loadMore,
             onProviderClick = { provider ->
-                // TODO: Navigate to provider details
+                navigator.push(ProviderDetailScreen(providerId = provider.id))
             },
             onClearError = screenModel::clearError,
         )
