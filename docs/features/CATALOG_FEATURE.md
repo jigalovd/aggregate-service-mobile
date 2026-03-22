@@ -578,9 +578,53 @@ Catalog Feature зависит от следующих core модулей:
 - [Implementation Status](../IMPLEMENTATION_STATUS.md) - Общий статус проекта
 - [Backend API Reference](../api/BACKEND_API_REFERENCE.md) - API endpoints
 - [Auth Feature](AUTH_FEATURE.md) - Аутентификация
+- [Booking Feature](BOOKING_FEATURE.md) - Бронирование
+- [Feature Isolation Pattern](../architecture/FEATURE_ISOLATION.md) - Архитектурный паттерн
 
 ---
 
-**Версия документа**: 2.0
-**Last Updated**: 2026-03-21 (Catalog Feature 95% Complete)
+## 🔗 Booking Integration
+
+ProviderDetailScreen интегрирован с Booking Feature через:
+
+### AuthGuard Pattern
+
+```kotlin
+// ProviderDetailScreen.kt
+onBookClick = {
+    executeProtectedAction(
+        isAuthenticated = authState.canWrite,
+        trigger = AuthPromptTrigger.Booking,
+        onShowPrompt = { showAuthPrompt = true },
+    ) {
+        uiState.provider?.let { provider ->
+            navigator.push(
+                bookingNavigator.createSelectServiceScreen(
+                    providerId = provider.id,
+                    providerName = provider.businessName,
+                ),
+            )
+        }
+    }
+}
+```
+
+### BookingNavigator
+
+```kotlin
+// core:navigation/BookingNavigator.kt
+interface BookingNavigator {
+    fun createSelectServiceScreen(
+        providerId: String,
+        providerName: String
+    ): Screen
+}
+```
+
+**Feature Isolation**: Catalog не зависит напрямую от Booking. Навигация через интерфейс в `core:navigation`.
+
+---
+
+**Версия документа**: 2.1
+**Last Updated**: 2026-03-22 (Catalog Feature 95% Complete + Booking Integration)
 **Maintainer**: Development Team
