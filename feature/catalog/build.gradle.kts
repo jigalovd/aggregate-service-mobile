@@ -16,6 +16,9 @@ kotlin {
             implementation(libs.coil.network.ktor3)
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.coroutines.core)
+
+            // Feature dependencies for auth state
+            implementation(project(":feature:auth"))
         }
     }
 }

@@ -41,6 +41,9 @@ import org.koin.dsl.module
  * **Important:** Все зависимости разрешаются через Koin DI container.
  */
 val catalogModule = module {
+    // API Service
+    single { CatalogApiService(get()) }
+
     // Repository
     single<CatalogRepository> {
         CatalogRepositoryImpl(

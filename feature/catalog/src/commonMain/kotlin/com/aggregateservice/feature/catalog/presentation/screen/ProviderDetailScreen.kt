@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -27,13 +28,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -42,11 +46,18 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.aggregateservice.core.navigation.AuthPromptTrigger
+import com.aggregateservice.core.navigation.BookingNavigator
+import com.aggregateservice.core.navigation.executeProtectedAction
+import com.aggregateservice.feature.auth.domain.model.AuthState
+import com.aggregateservice.feature.auth.domain.usecase.ObserveAuthStateUseCase
 import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.domain.model.Service
 import com.aggregateservice.feature.catalog.presentation.model.ProviderDetailUiState
 import com.aggregateservice.feature.catalog.presentation.screenmodel.ProviderDetailScreenModel
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 
 /**
  * Voyager Screen для деталей мастера.
@@ -55,7 +66,7 @@ import kotlinx.coroutines.launch
  */
 data class ProviderDetailScreen(
     val providerId: String,
-) : Screen {
+) : Screen, KoinComponent {
 
     @Composable
     override fun Content() {
@@ -63,8 +74,32 @@ data class ProviderDetailScreen(
         val screenModel = koinScreenModel<ProviderDetailScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
 
+        // Auth state for AuthGuard
+        val observeAuthStateUseCase: ObserveAuthStateUseCase = remember { get() }
+        val authState by observeAuthStateUseCase().collectAsState(initial = AuthState.Guest)
+
+        // Booking navigator for cross-feature navigation
+        val bookingNavigator: BookingNavigator = remember { get() }
+
+        var showAuthPrompt by remember { mutableStateOf(false) }
+
         LaunchedEffect(providerId) {
             screenModel.initialize(providerId)
+        }
+
+        // Auth prompt dialog for guests
+        if (showAuthPrompt) {
+            AuthPromptDialog(
+                onDismiss = { showAuthPrompt = false },
+                onLogin = {
+                    showAuthPrompt = false
+                    // navigator.push(LoginScreen)
+                },
+                onRegister = {
+                    showAuthPrompt = false
+                    // navigator.push(RegisterScreen)
+                },
+            )
         }
 
         ProviderDetailScreenContent(
@@ -73,15 +108,51 @@ data class ProviderDetailScreen(
             onFavoriteToggle = screenModel::onFavoriteToggle,
             onCategorySelected = screenModel::onCategorySelected,
             onServiceClick = { service ->
-                // TODO: Navigate to booking
+                // Service click could navigate to booking with pre-selected service
             },
             onBookClick = {
-                // TODO: Navigate to booking
+                executeProtectedAction(
+                    isAuthenticated = authState.canWrite,
+                    trigger = AuthPromptTrigger.Booking,
+                    onShowPrompt = { showAuthPrompt = true },
+                ) {
+                    uiState.provider?.let { provider ->
+                        navigator.push(
+                            bookingNavigator.createSelectServiceScreen(
+                                providerId = provider.id,
+                                providerName = provider.businessName,
+                            ),
+                        )
+                    }
+                }
             },
             onRetry = screenModel::retry,
             onClearError = screenModel::clearError,
         )
     }
+}
+
+@Composable
+private fun AuthPromptDialog(
+    onDismiss: () -> Unit,
+    onLogin: () -> Unit,
+    onRegister: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Sign in to book") },
+        text = { Text("Create an account or sign in to book appointments with our providers.") },
+        confirmButton = {
+            Button(onClick = onRegister) {
+                Text("Register")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onLogin) {
+                Text("Sign In")
+            }
+        },
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
