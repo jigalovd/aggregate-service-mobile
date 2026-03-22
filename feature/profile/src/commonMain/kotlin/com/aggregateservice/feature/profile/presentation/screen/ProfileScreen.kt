@@ -1,0 +1,385 @@
+package com.aggregateservice.feature.profile.presentation.screen
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.koinScreenModel
+import com.aggregateservice.feature.profile.domain.model.Profile
+import com.aggregateservice.feature.profile.presentation.screenmodel.ProfileScreenModel
+import coil3.compose.AsyncImage
+
+/**
+ * Voyager Screen for user profile management.
+ */
+class ProfileScreen : Screen {
+
+    @Composable
+    override fun Content() {
+        val screenModel = koinScreenModel<ProfileScreenModel>()
+        val uiState by screenModel.uiState.collectAsState()
+        val snackbarHostState = remember { SnackbarHostState() }
+
+        // Show success snackbar
+        LaunchedEffect(uiState.saveSuccess) {
+            if (uiState.saveSuccess) {
+                snackbarHostState.showSnackbar(
+                    message = "Profile updated successfully",
+                    duration = SnackbarDuration.Short,
+                )
+                screenModel.clearSaveSuccess()
+            }
+        }
+
+        ProfileScreenContent(
+            uiState = uiState,
+            snackbarHostState = snackbarHostState,
+            onStartEditing = screenModel::startEditing,
+            onCancelEditing = screenModel::cancelEditing,
+            onFullNameChanged = screenModel::onFullNameChanged,
+            onPhoneChanged = screenModel::onPhoneChanged,
+            onSave = screenModel::saveProfile,
+            onRetry = screenModel::loadProfile,
+            onErrorDismiss = screenModel::clearError,
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProfileScreenContent(
+    uiState: com.aggregateservice.feature.profile.presentation.model.ProfileUiState,
+    snackbarHostState: SnackbarHostState,
+    onStartEditing: () -> Unit,
+    onCancelEditing: () -> Unit,
+    onFullNameChanged: (String) -> Unit,
+    onPhoneChanged: (String) -> Unit,
+    onSave: () -> Unit,
+    onRetry: () -> Unit,
+    onErrorDismiss: () -> Unit,
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Profile") },
+            )
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+    ) { paddingValues ->
+        when {
+            uiState.isLoading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            uiState.error != null -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "Error: ${uiState.error?.message}",
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        TextButton(onClick = onRetry) {
+                            Text("Retry")
+                        }
+                    }
+                }
+            }
+
+            uiState.hasProfile -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .verticalScroll(rememberScrollState()),
+                ) {
+                    // Avatar and basic info
+                    ProfileHeader(profile = uiState.profile!!)
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    if (uiState.isEditing) {
+                        EditProfileForm(
+                            uiState = uiState,
+                            onFullNameChanged = onFullNameChanged,
+                            onPhoneChanged = onPhoneChanged,
+                            onSave = onSave,
+                            onCancel = onCancelEditing,
+                        )
+                    } else {
+                        ViewProfileInfo(
+                            profile = uiState.profile,
+                            onEdit = onStartEditing,
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Stats section
+                    ProfileStats(profile = uiState.profile)
+                }
+            }
+        }
+
+        // Error dialog
+        if (uiState.error != null && !uiState.isLoading) {
+            AlertDialog(
+                onDismissRequest = onErrorDismiss,
+                title = { Text("Error") },
+                text = { Text(uiState.error?.message ?: "Unknown error") },
+                confirmButton = {
+                    TextButton(onClick = onErrorDismiss) {
+                        Text("OK")
+                    }
+                },
+            )
+        }
+    }
+}
+
+@Composable
+fun ProfileHeader(profile: Profile) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        // Avatar
+        AsyncImage(
+            model = profile.avatarUrl,
+            contentDescription = "Profile avatar",
+            modifier = Modifier
+                .size(100.dp)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop,
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = profile.displayName,
+            style = MaterialTheme.typography.headlineMedium,
+        )
+    }
+}
+
+@Composable
+fun ViewProfileInfo(
+    profile: Profile,
+    onEdit: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+    ) {
+        ProfileInfoRow(
+            label = "Full Name",
+            value = profile.fullName ?: "Not set",
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        ProfileInfoRow(
+            label = "Phone",
+            value = profile.phone ?: "Not set",
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        OutlinedButton(
+            onClick = onEdit,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("Edit Profile")
+        }
+    }
+}
+
+@Composable
+fun ProfileInfoRow(
+    label: String,
+    value: String,
+) {
+    Column {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyLarge,
+        )
+    }
+}
+
+@Composable
+fun EditProfileForm(
+    uiState: com.aggregateservice.feature.profile.presentation.model.ProfileUiState,
+    onFullNameChanged: (String) -> Unit,
+    onPhoneChanged: (String) -> Unit,
+    onSave: () -> Unit,
+    onCancel: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+    ) {
+        OutlinedTextField(
+            value = uiState.editFullName,
+            onValueChange = onFullNameChanged,
+            label = { Text("Full Name") },
+            isError = uiState.fullNameError != null,
+            supportingText = uiState.fullNameError?.let { { Text(it) } },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = uiState.editPhone,
+            onValueChange = onPhoneChanged,
+            label = { Text("Phone") },
+            isError = uiState.phoneError != null,
+            supportingText = uiState.phoneError?.let { { Text(it) } },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            OutlinedButton(
+                onClick = onCancel,
+                modifier = Modifier.weight(1f),
+                enabled = !uiState.isSaving,
+            ) {
+                Text("Cancel")
+            }
+
+            Button(
+                onClick = onSave,
+                modifier = Modifier.weight(1f),
+                enabled = !uiState.isSaving && uiState.isFormValid,
+            ) {
+                if (uiState.isSaving) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Text("Save")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ProfileStats(profile: Profile) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+    ) {
+        Text(
+            text = "Booking Statistics",
+            style = MaterialTheme.typography.titleMedium,
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+        ) {
+            StatItem(
+                label = "No-shows",
+                value = profile.noShowCount.toString(),
+            )
+
+            StatItem(
+                label = "No-show Rate",
+                value = "${(profile.noShowRate * 100).toInt()}%",
+            )
+        }
+    }
+}
+
+@Composable
+fun StatItem(
+    label: String,
+    value: String,
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
