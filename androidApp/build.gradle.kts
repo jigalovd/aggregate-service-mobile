@@ -103,6 +103,7 @@ kotlin {
             implementation(project(":core:theme"))
             implementation(project(":core:i18n"))
             implementation(project(":feature:auth"))
+            implementation(project(":feature:services"))
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)

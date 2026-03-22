@@ -4,14 +4,14 @@
 
 | Метрика | Текущее значение | Цель | Прогресс |
 |---------|------------------|------|----------|
-| **Общий прогресс** | 55% | 100% | █████░░░░░ |
+| **Общий прогресс** | 62% | 100% | ██████░░░░ |
 | **Core Infrastructure** | 100% | 100% | ██████████ |
 | **Quality Infrastructure** | 100% | 100% | ██████████ |
-| **Features Implemented** | 3/7 | 7 | ███░░░░░░ |
+| **Features Implemented** | 4/7 | 7 | ████░░░░░ |
 | **Test Coverage** | 45% | 80% | ████░░░░░░ |
 | **Documentation** | 100% | 100% | ██████████ |
 
-**⚠️ Gap Analysis:** Backend MVP готов на 100%, mobile реализует Auth (100%) + Catalog (95%) + Booking (100%). Критические пропуски: Registration, Profile, UI tests.
+**⚠️ Gap Analysis:** Backend MVP готов на 100%, mobile реализует Auth (100%) + Catalog (95%) + Booking (100%) + Services (100%). Критические пропуски: Registration, Profile, UI tests.
 
 **Last Updated**: 2026-03-22
 **Project Phase**: Phase 1 Complete - Core Foundation
@@ -151,7 +151,7 @@ gradle = "8.14.4"             # ✅ Latest wrapper
 | **E1** | Auth | ✅ 100% | ✅ 100% | ✅ 100% | ✅ 100% | ██████████ 100% |
 | **E2** | Catalog | ✅ 100% | ✅ 100% | ✅ 100% | ⚪ 0% | █████████░ 95% |
 | **E3** | Booking | ✅ 100% | ✅ 100% | ✅ 100% | ⚪ 0% | ██████████ 100% |
-| **E4** | Services | ⚪ 0% | ⚪ 0% | ⚪ 0% | ⚪ 0% | ░░░░░░░░░░ 0% |
+| **E4** | Services | ✅ 100% | ✅ 100% | ✅ 100% | ⚪ 0% | ██████████ 100% |
 | **E5** | Profile | ⚪ 0% | ⚪ 0% | ⚪ 0% | ⚪ 0% | ░░░░░░░░░░ 0% |
 | **E6** | Favorites | ⚪ 0% | ⚪ 0% | ⚪ 0% | ⚪ 0% | ░░░░░░░░░░ 0% |
 | **E7** | Reviews | ⚪ 0% | ⚪ 0% | ⚪ 0% | ⚪ 0% | ░░░░░░░░░░ 0% |
@@ -485,15 +485,85 @@ core/navigation/
 
 ---
 
-#### E4: Services (Управление услугами - Provider)
-**Business Value**: Позволяет мастерам управлять своими услугами
+#### E4: Services (Управление услугами - Provider) ✅ COMPLETE
+
+**Business Value**: Позволяет мастерам управлять своими услугами (CRUD операции)
 
 **Components Status**:
-- **Domain Layer** ⚪ Not Started
-- **Data Layer** ⚪ Not Started
-- **Presentation Layer** ⚪ Not Started
+- **Domain Layer** ✅ Complete
+  - [x] ProviderService entity (id, name, description, basePrice, durationMinutes, categoryId, isActive)
+  - [x] CreateServiceRequest (validation: name 3-100 chars, price >= 0, duration 5-480 min)
+  - [x] UpdateServiceRequest (partial updates with validation)
+  - [x] ServicesRepository interface (CRUD operations)
+  - [x] GetServicesUseCase
+  - [x] GetServiceByIdUseCase
+  - [x] CreateServiceUseCase
+  - [x] UpdateServiceUseCase
+  - [x] DeleteServiceUseCase
+
+- **Data Layer** ✅ Complete
+  - [x] ServiceDto, CreateServiceRequestDto, UpdateServiceRequestDto
+  - [x] ServiceMapper (DTO <-> Domain)
+  - [x] ServicesApiService (Ktor + safeApiCall)
+  - [x] ServicesRepositoryImpl
+
+- **Presentation Layer** ✅ Complete
+  - [x] ServicesListUiState (@Stable, MVI pattern)
+  - [x] ServiceFormUiState (@Stable, with validation)
+  - [x] ServicesListScreenModel (Voyager + StateFlow)
+  - [x] ServiceFormScreenModel (Voyager + StateFlow)
+  - [x] ServicesListScreen (Compose UI with delete confirmation)
+  - [x] ServiceFormScreen (Compose UI for create/edit)
+
+- **DI Layer** ✅ Complete
+  - [x] ServicesModule (Koin)
+
+**API Endpoints**:
+- GET /api/v1/provider-services - List all services
+- POST /api/v1/provider-services - Create service
+- GET /api/v1/provider-services/{id} - Get service details
+- PATCH /api/v1/provider-services/{id} - Update service
+- DELETE /api/v1/provider-services/{id} - Delete service
 
 **Dependencies**: `:core:network`, `:core:di`
+
+**Files**:
+```
+feature/services/
+├── build.gradle.kts
+└── src/commonMain/kotlin/
+    ├── domain/
+    │   ├── model/
+    │   │   ├── ProviderService.kt
+    │   │   ├── CreateServiceRequest.kt
+    │   │   └── UpdateServiceRequest.kt
+    │   ├── repository/ServicesRepository.kt
+    │   └── usecase/
+    │       ├── GetServicesUseCase.kt
+    │       ├── GetServiceByIdUseCase.kt
+    │       ├── CreateServiceUseCase.kt
+    │       ├── UpdateServiceUseCase.kt
+    │       └── DeleteServiceUseCase.kt
+    ├── data/
+    │   ├── api/ServicesApiService.kt
+    │   ├── dto/
+    │   │   ├── ServiceDto.kt
+    │   │   ├── CreateServiceRequestDto.kt
+    │   │   └── UpdateServiceRequestDto.kt
+    │   ├── mapper/ServiceMapper.kt
+    │   └── repository/ServicesRepositoryImpl.kt
+    ├── presentation/
+    │   ├── model/
+    │   │   ├── ServicesListUiState.kt
+    │   │   └── ServiceFormUiState.kt
+    │   ├── screen/
+    │   │   ├── ServicesListScreen.kt
+    │   │   └── ServiceFormScreen.kt
+    │   └── screenmodel/
+    │       ├── ServicesListScreenModel.kt
+    │       └── ServiceFormScreenModel.kt
+    └── di/ServicesModule.kt
+```
 
 ---
 
@@ -626,6 +696,26 @@ core/navigation/
 - [x] DI: BookingModule (Koin)
 - [x] Feature Isolation: No dependency on feature:catalog
 
+### Sprint 7: Services Feature ✅ COMPLETE
+
+**Completed Tasks**:
+- [x] Domain: ProviderService entity with validation
+- [x] Domain: CreateServiceRequest, UpdateServiceRequest models
+- [x] Domain: ServicesRepository interface (CRUD)
+- [x] Domain: 5 UseCases (GetServices, GetServiceById, CreateService, UpdateService, DeleteService)
+- [x] Data: ServiceDto, CreateServiceRequestDto, UpdateServiceRequestDto
+- [x] Data: ServiceMapper (DTO <-> Domain)
+- [x] Data: ServicesApiService with safeApiCall
+- [x] Data: ServicesRepositoryImpl
+- [x] Presentation: ServicesListUiState (@Stable, MVI pattern)
+- [x] Presentation: ServiceFormUiState (@Stable, with validation)
+- [x] Presentation: ServicesListScreenModel (Voyager + StateFlow)
+- [x] Presentation: ServiceFormScreenModel (Voyager + StateFlow)
+- [x] Presentation: ServicesListScreen (Compose UI with delete confirmation)
+- [x] Presentation: ServiceFormScreen (Compose UI for create/edit)
+- [x] DI: ServicesModule (Koin)
+- [x] Register servicesModule in MainApplication.kt
+
 ---
 
 ## 📋 Next Steps (Priority Order)
@@ -646,7 +736,7 @@ core/navigation/
 3. **Implement Profile Feature**
 4. **Implement Favorites Feature**
 5. **Implement Reviews Feature**
-6. **Implement Services Feature** (Provider management)
+6. ~~**Implement Services Feature** (Provider management)~~ ✅ COMPLETE
 
 ---
 
@@ -661,14 +751,15 @@ core/navigation/
 | W4-5 | Core Foundation | 8 tasks | 8 tasks | 100% |
 | W5-6 | Catalog Phase 1+2 | 27 tasks | 27 tasks | 100% |
 | W6-7 | Booking Feature | 20 tasks | 20 tasks | 100% |
+| W7-8 | Services Feature | 16 tasks | 16 tasks | 100% |
 
 ### Burndown Chart
 
 ```
 Total Story Points: ~200 (estimated)
-Remaining: 45
-Completed: 155
-Sprint: 6/12
+Remaining: 30
+Completed: 170
+Sprint: 7/12
 ```
 
 ---
@@ -690,6 +781,6 @@ Sprint: 6/12
 
 ---
 
-**Documentation Version**: 3.0
-**Last Sync**: 2026-03-22 (Sprint 6: Booking Feature COMPLETE - 100%)
+**Documentation Version**: 3.1
+**Last Sync**: 2026-03-22 (Sprint 7: Services Feature COMPLETE - 100%)
 **Next Review**: 2026-03-29

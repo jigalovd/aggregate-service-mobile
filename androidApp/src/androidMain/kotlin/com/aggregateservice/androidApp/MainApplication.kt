@@ -9,6 +9,7 @@ import com.aggregateservice.core.i18n.di.i18nModule
 import com.aggregateservice.feature.auth.di.authModule
 import com.aggregateservice.feature.catalog.di.catalogModule
 import com.aggregateservice.feature.booking.di.bookingModule
+import com.aggregateservice.feature.services.di.servicesModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -79,6 +80,7 @@ class MainApplication : Application() {
                 authModule,
                 catalogModule,
                 bookingModule,
+                servicesModule,
                 // profileModule,
             )
         }
