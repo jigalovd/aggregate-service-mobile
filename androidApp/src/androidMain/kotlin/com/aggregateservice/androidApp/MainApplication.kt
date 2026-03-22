@@ -11,6 +11,7 @@ import com.aggregateservice.feature.catalog.di.catalogModule
 import com.aggregateservice.feature.booking.di.bookingModule
 import com.aggregateservice.feature.services.di.servicesModule
 import com.aggregateservice.feature.profile.di.profileModule
+import com.aggregateservice.feature.favorites.di.favoritesModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -83,6 +84,7 @@ class MainApplication : Application() {
                 bookingModule,
                 servicesModule,
                 profileModule,
+                favoritesModule,
             )
         }
     }

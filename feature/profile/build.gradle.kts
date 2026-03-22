@@ -15,5 +15,13 @@ kotlin {
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor3)
         }
+
+        maybeCreate("androidMain").dependencies {
+            implementation(libs.ktor.client.okhttp)
+        }
+
+        maybeCreate("iosMain").dependencies {
+            implementation(libs.ktor.client.darwin)
+        }
     }
 }
