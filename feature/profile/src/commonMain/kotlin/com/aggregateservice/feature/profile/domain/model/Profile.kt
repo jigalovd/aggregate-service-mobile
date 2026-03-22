@@ -1,9 +1,10 @@
 package com.aggregateservice.feature.profile.domain.model
 
-import androidx.compose.runtime.Stable
-
 /**
  * Domain entity representing a user profile.
+ *
+ * **Note:** Domain models must NOT import Compose/Android dependencies.
+ * Stability is ensured by data class immutability.
  *
  * @property id Unique profile identifier
  * @property userId Associated user identifier
@@ -13,7 +14,6 @@ import androidx.compose.runtime.Stable
  * @property noShowCount Number of missed bookings
  * @property noShowRate Rate of missed bookings (0.0 to 1.0)
  */
-@Stable
 data class Profile(
     val id: String,
     val userId: String,

@@ -1,5 +1,7 @@
 package com.aggregateservice.feature.auth.di
 
+import com.aggregateservice.core.navigation.AuthStateProvider
+import com.aggregateservice.feature.auth.AuthStateProviderImpl
 import com.aggregateservice.feature.auth.data.repository.AuthRepositoryImpl
 import com.aggregateservice.feature.auth.domain.repository.AuthRepository
 import com.aggregateservice.feature.auth.domain.usecase.LoginUseCase
@@ -17,6 +19,7 @@ import org.koin.dsl.module
  * - Repository (implementation)
  * - UseCases
  * - ScreenModels
+ * - AuthStateProvider (for cross-feature access via core:navigation)
  */
 val authModule = module {
     // Repository
@@ -34,4 +37,7 @@ val authModule = module {
 
     // ScreenModels
     factoryOf(::LoginScreenModel)
+
+    // AuthStateProvider - abstraction for cross-feature auth access
+    single<AuthStateProvider> { AuthStateProviderImpl(get()) }
 }

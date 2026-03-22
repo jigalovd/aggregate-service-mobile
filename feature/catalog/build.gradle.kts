@@ -17,8 +17,11 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.coroutines.core)
 
-            // Feature dependencies for auth state
-            implementation(project(":feature:auth"))
+            // Koin Compose for koinInject() in @Composable functions
+            implementation(libs.koin.compose)
+
+            // Auth state access via core:navigation abstraction (not direct feature:auth dependency)
+            // AuthStateProvider is implemented by feature:auth and injected via Koin
         }
     }
 }

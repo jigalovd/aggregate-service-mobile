@@ -47,17 +47,15 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.aggregateservice.core.navigation.AuthPromptTrigger
+import com.aggregateservice.core.navigation.AuthStateProvider
 import com.aggregateservice.core.navigation.BookingNavigator
 import com.aggregateservice.core.navigation.executeProtectedAction
-import com.aggregateservice.feature.auth.domain.model.AuthState
-import com.aggregateservice.feature.auth.domain.usecase.ObserveAuthStateUseCase
 import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.domain.model.Service
 import com.aggregateservice.feature.catalog.presentation.model.ProviderDetailUiState
 import com.aggregateservice.feature.catalog.presentation.screenmodel.ProviderDetailScreenModel
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
+import org.koin.compose.koinInject
 
 /**
  * Voyager Screen для деталей мастера.
@@ -66,7 +64,7 @@ import org.koin.core.component.get
  */
 data class ProviderDetailScreen(
     val providerId: String,
-) : Screen, KoinComponent {
+) : Screen {
 
     @Composable
     override fun Content() {
@@ -74,12 +72,13 @@ data class ProviderDetailScreen(
         val screenModel = koinScreenModel<ProviderDetailScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
 
-        // Auth state for AuthGuard
-        val observeAuthStateUseCase: ObserveAuthStateUseCase = remember { get() }
-        val authState by observeAuthStateUseCase().collectAsState(initial = AuthState.Guest)
+        // Auth state for AuthGuard (via core:navigation abstraction)
+        // Using koinInject for Compose-friendly DI without KoinComponent
+        val authProvider: AuthStateProvider = koinInject()
+        val isAuthenticated by authProvider.isAuthenticatedFlow.collectAsState()
 
         // Booking navigator for cross-feature navigation
-        val bookingNavigator: BookingNavigator = remember { get() }
+        val bookingNavigator: BookingNavigator = koinInject()
 
         var showAuthPrompt by remember { mutableStateOf(false) }
 
@@ -112,7 +111,7 @@ data class ProviderDetailScreen(
             },
             onBookClick = {
                 executeProtectedAction(
-                    isAuthenticated = authState.canWrite,
+                    isAuthenticated = isAuthenticated,
                     trigger = AuthPromptTrigger.Booking,
                     onShowPrompt = { showAuthPrompt = true },
                 ) {

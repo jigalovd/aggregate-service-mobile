@@ -1,10 +1,12 @@
 package com.aggregateservice.feature.services.domain.model
 
-import androidx.compose.runtime.Stable
 import kotlinx.datetime.Instant
 
 /**
  * Domain entity representing a provider's service offering.
+ *
+ * **Note:** Domain models must NOT import Compose/Android dependencies.
+ * Stability is ensured by data class immutability.
  *
  * @property id Unique identifier for the service
  * @property name Name of the service
@@ -16,7 +18,6 @@ import kotlinx.datetime.Instant
  * @property createdAt Timestamp when the service was created
  * @property updatedAt Timestamp when the service was last updated
  */
-@Stable
 data class ProviderService(
     val id: String,
     val name: String,
