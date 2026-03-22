@@ -7,6 +7,8 @@ import com.aggregateservice.core.di.androidCoreModule
 import com.aggregateservice.core.di.coreModule
 import com.aggregateservice.core.i18n.di.i18nModule
 import com.aggregateservice.feature.auth.di.authModule
+import com.aggregateservice.feature.catalog.di.catalogModule
+import com.aggregateservice.feature.booking.di.bookingModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -75,9 +77,8 @@ class MainApplication : Application() {
                 i18nModule,
                 // Feature modules
                 authModule,
-                // Add more feature modules here as they are implemented
-                // catalogModule,
-                // bookingModule,
+                catalogModule,
+                bookingModule,
                 // profileModule,
             )
         }
