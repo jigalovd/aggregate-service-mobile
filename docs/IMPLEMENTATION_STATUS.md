@@ -4,14 +4,14 @@
 
 | Метрика | Текущее значение | Цель | Прогресс |
 |---------|------------------|------|----------|
-| **Общий прогресс** | 35% | 100% | ███░░░░░░░ |
+| **Общий прогресс** | 45% | 100% | ████░░░░░░ |
 | **Core Infrastructure** | 100% | 100% | ██████████ |
 | **Quality Infrastructure** | 100% | 100% | ██████████ |
 | **Features Implemented** | 2/7 | 7 | ██░░░░░░░░ |
-| **Test Coverage** | 25% | 80% | ██░░░░░░░░ |
+| **Test Coverage** | 40% | 80% | ████░░░░░░ |
 | **Documentation** | 100% | 100% | ██████████ |
 
-**⚠️ Gap Analysis:** Backend MVP готов на 100%, mobile реализует Auth (100%) + Catalog Phase 1 (70%). Критические пропуски: Registration, Booking, remaining Catalog screens.
+**⚠️ Gap Analysis:** Backend MVP готов на 100%, mobile реализует Auth (100%) + Catalog (95%). Критические пропуски: Registration, Booking, UI tests.
 
 **Last Updated**: 2026-03-21
 **Project Phase**: Phase 1 Complete - Core Foundation
@@ -105,7 +105,7 @@ gradle = "8.14.4"             # ✅ Latest wrapper
 | **Ktlint** | ✅ Configured | 100% | Linter + Formatter: `.editorconfig` |
 | **Kover** | ✅ Configured | 100% | Test coverage reporting (target: 60%+) |
 | **CI/CD** | ⚪ Not Started | 0% | GitHub Actions pipeline (planned) |
-| **Unit Tests** | 🟡 In Progress | 25% | 82 tests (Auth feature: 79, Network: 3) |
+| **Unit Tests** | 🟢 In Progress | 40% | 221 tests (Auth: 83, Catalog: 138) |
 
 ### Code Quality Infrastructure Implementation Details
 
@@ -127,8 +127,8 @@ gradle = "8.14.4"             # ✅ Latest wrapper
 |---------|------------------|------|--------|
 | **Detekt Issues** | 0 | 0 (zero tolerance) | ✅ PASS |
 | **Ktlint Violations** | 0 | 0 (all fixable) | ✅ PASS |
-| **Kover Coverage** | 25% | 60%+ | 🟡 IN PROGRESS |
-| **Test Count** | 82 | 100+ | 🟡 IN PROGRESS |
+| **Kover Coverage** | 40% | 60%+ | 🟡 IN PROGRESS |
+| **Test Count** | 221 | 250+ | 🟢 ON TRACK |
 
 ### Documentation Coverage
 
@@ -149,7 +149,7 @@ gradle = "8.14.4"             # ✅ Latest wrapper
 | Эпик | Feature | Domain | Data | Presentation | UI | 总 Progress |
 |------|---------|--------|------|--------------|-----|-------------|
 | **E1** | Auth | ✅ 100% | ✅ 100% | ✅ 100% | ✅ 100% | ██████████ 100% |
-| **E2** | Catalog | ✅ 100% | ✅ 100% | 🟡 70% | ⚪ 0% | ███████░░░ 70% |
+| **E2** | Catalog | ✅ 100% | ✅ 100% | ✅ 100% | ⚪ 0% | █████████░ 95% |
 | **E3** | Booking | ⚪ 0% | ⚪ 0% | ⚪ 0% | ⚪ 0% | ░░░░░░░░░░ 0% |
 | **E4** | Services | ⚪ 0% | ⚪ 0% | ⚪ 0% | ⚪ 0% | ░░░░░░░░░░ 0% |
 | **E5** | Profile | ⚪ 0% | ⚪ 0% | ⚪ 0% | ⚪ 0% | ░░░░░░░░░░ 0% |
@@ -252,7 +252,7 @@ core/navigation/
 
 ---
 
-#### E2: Catalog (Каталог мастеров) 🟡 IN PROGRESS (70%)
+#### E2: Catalog (Каталог мастеров) 🟢 NEAR COMPLETE (95%)
 
 **Business Value**: Позволяет пользователям искать и просматривать мастеров и услуги
 
@@ -277,21 +277,29 @@ core/navigation/
   - [x] CatalogApiService (Ktor + safeApiCall)
   - [x] CatalogRepositoryImpl
 
-- **Presentation Layer** 🟡 In Progress (70%)
+- **Presentation Layer** ✅ Complete
   - [x] CatalogUiState (@Stable, MVI pattern)
-  - [x] CatalogScreenModel (Voyager ScreenModel + StateFlow)
+  - [x] CatalogScreenModel (Voyager ScreenModel + StateFlow, optimized with derivedStateOf)
   - [x] CatalogScreen (Compose UI with LazyColumn pagination)
-  - [ ] SearchScreen + SearchScreenModel
-  - [ ] ProviderDetailScreen
-  - [ ] CategorySelectionScreen
+  - [x] SearchScreen + SearchScreenModel (debounced search)
+  - [x] ProviderDetailScreen + ProviderDetailScreenModel
+  - [x] CategorySelectionScreen (category picker)
+  - [x] ProviderCard component
+  - [x] SearchUiState + ProviderDetailUiState
 
 - **DI Layer** ✅ Complete
   - [x] CatalogModule (Koin)
 
-- **Test Coverage** ⚪ Not Started
-  - [ ] Unit tests for UseCases
-  - [ ] Unit tests for Mappers
-  - [ ] UI tests for CatalogScreenModel
+- **Test Coverage** ✅ Complete (138 tests)
+  - [x] SearchProvidersUseCaseTest
+  - [x] GetCategoriesUseCaseTest
+  - [x] GetProviderDetailsUseCaseTest
+  - [x] GetProviderServicesUseCaseTest
+  - [x] ProviderMapperTest
+  - [x] CategoryMapperTest
+  - [x] CatalogScreenModelTest
+  - [x] ProviderDetailScreenModelTest
+  - [x] SearchScreenModelTest
 
 **Files**:
 ```
@@ -328,14 +336,36 @@ feature/catalog/
 │   │   └── repository/
 │   │       └── CatalogRepositoryImpl.kt
 │   ├── presentation/
+│   │   ├── component/
+│   │   │   └── ProviderCard.kt
 │   │   ├── model/
-│   │   │   └── CatalogUiState.kt
+│   │   │   ├── CatalogUiState.kt
+│   │   │   ├── ProviderDetailUiState.kt
+│   │   │   └── SearchUiState.kt
 │   │   ├── screen/
-│   │   │   └── CatalogScreen.kt
+│   │   │   ├── CatalogScreen.kt
+│   │   │   ├── CategorySelectionScreen.kt
+│   │   │   ├── ProviderDetailScreen.kt
+│   │   │   └── SearchScreen.kt
 │   │   └── screenmodel/
-│   │       └── CatalogScreenModel.kt
+│   │       ├── CatalogScreenModel.kt
+│   │       ├── ProviderDetailScreenModel.kt
+│   │       └── SearchScreenModel.kt
 │   └── di/
 │       └── CatalogModule.kt
+└── src/commonTest/kotlin/
+    ├── data/mapper/
+    │   ├── CategoryMapperTest.kt
+    │   └── ProviderMapperTest.kt
+    ├── domain/usecase/
+    │   ├── GetCategoriesUseCaseTest.kt
+    │   ├── GetProviderDetailsUseCaseTest.kt
+    │   ├── GetProviderServicesUseCaseTest.kt
+    │   └── SearchProvidersUseCaseTest.kt
+    └── presentation/screenmodel/
+        ├── CatalogScreenModelTest.kt
+        ├── ProviderDetailScreenModelTest.kt
+        └── SearchScreenModelTest.kt
 ```
 
 **Dependencies**: `:core:network`, `:core:storage`, `:core:navigation`
@@ -442,7 +472,7 @@ feature/catalog/
 - [x] Deep code review passed (99/100 score)
 - [x] All detekt/ktlint checks pass (0 violations)
 
-### Sprint 4: Catalog Feature Phase 1 🟡 IN PROGRESS (70%)
+### Sprint 4: Catalog Feature Phase 1 ✅ COMPLETE
 
 **Completed Tasks**:
 - [x] Domain: Provider, Service, Category entities
@@ -455,51 +485,47 @@ feature/catalog/
 - [x] Data: CatalogApiService with safeApiCall
 - [x] Data: CatalogRepositoryImpl
 - [x] Presentation: CatalogUiState (@Stable, MVI pattern)
-- [x] Presentation: CatalogScreenModel (Voyager + StateFlow)
+- [x] Presentation: CatalogScreenModel (Voyager + StateFlow, optimized with derivedStateOf)
 - [x] Presentation: CatalogScreen (Compose UI with LazyColumn pagination)
+- [x] Presentation: SearchScreen + SearchScreenModel (debounced search)
+- [x] Presentation: ProviderDetailScreen + ProviderDetailScreenModel
+- [x] Presentation: CategorySelectionScreen (category picker)
+- [x] Presentation: ProviderCard component
 - [x] DI: CatalogModule (Koin)
+- [x] Tests: 138 unit tests (UseCases, Mappers, ScreenModels)
 - [x] Deep code review fixes (safeApiCall, workingHours mapping)
 
-**Pending Tasks**:
-- [ ] Presentation: SearchScreen + SearchScreenModel
-- [ ] Presentation: ProviderDetailScreen
-- [ ] Presentation: CategorySelectionScreen
-- [ ] Tests: Unit tests for UseCases
-- [ ] Tests: UI tests for CatalogScreenModel
+### Sprint 5: Catalog Feature Phase 2 ✅ COMPLETE
+
+**Completed Tasks**:
+- [x] All Catalog Presentation screens
+- [x] ProviderDetailScreen with services list
+- [x] SearchScreen with debounced search
+- [x] CategorySelectionScreen
+- [x] ProviderCard component
+- [x] Comprehensive test coverage (138 tests)
 
 ---
 
 ## 📋 Next Steps (Priority Order)
 
-### Priority 1: Catalog Feature Phase 2 🎯 CURRENT
+### Priority 1: Booking Feature 🎯 CURRENT
 
-1. **Complete Catalog Presentation Layer**
-   - SearchScreen + SearchScreenModel (filters, search bar)
-   - ProviderDetailScreen (profile, services, reviews)
-   - CategorySelectionScreen (category picker)
+1. **Implement Booking Feature**
+   - Domain: Booking, TimeSlot entities
+   - Data: BookingApiService, Repository
+   - Presentation: BookingFlow screens (SelectService, SelectDateTime, Confirmation)
 
-2. **Add Unit Tests for Catalog**
-   - UseCase tests (SearchProvidersUseCase, GetCategoriesUseCase)
-   - Mapper tests (ProviderMapper, CategoryMapper)
-   - CatalogScreenModel tests
-
-3. **Maps Integration**
+2. **Maps Integration** (optional)
    - Google Maps Android
    - Mapkit/Google Maps iOS interop
 
-### Priority 2: Booking Feature (Week 6-7)
+### Priority 2: Additional Features (Week 7-10)
 
-4. **Implement Booking Feature**
-   - Domain: Booking, TimeSlot entities
-   - Data: BookingApiService, Repository
-   - Presentation: BookingFlow screens
-
-### Priority 3: Additional Features (Week 7-10)
-
-5. **Implement Services Feature** (Provider management)
-6. **Implement Profile Feature**
-7. **Implement Favorites Feature**
-8. **Implement Reviews Feature**
+3. **Implement Services Feature** (Provider management)
+4. **Implement Profile Feature**
+5. **Implement Favorites Feature**
+6. **Implement Reviews Feature**
 
 ---
 
@@ -512,16 +538,16 @@ feature/catalog/
 | W1-2 | Infrastructure | 12 tasks | 12 tasks | 100% |
 | W3-4 | Auth Feature | 10 tasks | 10 tasks | 100% |
 | W4-5 | Core Foundation | 8 tasks | 8 tasks | 100% |
-| W5-6 | Catalog Phase 1 | 15 tasks | 11 tasks | 73% |
-| W6-7 | Catalog Phase 2 | 12 tasks | 0 tasks | 0% |
+| W5-6 | Catalog Phase 1+2 | 27 tasks | 27 tasks | 100% |
+| W6-7 | Booking Feature | 15 tasks | 0 tasks | 0% |
 
 ### Burndown Chart
 
 ```
 Total Story Points: ~200 (estimated)
-Remaining: 80
-Completed: 120
-Sprint: 4/12
+Remaining: 60
+Completed: 140
+Sprint: 5/12
 ```
 
 ---
@@ -540,6 +566,6 @@ Sprint: 4/12
 
 ---
 
-**Documentation Version**: 2.4
-**Last Sync**: 2026-03-21 (Sprint 5: Catalog Completion started)
+**Documentation Version**: 2.5
+**Last Sync**: 2026-03-21 (Sprint 5: Catalog Feature COMPLETE - 95%)
 **Next Review**: 2026-03-28
