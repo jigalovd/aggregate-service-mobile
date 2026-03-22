@@ -4,14 +4,14 @@
 
 | Метрика | Текущее значение | Цель | Прогресс |
 |---------|------------------|------|----------|
-| **Общий прогресс** | 62% | 100% | ██████░░░░ |
+| **Общий прогресс** | 68% | 100% | ███████░░░ |
 | **Core Infrastructure** | 100% | 100% | ██████████ |
 | **Quality Infrastructure** | 100% | 100% | ██████████ |
-| **Features Implemented** | 4/7 | 7 | ████░░░░░ |
-| **Test Coverage** | 45% | 80% | ████░░░░░░ |
+| **Features Implemented** | 5/7 | 7 | █████░░░░░ |
+| **Test Coverage** | 50% | 80% | █████░░░░░ |
 | **Documentation** | 100% | 100% | ██████████ |
 
-**⚠️ Gap Analysis:** Backend MVP готов на 100%, mobile реализует Auth (100%) + Catalog (95%) + Booking (100%) + Services (100%). Критические пропуски: Registration, Profile, UI tests.
+**⚠️ Gap Analysis:** Backend MVP готов на 100%, mobile реализует Auth (100%) + Catalog (95%) + Booking (100%) + Services (100%) + Profile (100%). Критические пропуски: Registration, Favorites, Reviews, UI tests.
 
 **Last Updated**: 2026-03-22
 **Project Phase**: Phase 1 Complete - Core Foundation
@@ -152,7 +152,7 @@ gradle = "8.14.4"             # ✅ Latest wrapper
 | **E2** | Catalog | ✅ 100% | ✅ 100% | ✅ 100% | ⚪ 0% | █████████░ 95% |
 | **E3** | Booking | ✅ 100% | ✅ 100% | ✅ 100% | ⚪ 0% | ██████████ 100% |
 | **E4** | Services | ✅ 100% | ✅ 100% | ✅ 100% | ⚪ 0% | ██████████ 100% |
-| **E5** | Profile | ⚪ 0% | ⚪ 0% | ⚪ 0% | ⚪ 0% | ░░░░░░░░░░ 0% |
+| **E5** | Profile | ✅ 100% | ✅ 100% | ✅ 100% | ⚪ 0% | ██████████ 100% |
 | **E6** | Favorites | ⚪ 0% | ⚪ 0% | ⚪ 0% | ⚪ 0% | ░░░░░░░░░░ 0% |
 | **E7** | Reviews | ⚪ 0% | ⚪ 0% | ⚪ 0% | ⚪ 0% | ░░░░░░░░░░ 0% |
 
@@ -567,15 +567,73 @@ feature/services/
 
 ---
 
-#### E5: Profile (Профиль пользователя)
-**Business Value**: Позволяет пользователям управлять своим профилем
+#### E5: Profile (Профиль пользователя) ✅ COMPLETE
+
+**Business Value**: Позволяет пользователям просматривать и редактировать свой профиль, видеть статистику no-show
+
+**Documentation**: [Profile Feature Documentation](features/PROFILE_FEATURE.md)
 
 **Components Status**:
-- **Domain Layer** ⚪ Not Started
-- **Data Layer** ⚪ Not Started
-- **Presentation Layer** ⚪ Not Started
+- **Domain Layer** ✅ Complete
+  - [x] Profile entity (id, userId, fullName, phone, avatarUrl, noShowCount, noShowRate)
+  - [x] UpdateProfileRequest (validation: fullName max 100 chars, phone format)
+  - [x] ProfileRepository interface
+  - [x] GetProfileUseCase
+  - [x] UpdateProfileUseCase
+
+- **Data Layer** ✅ Complete
+  - [x] ProfileDto, UpdateProfileRequestDto
+  - [x] ProfileMapper (DTO <-> Domain)
+  - [x] ProfileApiService (Ktor + safeApiCall)
+  - [x] ProfileRepositoryImpl
+
+- **Presentation Layer** ✅ Complete
+  - [x] ProfileUiState (@Stable, MVI pattern with edit mode)
+  - [x] ProfileScreenModel (Voyager + StateFlow)
+  - [x] ProfileScreen (Compose UI with view/edit modes)
+
+- **DI Layer** ✅ Complete
+  - [x] ProfileModule (Koin)
+  - [x] Registered in MainApplication.kt
+
+- **Test Coverage** ✅ Complete (4 test classes)
+  - [x] ProfileRepositoryImplTest
+  - [x] GetProfileUseCaseTest
+  - [x] UpdateProfileUseCaseTest
+  - [x] ProfileScreenModelTest
+
+**API Endpoints**:
+- GET /api/v1/profile - Get current user profile
+- PATCH /api/v1/profile - Update profile
 
 **Dependencies**: `:core:network`, `:core:storage`, `:core:navigation`
+
+**Files**:
+```
+feature/profile/
+├── build.gradle.kts
+└── src/commonMain/kotlin/
+    ├── domain/
+    │   ├── model/
+    │   │   ├── Profile.kt
+    │   │   └── UpdateProfileRequest.kt
+    │   ├── repository/ProfileRepository.kt
+    │   └── usecase/
+    │       ├── GetProfileUseCase.kt
+    │       └── UpdateProfileUseCase.kt
+    ├── data/
+    │   ├── api/ProfileApiService.kt
+    │   ├── dto/
+    │   │   ├── ProfileDto.kt
+    │   │   └── UpdateProfileRequestDto.kt
+    │   ├── mapper/ProfileMapper.kt
+    │   └── repository/ProfileRepositoryImpl.kt
+    ├── presentation/
+    │   ├── model/ProfileUiState.kt
+    │   ├── screen/ProfileScreen.kt
+    │   └── screenmodel/ProfileScreenModel.kt
+    └── di/ProfileModule.kt
+```
 
 ---
 
@@ -716,6 +774,24 @@ feature/services/
 - [x] DI: ServicesModule (Koin)
 - [x] Register servicesModule in MainApplication.kt
 
+### Sprint 8: Profile Feature ✅ COMPLETE
+
+**Completed Tasks**:
+- [x] Domain: Profile entity (fullName, phone, avatarUrl, noShowStats)
+- [x] Domain: UpdateProfileRequest with validation
+- [x] Domain: ProfileRepository interface
+- [x] Domain: GetProfileUseCase, UpdateProfileUseCase
+- [x] Data: ProfileDto, UpdateProfileRequestDto
+- [x] Data: ProfileMapper (DTO <-> Domain)
+- [x] Data: ProfileApiService with safeApiCall
+- [x] Data: ProfileRepositoryImpl
+- [x] Presentation: ProfileUiState (@Stable, MVI pattern with edit mode)
+- [x] Presentation: ProfileScreenModel (Voyager + StateFlow)
+- [x] Presentation: ProfileScreen (Compose UI with view/edit modes)
+- [x] DI: ProfileModule (Koin)
+- [x] Register profileModule in MainApplication.kt
+- [x] Unit tests: Repository, UseCases, ScreenModel (4 test classes)
+
 ---
 
 ## 📋 Next Steps (Priority Order)
@@ -731,12 +807,11 @@ feature/services/
    - Google Maps Android
    - Mapkit/Google Maps iOS interop
 
-### Priority 2: Additional Features (Week 8-10)
+### Priority 2: Additional Features (Week 9-11)
 
-3. **Implement Profile Feature**
+3. ~~**Implement Profile Feature**~~ ✅ COMPLETE
 4. **Implement Favorites Feature**
 5. **Implement Reviews Feature**
-6. ~~**Implement Services Feature** (Provider management)~~ ✅ COMPLETE
 
 ---
 
@@ -752,14 +827,15 @@ feature/services/
 | W5-6 | Catalog Phase 1+2 | 27 tasks | 27 tasks | 100% |
 | W6-7 | Booking Feature | 20 tasks | 20 tasks | 100% |
 | W7-8 | Services Feature | 16 tasks | 16 tasks | 100% |
+| W8-9 | Profile Feature | 14 tasks | 14 tasks | 100% |
 
 ### Burndown Chart
 
 ```
 Total Story Points: ~200 (estimated)
-Remaining: 30
-Completed: 170
-Sprint: 7/12
+Remaining: 20
+Completed: 180
+Sprint: 8/12
 ```
 
 ---
@@ -777,10 +853,12 @@ Sprint: 7/12
 - [Auth Feature](features/AUTH_FEATURE.md) - Authentication feature documentation
 - [Catalog Feature](features/CATALOG_FEATURE.md) - Catalog feature documentation
 - [Booking Feature](features/BOOKING_FEATURE.md) - Booking feature documentation
+- [Services Feature](features/SERVICES_FEATURE.md) - Services feature documentation
+- [Profile Feature](features/PROFILE_FEATURE.md) - Profile feature documentation
 - [Feature Isolation Pattern](architecture/FEATURE_ISOLATION.md) - Cross-feature communication pattern
 
 ---
 
-**Documentation Version**: 3.1
-**Last Sync**: 2026-03-22 (Sprint 7: Services Feature COMPLETE - 100%)
+**Documentation Version**: 3.2
+**Last Sync**: 2026-03-22 (Sprint 8: Profile Feature COMPLETE - 100%)
 **Next Review**: 2026-03-29

@@ -1,8 +1,8 @@
 # 📚 Документация Aggregate Service Mobile
 
 **Последнее обновление:** 2026-03-22
-**Версия:** 2.2
-**Прогресс проекта:** 62%
+**Версия:** 2.3
+**Прогресс проекта:** 68%
 
 ---
 
@@ -106,6 +106,7 @@ UI/UX дизайн и Design System.
 | [CATALOG_FEATURE.md](features/CATALOG_FEATURE.md) | Catalog Feature (Providers, Services, Categories, Search) | ✅ Complete (95%) |
 | [BOOKING_FEATURE.md](features/BOOKING_FEATURE.md) | Booking Feature (Create, Cancel, Reschedule, Slots) | ✅ Complete (100%) |
 | [SERVICES_FEATURE.md](features/SERVICES_FEATURE.md) | Services Feature (Provider CRUD operations) | ✅ Complete (100%) |
+| [PROFILE_FEATURE.md](features/PROFILE_FEATURE.md) | Profile Feature (View/Edit user profile, no-show stats) | ✅ Complete (100%) |
 
 ---
 
@@ -149,25 +150,25 @@ Backend API документация.
 
 | Метрика | Значение |
 |---------|----------|
-| **Общий прогресс** | 62% |
+| **Общий прогресс** | 68% |
 | **Core Infrastructure** | 100% |
 | **Quality Infrastructure** | 100% |
-| **Features Implemented** | 4/7 (Auth 100%, Catalog 95%, Booking 100%, Services 100%) |
-| **Test Coverage** | 45% |
+| **Features Implemented** | 5/7 (Auth 100%, Catalog 95%, Booking 100%, Services 100%, Profile 100%) |
+| **Test Coverage** | 50% |
 
 ---
 
 ## 🚀 Текущий спринт
 
-**Sprint 7: Services Feature ✅ COMPLETE**
+**Sprint 8: Profile Feature ✅ COMPLETE**
 
-- [x] Domain: ProviderService entity, CreateServiceRequest, UpdateServiceRequest
-- [x] Domain: ServicesRepository interface, 5 UseCases (CRUD)
-- [x] Data: ServicesApiService with safeApiCall, ServiceMapper
-- [x] Presentation: ServicesListScreen, ServiceFormScreen
-- [x] DI: ServicesModule registered in MainApplication
+- [x] Domain: Profile entity, UpdateProfileRequest with validation
+- [x] Domain: ProfileRepository interface, GetProfileUseCase, UpdateProfileUseCase
+- [x] Data: ProfileApiService with safeApiCall, ProfileMapper
+- [x] Presentation: ProfileScreen with view/edit modes
+- [x] DI: ProfileModule registered in MainApplication
 
-**Next Sprint: Profile Feature**
+**Next Sprint: Favorites Feature**
 
 ---
 
