@@ -93,6 +93,55 @@ sealed interface AppEvent {
 }
 ```
 
+### 4. State Provider Pattern (Рекомендуемый для Auth)
+
+**Ситуация:** Несколько фич должны знать состояние авторизации
+
+**Решение:** Interface в core:navigation, реализация в feature:auth
+
+```kotlin
+// core:navigation/AuthStateProvider.kt
+interface AuthStateProvider {
+    val isAuthenticatedFlow: StateFlow<Boolean>
+    val isAuthenticated: Boolean
+        get() = isAuthenticatedFlow.value
+}
+
+// feature:auth/AuthStateProviderImpl.kt
+class AuthStateProviderImpl(
+    observeAuthStateUseCase: ObserveAuthStateUseCase,
+) : AuthStateProvider {
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    override val isAuthenticatedFlow: StateFlow<Boolean> =
+        observeAuthStateUseCase()
+            .map { it.isAuthenticated }
+            .stateIn(
+                scope = scope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = false,
+            )
+}
+
+// feature:catalog/ProviderDetailScreen.kt
+@Composable
+fun ProviderDetailScreen.Content() {
+    // Используем koinInject для Compose-friendly DI
+    val authProvider: AuthStateProvider = koinInject()
+    val isAuthenticated by authProvider.isAuthenticatedFlow.collectAsState()
+
+    // Теперь можем проверять auth без прямой зависимости от feature:auth
+    if (isAuthenticated) { /* ... */ }
+}
+```
+
+**Обоснование:**
+- `feature:catalog` НЕ зависит от `feature:auth`
+- Зависит только от `core:navigation` (interface)
+- Реализация injected через Koin
+- Compose-friendly с `koinInject()` вместо `KoinComponent`
+
 ## Чек-лист для Code Review
 
 При добавлении зависимости между фичами проверить:

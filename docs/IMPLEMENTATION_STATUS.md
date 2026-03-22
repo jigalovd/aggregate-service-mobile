@@ -4,14 +4,14 @@
 
 | Метрика | Текущее значение | Цель | Прогресс |
 |---------|------------------|------|----------|
-| **Общий прогресс** | 68% | 100% | ███████░░░ |
+| **Общий прогресс** | 75% | 100% | ███████▌░ |
 | **Core Infrastructure** | 100% | 100% | ██████████ |
 | **Quality Infrastructure** | 100% | 100% | ██████████ |
-| **Features Implemented** | 5/7 | 7 | █████░░░░░ |
-| **Test Coverage** | 50% | 80% | █████░░░░░ |
+| **Features Implemented** | 6/7 | 7 | ██████░░░░ |
+| **Test Coverage** | 55% | 80% | █████▌░░░░ |
 | **Documentation** | 100% | 100% | ██████████ |
 
-**⚠️ Gap Analysis:** Backend MVP готов на 100%, mobile реализует Auth (100%) + Catalog (95%) + Booking (100%) + Services (100%) + Profile (100%). Критические пропуски: Registration, Favorites, Reviews, UI tests.
+**⚠️ Gap Analysis:** Backend MVP готов на 100%, mobile реализует Auth (100%) + Catalog (95%) + Booking (100%) + Services (100%) + Profile (100%) + Favorites (100%). Критические пропуски: Registration, Reviews, UI tests.
 
 **Last Updated**: 2026-03-22
 **Project Phase**: Phase 1 Complete - Core Foundation
@@ -153,7 +153,7 @@ gradle = "8.14.4"             # ✅ Latest wrapper
 | **E3** | Booking | ✅ 100% | ✅ 100% | ✅ 100% | ⚪ 0% | ██████████ 100% |
 | **E4** | Services | ✅ 100% | ✅ 100% | ✅ 100% | ⚪ 0% | ██████████ 100% |
 | **E5** | Profile | ✅ 100% | ✅ 100% | ✅ 100% | ⚪ 0% | ██████████ 100% |
-| **E6** | Favorites | ⚪ 0% | ⚪ 0% | ⚪ 0% | ⚪ 0% | ░░░░░░░░░░ 0% |
+| **E6** | Favorites | ✅ 100% | ✅ 100% | ✅ 100% | ⚪ 0% | █████████░ 95% |
 | **E7** | Reviews | ⚪ 0% | ⚪ 0% | ⚪ 0% | ⚪ 0% | ░░░░░░░░░░ 0% |
 
 ### Feature Details
@@ -637,15 +637,73 @@ feature/profile/
 
 ---
 
-#### E6: Favorites (Избранное)
-**Business Value**: Позволяет пользователям сохранять любимых мастеров
+#### E6: Favorites (Избранное) 🟢 NEAR COMPLETE (95%)
+
+**Business Value**: Позволяет пользователям сохранять любимых мастеров для быстрого доступа
 
 **Components Status**:
-- **Domain Layer** ⚪ Not Started
-- **Data Layer** ⚪ Not Started
-- **Presentation Layer** ⚪ Not Started
+- **Domain Layer** ✅ Complete
+  - [x] Favorite entity (providerId, businessName, logoUrl, rating, reviewCount, address, addedAt)
+  - [x] FavoritesRepository interface
+  - [x] GetFavoritesUseCase
+  - [x] AddFavoriteUseCase
+  - [x] RemoveFavoriteUseCase
+  - [x] IsFavoriteUseCase
+
+- **Data Layer** ✅ Complete
+  - [x] FavoriteDto
+  - [x] FavoriteMapper (DTO <-> Domain)
+  - [x] FavoritesApiService (Ktor + safeApiCall)
+  - [x] FavoritesRepositoryImpl
+
+- **Presentation Layer** ✅ Complete
+  - [x] FavoritesUiState (@Stable, MVI pattern with remove confirmation)
+  - [x] FavoritesScreenModel (Voyager + StateFlow)
+  - [x] FavoritesScreen (Compose UI with empty state, error handling)
+
+- **DI Layer** ✅ Complete
+  - [x] FavoritesModule (Koin)
+  - [x] Registered in MainApplication.kt
+
+- **Test Coverage** ✅ Complete (5 test classes)
+  - [x] GetFavoritesUseCaseTest
+  - [x] AddFavoriteUseCaseTest
+  - [x] RemoveFavoriteUseCaseTest
+  - [x] IsFavoriteUseCaseTest
+  - [x] FavoritesScreenModelTest
+
+**API Endpoints**:
+- GET /api/v1/favorites - List user's favorites
+- POST /api/v1/favorites - Add provider to favorites
+- DELETE /api/v1/favorites/{providerId} - Remove from favorites
+- GET /api/v1/favorites/{providerId}/check - Check if provider is favorite
 
 **Dependencies**: `:core:network`, `:core:storage`, `:core:navigation`
+
+**Files**:
+```
+feature/favorites/
+├── build.gradle.kts
+└── src/commonMain/kotlin/
+    ├── domain/
+    │   ├── model/Favorite.kt
+    │   ├── repository/FavoritesRepository.kt
+    │   └── usecase/
+    │       ├── GetFavoritesUseCase.kt
+    │       ├── AddFavoriteUseCase.kt
+    │       ├── RemoveFavoriteUseCase.kt
+    │       └── IsFavoriteUseCase.kt
+    ├── data/
+    │   ├── api/FavoritesApiService.kt
+    │   ├── dto/FavoriteDto.kt
+    │   ├── mapper/FavoriteMapper.kt
+    │   └── repository/FavoritesRepositoryImpl.kt
+    ├── presentation/
+    │   ├── model/FavoritesUiState.kt
+    │   ├── screen/FavoritesScreen.kt
+    │   └── screenmodel/FavoritesScreenModel.kt
+    └── di/FavoritesModule.kt
+```
 
 ---
 
@@ -792,6 +850,39 @@ feature/profile/
 - [x] Register profileModule in MainApplication.kt
 - [x] Unit tests: Repository, UseCases, ScreenModel (4 test classes)
 
+### Sprint 9: Favorites Feature ✅ COMPLETE
+
+**Completed Tasks**:
+- [x] Domain: Favorite entity (providerId, businessName, logoUrl, rating, reviewCount, address, addedAt)
+- [x] Domain: FavoritesRepository interface
+- [x] Domain: 4 UseCases (GetFavorites, AddFavorite, RemoveFavorite, IsFavorite)
+- [x] Data: FavoriteDto
+- [x] Data: FavoriteMapper (DTO <-> Domain)
+- [x] Data: FavoritesApiService with safeApiCall
+- [x] Data: FavoritesRepositoryImpl
+- [x] Presentation: FavoritesUiState (@Stable, MVI pattern with remove confirmation)
+- [x] Presentation: FavoritesScreenModel (Voyager + StateFlow)
+- [x] Presentation: FavoritesScreen (Compose UI with empty/error states)
+- [x] DI: FavoritesModule (Koin)
+- [x] Register favoritesModule in MainApplication.kt
+- [x] Unit tests: 5 test classes (UseCases + ScreenModel)
+
+### Sprint 9.5: Architecture Improvements ✅ COMPLETE
+
+**Completed Tasks**:
+- [x] Domain Layer Purity: Removed @Stable annotation from domain models
+  - Profile.kt: Removed androidx.compose.runtime.Stable import
+  - ProviderService.kt: Removed @Stable annotation
+  - Favorite.kt: Removed @Stable annotation
+- [x] AuthStateProvider: Added cross-feature auth abstraction
+  - Interface in core:navigation for feature isolation
+  - Implementation in feature:auth bridging to domain layer
+  - SupervisorJob for proper coroutine lifecycle management
+- [x] Compose-friendly DI: Refactored KoinComponent to koinInject()
+  - ProviderDetailScreen: Removed KoinComponent interface
+  - Using org.koin.compose.koinInject for @Composable functions
+  - Added koin-compose dependency to feature:catalog
+
 ---
 
 ## 📋 Next Steps (Priority Order)
@@ -828,14 +919,15 @@ feature/profile/
 | W6-7 | Booking Feature | 20 tasks | 20 tasks | 100% |
 | W7-8 | Services Feature | 16 tasks | 16 tasks | 100% |
 | W8-9 | Profile Feature | 14 tasks | 14 tasks | 100% |
+| W9-10 | Favorites Feature | 18 tasks | 18 tasks | 100% |
 
 ### Burndown Chart
 
 ```
 Total Story Points: ~200 (estimated)
-Remaining: 20
-Completed: 180
-Sprint: 8/12
+Remaining: 10
+Completed: 190
+Sprint: 9/12
 ```
 
 ---
@@ -859,6 +951,6 @@ Sprint: 8/12
 
 ---
 
-**Documentation Version**: 3.2
-**Last Sync**: 2026-03-22 (Sprint 8: Profile Feature COMPLETE - 100%)
+**Documentation Version**: 3.3
+**Last Sync**: 2026-03-22 (Sprint 9: Favorites Feature + Architecture Improvements)
 **Next Review**: 2026-03-29
