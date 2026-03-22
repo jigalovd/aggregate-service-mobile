@@ -2,7 +2,7 @@ package com.aggregateservice.feature.profile.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.profile.domain.model.UpdateProfileRequest
 import com.aggregateservice.feature.profile.domain.usecase.GetProfileUseCase
 import com.aggregateservice.feature.profile.domain.usecase.UpdateProfileUseCase
@@ -57,10 +57,7 @@ class ProfileScreenModel(
                 },
                 onFailure = { error ->
                     _uiState.update {
-                        ProfileUiState.error(
-                            error as? AppError
-                                ?: AppError.UnknownError(throwable = error, message = error.message)
-                        )
+                        ProfileUiState.error(error.toAppError())
                     }
                 },
             )
@@ -167,8 +164,7 @@ class ProfileScreenModel(
                     _uiState.update {
                         it.copy(
                             isSaving = false,
-                            error = error as? AppError
-                                ?: AppError.UnknownError(throwable = error, message = error.message),
+                            error = error.toAppError(),
                         )
                     }
                 },

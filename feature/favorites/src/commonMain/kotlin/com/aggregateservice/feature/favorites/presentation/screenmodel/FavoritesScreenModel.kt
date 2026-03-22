@@ -3,6 +3,7 @@ package com.aggregateservice.feature.favorites.presentation.screenmodel
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.favorites.domain.model.Favorite
 import com.aggregateservice.feature.favorites.domain.usecase.GetFavoritesUseCase
 import com.aggregateservice.feature.favorites.domain.usecase.RemoveFavoriteUseCase
@@ -50,10 +51,7 @@ class FavoritesScreenModel(
                 },
                 onFailure = { error ->
                     _uiState.update {
-                        FavoritesUiState.error(
-                            error as? AppError
-                                ?: AppError.UnknownError(throwable = error, message = error.message)
-                        )
+                        FavoritesUiState.error(error.toAppError())
                     }
                 },
             )
@@ -100,8 +98,7 @@ class FavoritesScreenModel(
                         state.copy(
                             favoriteToRemove = null,
                             isRemoving = false,
-                            error = error as? AppError
-                                ?: AppError.UnknownError(throwable = error, message = error.message),
+                            error = error.toAppError(),
                         )
                     }
                 },

@@ -3,6 +3,8 @@ package com.aggregateservice.feature.services.presentation.screenmodel
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.network.toAppError
+import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.services.domain.usecase.CreateServiceUseCase
 import com.aggregateservice.feature.services.domain.usecase.GetServiceByIdUseCase
 import com.aggregateservice.feature.services.domain.usecase.UpdateServiceUseCase
@@ -52,8 +54,7 @@ class ServiceFormScreenModel(
                         ServiceFormUiState(
                             serviceId = serviceId,
                             isLoading = false,
-                            error = error as? AppError
-                                ?: AppError.UnknownError(throwable = error, message = error.message),
+                            error = error.toAppError(),
                         )
                     }
                 },
@@ -174,8 +175,7 @@ class ServiceFormScreenModel(
                     _uiState.update {
                         it.copy(
                             isSaving = false,
-                            error = error as? AppError
-                                ?: AppError.UnknownError(throwable = error, message = error.message),
+                            error = error.toAppError(),
                         )
                     }
                 },

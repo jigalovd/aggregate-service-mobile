@@ -3,6 +3,7 @@ package com.aggregateservice.feature.catalog.presentation.screenmodel
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.usecase.GetCategoriesUseCase
@@ -143,7 +144,7 @@ class SearchScreenModel(
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
                             isLoadingMore = false,
-                            error = error as? AppError ?: AppError.UnknownError(message = error.message),
+                            error = error.toAppError(),
                         )
                     },
                 )

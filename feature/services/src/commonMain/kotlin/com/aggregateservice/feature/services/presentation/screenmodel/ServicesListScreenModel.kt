@@ -3,6 +3,10 @@ package com.aggregateservice.feature.services.presentation.screenmodel
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.network.toAppError
+import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.services.domain.model.ProviderService
 import com.aggregateservice.feature.services.domain.usecase.DeleteServiceUseCase
 import com.aggregateservice.feature.services.domain.usecase.GetServicesUseCase
@@ -50,10 +54,7 @@ class ServicesListScreenModel(
                 },
                 onFailure = { error ->
                     _uiState.update {
-                        ServicesListUiState.error(
-                            error as? AppError
-                                ?: AppError.UnknownError(throwable = error, message = error.message)
-                        )
+                        ServicesListUiState.error(error.toAppError())
                     }
                 },
             )
@@ -100,8 +101,7 @@ class ServicesListScreenModel(
                         state.copy(
                             serviceToDelete = null,
                             isDeleting = false,
-                            error = error as? AppError
-                                ?: AppError.UnknownError(throwable = error, message = error.message),
+                            error = error.toAppError(),
                         )
                     }
                 },

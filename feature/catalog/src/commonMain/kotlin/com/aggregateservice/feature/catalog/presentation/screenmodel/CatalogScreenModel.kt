@@ -3,6 +3,7 @@ package com.aggregateservice.feature.catalog.presentation.screenmodel
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters.SortBy
@@ -107,7 +108,7 @@ class CatalogScreenModel(
                     onFailure = { error ->
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
-                            error = error as? AppError,
+                            error = error.toAppError(),
                         )
                     },
                 )
@@ -145,7 +146,7 @@ class CatalogScreenModel(
                     onFailure = { error ->
                         _uiState.value = _uiState.value.copy(
                             isLoadingMore = false,
-                            error = error as? AppError,
+                            error = error.toAppError(),
                         )
                     },
                 )

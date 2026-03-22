@@ -154,3 +154,19 @@ fun httpCodeToAppError(
         in 500..599 -> AppError.NetworkError(code, message)
         else -> AppError.UnknownError(message = "Unexpected HTTP code: $code")
     }
+
+/**
+ * Extension функция для преобразования [Throwable] в [AppError].
+ *
+ * Используется для консистентной обработки ошибок в ScreenModel и Repository.
+ *
+ * @return [AppError] соответствующий типу исключения
+ */
+fun Throwable.toAppError(): AppError =
+    when (this) {
+        is AppError -> this
+        else -> AppError.UnknownError(
+            throwable = this,
+            message = this.message,
+        )
+    }

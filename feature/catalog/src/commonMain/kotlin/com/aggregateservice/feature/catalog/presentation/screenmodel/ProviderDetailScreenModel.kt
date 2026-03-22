@@ -3,6 +3,7 @@ package com.aggregateservice.feature.catalog.presentation.screenmodel
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.catalog.domain.usecase.GetProviderDetailsUseCase
 import com.aggregateservice.feature.catalog.domain.usecase.GetProviderServicesUseCase
 import com.aggregateservice.feature.catalog.presentation.model.ProviderDetailUiState
@@ -75,11 +76,8 @@ class ProviderDetailScreenModel(
                         )
                     },
                     onFailure = { error ->
-                        _uiState.value = ProviderDetailUiState.error(
-                            error as? AppError ?: AppError.UnknownError(
-                                message = error.message ?: "Unknown error",
-                            ),
-                        )
+                        _uiState.value = ProviderDetailUiState.error(error.toAppError())
+                    }
                     },
                 )
         }
