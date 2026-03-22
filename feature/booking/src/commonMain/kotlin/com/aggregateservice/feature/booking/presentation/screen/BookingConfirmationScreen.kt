@@ -1,0 +1,269 @@
+package com.aggregateservice.feature.booking.presentation.screen
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.koinScreenModel
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import com.aggregateservice.feature.booking.domain.model.BookingService
+import com.aggregateservice.feature.booking.domain.model.TimeSlot
+import com.aggregateservice.feature.booking.presentation.screenmodel.BookingConfirmationScreenModel
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+
+/**
+ * Voyager Screen для подтверждения бронирования.
+ *
+ * @property providerId ID мастера
+ * @property providerName Название бизнеса мастера
+ * @property serviceIds Список ID выбранных услуг
+ * @property selectedDate Выбранная дата (ISO format)
+ * @property slotStartTime Время начала слота (ISO format)
+ */
+data class BookingConfirmationScreen(
+    val providerId: String,
+    val providerName: String,
+    val serviceIds: List<String>,
+    val selectedDate: String,
+    val slotStartTime: String,
+) : Screen {
+
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+        val screenModel = koinScreenModel<BookingConfirmationScreenModel>()
+        val uiState by screenModel.uiState.collectAsState()
+
+        // Services passed from previous screen (in real app, would be passed or loaded)
+        val services = remember { mutableStateOf<List<BookingService>>(emptyList()) }
+
+        // Initialize with data
+        LaunchedEffect(providerId) {
+            // In real implementation, services would be passed via SavedState or loaded
+            val startInstant = Instant.parse(slotStartTime)
+            val slot = TimeSlot(
+                startTime = startInstant,
+                endTime = Instant.fromEpochMilliseconds(startInstant.toEpochMilliseconds() + 60 * 60 * 1000),
+                isAvailable = true,
+                providerId = providerId,
+            )
+            screenModel.initialize(
+                providerId = providerId,
+                providerName = providerName,
+                services = services.value,
+                selectedDate = LocalDate.parse(selectedDate),
+                selectedSlot = slot,
+            )
+        }
+
+        BookingConfirmationScreenContent(
+            providerName = providerName,
+            uiState = uiState,
+            onNotesChange = screenModel::updateNotes,
+            onSubmit = screenModel::submitBooking,
+            onBack = { navigator.pop() },
+            onDone = {
+                // Navigate to booking history or home
+                navigator.popUntilRoot()
+            },
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BookingConfirmationScreenContent(
+    providerName: String,
+    uiState: com.aggregateservice.feature.booking.presentation.model.BookingConfirmationUiState,
+    onNotesChange: (String) -> Unit,
+    onSubmit: () -> Unit,
+    onBack: () -> Unit,
+    onDone: () -> Unit,
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Confirm Booking") },
+                navigationIcon = {
+                    if (!uiState.isBooked) {
+                        androidx.compose.material3.IconButton(onClick = onBack) {
+                            Text("←")
+                        }
+                    }
+                },
+            )
+        },
+    ) { paddingValues ->
+        when {
+            uiState.isBooked -> {
+                // Success state
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        Text(
+                            text = "✓",
+                            style = MaterialTheme.typography.displayLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                        Text(
+                            text = "Booking Confirmed!",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        uiState.booking?.let { booking ->
+                            Text(
+                                text = "${booking.formattedTotalPrice}\n${booking.startTime}",
+                                style = MaterialTheme.typography.bodyLarge,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(onClick = onDone) {
+                            Text("Done")
+                        }
+                    }
+                }
+            }
+
+            else -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(16.dp),
+                ) {
+                    // Provider info
+                    Text(
+                        text = providerName,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Booking summary card
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = "Booking Summary",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                                Text("Services", style = MaterialTheme.typography.bodyMedium)
+                                Text("${uiState.services.size}", style = MaterialTheme.typography.bodyMedium)
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                                Text("Duration", style = MaterialTheme.typography.bodyMedium)
+                                Text(uiState.formattedDuration, style = MaterialTheme.typography.bodyMedium)
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                                Text(
+                                    "Total",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                                Text(
+                                    uiState.formattedTotal,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Notes input
+                    OutlinedTextField(
+                        value = uiState.notes,
+                        onValueChange = onNotesChange,
+                        label = { Text("Notes (optional)") },
+                        placeholder = { Text("Add any special requests...") },
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 3,
+                        maxLines = 5,
+                    )
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    // Submit button
+                    Button(
+                        onClick = onSubmit,
+                        enabled = uiState.canSubmit,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        if (uiState.isSubmitting) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.padding(end = 8.dp),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                            )
+                        }
+                        Text(if (uiState.isSubmitting) "Booking..." else "Confirm Booking")
+                    }
+
+                    // Error display
+                    uiState.error?.let { error ->
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = error.message ?: "An error occurred",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,256 @@
+package com.aggregateservice.feature.booking.presentation.screen
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.koinScreenModel
+import com.aggregateservice.feature.booking.domain.model.Booking
+import com.aggregateservice.feature.booking.domain.model.BookingStatus
+import com.aggregateservice.feature.booking.presentation.screenmodel.BookingHistoryScreenModel
+
+/**
+ * Voyager Screen для истории бронирований.
+ */
+object BookingHistoryScreen : Screen {
+
+    @Composable
+    override fun Content() {
+        val screenModel = koinScreenModel<BookingHistoryScreenModel>()
+        val uiState by screenModel.uiState.collectAsState()
+
+        // TODO: Get clientId from AuthState
+        val clientId = "current-user-id"
+
+        LaunchedEffect(clientId) {
+            screenModel.loadBookings(clientId)
+        }
+
+        BookingHistoryScreenContent(
+            uiState = uiState,
+            onRefresh = { screenModel.refresh(clientId) },
+            onCancelBooking = { bookingId, reason ->
+                screenModel.cancelBooking(bookingId, reason)
+            },
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BookingHistoryScreenContent(
+    uiState: com.aggregateservice.feature.booking.presentation.model.BookingHistoryUiState,
+    onRefresh: () -> Unit,
+    onCancelBooking: (String, String?) -> Unit,
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("My Bookings") },
+            )
+        },
+    ) { paddingValues ->
+        when {
+            uiState.isLoading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            uiState.error != null -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = "Error: ${uiState.error?.message}",
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+
+            uiState.isEmpty -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "No bookings yet",
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                        Text(
+                            text = "Your booking history will appear here",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+
+            else -> {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(horizontal = 16.dp),
+                ) {
+                    // Upcoming bookings
+                    if (uiState.upcomingBookings.isNotEmpty()) {
+                        item {
+                            Text(
+                                text = "Upcoming",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(vertical = 8.dp),
+                            )
+                        }
+                        items(uiState.upcomingBookings, key = { it.id }) { booking ->
+                            BookingCard(
+                                booking = booking,
+                                onCancel = { onCancelBooking(booking.id, null) },
+                            )
+                        }
+                    }
+
+                    // Past bookings
+                    if (uiState.pastBookings.isNotEmpty()) {
+                        item {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "Past",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(vertical = 8.dp),
+                            )
+                        }
+                        items(uiState.pastBookings, key = { it.id }) { booking ->
+                            BookingCard(
+                                booking = booking,
+                                onCancel = null,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun BookingCard(
+    booking: Booking,
+    onCancel: (() -> Unit)?,
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            // Provider name
+            Text(
+                text = booking.providerName,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Status chip
+            StatusChip(status = booking.status)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Services summary
+            Text(
+                text = booking.servicesSummary,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Price and duration
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = booking.formattedTotalPrice,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Text(
+                    text = booking.formattedDuration,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+
+            // Cancel button (if applicable)
+            if (onCancel != null && booking.canCancel) {
+                Spacer(modifier = Modifier.height(8.dp))
+                androidx.compose.material3.TextButton(onClick = onCancel) {
+                    Text(
+                        text = "Cancel Booking",
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun StatusChip(status: BookingStatus) {
+    val (text, color) = when (status) {
+        BookingStatus.PENDING -> "Pending" to MaterialTheme.colorScheme.tertiary
+        BookingStatus.CONFIRMED -> "Confirmed" to MaterialTheme.colorScheme.primary
+        BookingStatus.IN_PROGRESS -> "In Progress" to MaterialTheme.colorScheme.secondary
+        BookingStatus.COMPLETED -> "Completed" to MaterialTheme.colorScheme.primaryContainer
+        BookingStatus.CANCELLED -> "Cancelled" to MaterialTheme.colorScheme.error
+        BookingStatus.EXPIRED -> "Expired" to MaterialTheme.colorScheme.outline
+        BookingStatus.NO_SHOW -> "No Show" to MaterialTheme.colorScheme.errorContainer
+    }
+
+    androidx.compose.material3.Surface(
+        color = color,
+        shape = MaterialTheme.shapes.small,
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+        )
+    }
+}

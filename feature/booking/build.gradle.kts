@@ -13,6 +13,9 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.kotlinx.datetime)
+
+            // NOTE: feature:booking is isolated from feature:catalog
+            // See docs/architecture/FEATURE_ISOLATION.md for details
         }
     }
 }

@@ -1,0 +1,316 @@
+package com.aggregateservice.feature.booking.presentation.screen
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.koinScreenModel
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import com.aggregateservice.feature.booking.domain.model.TimeSlot
+import com.aggregateservice.feature.booking.presentation.screenmodel.SelectDateTimeScreenModel
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.plus
+import kotlinx.datetime.todayIn
+
+/**
+ * Voyager Screen для выбора даты и времени.
+ *
+ * @property providerId ID мастера
+ * @property providerName Название бизнеса мастера
+ * @property serviceIds Список ID выбранных услуг
+ */
+data class SelectDateTimeScreen(
+    val providerId: String,
+    val providerName: String,
+    val serviceIds: List<String>,
+) : Screen {
+
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+        val screenModel = koinScreenModel<SelectDateTimeScreenModel>()
+        val uiState by screenModel.uiState.collectAsState()
+
+        // Load available slots on first composition
+        LaunchedEffect(providerId) {
+            screenModel.loadAvailableSlots(providerId, serviceIds)
+        }
+
+        SelectDateTimeScreenContent(
+            providerName = providerName,
+            uiState = uiState,
+            onSelectDate = screenModel::selectDate,
+            onSelectSlot = screenModel::selectSlot,
+            onContinue = {
+                uiState.selectedSlot?.let { slot ->
+                    uiState.selectedDate?.let { date ->
+                        navigator.push(
+                            BookingConfirmationScreen(
+                                providerId = providerId,
+                                providerName = providerName,
+                                serviceIds = serviceIds,
+                                selectedDate = date.toString(),
+                                slotStartTime = slot.startTime.toString(),
+                            )
+                        )
+                    }
+                }
+            },
+            onBack = { navigator.pop() },
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+fun SelectDateTimeScreenContent(
+    providerName: String,
+    uiState: com.aggregateservice.feature.booking.presentation.model.SelectDateTimeUiState,
+    onSelectDate: (LocalDate) -> Unit,
+    onSelectSlot: (TimeSlot) -> Unit,
+    onContinue: () -> Unit,
+    onBack: () -> Unit,
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Select Date & Time") },
+                navigationIcon = {
+                    androidx.compose.material3.IconButton(onClick = onBack) {
+                        Text("←")
+                    }
+                },
+            )
+        },
+        bottomBar = {
+            if (uiState.hasSelection) {
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = uiState.selectedDate?.toString() ?: "",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                            Text(
+                                text = uiState.selectedSlot?.formattedTimeRange ?: "",
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                        }
+                        Button(onClick = onContinue) {
+                            Text("Continue")
+                        }
+                    }
+                }
+            }
+        },
+    ) { paddingValues ->
+        when {
+            uiState.isLoading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            uiState.error != null -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = "Error: ${uiState.error?.message}",
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+
+            else -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(16.dp),
+                ) {
+                    // Date selection header
+                    Text(
+                        text = "Select Date",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Date chips (next 7 days)
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+                        repeat(7) { offset ->
+                            val date = today.plus(offset, DateTimeUnit.DAY)
+                            DateChip(
+                                date = date,
+                                isSelected = uiState.selectedDate == date,
+                                hasSlots = uiState.availableSlotsForDate.isNotEmpty(),
+                                onClick = { onSelectDate(date) },
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Time slots
+                    if (uiState.selectedDate != null) {
+                        Text(
+                            text = "Available Time Slots",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        if (uiState.availableSlotsForDate.isEmpty()) {
+                            Text(
+                                text = "No available slots for this date",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        } else {
+                            LazyColumn(
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                items(uiState.availableSlotsForDate, key = { it.startTime.toString() }) { slot ->
+                                    TimeSlotItem(
+                                        slot = slot,
+                                        isSelected = uiState.selectedSlot == slot,
+                                        onClick = { onSelectSlot(slot) },
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text("Select a date to see available time slots")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DateChip(
+    date: LocalDate,
+    isSelected: Boolean,
+    hasSlots: Boolean,
+    onClick: () -> Unit,
+) {
+    OutlinedButton(
+        onClick = onClick,
+        colors = if (isSelected) {
+            androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+            )
+        } else {
+            androidx.compose.material3.ButtonDefaults.outlinedButtonColors()
+        },
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = date.dayOfWeek.name.take(3),
+                style = MaterialTheme.typography.labelSmall,
+            )
+            Text(
+                text = date.dayOfMonth.toString(),
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
+    }
+}
+
+@Composable
+fun TimeSlotItem(
+    slot: TimeSlot,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = slot.isAvailable, onClick = onClick),
+        colors = if (isSelected) {
+            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+        } else if (!slot.isAvailable) {
+            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        } else {
+            CardDefaults.cardColors()
+        },
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = slot.formattedTimeRange,
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            if (!slot.isAvailable) {
+                Text(
+                    text = "Booked",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+        }
+    }
+}
