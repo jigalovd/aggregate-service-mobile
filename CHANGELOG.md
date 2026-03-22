@@ -9,6 +9,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - 2026-03-22
+
+#### Services Feature (Provider CRUD) ✅ COMPLETE
+
+- ✅ **Feature: Services - Domain Layer**
+  - `ProviderService` entity (id, name, description, basePrice, durationMinutes, categoryId, isActive)
+  - `CreateServiceRequest` (validation: name 3-100 chars, price >= 0, duration 5-480 min)
+  - `UpdateServiceRequest` (partial updates with validation)
+  - `ServicesRepository` interface (CRUD operations)
+  - `GetServicesUseCase` - list all provider services
+  - `GetServiceByIdUseCase` - get single service details
+  - `CreateServiceUseCase` - create new service with business validation
+  - `UpdateServiceUseCase` - update existing service
+  - `DeleteServiceUseCase` - soft delete service
+
+- ✅ **Feature: Services - Data Layer**
+  - `ServiceDto`, `CreateServiceRequestDto`, `UpdateServiceRequestDto` DTOs
+  - `ServiceMapper` (DTO ↔ Domain bidirectional mapping)
+  - `ServicesApiService` with `safeApiCall` wrapper
+  - `ServicesRepositoryImpl`
+
+- ✅ **Feature: Services - Presentation Layer**
+  - `ServicesListUiState` (@Stable, MVI pattern)
+  - `ServiceFormUiState` (@Stable, with validation states)
+  - `ServicesListScreenModel` (Voyager + StateFlow)
+  - `ServiceFormScreenModel` (Voyager + StateFlow)
+  - `ServicesListScreen` (Compose UI with delete confirmation dialog)
+  - `ServiceFormScreen` (Compose UI for create/edit with validation)
+
+- ✅ **Feature: Services - DI Layer**
+  - `ServicesModule` (Koin module with factoryOf)
+  - Registered in `MainApplication.kt`
+
+- ✅ **API Endpoints**
+  - GET /api/v1/provider-services - List all services
+  - POST /api/v1/provider-services - Create service
+  - GET /api/v1/provider-services/{id} - Get service details
+  - PATCH /api/v1/provider-services/{id} - Update service
+  - DELETE /api/v1/provider-services/{id} - Delete service
+
+- ✅ **Project Progress Update**
+  - Features Implemented: 3/7 → 4/7 (Auth, Catalog, Booking, Services)
+  - Overall Progress: 55% → 62%
+  - Sprint 7: Services Feature marked COMPLETE
+
 ### Added - 2026-03-21
 
 #### Guest Mode Implementation 🔐

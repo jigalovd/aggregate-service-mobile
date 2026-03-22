@@ -1,8 +1,8 @@
 # 📚 Документация Aggregate Service Mobile
 
-**Последнее обновление:** 2026-03-21
-**Версия:** 2.1
-**Прогресс проекта:** 55%
+**Последнее обновление:** 2026-03-22
+**Версия:** 2.2
+**Прогресс проекта:** 62%
 
 ---
 
@@ -102,8 +102,10 @@ UI/UX дизайн и Design System.
 
 | Документ | Описание | Статус |
 |----------|----------|--------|
-| [AUTH_FEATURE.md](features/AUTH_FEATURE.md) | Auth Feature (Login, Logout, Refresh) | ✅ Complete (100%) |
-| [CATALOG_FEATURE.md](features/CATALOG_FEATURE.md) | Catalog Feature (Providers, Services, Categories) | 🟡 In Progress (70%) |
+| [AUTH_FEATURE.md](features/AUTH_FEATURE.md) | Auth Feature (Login, Logout, Refresh, Guest Mode) | ✅ Complete (100%) |
+| [CATALOG_FEATURE.md](features/CATALOG_FEATURE.md) | Catalog Feature (Providers, Services, Categories, Search) | ✅ Complete (95%) |
+| [BOOKING_FEATURE.md](features/BOOKING_FEATURE.md) | Booking Feature (Create, Cancel, Reschedule, Slots) | ✅ Complete (100%) |
+| [SERVICES_FEATURE.md](features/SERVICES_FEATURE.md) | Services Feature (Provider CRUD operations) | ✅ Complete (100%) |
 
 ---
 
@@ -147,23 +149,25 @@ Backend API документация.
 
 | Метрика | Значение |
 |---------|----------|
-| **Общий прогресс** | 55% |
+| **Общий прогресс** | 62% |
 | **Core Infrastructure** | 100% |
 | **Quality Infrastructure** | 100% |
-| **Features Implemented** | 2/7 (Auth 100%, Catalog 70%) |
-| **Test Coverage** | 25% |
+| **Features Implemented** | 4/7 (Auth 100%, Catalog 95%, Booking 100%, Services 100%) |
+| **Test Coverage** | 45% |
 
 ---
 
 ## 🚀 Текущий спринт
 
-**Sprint 4: Catalog Feature Phase 2**
+**Sprint 7: Services Feature ✅ COMPLETE**
 
-- [x] Domain: Provider, Service, Category entities ✅
-- [x] Data: CatalogApiService, DTOs, Repository ✅
-- [x] Presentation: CatalogScreen, CatalogScreenModel ✅
-- [ ] Presentation: SearchScreen, ProviderDetailScreen
-- [ ] Unit Tests for Catalog
+- [x] Domain: ProviderService entity, CreateServiceRequest, UpdateServiceRequest
+- [x] Domain: ServicesRepository interface, 5 UseCases (CRUD)
+- [x] Data: ServicesApiService with safeApiCall, ServiceMapper
+- [x] Presentation: ServicesListScreen, ServiceFormScreen
+- [x] DI: ServicesModule registered in MainApplication
+
+**Next Sprint: Profile Feature**
 
 ---
 
