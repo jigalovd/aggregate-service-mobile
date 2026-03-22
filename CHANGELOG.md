@@ -11,6 +11,74 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added - 2026-03-22
 
+#### Favorites Feature ✅ COMPLETE
+
+- ✅ **Feature: Favorites - Domain Layer**
+  - `Favorite` entity (providerId, businessName, logoUrl, rating, reviewCount, address, addedAt)
+  - `FavoritesRepository` interface
+  - `GetFavoritesUseCase` - list user's favorite providers
+  - `AddFavoriteUseCase` - add provider to favorites
+  - `RemoveFavoriteUseCase` - remove provider from favorites
+  - `IsFavoriteUseCase` - check if provider is favorited
+
+- ✅ **Feature: Favorites - Data Layer**
+  - `FavoriteDto` with kotlinx.serialization
+  - `FavoriteMapper` (DTO → Domain)
+  - `FavoritesApiService` with `safeApiCall` wrapper
+  - `FavoritesRepositoryImpl`
+
+- ✅ **Feature: Favorites - Presentation Layer**
+  - `FavoritesUiState` (@Stable, MVI pattern with remove confirmation)
+  - `FavoritesScreenModel` (Voyager + StateFlow)
+  - `FavoritesScreen` (Compose UI with empty/error/content states)
+
+- ✅ **Feature: Favorites - DI Layer**
+  - `FavoritesModule` (Koin module)
+  - Registered in `MainApplication.kt`
+
+- ✅ **API Endpoints**
+  - GET /api/v1/favorites - List user's favorites
+  - POST /api/v1/favorites - Add provider to favorites
+  - DELETE /api/v1/favorites/{providerId} - Remove from favorites
+  - GET /api/v1/favorites/{providerId}/check - Check if provider is favorite
+
+- ✅ **Test Coverage**
+  - GetFavoritesUseCaseTest (7 tests)
+  - AddFavoriteUseCaseTest (4 tests)
+  - RemoveFavoriteUseCaseTest (4 tests)
+  - IsFavoriteUseCaseTest (4 tests)
+  - FavoritesScreenModelTest (10 tests)
+  - Total: 29 tests
+
+### Changed - 2026-03-22
+
+#### Architecture Improvements
+
+- ✅ **Domain Layer Purity** (Clean Architecture fix)
+  - Removed `@Stable` annotation from domain models
+  - `Profile.kt`: Removed `androidx.compose.runtime.Stable` import
+  - `ProviderService.kt`: Removed `@Stable` annotation
+  - `Favorite.kt`: Removed `@Stable` annotation
+  - Domain models now have NO UI framework dependencies
+
+- ✅ **AuthStateProvider Abstraction** (Feature Isolation)
+  - Added `AuthStateProvider` interface in `core:navigation`
+  - Added `AuthStateProviderImpl` in `feature:auth`
+  - Uses `SupervisorJob` for proper coroutine lifecycle management
+  - `SharingStarted.WhileSubscribed(5000)` for resource efficiency
+
+- ✅ **Compose-friendly DI Refactoring**
+  - `ProviderDetailScreen`: Removed `KoinComponent` interface
+  - Using `org.koin.compose.koinInject()` for @Composable functions
+  - Added `koin-compose` dependency to `feature:catalog`
+
+- ✅ **Project Progress Update**
+  - Features Implemented: 5/7 → 6/7 (Auth, Catalog, Booking, Services, Profile, Favorites)
+  - Overall Progress: 68% → 75%
+  - Sprint 9: Favorites Feature marked COMPLETE
+
+### Added - 2026-03-22
+
 #### Services Feature (Provider CRUD) ✅ COMPLETE
 
 - ✅ **Feature: Services - Domain Layer**
