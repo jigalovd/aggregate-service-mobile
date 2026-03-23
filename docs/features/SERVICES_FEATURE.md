@@ -117,14 +117,36 @@ data class CreateServiceRequest(
     val basePrice: Double,
     val durationMinutes: Int,
     val categoryId: String,
-)
+) {
+    init {
+        // US-4.1: name 3-100 символов
+        require(name.length in MIN_NAME_LENGTH..MAX_NAME_LENGTH) {
+            "Service name must be between $MIN_NAME_LENGTH and $MAX_NAME_LENGTH characters"
+        }
+        require(basePrice >= 0) { "Base price must be non-negative" }
+        // US-4.1: duration 5-480 минут
+        require(durationMinutes in MIN_DURATION..MAX_DURATION) {
+            "Duration must be between $MIN_DURATION and $MAX_DURATION minutes"
+        }
+        require(categoryId.isNotBlank()) { "Category ID cannot be blank" }
+    }
+
+    companion object {
+        const val MIN_NAME_LENGTH = 3
+        const val MAX_NAME_LENGTH = 100
+        const val MIN_DURATION = 5
+        const val MAX_DURATION = 480
+    }
+}
 ```
 
-**Validation Rules:**
-- `name`: 3-100 characters
-- `basePrice`: >= 0
-- `durationMinutes`: 5-480 minutes (8 hours max)
-- `categoryId`: required
+**Business Rules (US-4.1):**
+| Field | Constraint | Error Message |
+|-------|------------|---------------|
+| `name` | 3-100 characters | "Service name must be between 3 and 100 characters" |
+| `basePrice` | >= 0 | "Base price must be non-negative" |
+| `durationMinutes` | 5-480 min (8 hours max) | "Duration must be between 5 and 480 minutes" |
+| `categoryId` | required, non-blank | "Category ID cannot be blank" |
 
 #### UpdateServiceRequest
 
@@ -536,6 +558,6 @@ Authorization: Bearer <access_token>
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2026-03-22
+**Document Version:** 1.1
+**Last Updated:** 2026-03-24 (Business Rules Documentation US-4.1)
 **Author:** Development Team

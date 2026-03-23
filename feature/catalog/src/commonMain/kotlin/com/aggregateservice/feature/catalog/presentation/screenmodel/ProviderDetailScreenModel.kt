@@ -77,7 +77,6 @@ class ProviderDetailScreenModel(
                     },
                     onFailure = { error ->
                         _uiState.value = ProviderDetailUiState.error(error.toAppError())
-                    }
                     },
                 )
         }

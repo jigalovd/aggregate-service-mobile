@@ -597,6 +597,75 @@ feature/booking/
 
 ---
 
+## 📜 Business Rules
+
+### Time Constraints (US-3.x)
+
+| Rule ID | Description | Implementation |
+|---------|-------------|----------------|
+| **US-3.5** | Клиент может отменить бронирование минимум за 2 часа до начала | `Booking.canCancel` + `CancelBookingUseCase` |
+| **US-3.11** | Клиент может перенести бронирование минимум за 2 часа до начала | `Booking.canReschedule` + `RescheduleBookingUseCase` |
+| **US-3.34** | Горизонт бронирования ограничен 30 днями вперёд | `CreateBookingUseCase.MAX_ADVANCE_DAYS` |
+| **US-3.35** | Минимальное уведомление о бронировании — 2 часа | `CreateBookingUseCase.MIN_BOOKING_NOTICE_HOURS` |
+
+### Validation Constants
+
+```kotlin
+// Booking.kt
+companion object {
+    // US-3.5: Минимальное время до начала для отмены (в часах)
+    private const val CANCEL_WINDOW_HOURS = 2L
+
+    // US-3.11: Минимальное время до начала для переноса (в часах)
+    private const val RESCHEDULE_WINDOW_HOURS = 2L
+}
+
+// CreateBookingUseCase.kt
+companion object {
+    // US-3.34: Максимальный горизонт бронирования (в днях)
+    private const val MAX_ADVANCE_DAYS = 30L
+
+    // US-3.35: Минимальное уведомление о бронировании (в часах)
+    private const val MIN_BOOKING_NOTICE_HOURS = 2L
+}
+```
+
+### Computed Properties
+
+```kotlin
+// Booking.kt - Вычисляемые свойства для UI
+
+/**
+ * Можно ли отменить бронирование.
+ * US-3.5: Клиент может отменить минимум за 2 часа до начала.
+ */
+val canCancel: Boolean
+    get() {
+        if (!status.isCancellable || isPast) return false
+        val now = Instant.fromEpochMilliseconds(System.currentTimeMillis())
+        val minCancelTime = Instant.fromEpochMilliseconds(
+            startTime.toEpochMilliseconds() - CANCEL_WINDOW_HOURS * 60 * 60 * 1000,
+        )
+        return now <= minCancelTime
+    }
+
+/**
+ * Можно ли перенести бронирование.
+ * US-3.11: Клиент может перенести минимум за 2 часа до начала.
+ */
+val canReschedule: Boolean
+    get() {
+        if (!status.isReschedulable || isPast) return false
+        val now = Instant.fromEpochMilliseconds(System.currentTimeMillis())
+        val minRescheduleTime = Instant.fromEpochMilliseconds(
+            startTime.toEpochMilliseconds() - RESCHEDULE_WINDOW_HOURS * 60 * 60 * 1000,
+        )
+        return now <= minRescheduleTime
+    }
+```
+
+---
+
 ## 📋 Implementation Progress
 
 ### Phase 1: Core Functionality ✅ COMPLETE
@@ -674,6 +743,6 @@ Booking Feature зависит от следующих core модулей:
 
 ---
 
-**Версия документа**: 1.0
-**Last Updated**: 2026-03-22 (Booking Feature 100% Complete)
+**Версия документа**: 1.1
+**Last Updated**: 2026-03-24 (Business Rules Documentation US-3.x)
 **Maintainer**: Development Team
