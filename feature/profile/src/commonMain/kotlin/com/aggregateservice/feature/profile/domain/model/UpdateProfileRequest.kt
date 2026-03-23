@@ -1,7 +1,5 @@
 package com.aggregateservice.feature.profile.domain.model
 
-import androidx.compose.runtime.Stable
-
 /**
  * Value object for profile update request.
  *
@@ -10,7 +8,6 @@ import androidx.compose.runtime.Stable
  * @property fullName New full name (optional)
  * @property phone New phone number (optional)
  */
-@Stable
 data class UpdateProfileRequest(
     val fullName: String? = null,
     val phone: String? = null,
