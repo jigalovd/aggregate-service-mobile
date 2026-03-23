@@ -11,6 +11,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added - 2026-03-22
 
+#### Reviews Feature ✅ COMPLETE
+
+- ✅ **Feature: Reviews - Domain Layer**
+  - `Review` entity (id, providerId, clientId, rating, comment, reply, createdAt, updatedAt)
+  - `ReviewStats` entity (averageRating, totalReviews, ratingDistribution)
+  - `ReviewsRepository` interface
+  - `GetProviderReviewsUseCase` - list provider reviews with pagination
+  - `GetReviewStatsUseCase` - get review statistics
+  - `CreateReviewUseCase` - create review (auth required)
+  - `UpdateReviewUseCase` - update existing review
+
+- ✅ **Feature: Reviews - Data Layer**
+  - `ReviewDto`, `ReviewStatsDto` with kotlinx.serialization
+  - `ReviewMapper` (DTO → Domain)
+  - `ReviewsApiService` with `safeApiCall` wrapper
+  - `ReviewsRepositoryImpl`
+
+- ✅ **Feature: Reviews - Presentation Layer**
+  - `ReviewsUiState` (@Stable, MVI pattern with write dialog)
+  - `ReviewsScreenModel` (Voyager + StateFlow)
+  - `ReviewsScreen` (Compose UI with reviews list)
+  - `ReviewCard` component
+  - `WriteReviewDialog` (rating input + comment)
+
+- ✅ **Feature: Reviews - DI Layer**
+  - `ReviewsModule` (Koin module)
+  - Registered in `MainApplication.kt`
+
+- ✅ **API Endpoints**
+  - GET /api/v1/providers/{providerId}/reviews - List provider reviews
+  - GET /api/v1/providers/{providerId}/reviews/stats - Get review statistics
+  - POST /api/v1/providers/{providerId}/reviews - Create review
+  - PATCH /api/v1/providers/{providerId}/reviews/{reviewId} - Update review
+
+- ✅ **Project Progress Update**
+  - Features Implemented: 6/7 → 7/7 (Auth, Catalog, Booking, Services, Profile, Favorites, Reviews)
+  - Overall Progress: 75% → 86%
+  - Sprint 10: Reviews Feature marked COMPLETE
+
 #### Favorites Feature ✅ COMPLETE
 
 - ✅ **Feature: Favorites - Domain Layer**

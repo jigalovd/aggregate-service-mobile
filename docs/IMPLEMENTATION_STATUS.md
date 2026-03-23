@@ -4,17 +4,17 @@
 
 | Метрика | Текущее значение | Цель | Прогресс |
 |---------|------------------|------|----------|
-| **Общий прогресс** | 75% | 100% | ███████▌░ |
+| **Общий прогресс** | 86% | 100% | ████████▌░ |
 | **Core Infrastructure** | 100% | 100% | ██████████ |
 | **Quality Infrastructure** | 100% | 100% | ██████████ |
-| **Features Implemented** | 6/7 | 7 | ██████░░░░ |
+| **Features Implemented** | 7/7 | 7 | ██████████ |
 | **Test Coverage** | 55% | 80% | █████▌░░░░ |
 | **Documentation** | 100% | 100% | ██████████ |
 
-**⚠️ Gap Analysis:** Backend MVP готов на 100%, mobile реализует Auth (100%) + Catalog (95%) + Booking (100%) + Services (100%) + Profile (100%) + Favorites (100%). Критические пропуски: Registration, Reviews, UI tests.
+**✅ Gap Analysis:** Backend MVP готов на 100%, mobile реализует все 7 фич: Auth (100%) + Catalog (95%) + Booking (100%) + Services (100%) + Profile (100%) + Favorites (100%) + Reviews (100%). Оставшиеся задачи: Registration, UI tests.
 
 **Last Updated**: 2026-03-22
-**Project Phase**: Phase 1 Complete - Core Foundation
+**Project Phase**: Phase 2 Complete - All Features Implemented
 **Architecture**: Feature-First + Clean Architecture
 
 ---
@@ -154,7 +154,7 @@ gradle = "8.14.4"             # ✅ Latest wrapper
 | **E4** | Services | ✅ 100% | ✅ 100% | ✅ 100% | ⚪ 0% | ██████████ 100% |
 | **E5** | Profile | ✅ 100% | ✅ 100% | ✅ 100% | ⚪ 0% | ██████████ 100% |
 | **E6** | Favorites | ✅ 100% | ✅ 100% | ✅ 100% | ⚪ 0% | █████████░ 95% |
-| **E7** | Reviews | ⚪ 0% | ⚪ 0% | ⚪ 0% | ⚪ 0% | ░░░░░░░░░░ 0% |
+| **E7** | Reviews | ✅ 100% | ✅ 100% | ✅ 100% | ⚪ 0% | █████████░ 95% |
 
 ### Feature Details
 
@@ -707,15 +707,76 @@ feature/favorites/
 
 ---
 
-#### E7: Reviews (Отзывы)
-**Business Value**: Позволяет пользователям оставлять отзывы о мастерах
+#### E7: Reviews (Отзывы) ✅ COMPLETE
+
+**Business Value**: Позволяет пользователям оставлять отзывы о мастерах, просматривать статистику отзывов
 
 **Components Status**:
-- **Domain Layer** ⚪ Not Started
-- **Data Layer** ⚪ Not Started
-- **Presentation Layer** ⚪ Not Started
+- **Domain Layer** ✅ Complete
+  - [x] Review entity (id, providerId, clientId, rating, comment, reply, createdAt, updatedAt)
+  - [x] ReviewStats entity (averageRating, totalReviews, ratingDistribution)
+  - [x] ReviewsRepository interface
+  - [x] GetProviderReviewsUseCase
+  - [x] GetReviewStatsUseCase
+  - [x] CreateReviewUseCase
+  - [x] UpdateReviewUseCase
 
-**Dependencies**: `:core:network`, `:core:navigation`
+- **Data Layer** ✅ Complete
+  - [x] ReviewDto, ReviewStatsDto
+  - [x] ReviewMapper (DTO <-> Domain)
+  - [x] ReviewsApiService (Ktor + safeApiCall)
+  - [x] ReviewsRepositoryImpl
+
+- **Presentation Layer** ✅ Complete
+  - [x] ReviewsUiState (@Stable, MVI pattern with write dialog)
+  - [x] ReviewsScreenModel (Voyager + StateFlow)
+  - [x] ReviewsScreen (Compose UI with reviews list)
+  - [x] ReviewCard component
+  - [x] WriteReviewDialog (rating input + comment)
+
+- **DI Layer** ✅ Complete
+  - [x] ReviewsModule (Koin)
+  - [x] Registered in MainApplication.kt
+
+**API Endpoints**:
+- GET /api/v1/providers/{providerId}/reviews - List provider reviews
+- GET /api/v1/providers/{providerId}/reviews/stats - Get review statistics
+- POST /api/v1/providers/{providerId}/reviews - Create review
+- PATCH /api/v1/providers/{providerId}/reviews/{reviewId} - Update review
+
+**Dependencies**: `:core:network`, `:core:storage`, `:core:navigation`
+
+**Files**:
+```
+feature/reviews/
+├── build.gradle.kts
+└── src/commonMain/kotlin/
+    ├── domain/
+    │   ├── model/
+    │   │   ├── Review.kt
+    │   │   └── ReviewStats.kt
+    │   ├── repository/ReviewsRepository.kt
+    │   └── usecase/
+    │       ├── GetProviderReviewsUseCase.kt
+    │       ├── GetReviewStatsUseCase.kt
+    │       ├── CreateReviewUseCase.kt
+    │       └── UpdateReviewUseCase.kt
+    ├── data/
+    │   ├── api/ReviewsApiService.kt
+    │   ├── dto/
+    │   │   ├── ReviewDto.kt
+    │   │   └── ReviewStatsDto.kt
+    │   ├── mapper/ReviewMapper.kt
+    │   └── repository/ReviewsRepositoryImpl.kt
+    ├── presentation/
+    │   ├── model/ReviewsUiState.kt
+    │   ├── screen/ReviewsScreen.kt
+    │   ├── screenmodel/ReviewsScreenModel.kt
+    │   └── component/
+    │       ├── ReviewCard.kt
+    │       └── WriteReviewDialog.kt
+    └── di/ReviewsModule.kt
+```
 
 ---
 
@@ -883,6 +944,25 @@ feature/favorites/
   - Using org.koin.compose.koinInject for @Composable functions
   - Added koin-compose dependency to feature:catalog
 
+### Sprint 10: Reviews Feature ✅ COMPLETE
+
+**Completed Tasks**:
+- [x] Domain: Review entity (providerId, clientId, rating, comment, reply)
+- [x] Domain: ReviewStats entity (averageRating, totalReviews, ratingDistribution)
+- [x] Domain: ReviewsRepository interface
+- [x] Domain: 4 UseCases (GetProviderReviews, GetReviewStats, CreateReview, UpdateReview)
+- [x] Data: ReviewDto, ReviewStatsDto
+- [x] Data: ReviewMapper (DTO <-> Domain)
+- [x] Data: ReviewsApiService with safeApiCall
+- [x] Data: ReviewsRepositoryImpl
+- [x] Presentation: ReviewsUiState (@Stable, MVI pattern with write dialog)
+- [x] Presentation: ReviewsScreenModel (Voyager + StateFlow)
+- [x] Presentation: ReviewsScreen (Compose UI with reviews list)
+- [x] Presentation: ReviewCard component
+- [x] Presentation: WriteReviewDialog (rating input + comment)
+- [x] DI: ReviewsModule (Koin)
+- [x] Register reviewsModule in MainApplication.kt
+
 ---
 
 ## 📋 Next Steps (Priority Order)
@@ -901,8 +981,8 @@ feature/favorites/
 ### Priority 2: Additional Features (Week 9-11)
 
 3. ~~**Implement Profile Feature**~~ ✅ COMPLETE
-4. **Implement Favorites Feature**
-5. **Implement Reviews Feature**
+4. ~~**Implement Favorites Feature**~~ ✅ COMPLETE
+5. ~~**Implement Reviews Feature**~~ ✅ COMPLETE
 
 ---
 
@@ -920,14 +1000,15 @@ feature/favorites/
 | W7-8 | Services Feature | 16 tasks | 16 tasks | 100% |
 | W8-9 | Profile Feature | 14 tasks | 14 tasks | 100% |
 | W9-10 | Favorites Feature | 18 tasks | 18 tasks | 100% |
+| W10-11 | Reviews Feature | 16 tasks | 16 tasks | 100% |
 
 ### Burndown Chart
 
 ```
 Total Story Points: ~200 (estimated)
-Remaining: 10
-Completed: 190
-Sprint: 9/12
+Remaining: 5
+Completed: 195
+Sprint: 10/12
 ```
 
 ---
@@ -947,10 +1028,12 @@ Sprint: 9/12
 - [Booking Feature](features/BOOKING_FEATURE.md) - Booking feature documentation
 - [Services Feature](features/SERVICES_FEATURE.md) - Services feature documentation
 - [Profile Feature](features/PROFILE_FEATURE.md) - Profile feature documentation
+- [Favorites Feature](features/FAVORITES_FEATURE.md) - Favorites feature documentation
+- [Reviews Feature](features/REVIEWS_FEATURE.md) - Reviews feature documentation
 - [Feature Isolation Pattern](architecture/FEATURE_ISOLATION.md) - Cross-feature communication pattern
 
 ---
 
-**Documentation Version**: 3.3
-**Last Sync**: 2026-03-22 (Sprint 9: Favorites Feature + Architecture Improvements)
+**Documentation Version**: 3.4
+**Last Sync**: 2026-03-22 (Sprint 10: Reviews Feature)
 **Next Review**: 2026-03-29
