@@ -63,15 +63,35 @@ data class Booking(
     /**
      * Можно ли отменить бронирование.
      * Зависит от статуса и времени до начала (минимум 2 часа для клиента).
+     * US-3.5: Клиент может отменить минимум за 2 часа до начала.
      */
     val canCancel: Boolean
-        get() = status.isCancellable && !isPast
+        get() {
+            if (!status.isCancellable || isPast) return false
+
+            // US-3.5: Проверка 2-часового окна
+            val now = Instant.fromEpochMilliseconds(System.currentTimeMillis())
+            val minCancelTime = Instant.fromEpochMilliseconds(
+                startTime.toEpochMilliseconds() - CANCEL_WINDOW_HOURS * 60 * 60 * 1000,
+            )
+            return now <= minCancelTime
+        }
 
     /**
      * Можно ли перенести бронирование.
+     * US-3.11: Клиент может перенести минимум за 2 часа до начала.
      */
     val canReschedule: Boolean
-        get() = status.isReschedulable && !isPast
+        get() {
+            if (!status.isReschedulable || isPast) return false
+
+            // US-3.11: Проверка 2-часового окна
+            val now = Instant.fromEpochMilliseconds(System.currentTimeMillis())
+            val minRescheduleTime = Instant.fromEpochMilliseconds(
+                startTime.toEpochMilliseconds() - RESCHEDULE_WINDOW_HOURS * 60 * 60 * 1000,
+            )
+            return now <= minRescheduleTime
+        }
 
     /**
      * Количество услуг в бронировании.
@@ -87,6 +107,18 @@ data class Booking(
             .let { if (items.size > 3) "$it +${items.size - 3} more" else it }
 
     companion object {
+        /**
+         * Минимальное время до начала бронирования для отмены (в часах).
+         * US-3.5: Клиент может отменить минимум за 2 часа до начала.
+         */
+        private const val CANCEL_WINDOW_HOURS = 2L
+
+        /**
+         * Минимальное время до начала бронирования для переноса (в часах).
+         * US-3.11: Клиент может перенести минимум за 2 часа до начала.
+         */
+        private const val RESCHEDULE_WINDOW_HOURS = 2L
+
         /**
          * Создаёт пустое бронирование (для инициализации UI state).
          */

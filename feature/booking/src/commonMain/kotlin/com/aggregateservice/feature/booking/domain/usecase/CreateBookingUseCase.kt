@@ -11,7 +11,8 @@ import kotlinx.datetime.Instant
  * **Business Rules:**
  * - providerId обязателен
  * - Минимум 1 услуга, максимум 10 услуг
- * - Время начала должно быть в будущем (не более 30 дней)
+ * - Время начала должно быть минимум через 2 часа (US-3.35)
+ * - Время начала должно быть в будущем (не более 30 дней, US-3.34)
  *
  * **Usage:**
  * ```kotlin
@@ -51,21 +52,27 @@ class CreateBookingUseCase(
             )
         }
 
-        // Validation: startTime must be in the future
+        // Validation: startTime must be at least MIN_BOOKING_NOTICE_HOURS in the future (US-3.35)
         val now = Instant.fromEpochMilliseconds(System.currentTimeMillis())
-        if (startTime <= now) {
+        val minBookingTime = Instant.fromEpochMilliseconds(
+            now.toEpochMilliseconds() + MIN_BOOKING_NOTICE_HOURS * 60 * 60 * 1000,
+        )
+        if (startTime < minBookingTime) {
             return Result.failure(
-                AppError.ValidationError("startTime", "Start time must be in the future"),
+                AppError.ValidationError(
+                    "startTime",
+                    "Cannot book less than $MIN_BOOKING_NOTICE_HOURS hours in advance",
+                ),
             )
         }
 
-        // Validation: startTime not more than 30 days in advance
+        // Validation: startTime not more than MAX_ADVANCE_DAYS in advance (US-3.34)
         val maxAdvanceTime = Instant.fromEpochMilliseconds(
-            now.toEpochMilliseconds() + MAX_ADVANCE_DAYS_DAYS * 24 * 60 * 60 * 1000
+            now.toEpochMilliseconds() + MAX_ADVANCE_DAYS * 24 * 60 * 60 * 1000,
         )
         if (startTime > maxAdvanceTime) {
             return Result.failure(
-                AppError.ValidationError("startTime", "Cannot book more than $MAX_ADVANCE_DAYS_DAYS days in advance"),
+                AppError.ValidationError("startTime", "Cannot book more than $MAX_ADVANCE_DAYS days in advance"),
             )
         }
 
@@ -73,7 +80,21 @@ class CreateBookingUseCase(
     }
 
     companion object {
+        /**
+         * Максимальное количество услуг в одном бронировании.
+         */
         private const val MAX_SERVICES = 10
-        private const val MAX_ADVANCE_DAYS_DAYS = 30L
+
+        /**
+         * Максимальное время для бронирования вперед (в днях).
+         * US-3.34: Мастер хочет ограничить бронирование 30 днями вперед.
+         */
+        private const val MAX_ADVANCE_DAYS = 30L
+
+        /**
+         * Минимальное время для бронирования (в часах).
+         * US-3.35: Мастер хочет запретить бронирование менее чем за 2 часа.
+         */
+        private const val MIN_BOOKING_NOTICE_HOURS = 2L
     }
 }
