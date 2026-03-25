@@ -13,10 +13,10 @@ import io.ktor.http.contentType
  * API service for favorites management.
  *
  * **Endpoints:**
- * - GET    /api/v1/favorites                  - List all favorites
- * - POST   /api/v1/favorites/{providerId}     - Add to favorites
- * - DELETE /api/v1/favorites/{providerId}     - Remove from favorites
- * - GET    /api/v1/favorites/{providerId}/check - Check if favorite
+ * - GET    /api/v1/catalog/favorites                  - List all favorites
+ * - POST   /api/v1/catalog/favorites/{providerId}     - Add to favorites
+ * - DELETE /api/v1/catalog/favorites/{providerId}     - Remove from favorites
+ * - GET    /api/v1/catalog/favorites/{providerId}/check - Check if favorite
  *
  * @property client HTTP client (Ktor)
  */
@@ -26,11 +26,11 @@ class FavoritesApiService(
     /**
      * Retrieves all favorites for the authenticated user.
      *
-     * **Endpoint:** GET /api/v1/favorites
+     * **Endpoint:** GET /api/v1/catalog/favorites
      */
     suspend fun getFavorites(): Result<List<FavoriteDto>> {
         return safeApiCall<List<FavoriteDto>> {
-            client.get("/api/v1/favorites") {
+            client.get("/api/v1/catalog/favorites") {
                 contentType(ContentType.Application.Json)
             }
         }
@@ -39,11 +39,11 @@ class FavoritesApiService(
     /**
      * Adds a provider to favorites.
      *
-     * **Endpoint:** POST /api/v1/favorites/{providerId}
+     * **Endpoint:** POST /api/v1/catalog/favorites/{providerId}
      */
     suspend fun addFavorite(providerId: String): Result<Unit> {
         return safeApiCall<Unit> {
-            client.post("/api/v1/favorites/$providerId") {
+            client.post("/api/v1/catalog/favorites/$providerId") {
                 contentType(ContentType.Application.Json)
             }
         }
@@ -52,11 +52,11 @@ class FavoritesApiService(
     /**
      * Removes a provider from favorites.
      *
-     * **Endpoint:** DELETE /api/v1/favorites/{providerId}
+     * **Endpoint:** DELETE /api/v1/catalog/favorites/{providerId}
      */
     suspend fun removeFavorite(providerId: String): Result<Unit> {
         return safeApiCall<Unit> {
-            client.delete("/api/v1/favorites/$providerId") {
+            client.delete("/api/v1/catalog/favorites/$providerId") {
                 contentType(ContentType.Application.Json)
             }
         }
@@ -65,11 +65,11 @@ class FavoritesApiService(
     /**
      * Checks if a provider is in favorites.
      *
-     * **Endpoint:** GET /api/v1/favorites/{providerId}/check
+     * **Endpoint:** GET /api/v1/catalog/favorites/{providerId}/check
      */
     suspend fun isFavorite(providerId: String): Result<Boolean> {
         return safeApiCall<Boolean> {
-            client.get("/api/v1/favorites/$providerId/check") {
+            client.get("/api/v1/catalog/favorites/$providerId/check") {
                 contentType(ContentType.Application.Json)
             }
         }

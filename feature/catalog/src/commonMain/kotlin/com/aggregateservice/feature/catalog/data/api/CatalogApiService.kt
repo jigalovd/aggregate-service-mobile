@@ -10,6 +10,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
@@ -31,32 +33,13 @@ class CatalogApiService(
     /**
      * Поиск мастеров по фильтрам.
      *
-     * **Endpoint:** GET /providers
-     * **Query params:**
-     * - categoryIds: List<String>
-     * - lat, lon, radius: для геопоиска
-     * - minRating, maxPrice: фильтры
-     * - page, pageSize: пагинация
-     * - sortBy, sortOrder: сортировка
+     * **Endpoint:** POST /api/v1/catalog/providers/search
      */
     suspend fun searchProviders(filters: SearchFilters): Result<List<ProviderDto>> {
         return safeApiCall<List<ProviderDto>> {
-            client.get("/providers") {
+            client.post("/api/v1/catalog/providers/search") {
                 contentType(ContentType.Application.Json)
-                // Category filter
-                filters.categoryIds.forEach { parameter("categoryIds", it) }
-                // Geo search
-                filters.latitude?.let { parameter("lat", it) }
-                filters.longitude?.let { parameter("lon", it) }
-                filters.radiusKm?.let { parameter("radius", it) }
-                // Rating filter
-                filters.minRating?.let { parameter("minRating", it) }
-                // Pagination
-                parameter("page", filters.page)
-                parameter("pageSize", filters.pageSize)
-                // Sorting
-                parameter("sortBy", filters.sortBy.name)
-                parameter("sortOrder", filters.sortOrder.name)
+                setBody(filters)
             }
         }
     }
@@ -64,11 +47,11 @@ class CatalogApiService(
     /**
      * Получение мастера по ID.
      *
-     * **Endpoint:** GET /providers/{id}
+     * **Endpoint:** GET /api/v1/catalog/providers/{id}
      */
     suspend fun getProviderById(providerId: String): Result<ProviderDto> {
         return safeApiCall<ProviderDto> {
-            client.get("/providers/$providerId") {
+            client.get("/api/v1/catalog/providers/$providerId") {
                 contentType(ContentType.Application.Json)
             }
         }
@@ -77,11 +60,11 @@ class CatalogApiService(
     /**
      * Получение списка категорий.
      *
-     * **Endpoint:** GET /categories
+     * **Endpoint:** GET /api/v1/catalog/categories
      */
     suspend fun getCategories(parentId: String?): Result<List<CategoryDto>> {
         return safeApiCall<List<CategoryDto>> {
-            client.get("/categories") {
+            client.get("/api/v1/catalog/categories") {
                 contentType(ContentType.Application.Json)
                 parentId?.let { parameter("parentId", it) }
             }
@@ -91,11 +74,11 @@ class CatalogApiService(
     /**
      * Получение категории по ID.
      *
-     * **Endpoint:** GET /categories/{id}
+     * **Endpoint:** GET /api/v1/catalog/categories/{id}
      */
     suspend fun getCategoryById(categoryId: String): Result<CategoryDto> {
         return safeApiCall<CategoryDto> {
-            client.get("/categories/$categoryId") {
+            client.get("/api/v1/catalog/categories/$categoryId") {
                 contentType(ContentType.Application.Json)
             }
         }
@@ -104,14 +87,14 @@ class CatalogApiService(
     /**
      * Получение услуг мастера.
      *
-     * **Endpoint:** GET /providers/{providerId}/services
+     * **Endpoint:** GET /api/v1/catalog/providers/{providerId}/services
      */
     suspend fun getProviderServices(
         providerId: String,
         categoryId: String?
     ): Result<List<ServiceDto>> {
         return safeApiCall<List<ServiceDto>> {
-            client.get("/providers/$providerId/services") {
+            client.get("/api/v1/catalog/providers/$providerId/services") {
                 contentType(ContentType.Application.Json)
                 categoryId?.let { parameter("categoryId", it) }
             }
@@ -121,11 +104,11 @@ class CatalogApiService(
     /**
      * Получение услуги по ID.
      *
-     * **Endpoint:** GET /services/{id}
+     * **Endpoint:** GET /api/v1/catalog/services/{id}
      */
     suspend fun getServiceById(serviceId: String): Result<ServiceDto> {
         return safeApiCall<ServiceDto> {
-            client.get("/services/$serviceId") {
+            client.get("/api/v1/catalog/services/$serviceId") {
                 contentType(ContentType.Application.Json)
             }
         }
@@ -134,14 +117,14 @@ class CatalogApiService(
     /**
      * Поиск услуг.
      *
-     * **Endpoint:** GET /services/search
+     * **Endpoint:** GET /api/v1/catalog/services/search
      */
     suspend fun searchServices(
         query: String,
         filters: SearchFilters
     ): Result<List<ServiceDto>> {
         return safeApiCall<List<ServiceDto>> {
-            client.get("/services/search") {
+            client.get("/api/v1/catalog/services/search") {
                 contentType(ContentType.Application.Json)
                 parameter("q", query)
                 filters.categoryIds.forEach { parameter("categoryIds", it) }

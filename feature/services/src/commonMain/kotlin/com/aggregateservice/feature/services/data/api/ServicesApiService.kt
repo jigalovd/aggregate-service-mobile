@@ -17,11 +17,11 @@ import io.ktor.http.contentType
  * API service for provider services management.
  *
  * **Endpoints:**
- * - GET    /api/v1/provider-services          - List all services
- * - POST   /api/v1/provider-services          - Create service
- * - GET    /api/v1/provider-services/{id}     - Get service details
- * - PATCH  /api/v1/provider-services/{id}     - Update service
- * - DELETE /api/v1/provider-services/{id}     - Delete service
+ * - GET    /api/v1/providers/services          - List all services
+ * - POST   /api/v1/providers/services          - Create service
+ * - GET    /api/v1/providers/services/{id}     - Get service details
+ * - PATCH  /api/v1/providers/services/{id}     - Update service
+ * - DELETE /api/v1/providers/services/{id}     - Delete service
  *
  * @property client HTTP client (Ktor)
  */
@@ -31,11 +31,11 @@ class ServicesApiService(
     /**
      * Retrieves all services for the authenticated provider.
      *
-     * **Endpoint:** GET /api/v1/provider-services
+     * **Endpoint:** GET /api/v1/providers/services
      */
     suspend fun getServices(): Result<List<ServiceDto>> {
         return safeApiCall<List<ServiceDto>> {
-            client.get("/api/v1/provider-services") {
+            client.get("/api/v1/providers/services") {
                 contentType(ContentType.Application.Json)
             }
         }
@@ -44,11 +44,11 @@ class ServicesApiService(
     /**
      * Retrieves a specific service by ID.
      *
-     * **Endpoint:** GET /api/v1/provider-services/{id}
+     * **Endpoint:** GET /api/v1/providers/services/{id}
      */
     suspend fun getServiceById(id: String): Result<ServiceDto> {
         return safeApiCall<ServiceDto> {
-            client.get("/api/v1/provider-services/$id") {
+            client.get("/api/v1/providers/services/$id") {
                 contentType(ContentType.Application.Json)
             }
         }
@@ -57,11 +57,11 @@ class ServicesApiService(
     /**
      * Creates a new service.
      *
-     * **Endpoint:** POST /api/v1/provider-services
+     * **Endpoint:** POST /api/v1/providers/services
      */
     suspend fun createService(request: CreateServiceRequestDto): Result<ServiceDto> {
         return safeApiCall<ServiceDto> {
-            client.post("/api/v1/provider-services") {
+            client.post("/api/v1/providers/services") {
                 contentType(ContentType.Application.Json)
                 setBody(request)
             }
@@ -71,11 +71,11 @@ class ServicesApiService(
     /**
      * Updates an existing service.
      *
-     * **Endpoint:** PATCH /api/v1/provider-services/{id}
+     * **Endpoint:** PATCH /api/v1/providers/services/{id}
      */
     suspend fun updateService(id: String, request: UpdateServiceRequestDto): Result<ServiceDto> {
         return safeApiCall<ServiceDto> {
-            client.patch("/api/v1/provider-services/$id") {
+            client.patch("/api/v1/providers/services/$id") {
                 contentType(ContentType.Application.Json)
                 setBody(request)
             }
@@ -85,11 +85,11 @@ class ServicesApiService(
     /**
      * Deletes a service.
      *
-     * **Endpoint:** DELETE /api/v1/provider-services/{id}
+     * **Endpoint:** DELETE /api/v1/providers/services/{id}
      */
     suspend fun deleteService(id: String): Result<Unit> {
         return safeApiCall<Unit> {
-            client.delete("/api/v1/provider-services/$id") {
+            client.delete("/api/v1/providers/services/$id") {
                 contentType(ContentType.Application.Json)
             }
         }
