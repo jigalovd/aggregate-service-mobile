@@ -1,17 +1,14 @@
 package com.aggregateservice.core.network
 
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
-import io.ktor.client.engine.mock.respondError
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
-import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.headers
+import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.util.reflect.typeInfo
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -20,7 +17,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * Real integration tests for [safeApiCall] wrapper using Ktor MockEngine.
+ * Real integration tests for [safeApiCall] wrapper using Ktor MockEngine (v3.x API).
  *
  * Tests cover:
  * - Success responses (200, 201, 204)
@@ -42,13 +39,11 @@ class SafeApiCallRealTest {
     fun `should return success on 200 OK`() = runTest {
         // Arrange
         val testData = TestData(id = 1, name = "Test User")
-        val mockEngine = MockEngine.create {
+        val mockEngine = MockEngine { _ ->
             respond(
                 content = json.encodeToString(TestData.serializer(), testData),
                 status = HttpStatusCode.OK,
-                headers = io.ktor.http.headers.headersOf(
-                    io.ktor.http.HttpHeaders.ContentType to "application/json"
-                )
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
         }
         val client = HttpClient(mockEngine) {
@@ -75,25 +70,23 @@ class SafeApiCallRealTest {
         // Arrange
         var callCount = 0
         val testData = TestData(id = 1, name = "Success after retries")
-        val mockEngine = MockEngine.create {
+        val mockEngine = MockEngine { _ ->
             callCount++
             when {
                 callCount < 3 -> {
-                    respondError(
-                        HttpStatusCode.InternalServerError,
+                    respond(
                         content = json.encodeToString(
                             ErrorResponse.serializer(),
                             ErrorResponse(detail = "Internal server error")
-                        )
+                        ),
+                        status = HttpStatusCode.InternalServerError
                     )
                 }
                 else -> {
                     respond(
                         content = json.encodeToString(TestData.serializer(), testData),
                         status = HttpStatusCode.OK,
-                        headers = io.ktor.http.headers.headersOf(
-                            io.ktor.http.HttpHeaders.ContentType to "application/json"
-                        )
+                        headers = headersOf(HttpHeaders.ContentType, "application/json")
                     )
                 }
             }
@@ -122,16 +115,14 @@ class SafeApiCallRealTest {
     fun `should return RateLimitExceeded on 429 Too Many Requests`() = runTest {
         // Arrange
         val retryAfter = 120
-        val mockEngine = MockEngine.create {
-            respondError(
-                HttpStatusCode.TooManyRequests,
+        val mockEngine = MockEngine { _ ->
+            respond(
                 content = json.encodeToString(
                     ErrorResponse.serializer(),
                     ErrorResponse(detail = "Rate limit exceeded")
                 ),
-                headers = io.ktor.http.headers.headersOf(
-                    "Retry-After" to listOf(retryAfter.toString())
-                )
+                status = HttpStatusCode.TooManyRequests,
+                headers = headersOf("Retry-After", listOf(retryAfter.toString()))
             )
         }
         val client = HttpClient(mockEngine) {
@@ -158,13 +149,13 @@ class SafeApiCallRealTest {
     @Test
     fun `should return Unauthorized on 401 Unauthorized`() = runTest {
         // Arrange
-        val mockEngine = MockEngine.create {
-            respondError(
-                HttpStatusCode.Unauthorized,
+        val mockEngine = MockEngine { _ ->
+            respond(
                 content = json.encodeToString(
                     ErrorResponse.serializer(),
                     ErrorResponse(detail = "Invalid or missing token")
-                )
+                ),
+                status = HttpStatusCode.Unauthorized
             )
         }
         val client = HttpClient(mockEngine) {
@@ -197,19 +188,17 @@ class SafeApiCallRealTest {
                 type = "value_error.missing"
             )
         )
-        val detail = Json {
-            ignoreUnknownKeys = true
-        }.encodeToString(
-            kotlinx.serialization.ListSerializer(ValidationErrorItem.serializer()),
+        val detail = json.encodeToString(
+            kotlinx.serialization.builtins.ListSerializer(ValidationErrorItem.serializer()),
             validationErrors
         )
-        val mockEngine = MockEngine.create {
-            respondError(
-                HttpStatusCode.UnprocessableEntity,
+        val mockEngine = MockEngine { _ ->
+            respond(
                 content = json.encodeToString(
                     ErrorResponse.serializer(),
                     ErrorResponse(detail = detail)
-                )
+                ),
+                status = HttpStatusCode.UnprocessableEntity
             )
         }
         val client = HttpClient(mockEngine) {
@@ -238,13 +227,13 @@ class SafeApiCallRealTest {
     @Test
     fun `should return NotFound on 404 Not Found`() = runTest {
         // Arrange
-        val mockEngine = MockEngine.create {
-            respondError(
-                HttpStatusCode.NotFound,
+        val mockEngine = MockEngine { _ ->
+            respond(
                 content = json.encodeToString(
                     ErrorResponse.serializer(),
                     ErrorResponse(detail = "Resource not found")
-                )
+                ),
+                status = HttpStatusCode.NotFound
             )
         }
         val client = HttpClient(mockEngine) {
@@ -271,13 +260,13 @@ class SafeApiCallRealTest {
     fun `should handle AccountLocked on 423 Locked`() = runTest {
         // Arrange
         val lockUntil = "2026-03-20T12:00:00Z"
-        val mockEngine = MockEngine.create {
-            respondError(
-                HttpStatusCode.Locked,
+        val mockEngine = MockEngine { _ ->
+            respond(
                 content = json.encodeToString(
                     ErrorResponse.serializer(),
                     ErrorResponse(detail = lockUntil)
-                )
+                ),
+                status = HttpStatusCode.Locked
             )
         }
         val client = HttpClient(mockEngine) {
