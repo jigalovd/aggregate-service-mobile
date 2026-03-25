@@ -7,7 +7,9 @@ import com.aggregateservice.feature.auth.domain.repository.AuthRepository
 import com.aggregateservice.feature.auth.domain.usecase.LoginUseCase
 import com.aggregateservice.feature.auth.domain.usecase.LogoutUseCase
 import com.aggregateservice.feature.auth.domain.usecase.ObserveAuthStateUseCase
+import com.aggregateservice.feature.auth.domain.usecase.RegisterUseCase
 import com.aggregateservice.feature.auth.presentation.screenmodel.LoginScreenModel
+import com.aggregateservice.feature.auth.presentation.screenmodel.RegistrationScreenModel
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -34,9 +36,11 @@ val authModule = module {
     factoryOf(::LoginUseCase)
     factoryOf(::LogoutUseCase)
     factoryOf(::ObserveAuthStateUseCase)
+    factoryOf(::RegisterUseCase)
 
     // ScreenModels
     factoryOf(::LoginScreenModel)
+    factoryOf(::RegistrationScreenModel)
 
     // AuthStateProvider - abstraction for cross-feature auth access
     single<AuthStateProvider> { AuthStateProviderImpl(get()) }

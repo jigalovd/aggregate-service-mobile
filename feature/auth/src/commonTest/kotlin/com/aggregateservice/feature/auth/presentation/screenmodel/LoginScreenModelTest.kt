@@ -7,6 +7,7 @@ import com.aggregateservice.core.config.Language
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.auth.domain.model.AuthState
 import com.aggregateservice.feature.auth.domain.model.LoginCredentials
+import com.aggregateservice.feature.auth.domain.model.RegistrationRequest
 import com.aggregateservice.feature.auth.domain.usecase.LoginUseCase
 import com.aggregateservice.feature.auth.domain.usecase.ObserveAuthStateUseCase
 import kotlinx.coroutines.Dispatchers
@@ -38,7 +39,7 @@ class LoginScreenModelTest {
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        
+
         Config.initialize(
             AppConfig(
                 apiBaseUrl = "https://api.test.com",
@@ -63,6 +64,9 @@ class LoginScreenModelTest {
                 }
                 override suspend fun logout() {}
                 override suspend fun refreshToken(): Result<String> {
+                    return Result.failure(NotImplementedError("Use mock"))
+                }
+                override suspend fun register(request: RegistrationRequest): Result<AuthState> {
                     return Result.failure(NotImplementedError("Use mock"))
                 }
             }
@@ -308,6 +312,7 @@ class LoginScreenModelTest {
             override suspend fun login(credentials: LoginCredentials): Result<AuthState> = result
             override suspend fun logout() {}
             override suspend fun refreshToken(): Result<String> = Result.success("new_token")
+            override suspend fun register(request: RegistrationRequest): Result<AuthState> = result
         }
     }
 }

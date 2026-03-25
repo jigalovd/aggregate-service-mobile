@@ -7,6 +7,7 @@ import com.aggregateservice.core.config.Language
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.auth.domain.model.AuthState
 import com.aggregateservice.feature.auth.domain.model.LoginCredentials
+import com.aggregateservice.feature.auth.domain.model.RegistrationRequest
 import com.aggregateservice.feature.auth.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -197,6 +198,10 @@ class LoginUseCaseTest {
         override suspend fun login(credentials: LoginCredentials): Result<AuthState> {
             lastLoginCredentials = credentials
             return loginResult
+        }
+
+        override suspend fun register(request: RegistrationRequest): Result<AuthState> {
+            return Result.success(AuthState.Guest)
         }
 
         override suspend fun logout() {

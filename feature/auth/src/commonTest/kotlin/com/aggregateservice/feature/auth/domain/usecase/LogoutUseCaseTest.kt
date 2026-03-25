@@ -6,6 +6,7 @@ import com.aggregateservice.core.config.Environment
 import com.aggregateservice.core.config.Language
 import com.aggregateservice.feature.auth.domain.model.AuthState
 import com.aggregateservice.feature.auth.domain.model.LoginCredentials
+import com.aggregateservice.feature.auth.domain.model.RegistrationRequest
 import com.aggregateservice.feature.auth.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -142,6 +143,16 @@ class LogoutUseCaseTest {
 
         override suspend fun refreshToken(): Result<String> {
             return Result.success("new_token")
+        }
+
+        override suspend fun register(request: RegistrationRequest): Result<AuthState> {
+            val state = AuthState.Authenticated(
+                accessToken = "token",
+                userId = request.email,
+                userEmail = request.email
+            )
+            authStateFlow.value = state
+            return Result.success(state)
         }
     }
 }
