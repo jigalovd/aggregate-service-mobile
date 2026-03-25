@@ -1,5 +1,6 @@
 package com.aggregateservice.feature.reviews.domain.usecase
 
+import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.reviews.domain.model.Review
 import com.aggregateservice.feature.reviews.domain.repository.ReviewsRepository
 
@@ -9,6 +10,8 @@ import com.aggregateservice.feature.reviews.domain.repository.ReviewsRepository
  * Validates:
  * - Rating must be between 1 and 5
  * - Booking ID must not be empty
+ *
+ * @property repository Reviews repository
  */
 class CreateReviewUseCase(
     private val repository: ReviewsRepository,
@@ -20,11 +23,19 @@ class CreateReviewUseCase(
     ): Result<Review> {
         // Validation
         if (bookingId.isBlank()) {
-            return Result.failure(IllegalArgumentException("Booking ID cannot be empty"))
+            return Result.failure(
+                AppError.ValidationError(
+                    field = "bookingId",
+                    message = "Booking ID cannot be empty",
+                ),
+            )
         }
         if (rating !in MIN_RATING..MAX_RATING) {
             return Result.failure(
-                IllegalArgumentException("Rating must be between $MIN_RATING and $MAX_RATING"),
+                AppError.ValidationError(
+                    field = "rating",
+                    message = "Rating must be between $MIN_RATING and $MAX_RATING",
+                ),
             )
         }
 
