@@ -37,6 +37,7 @@ public object DefaultStrings {
         "auth_logout" to "Logout",
         "auth_email" to "Email",
         "auth_password" to "Password",
+        "auth_confirm_password" to "Confirm password",
         "auth_email_hint" to "Enter your email",
         "auth_password_hint" to "Enter your password",
         "auth_forgot_password" to "Forgot password?",
@@ -47,6 +48,10 @@ public object DefaultStrings {
         "auth_invalid_email" to "Invalid email address",
         "auth_invalid_password" to "Password must be at least 8 characters",
         "auth_session_expired" to "Your session has expired. Please login again.",
+        "auth_phone" to "Phone (optional)",
+        "auth_select_role" to "Select role:",
+        "auth_client_role" to "Client (book appointments)",
+        "auth_provider_role" to "Provider (offer services)",
 
         // Navigation
         "nav_home" to "Home",
@@ -65,6 +70,7 @@ public object DefaultStrings {
         "catalog_sort_distance" to "Sort by distance",
         "catalog_no_results" to "No providers found",
         "catalog_providers_nearby" to "Providers nearby",
+        "catalog_all" to "All",
 
         // Booking
         "booking_title" to "Booking",
@@ -198,6 +204,7 @@ public object DefaultStrings {
         "auth_logout" to "Выйти",
         "auth_email" to "Email",
         "auth_password" to "Пароль",
+        "auth_confirm_password" to "Подтвердите пароль",
         "auth_email_hint" to "Введите ваш email",
         "auth_password_hint" to "Введите ваш пароль",
         "auth_forgot_password" to "Забыли пароль?",
@@ -208,6 +215,10 @@ public object DefaultStrings {
         "auth_invalid_email" to "Некорректный email",
         "auth_invalid_password" to "Пароль должен быть минимум 8 символов",
         "auth_session_expired" to "Сессия истекла. Пожалуйста, войдите снова.",
+        "auth_phone" to "Телефон (опционально)",
+        "auth_select_role" to "Выберите роль:",
+        "auth_client_role" to "Клиент (записываться к мастерам)",
+        "auth_provider_role" to "Мастер (предоставлять услуги)",
 
         // Navigation
         "nav_home" to "Главная",
@@ -226,6 +237,7 @@ public object DefaultStrings {
         "catalog_sort_distance" to "Сортировать по расстоянию",
         "catalog_no_results" to "Мастера не найдены",
         "catalog_providers_nearby" to "Мастера рядом",
+        "catalog_all" to "Все",
 
         // Booking
         "booking_title" to "Бронирование",
@@ -359,6 +371,7 @@ public object DefaultStrings {
         "auth_logout" to "התנתקות",
         "auth_email" to "אימייל",
         "auth_password" to "סיסמה",
+        "auth_confirm_password" to "אימות סיסמה",
         "auth_email_hint" to "הזן את האימייל שלך",
         "auth_password_hint" to "הזן את הסיסמה שלך",
         "auth_forgot_password" to "שכחת סיסמה?",
@@ -369,6 +382,10 @@ public object DefaultStrings {
         "auth_invalid_email" to "כתובת אימייל לא חוקית",
         "auth_invalid_password" to "הסיסמה חייבת להכיל לפחות 8 תווים",
         "auth_session_expired" to "הסשן פג. אנא התחבר מחדש.",
+        "auth_phone" to "טלפון (אופציונלי)",
+        "auth_select_role" to "בחר תפקיד:",
+        "auth_client_role" to "לקוח (לקבוע תורים)",
+        "auth_provider_role" to "ספק (להציע שירותים)",
 
         // Navigation
         "nav_home" to "בית",
@@ -387,6 +404,7 @@ public object DefaultStrings {
         "catalog_sort_distance" to "מיון לפי מרחק",
         "catalog_no_results" to "לא נמצאו בעלי מקצוע",
         "catalog_providers_nearby" to "בעלי מקצוע בקרבת מקום",
+        "catalog_all" to "הכל",
 
         // Booking
         "booking_title" to "הזמנה",

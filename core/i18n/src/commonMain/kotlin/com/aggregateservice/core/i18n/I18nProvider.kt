@@ -92,6 +92,7 @@ object StringKey {
         const val LOGOUT = "auth_logout"
         const val EMAIL = "auth_email"
         const val PASSWORD = "auth_password"
+        const val CONFIRM_PASSWORD = "auth_confirm_password"
         const val EMAIL_HINT = "auth_email_hint"
         const val PASSWORD_HINT = "auth_password_hint"
         const val FORGOT_PASSWORD = "auth_forgot_password"
@@ -102,6 +103,10 @@ object StringKey {
         const val INVALID_EMAIL = "auth_invalid_email"
         const val INVALID_PASSWORD = "auth_invalid_password"
         const val SESSION_EXPIRED = "auth_session_expired"
+        const val PHONE = "auth_phone"
+        const val SELECT_ROLE = "auth_select_role"
+        const val CLIENT_ROLE = "auth_client_role"
+        const val PROVIDER_ROLE = "auth_provider_role"
     }
 
     // Navigation
@@ -124,6 +129,23 @@ object StringKey {
         const val SORT_BY_DISTANCE = "catalog_sort_distance"
         const val NO_RESULTS = "catalog_no_results"
         const val PROVIDERS_NEARBY = "catalog_providers_nearby"
+        const val ALL = "catalog_all"
+        const val SEARCH = "catalog_search"
+        const val CLEAR_FILTERS = "catalog_clear_filters"
+    }
+
+    // Search
+    object Search {
+        const val TITLE = "search_title"
+        const val SEARCH_HINT = "search_hint"
+        const val CLEAR = "search_clear"
+        const val RESET_FILTERS = "search_reset_filters"
+    }
+
+    // Category
+    object Category {
+        const val SELECT_CATEGORY = "category_select"
+        const val BACK = "category_back"
     }
 
     // Booking
@@ -133,6 +155,7 @@ object StringKey {
         const val SELECT_DATE = "booking_select_date"
         const val SELECT_TIME = "booking_select_time"
         const val CONFIRM = "booking_confirm"
+        const val CONFIRM_BOOKING = "booking_confirm_booking"
         const val CANCEL = "booking_cancel"
         const val MY_BOOKINGS = "booking_my_bookings"
         const val UPCOMING = "booking_upcoming"
@@ -140,6 +163,25 @@ object StringKey {
         const val NO_BOOKINGS = "booking_no_bookings"
         const val CANCEL_CONFIRMATION = "booking_cancel_confirmation"
         const val CANCEL_SUCCESS = "booking_cancel_success"
+        const val BACK = "booking_back"
+        const val DONE = "booking_done"
+        const val SERVICES = "booking_services"
+        const val DURATION = "booking_duration"
+        const val NOTES = "booking_notes"
+        const val NOTES_PLACEHOLDER = "booking_notes_placeholder"
+        const val NO_SERVICES = "booking_no_services"
+        const val CONTINUE = "booking_continue"
+        const val SELECT_DATE_TIME = "booking_select_date_time"
+        const val SELECT_SLOT = "booking_select_slot"
+        const val SELECT_DATE_TO_SEE = "booking_select_date_to_see"
+        // Booking statuses
+        const val STATUS_PENDING = "booking_status_pending"
+        const val STATUS_CONFIRMED = "booking_status_confirmed"
+        const val STATUS_IN_PROGRESS = "booking_status_in_progress"
+        const val STATUS_COMPLETED = "booking_status_completed"
+        const val STATUS_CANCELLED = "booking_status_cancelled"
+        const val STATUS_EXPIRED = "booking_status_expired"
+        const val STATUS_NO_SHOW = "booking_status_no_show"
     }
 
     // Provider
@@ -152,12 +194,15 @@ object StringKey {
         const val LOCATION = "provider_location"
         const val ADD_TO_FAVORITES = "provider_add_favorites"
         const val REMOVE_FROM_FAVORITES = "provider_remove_favorites"
+        const val REMOVE_CONFIRM = "provider_remove_confirm"
     }
 
     // Profile
     object Profile {
         const val TITLE = "profile_title"
         const val EDIT = "profile_edit"
+        const val FULL_NAME = "profile_full_name"
+        const val PHONE = "profile_phone"
         const val CHANGE_PASSWORD = "profile_change_password"
         const val NOTIFICATIONS = "profile_notifications"
         const val LANGUAGE = "profile_language"
@@ -206,6 +251,26 @@ object StringKey {
         const val TIMEZONE_NOTE = "scheduling_timezone_note"
     }
 
+    // Services (Provider)
+    object Services {
+        const val TITLE = "services_title"
+        const val MY_SERVICES = "services_my_services"
+        const val ADD_SERVICE = "services_add"
+        const val NO_SERVICES = "services_none"
+        const val ADD_FIRST = "services_add_first"
+        const val DELETE_SERVICE = "services_delete"
+        const val DELETE_CONFIRM = "services_delete_confirm"
+        const val SERVICE_NAME = "services_name"
+        const val DESCRIPTION = "services_description"
+        const val BASE_PRICE = "services_base_price"
+        const val DURATION = "services_duration"
+        const val DURATION_MINUTES = "services_duration_minutes"
+        const val CATEGORY = "services_category"
+        const val ACTIVE = "services_active"
+        const val GO_BACK = "services_go_back"
+        const val EDIT = "services_edit"
+    }
+
     // Confirmation
     object Confirmation {
         const val TITLE = "confirmation_title"
@@ -224,6 +289,13 @@ object StringKey {
         const val NO_REVIEWS = "reviews_none"
         const val HELPFUL = "reviews_helpful"
         const val REPORT = "reviews_report"
+        const val BACK = "reviews_back"
+        const val RETRY = "reviews_retry"
+        const val CLOSE = "reviews_close"
+        const val COMMENT = "reviews_comment"
+        const val COMMENT_PLACEHOLDER = "reviews_comment_placeholder"
+        const val CANCEL = "reviews_cancel"
+        const val SUBMIT = "reviews_submit"
     }
 
     // Common plurals (for formatting)
@@ -233,5 +305,18 @@ object StringKey {
         const val MINUTES = "plurals_minutes"
         const val HOURS = "plurals_hours"
         const val KILOMETERS = "plurals_kilometers"
+    }
+
+    // Guest Mode prompts
+    object GuestPrompt {
+        const val BOOKING_TITLE = "guest_prompt_booking_title"
+        const val BOOKING_MESSAGE = "guest_prompt_booking_message"
+        const val REVIEW_TITLE = "guest_prompt_review_title"
+        const val REVIEW_MESSAGE = "guest_prompt_review_message"
+        const val FAVORITES_TITLE = "guest_prompt_favorites_title"
+        const val FAVORITES_MESSAGE = "guest_prompt_favorites_message"
+        const val CREATE_ACCOUNT = "guest_create_account"
+        const val SIGN_IN = "guest_sign_in"
+        const val MAYBE_LATER = "guest_maybe_later"
     }
 }
