@@ -30,6 +30,7 @@ include(":core:navigation")
 include(":core:config")
 include(":core:di")
 include(":core:test-utils")
+include(":core:ui")
 
 // Feature modules
 include(":feature:auth")
