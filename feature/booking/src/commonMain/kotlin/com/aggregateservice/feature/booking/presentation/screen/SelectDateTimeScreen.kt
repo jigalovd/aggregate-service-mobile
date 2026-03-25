@@ -37,6 +37,8 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.booking.domain.model.TimeSlot
 import com.aggregateservice.feature.booking.presentation.screenmodel.SelectDateTimeScreenModel
 import kotlinx.datetime.Clock
@@ -45,6 +47,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.todayIn
+import org.koin.compose.koinInject
 
 /**
  * Voyager Screen для выбора даты и времени.
@@ -64,6 +67,7 @@ data class SelectDateTimeScreen(
         val navigator = LocalNavigator.currentOrThrow
         val screenModel = koinScreenModel<SelectDateTimeScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
+        val i18nProvider: I18nProvider = koinInject()
 
         // Load available slots on first composition
         LaunchedEffect(providerId) {
@@ -71,6 +75,7 @@ data class SelectDateTimeScreen(
         }
 
         SelectDateTimeScreenContent(
+            i18nProvider = i18nProvider,
             providerName = providerName,
             uiState = uiState,
             onSelectDate = screenModel::selectDate,
@@ -98,6 +103,7 @@ data class SelectDateTimeScreen(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SelectDateTimeScreenContent(
+    i18nProvider: I18nProvider,
     providerName: String,
     uiState: com.aggregateservice.feature.booking.presentation.model.SelectDateTimeUiState,
     onSelectDate: (LocalDate) -> Unit,
@@ -108,7 +114,7 @@ fun SelectDateTimeScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Select Date & Time") },
+                title = { Text(i18nProvider[StringKey.Booking.SELECT_DATE_TIME]) },
                 navigationIcon = {
                     androidx.compose.material3.IconButton(onClick = onBack) {
                         Text("←")
@@ -136,7 +142,7 @@ fun SelectDateTimeScreenContent(
                             )
                         }
                         Button(onClick = onContinue) {
-                            Text("Continue")
+                            Text(i18nProvider[StringKey.Booking.CONTINUE])
                         }
                     }
                 }
@@ -163,7 +169,7 @@ fun SelectDateTimeScreenContent(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "Error: ${uiState.error?.message}",
+                        text = "${i18nProvider[StringKey.ERROR]}: ${uiState.error?.message}",
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
@@ -178,7 +184,7 @@ fun SelectDateTimeScreenContent(
                 ) {
                     // Date selection header
                     Text(
-                        text = "Select Date",
+                        text = i18nProvider[StringKey.Booking.SELECT_DATE],
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                     )
@@ -206,7 +212,7 @@ fun SelectDateTimeScreenContent(
                     // Time slots
                     if (uiState.selectedDate != null) {
                         Text(
-                            text = "Available Time Slots",
+                            text = i18nProvider[StringKey.Scheduling.AVAILABLE_SLOTS],
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                         )
@@ -214,7 +220,7 @@ fun SelectDateTimeScreenContent(
 
                         if (uiState.availableSlotsForDate.isEmpty()) {
                             Text(
-                                text = "No available slots for this date",
+                                text = i18nProvider[StringKey.Scheduling.NO_SLOTS_AVAILABLE],
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -236,7 +242,7 @@ fun SelectDateTimeScreenContent(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center,
                         ) {
-                            Text("Select a date to see available time slots")
+                            Text(i18nProvider[StringKey.Booking.SELECT_DATE_TO_SEE])
                         }
                     }
                 }

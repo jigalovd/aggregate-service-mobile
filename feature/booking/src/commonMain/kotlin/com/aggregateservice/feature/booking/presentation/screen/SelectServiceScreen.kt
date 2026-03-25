@@ -32,8 +32,11 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.booking.domain.model.BookingService
 import com.aggregateservice.feature.booking.presentation.screenmodel.SelectServiceScreenModel
+import org.koin.compose.koinInject
 
 /**
  * Voyager Screen для выбора услуг.
@@ -51,6 +54,7 @@ data class SelectServiceScreen(
         val navigator = LocalNavigator.currentOrThrow
         val screenModel = koinScreenModel<SelectServiceScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
+        val i18nProvider: I18nProvider = koinInject()
 
         // Load services on first composition
         LaunchedEffect(providerId) {
@@ -58,6 +62,7 @@ data class SelectServiceScreen(
         }
 
         SelectServiceScreenContent(
+            i18nProvider = i18nProvider,
             providerName = providerName,
             uiState = uiState,
             onServiceToggle = screenModel::toggleServiceSelection,
@@ -79,6 +84,7 @@ data class SelectServiceScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectServiceScreenContent(
+    i18nProvider: I18nProvider,
     providerName: String,
     uiState: com.aggregateservice.feature.booking.presentation.model.SelectServiceUiState,
     onServiceToggle: (BookingService) -> Unit,
@@ -88,7 +94,7 @@ fun SelectServiceScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Select Services - $providerName") },
+                title = { Text("${i18nProvider[StringKey.Booking.SELECT_SERVICE]} - $providerName") },
                 navigationIcon = {
                     androidx.compose.material3.IconButton(onClick = onBack) {
                         Text("←")
@@ -103,6 +109,7 @@ fun SelectServiceScreenContent(
                     totalDuration = uiState.formattedDuration,
                     servicesCount = uiState.selectedServices.size,
                     onContinue = onContinue,
+                    i18nProvider = i18nProvider,
                 )
             }
         },
@@ -127,7 +134,7 @@ fun SelectServiceScreenContent(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "Error: ${uiState.error?.message}",
+                        text = "${i18nProvider[StringKey.ERROR]}: ${uiState.error?.message}",
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
@@ -140,7 +147,7 @@ fun SelectServiceScreenContent(
                         .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("No services available")
+                    Text(i18nProvider[StringKey.Booking.NO_SERVICES])
                 }
             }
 
@@ -229,6 +236,7 @@ fun ServiceSelectionBottomBar(
     totalDuration: String,
     servicesCount: Int,
     onContinue: () -> Unit,
+    i18nProvider: I18nProvider,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -250,7 +258,7 @@ fun ServiceSelectionBottomBar(
                 )
             }
             Button(onClick = onContinue) {
-                Text("Continue")
+                Text(i18nProvider[StringKey.Booking.CONTINUE])
             }
         }
     }

@@ -40,11 +40,14 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.presentation.model.CatalogUiState
 import com.aggregateservice.feature.catalog.presentation.screenmodel.CatalogScreenModel
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 /**
  * Composable Screen для каталога мастеров (Presentation слой).
@@ -74,8 +77,10 @@ class CatalogScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val screenModel = koinScreenModel<CatalogScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
+        val i18nProvider: I18nProvider = koinInject()
 
         CatalogScreenContent(
+            i18nProvider = i18nProvider,
             uiState = uiState,
             onSearchQueryChanged = screenModel::onSearchQueryChanged,
             onSearchSubmit = screenModel::onSearchSubmit,
@@ -99,6 +104,7 @@ class CatalogScreen : Screen {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CatalogScreenContent(
+    i18nProvider: I18nProvider,
     uiState: CatalogUiState,
     onSearchQueryChanged: (String) -> Unit,
     onSearchSubmit: () -> Unit,
@@ -144,6 +150,7 @@ fun CatalogScreenContent(
     Scaffold(
         topBar = {
             CatalogTopAppBar(
+                i18nProvider = i18nProvider,
                 filtersCount = uiState.activeFiltersCount,
                 onFilterClick = { /* TODO: Open filters bottom sheet */ },
             )
@@ -158,6 +165,7 @@ fun CatalogScreenContent(
             // Categories horizontal scroll
             if (uiState.categories.isNotEmpty()) {
                 CategoryChipsRow(
+                    i18nProvider = i18nProvider,
                     categories = uiState.categories,
                     selectedCategory = uiState.selectedCategory,
                     onCategorySelected = onCategorySelected,
@@ -169,11 +177,12 @@ fun CatalogScreenContent(
             when {
                 uiState.isLoading && uiState.providers.isEmpty() -> {
                     // Full screen loading
-                    LoadingState()
+                    LoadingState(i18nProvider = i18nProvider)
                 }
                 uiState.isEmpty() -> {
                     // Empty state
                     EmptyState(
+                        i18nProvider = i18nProvider,
                         hasFilters = uiState.hasActiveFilters(),
                         onClearFilters = onClearFilters,
                     )
@@ -198,15 +207,16 @@ fun CatalogScreenContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CatalogTopAppBar(
+    i18nProvider: I18nProvider,
     filtersCount: Int,
     onFilterClick: () -> Unit,
 ) {
     TopAppBar(
-        title = { Text("Каталог мастеров") },
+        title = { Text(i18nProvider[StringKey.Catalog.TITLE]) },
         actions = {
             Row {
                 IconButton(onClick = onFilterClick) {
-                    Text("🔍${if (filtersCount > 0) " ($filtersCount)" else ""}")
+                    Text("${i18nProvider[StringKey.SEARCH]}${if (filtersCount > 0) " ($filtersCount)" else ""}")
                 }
             }
         },
@@ -218,6 +228,7 @@ fun CatalogTopAppBar(
  */
 @Composable
 fun CategoryChipsRow(
+    i18nProvider: I18nProvider,
     categories: List<Category>,
     selectedCategory: Category?,
     onCategorySelected: (Category?) -> Unit,
@@ -231,7 +242,7 @@ fun CategoryChipsRow(
         FilterChip(
             selected = selectedCategory == null,
             onClick = { onCategorySelected(null) },
-            label = { Text("Все") },
+            label = { Text(i18nProvider[StringKey.Catalog.ALL]) },
         )
         categories.forEach { category ->
             FilterChip(
@@ -247,7 +258,7 @@ fun CategoryChipsRow(
  * Loading state component.
  */
 @Composable
-fun LoadingState() {
+fun LoadingState(i18nProvider: I18nProvider) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
@@ -259,7 +270,7 @@ fun LoadingState() {
             CircularProgressIndicator()
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Загрузка...",
+                text = i18nProvider[StringKey.LOADING],
                 style = MaterialTheme.typography.bodyMedium,
             )
         }
@@ -271,6 +282,7 @@ fun LoadingState() {
  */
 @Composable
 fun EmptyState(
+    i18nProvider: I18nProvider,
     hasFilters: Boolean,
     onClearFilters: () -> Unit,
 ) {
@@ -283,22 +295,22 @@ fun EmptyState(
             verticalArrangement = Arrangement.Center,
         ) {
             Text(
-                text = "Мастера не найдены",
+                text = i18nProvider[StringKey.Catalog.NO_RESULTS],
                 style = MaterialTheme.typography.titleMedium,
             )
             Spacer(modifier = Modifier.height(8.dp))
             if (hasFilters) {
                 Text(
-                    text = "Попробуйте изменить фильтры",
+                    text = i18nProvider[StringKey.Catalog.FILTER_BY_CATEGORY],
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = onClearFilters) {
-                    Text("Сбросить фильтры")
+                    Text(i18nProvider[StringKey.CLEAR])
                 }
             } else {
                 Text(
-                    text = "Попробуйте изменить параметры поиска",
+                    text = i18nProvider[StringKey.SEARCH],
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }

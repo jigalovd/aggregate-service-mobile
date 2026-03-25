@@ -43,12 +43,15 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.presentation.model.SearchUiState
 import com.aggregateservice.feature.catalog.presentation.screenmodel.SearchScreenModel
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 /**
  * Voyager Screen для поиска мастеров.
@@ -60,8 +63,10 @@ object SearchScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val screenModel = koinScreenModel<SearchScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
+        val i18nProvider: I18nProvider = koinInject()
 
         SearchScreenContent(
+            i18nProvider = i18nProvider,
             uiState = uiState,
             onSearchQueryChanged = screenModel::onSearchQueryChanged,
             onSearchSubmit = screenModel::onSearchSubmit,
@@ -81,6 +86,7 @@ object SearchScreen : Screen {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreenContent(
+    i18nProvider: I18nProvider,
     uiState: SearchUiState,
     onSearchQueryChanged: (String) -> Unit,
     onSearchSubmit: () -> Unit,
@@ -110,7 +116,7 @@ fun SearchScreenContent(
     LaunchedEffect(uiState.error) {
         uiState.error?.let { error ->
             scope.launch {
-                snackbarHostState.showSnackbar(message = error.message ?: "Error")
+                snackbarHostState.showSnackbar(message = error.message ?: i18nProvider[StringKey.ERROR])
                 onClearError()
             }
         }
@@ -128,6 +134,7 @@ fun SearchScreenContent(
             SearchTopAppBar(
                 filtersCount = uiState.activeFiltersCount,
                 onFilterClick = onFilterToggle,
+                i18nProvider = i18nProvider,
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -142,6 +149,7 @@ fun SearchScreenContent(
                 query = uiState.searchQuery,
                 onQueryChanged = onSearchQueryChanged,
                 onSubmit = onSearchSubmit,
+                i18nProvider = i18nProvider,
             )
 
             // Category chips
@@ -162,12 +170,14 @@ fun SearchScreenContent(
                     RecentSearchesSection(
                         recentSearches = uiState.recentSearches,
                         onRecentSearchClick = onRecentSearchClick,
+                        i18nProvider = i18nProvider,
                     )
                 }
                 !uiState.hasResults && !uiState.isLoading -> {
                     SearchEmptyState(
                         hasFilters = uiState.hasActiveFilters,
                         onClearFilters = onClearFilters,
+                        i18nProvider = i18nProvider,
                     )
                 }
                 else -> {
@@ -188,9 +198,10 @@ fun SearchScreenContent(
 fun SearchTopAppBar(
     filtersCount: Int,
     onFilterClick: () -> Unit,
+    i18nProvider: I18nProvider,
 ) {
     TopAppBar(
-        title = { Text("Поиск") },
+        title = { Text(i18nProvider[StringKey.Search.TITLE]) },
         actions = {
             IconButton(onClick = onFilterClick) {
                 Text("🔍${if (filtersCount > 0) " ($filtersCount)" else ""}")
@@ -204,6 +215,7 @@ fun SearchField(
     query: String,
     onQueryChanged: (String) -> Unit,
     onSubmit: () -> Unit,
+    i18nProvider: I18nProvider,
 ) {
     OutlinedTextField(
         value = query,
@@ -211,7 +223,7 @@ fun SearchField(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        placeholder = { Text("Поиск мастеров, услуг...") },
+        placeholder = { Text(i18nProvider[StringKey.Search.SEARCH_HINT]) },
         singleLine = true,
         trailingIcon = {
             if (query.isNotEmpty()) {
@@ -260,6 +272,7 @@ fun SearchLoadingState() {
 fun SearchEmptyState(
     hasFilters: Boolean,
     onClearFilters: () -> Unit,
+    i18nProvider: I18nProvider,
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -267,19 +280,19 @@ fun SearchEmptyState(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "Ничего не найдено",
+                text = i18nProvider[StringKey.Catalog.NO_RESULTS],
                 style = MaterialTheme.typography.titleMedium,
             )
             Spacer(modifier = Modifier.height(8.dp))
             if (hasFilters) {
                 Text(
-                    text = "Попробуйте изменить фильтры",
+                    text = i18nProvider[StringKey.Search.RESET_FILTERS],
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = onClearFilters) {
-                    Text("Сбросить фильтры")
+                    Text(i18nProvider[StringKey.CLEAR])
                 }
             }
         }
@@ -290,6 +303,7 @@ fun SearchEmptyState(
 fun RecentSearchesSection(
     recentSearches: List<String>,
     onRecentSearchClick: (String) -> Unit,
+    i18nProvider: I18nProvider,
 ) {
     if (recentSearches.isEmpty()) {
         Box(
@@ -303,12 +317,12 @@ fun RecentSearchesSection(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Найдите мастера",
+                    text = i18nProvider[StringKey.Search.TITLE],
                     style = MaterialTheme.typography.titleMedium,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Введите название услуги или имя мастера",
+                    text = i18nProvider[StringKey.Search.SEARCH_HINT],
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -317,7 +331,7 @@ fun RecentSearchesSection(
     } else {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Недавние поиски",
+                text = i18nProvider[StringKey.Search.RESET_FILTERS],
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
             )

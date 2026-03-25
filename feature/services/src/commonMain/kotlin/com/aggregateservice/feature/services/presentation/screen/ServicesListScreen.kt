@@ -36,8 +36,11 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.services.domain.model.ProviderService
 import com.aggregateservice.feature.services.presentation.screenmodel.ServicesListScreenModel
+import org.koin.compose.koinInject
 
 /**
  * Voyager Screen for services list management.
@@ -49,12 +52,14 @@ class ServicesListScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val screenModel = koinScreenModel<ServicesListScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
+        val i18nProvider: I18nProvider = koinInject()
 
         LaunchedEffect(Unit) {
             screenModel.loadServices()
         }
 
         ServicesListScreenContent(
+            i18nProvider = i18nProvider,
             uiState = uiState,
             onAddService = {
                 navigator.push(ServiceFormScreen())
@@ -74,6 +79,7 @@ class ServicesListScreen : Screen {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServicesListScreenContent(
+    i18nProvider: I18nProvider,
     uiState: com.aggregateservice.feature.services.presentation.model.ServicesListUiState,
     onAddService: () -> Unit,
     onEditService: (ProviderService) -> Unit,
@@ -86,7 +92,7 @@ fun ServicesListScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("My Services") },
+                title = { Text(i18nProvider[StringKey.Services.MY_SERVICES]) },
             )
         },
         floatingActionButton = {
@@ -116,12 +122,12 @@ fun ServicesListScreenContent(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "Error: ${uiState.error?.message}",
+                            text = "${i18nProvider[StringKey.ERROR]}: ${uiState.error?.message}",
                             color = MaterialTheme.colorScheme.error,
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         TextButton(onClick = onRetry) {
-                            Text("Retry")
+                            Text(i18nProvider[StringKey.RETRY])
                         }
                     }
                 }
@@ -135,10 +141,10 @@ fun ServicesListScreenContent(
                     contentAlignment = Alignment.Center,
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("No services yet")
+                        Text(i18nProvider[StringKey.Services.NO_SERVICES])
                         Spacer(modifier = Modifier.height(8.dp))
                         TextButton(onClick = onAddService) {
-                            Text("Add your first service")
+                            Text(i18nProvider[StringKey.Services.ADD_FIRST])
                         }
                     }
                 }
@@ -155,6 +161,7 @@ fun ServicesListScreenContent(
                             service = service,
                             onEdit = { onEditService(service) },
                             onDelete = { onDeleteConfirm(service) },
+                            i18nProvider = i18nProvider,
                         )
                     }
                     item {
@@ -168,8 +175,8 @@ fun ServicesListScreenContent(
         if (uiState.showDeleteDialog) {
             AlertDialog(
                 onDismissRequest = onDeleteDismiss,
-                title = { Text("Delete Service") },
-                text = { Text("Are you sure you want to delete \"${uiState.serviceToDelete?.name}\"?") },
+                title = { Text(i18nProvider[StringKey.Services.DELETE_SERVICE]) },
+                text = { Text(i18nProvider[StringKey.Services.DELETE_CONFIRM].format(uiState.serviceToDelete?.name ?: "")) },
                 confirmButton = {
                     TextButton(
                         onClick = onDeleteConfirmDialog,
@@ -178,13 +185,13 @@ fun ServicesListScreenContent(
                         if (uiState.isDeleting) {
                             CircularProgressIndicator(modifier = Modifier.height(16.dp))
                         } else {
-                            Text("Delete", color = MaterialTheme.colorScheme.error)
+                            Text(i18nProvider[StringKey.DELETE], color = MaterialTheme.colorScheme.error)
                         }
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = onDeleteDismiss) {
-                        Text("Cancel")
+                        Text(i18nProvider[StringKey.CANCEL])
                     }
                 },
             )
@@ -197,6 +204,7 @@ fun ServiceListItem(
     service: ProviderService,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
+    i18nProvider: I18nProvider,
 ) {
     Card(
         modifier = Modifier
@@ -244,11 +252,11 @@ fun ServiceListItem(
             )
 
             TextButton(onClick = onEdit) {
-                Text("Edit")
+                Text(i18nProvider[StringKey.Services.EDIT])
             }
 
             TextButton(onClick = onDelete) {
-                Text("Delete", color = MaterialTheme.colorScheme.error)
+                Text(i18nProvider[StringKey.DELETE], color = MaterialTheme.colorScheme.error)
             }
         }
     }

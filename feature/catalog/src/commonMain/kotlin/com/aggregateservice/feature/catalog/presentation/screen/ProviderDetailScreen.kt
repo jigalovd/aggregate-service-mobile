@@ -46,6 +46,8 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.core.navigation.AuthPromptTrigger
 import com.aggregateservice.core.navigation.AuthStateProvider
 import com.aggregateservice.core.navigation.BookingNavigator
@@ -80,6 +82,9 @@ data class ProviderDetailScreen(
         // Booking navigator for cross-feature navigation
         val bookingNavigator: BookingNavigator = koinInject()
 
+        // i18n provider for localized strings
+        val i18nProvider: I18nProvider = koinInject()
+
         var showAuthPrompt by remember { mutableStateOf(false) }
 
         LaunchedEffect(providerId) {
@@ -89,6 +94,7 @@ data class ProviderDetailScreen(
         // Auth prompt dialog for guests
         if (showAuthPrompt) {
             AuthPromptDialog(
+                i18nProvider = i18nProvider,
                 onDismiss = { showAuthPrompt = false },
                 onLogin = {
                     showAuthPrompt = false
@@ -102,6 +108,7 @@ data class ProviderDetailScreen(
         }
 
         ProviderDetailScreenContent(
+            i18nProvider = i18nProvider,
             uiState = uiState,
             onBackClick = { navigator.pop() },
             onFavoriteToggle = screenModel::onFavoriteToggle,
@@ -133,22 +140,23 @@ data class ProviderDetailScreen(
 
 @Composable
 private fun AuthPromptDialog(
+    i18nProvider: I18nProvider,
     onDismiss: () -> Unit,
     onLogin: () -> Unit,
     onRegister: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Sign in to book") },
-        text = { Text("Create an account or sign in to book appointments with our providers.") },
+        title = { Text(i18nProvider[StringKey.GuestPrompt.BOOKING_TITLE]) },
+        text = { Text(i18nProvider[StringKey.GuestPrompt.BOOKING_MESSAGE]) },
         confirmButton = {
             Button(onClick = onRegister) {
-                Text("Register")
+                Text(i18nProvider[StringKey.GuestPrompt.CREATE_ACCOUNT])
             }
         },
         dismissButton = {
             TextButton(onClick = onLogin) {
-                Text("Sign In")
+                Text(i18nProvider[StringKey.GuestPrompt.SIGN_IN])
             }
         },
     )
@@ -157,6 +165,7 @@ private fun AuthPromptDialog(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProviderDetailScreenContent(
+    i18nProvider: I18nProvider,
     uiState: ProviderDetailUiState,
     onBackClick: () -> Unit,
     onFavoriteToggle: () -> Unit,
@@ -172,7 +181,7 @@ fun ProviderDetailScreenContent(
     LaunchedEffect(uiState.error) {
         uiState.error?.let { error ->
             scope.launch {
-                snackbarHostState.showSnackbar(message = error.message ?: "Error")
+                snackbarHostState.showSnackbar(message = error.message ?: i18nProvider[StringKey.ERROR])
                 onClearError()
             }
         }
@@ -373,9 +382,10 @@ fun ServiceCategoryChips(
     selectedCategoryId: String?,
     onCategorySelected: (String?) -> Unit,
 ) {
+    val i18nProvider: I18nProvider = koinInject()
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         Text(
-            text = "Services",
+            text = i18nProvider[StringKey.Provider.SERVICES],
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
         )
@@ -387,7 +397,7 @@ fun ServiceCategoryChips(
             FilterChip(
                 selected = selectedCategoryId == null,
                 onClick = { onCategorySelected(null) },
-                label = { Text("All") },
+                label = { Text(i18nProvider[StringKey.Catalog.ALL]) },
             )
             categories.forEach { (id, name) ->
                 FilterChip(
@@ -442,9 +452,10 @@ fun ServiceCard(service: Service, onClick: () -> Unit) {
 
 @Composable
 fun BookButtonBar(onBookClick: () -> Unit) {
+    val i18nProvider: I18nProvider = koinInject()
     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
         Button(onClick = onBookClick, modifier = Modifier.fillMaxWidth()) {
-            Text("Book Now")
+            Text(i18nProvider[StringKey.Confirmation.BOOKING_CONFIRMED])
         }
     }
 }
@@ -461,18 +472,19 @@ fun ProviderErrorState(
     error: com.aggregateservice.core.network.AppError,
     onRetry: () -> Unit,
 ) {
+    val i18nProvider: I18nProvider = koinInject()
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = "Error loading", style = MaterialTheme.typography.titleMedium)
+            Text(text = i18nProvider[StringKey.ERROR], style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = error.message ?: "Unknown error",
+                text = error.message ?: i18nProvider[StringKey.Error.UNKNOWN],
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedButton(onClick = onRetry) {
-                Text("Retry")
+                Text(i18nProvider[StringKey.RETRY])
             }
         }
     }
@@ -480,9 +492,10 @@ fun ProviderErrorState(
 
 @Composable
 fun EmptyServicesState() {
+    val i18nProvider: I18nProvider = koinInject()
     Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
         Text(
-            text = "No services available",
+            text = i18nProvider[StringKey.Scheduling.NO_SLOTS_AVAILABLE],
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

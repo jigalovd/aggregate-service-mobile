@@ -33,11 +33,14 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.booking.domain.model.BookingService
 import com.aggregateservice.feature.booking.domain.model.TimeSlot
 import com.aggregateservice.feature.booking.presentation.screenmodel.BookingConfirmationScreenModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+import org.koin.compose.koinInject
 
 /**
  * Voyager Screen для подтверждения бронирования.
@@ -61,6 +64,7 @@ data class BookingConfirmationScreen(
         val navigator = LocalNavigator.currentOrThrow
         val screenModel = koinScreenModel<BookingConfirmationScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
+        val i18nProvider: I18nProvider = koinInject()
 
         // Services passed from previous screen (in real app, would be passed or loaded)
         val services = remember { mutableStateOf<List<BookingService>>(emptyList()) }
@@ -85,6 +89,7 @@ data class BookingConfirmationScreen(
         }
 
         BookingConfirmationScreenContent(
+            i18nProvider = i18nProvider,
             providerName = providerName,
             uiState = uiState,
             onNotesChange = screenModel::updateNotes,
@@ -101,6 +106,7 @@ data class BookingConfirmationScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookingConfirmationScreenContent(
+    i18nProvider: I18nProvider,
     providerName: String,
     uiState: com.aggregateservice.feature.booking.presentation.model.BookingConfirmationUiState,
     onNotesChange: (String) -> Unit,
@@ -111,7 +117,7 @@ fun BookingConfirmationScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Confirm Booking") },
+                title = { Text(i18nProvider[StringKey.Booking.CONFIRM_BOOKING]) },
                 navigationIcon = {
                     if (!uiState.isBooked) {
                         androidx.compose.material3.IconButton(onClick = onBack) {
@@ -141,7 +147,7 @@ fun BookingConfirmationScreenContent(
                             color = MaterialTheme.colorScheme.primary,
                         )
                         Text(
-                            text = "Booking Confirmed!",
+                            text = i18nProvider[StringKey.Confirmation.BOOKING_CONFIRMED],
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold,
                         )
@@ -154,7 +160,7 @@ fun BookingConfirmationScreenContent(
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(onClick = onDone) {
-                            Text("Done")
+                            Text(i18nProvider[StringKey.DONE])
                         }
                     }
                 }
@@ -180,7 +186,7 @@ fun BookingConfirmationScreenContent(
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
-                                text = "Booking Summary",
+                                text = i18nProvider[StringKey.Confirmation.REVIEW_DETAILS],
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                             )
@@ -190,7 +196,7 @@ fun BookingConfirmationScreenContent(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                             ) {
-                                Text("Services", style = MaterialTheme.typography.bodyMedium)
+                                Text(i18nProvider[StringKey.Booking.SERVICES], style = MaterialTheme.typography.bodyMedium)
                                 Text("${uiState.services.size}", style = MaterialTheme.typography.bodyMedium)
                             }
                             Spacer(modifier = Modifier.height(4.dp))
@@ -198,7 +204,7 @@ fun BookingConfirmationScreenContent(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                             ) {
-                                Text("Duration", style = MaterialTheme.typography.bodyMedium)
+                                Text(i18nProvider[StringKey.Booking.DURATION], style = MaterialTheme.typography.bodyMedium)
                                 Text(uiState.formattedDuration, style = MaterialTheme.typography.bodyMedium)
                             }
                             Spacer(modifier = Modifier.height(4.dp))
@@ -207,7 +213,7 @@ fun BookingConfirmationScreenContent(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                             ) {
                                 Text(
-                                    "Total",
+                                    i18nProvider[StringKey.SORT],
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                 )
@@ -227,8 +233,8 @@ fun BookingConfirmationScreenContent(
                     OutlinedTextField(
                         value = uiState.notes,
                         onValueChange = onNotesChange,
-                        label = { Text("Notes (optional)") },
-                        placeholder = { Text("Add any special requests...") },
+                        label = { Text(i18nProvider[StringKey.Booking.NOTES]) },
+                        placeholder = { Text(i18nProvider[StringKey.Booking.NOTES_PLACEHOLDER]) },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 3,
                         maxLines = 5,
@@ -248,14 +254,14 @@ fun BookingConfirmationScreenContent(
                                 color = MaterialTheme.colorScheme.onPrimary,
                             )
                         }
-                        Text(if (uiState.isSubmitting) "Booking..." else "Confirm Booking")
+                        Text(if (uiState.isSubmitting) i18nProvider[StringKey.LOADING] else i18nProvider[StringKey.Booking.CONFIRM])
                     }
 
                     // Error display
                     uiState.error?.let { error ->
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = error.message ?: "An error occurred",
+                            text = error.message ?: i18nProvider[StringKey.Error.UNKNOWN],
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error,
                             textAlign = TextAlign.Center,

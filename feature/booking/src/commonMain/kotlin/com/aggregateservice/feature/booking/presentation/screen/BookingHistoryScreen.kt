@@ -27,9 +27,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.booking.domain.model.Booking
 import com.aggregateservice.feature.booking.domain.model.BookingStatus
 import com.aggregateservice.feature.booking.presentation.screenmodel.BookingHistoryScreenModel
+import org.koin.compose.koinInject
 
 /**
  * Voyager Screen для истории бронирований.
@@ -40,6 +43,7 @@ object BookingHistoryScreen : Screen {
     override fun Content() {
         val screenModel = koinScreenModel<BookingHistoryScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
+        val i18nProvider: I18nProvider = koinInject()
 
         // TODO: Get clientId from AuthState
         val clientId = "current-user-id"
@@ -49,6 +53,7 @@ object BookingHistoryScreen : Screen {
         }
 
         BookingHistoryScreenContent(
+            i18nProvider = i18nProvider,
             uiState = uiState,
             onRefresh = { screenModel.refresh(clientId) },
             onCancelBooking = { bookingId, reason ->
@@ -61,6 +66,7 @@ object BookingHistoryScreen : Screen {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookingHistoryScreenContent(
+    i18nProvider: I18nProvider,
     uiState: com.aggregateservice.feature.booking.presentation.model.BookingHistoryUiState,
     onRefresh: () -> Unit,
     onCancelBooking: (String, String?) -> Unit,
@@ -68,7 +74,7 @@ fun BookingHistoryScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("My Bookings") },
+                title = { Text(i18nProvider[StringKey.Booking.MY_BOOKINGS]) },
             )
         },
     ) { paddingValues ->
@@ -92,7 +98,7 @@ fun BookingHistoryScreenContent(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "Error: ${uiState.error?.message}",
+                        text = "${i18nProvider[StringKey.ERROR]}: ${uiState.error?.message}",
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
@@ -107,11 +113,11 @@ fun BookingHistoryScreenContent(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "No bookings yet",
+                            text = i18nProvider[StringKey.Booking.NO_BOOKINGS],
                             style = MaterialTheme.typography.titleMedium,
                         )
                         Text(
-                            text = "Your booking history will appear here",
+                            text = i18nProvider[StringKey.Booking.NO_BOOKINGS],
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -130,7 +136,7 @@ fun BookingHistoryScreenContent(
                     if (uiState.upcomingBookings.isNotEmpty()) {
                         item {
                             Text(
-                                text = "Upcoming",
+                                text = i18nProvider[StringKey.Booking.UPCOMING],
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(vertical = 8.dp),
@@ -140,6 +146,7 @@ fun BookingHistoryScreenContent(
                             BookingCard(
                                 booking = booking,
                                 onCancel = { onCancelBooking(booking.id, null) },
+                                i18nProvider = i18nProvider,
                             )
                         }
                     }
@@ -149,7 +156,7 @@ fun BookingHistoryScreenContent(
                         item {
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                text = "Past",
+                                text = i18nProvider[StringKey.Booking.PAST],
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(vertical = 8.dp),
@@ -159,6 +166,7 @@ fun BookingHistoryScreenContent(
                             BookingCard(
                                 booking = booking,
                                 onCancel = null,
+                                i18nProvider = i18nProvider,
                             )
                         }
                     }
@@ -172,6 +180,7 @@ fun BookingHistoryScreenContent(
 fun BookingCard(
     booking: Booking,
     onCancel: (() -> Unit)?,
+    i18nProvider: I18nProvider,
 ) {
     Card(
         modifier = Modifier
@@ -189,7 +198,7 @@ fun BookingCard(
             Spacer(modifier = Modifier.height(4.dp))
 
             // Status chip
-            StatusChip(status = booking.status)
+            StatusChip(status = booking.status, i18nProvider = i18nProvider)
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -222,7 +231,7 @@ fun BookingCard(
                 Spacer(modifier = Modifier.height(8.dp))
                 androidx.compose.material3.TextButton(onClick = onCancel) {
                     Text(
-                        text = "Cancel Booking",
+                        text = i18nProvider[StringKey.Booking.CANCEL],
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
@@ -232,15 +241,15 @@ fun BookingCard(
 }
 
 @Composable
-fun StatusChip(status: BookingStatus) {
+fun StatusChip(status: BookingStatus, i18nProvider: I18nProvider) {
     val (text, color) = when (status) {
-        BookingStatus.PENDING -> "Pending" to MaterialTheme.colorScheme.tertiary
-        BookingStatus.CONFIRMED -> "Confirmed" to MaterialTheme.colorScheme.primary
-        BookingStatus.IN_PROGRESS -> "In Progress" to MaterialTheme.colorScheme.secondary
-        BookingStatus.COMPLETED -> "Completed" to MaterialTheme.colorScheme.primaryContainer
-        BookingStatus.CANCELLED -> "Cancelled" to MaterialTheme.colorScheme.error
-        BookingStatus.EXPIRED -> "Expired" to MaterialTheme.colorScheme.outline
-        BookingStatus.NO_SHOW -> "No Show" to MaterialTheme.colorScheme.errorContainer
+        BookingStatus.PENDING -> i18nProvider[StringKey.Booking.STATUS_PENDING] to MaterialTheme.colorScheme.tertiary
+        BookingStatus.CONFIRMED -> i18nProvider[StringKey.Booking.STATUS_CONFIRMED] to MaterialTheme.colorScheme.primary
+        BookingStatus.IN_PROGRESS -> i18nProvider[StringKey.Booking.STATUS_IN_PROGRESS] to MaterialTheme.colorScheme.secondary
+        BookingStatus.COMPLETED -> i18nProvider[StringKey.Booking.STATUS_COMPLETED] to MaterialTheme.colorScheme.primaryContainer
+        BookingStatus.CANCELLED -> i18nProvider[StringKey.Booking.STATUS_CANCELLED] to MaterialTheme.colorScheme.error
+        BookingStatus.EXPIRED -> i18nProvider[StringKey.Booking.STATUS_EXPIRED] to MaterialTheme.colorScheme.outline
+        BookingStatus.NO_SHOW -> i18nProvider[StringKey.Booking.STATUS_NO_SHOW] to MaterialTheme.colorScheme.errorContainer
     }
 
     androidx.compose.material3.Surface(

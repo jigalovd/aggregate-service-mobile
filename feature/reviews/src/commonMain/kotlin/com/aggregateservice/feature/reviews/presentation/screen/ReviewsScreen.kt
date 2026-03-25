@@ -36,11 +36,14 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.reviews.domain.model.Review
 import com.aggregateservice.feature.reviews.domain.model.ReviewStats
 import com.aggregateservice.feature.reviews.presentation.component.ReviewCard
 import com.aggregateservice.feature.reviews.presentation.model.ReviewsUiState
 import com.aggregateservice.feature.reviews.presentation.screenmodel.ReviewsScreenModel
+import org.koin.compose.koinInject
 
 /**
  * Screen for displaying reviews of a provider.
@@ -58,12 +61,14 @@ class ReviewsScreen(
         val screenModel = koinScreenModel<ReviewsScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
+        val i18nProvider: I18nProvider = koinInject()
 
         LaunchedEffect(providerId) {
             screenModel.initialize(providerId)
         }
 
         ReviewsScreenContent(
+            i18nProvider = i18nProvider,
             uiState = uiState,
             providerName = providerName,
             onRefresh = { screenModel.refresh() },
@@ -76,6 +81,7 @@ class ReviewsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ReviewsScreenContent(
+    i18nProvider: I18nProvider,
     uiState: ReviewsUiState,
     providerName: String,
     onRefresh: () -> Unit,
@@ -106,12 +112,12 @@ private fun ReviewsScreenContent(
             TopAppBar(
                 title = {
                     Text(
-                        text = if (providerName.isNotBlank()) "Отзывы: $providerName" else "Отзывы",
+                        text = if (providerName.isNotBlank()) "${i18nProvider[StringKey.Reviews.TITLE]}: $providerName" else i18nProvider[StringKey.Reviews.TITLE],
                     )
                 },
                 navigationIcon = {
                     TextButton(onClick = onBackClick) {
-                        Text("← Назад")
+                        Text(i18nProvider[StringKey.Reviews.BACK])
                     }
                 },
             )
@@ -132,13 +138,14 @@ private fun ReviewsScreenContent(
 
                 uiState.error != null && uiState.reviews.isEmpty() -> {
                     ErrorState(
-                        message = uiState.error?.message ?: "Произошла ошибка",
+                        message = uiState.error?.message ?: i18nProvider[StringKey.Error.UNKNOWN],
                         onRetry = onRefresh,
+                        i18nProvider = i18nProvider,
                     )
                 }
 
                 uiState.isEmpty -> {
-                    EmptyState()
+                    EmptyState(i18nProvider = i18nProvider)
                 }
 
                 else -> {
@@ -150,7 +157,7 @@ private fun ReviewsScreenContent(
                         // Stats header
                         uiState.stats?.let { stats ->
                             item {
-                                ReviewStatsHeader(stats = stats)
+                                ReviewStatsHeader(stats = stats, i18nProvider = i18nProvider)
                             }
                         }
 
@@ -303,6 +310,7 @@ private fun LoadingState() {
 private fun ErrorState(
     message: String,
     onRetry: () -> Unit,
+    i18nProvider: I18nProvider,
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -318,14 +326,14 @@ private fun ErrorState(
                 color = MaterialTheme.colorScheme.error,
             )
             TextButton(onClick = onRetry) {
-                Text("Повторить")
+                Text(i18nProvider[StringKey.Reviews.RETRY])
             }
         }
     }
 }
 
 @Composable
-private fun EmptyState() {
+private fun EmptyState(i18nProvider: I18nProvider) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
@@ -340,12 +348,12 @@ private fun EmptyState() {
                 color = MaterialTheme.colorScheme.outline,
             )
             Text(
-                text = "Пока нет отзывов",
+                text = i18nProvider[StringKey.Reviews.NO_REVIEWS],
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.outline,
             )
             Text(
-                text = "Будьте первым, кто оставит отзыв!",
+                text = i18nProvider[StringKey.Reviews.WRITE_REVIEW],
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.outline,
             )

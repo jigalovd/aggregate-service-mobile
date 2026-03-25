@@ -40,9 +40,12 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.favorites.domain.model.Favorite
 import com.aggregateservice.feature.favorites.presentation.model.FavoritesUiState
 import com.aggregateservice.feature.favorites.presentation.screenmodel.FavoritesScreenModel
+import org.koin.compose.koinInject
 
 /**
  * Favorites screen displaying user's favorite providers.
@@ -54,12 +57,14 @@ class FavoritesScreen : Screen {
         val screenModel = koinScreenModel<FavoritesScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
+        val i18nProvider: I18nProvider = koinInject()
 
         LaunchedEffect(Unit) {
             screenModel.loadFavorites()
         }
 
         FavoritesScreenContent(
+            i18nProvider = i18nProvider,
             uiState = uiState,
             onRefresh = { screenModel.loadFavorites() },
             onFavoriteClick = { favorite ->
@@ -77,6 +82,7 @@ class FavoritesScreen : Screen {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FavoritesScreenContent(
+    i18nProvider: I18nProvider,
     uiState: FavoritesUiState,
     onRefresh: () -> Unit,
     onFavoriteClick: (Favorite) -> Unit,
@@ -90,7 +96,7 @@ private fun FavoritesScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Favorites") },
+                title = { Text(i18nProvider[StringKey.Navigation.FAVORITES]) },
             )
         },
     ) { paddingValues ->
@@ -109,13 +115,13 @@ private fun FavoritesScreenContent(
 
                 uiState.error != null && uiState.favorites.isEmpty() -> {
                     ErrorState(
-                        message = uiState.error!!.message ?: "Unknown error",
+                        message = uiState.error!!.message ?: i18nProvider[StringKey.Error.UNKNOWN],
                         onRetry = onRefresh,
                     )
                 }
 
                 !uiState.hasFavorites -> {
-                    EmptyState()
+                    EmptyState(i18nProvider = i18nProvider)
                 }
 
                 else -> {
@@ -130,6 +136,7 @@ private fun FavoritesScreenContent(
             // Remove confirmation dialog
             if (uiState.showRemoveDialog) {
                 RemoveConfirmationDialog(
+                    i18nProvider = i18nProvider,
                     favorite = uiState.favoriteToRemove!!,
                     isRemoving = uiState.isRemoving,
                     onConfirm = onConfirmRemove,
@@ -155,6 +162,7 @@ private fun ErrorState(
     message: String,
     onRetry: () -> Unit,
 ) {
+    val i18nProvider: I18nProvider = koinInject()
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
@@ -169,14 +177,14 @@ private fun ErrorState(
                 color = MaterialTheme.colorScheme.error,
             )
             TextButton(onClick = onRetry) {
-                Text("Retry")
+                Text(i18nProvider[StringKey.RETRY])
             }
         }
     }
 }
 
 @Composable
-private fun EmptyState() {
+private fun EmptyState(i18nProvider: I18nProvider) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
@@ -191,12 +199,12 @@ private fun EmptyState() {
                 color = MaterialTheme.colorScheme.outline,
             )
             Text(
-                text = "No favorites yet",
+                text = i18nProvider[StringKey.GuestPrompt.FAVORITES_TITLE],
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.outline,
             )
             Text(
-                text = "Add providers to your favorites to see them here",
+                text = i18nProvider[StringKey.GuestPrompt.FAVORITES_MESSAGE],
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.outline,
             )
@@ -322,6 +330,7 @@ private fun FavoriteCard(
 
 @Composable
 private fun RemoveConfirmationDialog(
+    i18nProvider: I18nProvider,
     favorite: Favorite,
     isRemoving: Boolean,
     onConfirm: () -> Unit,
@@ -329,8 +338,8 @@ private fun RemoveConfirmationDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Remove from favorites?") },
-        text = { Text("Are you sure you want to remove \"${favorite.businessName}\" from your favorites?") },
+        title = { Text(i18nProvider[StringKey.Provider.REMOVE_FROM_FAVORITES]) },
+        text = { Text(i18nProvider[StringKey.Provider.REMOVE_CONFIRM].format(favorite.businessName)) },
         confirmButton = {
             TextButton(
                 onClick = onConfirm,
@@ -342,7 +351,7 @@ private fun RemoveConfirmationDialog(
                         strokeWidth = 2.dp,
                     )
                 } else {
-                    Text("Remove")
+                    Text(i18nProvider[StringKey.DELETE])
                 }
             }
         },
@@ -351,7 +360,7 @@ private fun RemoveConfirmationDialog(
                 onClick = onDismiss,
                 enabled = !isRemoving,
             ) {
-                Text("Cancel")
+                Text(i18nProvider[StringKey.CANCEL])
             }
         },
     )

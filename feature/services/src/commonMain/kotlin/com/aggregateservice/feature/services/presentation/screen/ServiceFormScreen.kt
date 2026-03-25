@@ -34,7 +34,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.services.presentation.screenmodel.ServiceFormScreenModel
+import org.koin.compose.koinInject
 
 /**
  * Voyager Screen for creating/editing a service.
@@ -50,6 +53,7 @@ data class ServiceFormScreen(
         val navigator = LocalNavigator.currentOrThrow
         val screenModel = koinScreenModel<ServiceFormScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
+        val i18nProvider: I18nProvider = koinInject()
 
         LaunchedEffect(serviceId) {
             if (serviceId != null) {
@@ -65,6 +69,7 @@ data class ServiceFormScreen(
         }
 
         ServiceFormScreenContent(
+            i18nProvider = i18nProvider,
             uiState = uiState,
             isEditMode = serviceId != null,
             onNameChange = screenModel::onNameChange,
@@ -82,6 +87,7 @@ data class ServiceFormScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServiceFormScreenContent(
+    i18nProvider: I18nProvider,
     uiState: com.aggregateservice.feature.services.presentation.model.ServiceFormUiState,
     isEditMode: Boolean,
     onNameChange: (String) -> Unit,
@@ -96,10 +102,10 @@ fun ServiceFormScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (isEditMode) "Edit Service" else "New Service") },
+                title = { Text(if (isEditMode) i18nProvider[StringKey.Services.EDIT] else i18nProvider[StringKey.Services.ADD_SERVICE]) },
                 navigationIcon = {
                     TextButton(onClick = onBack) {
-                        Text("Cancel")
+                        Text(i18nProvider[StringKey.CANCEL])
                     }
                 },
             )
@@ -127,12 +133,12 @@ fun ServiceFormScreenContent(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "Error: ${uiState.error?.message}",
+                            text = "${i18nProvider[StringKey.ERROR]}: ${uiState.error?.message}",
                             color = MaterialTheme.colorScheme.error,
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         TextButton(onClick = onBack) {
-                            Text("Go Back")
+                            Text(i18nProvider[StringKey.Services.GO_BACK])
                         }
                     }
                 }
@@ -151,7 +157,7 @@ fun ServiceFormScreenContent(
                     OutlinedTextField(
                         value = uiState.name,
                         onValueChange = onNameChange,
-                        label = { Text("Service Name *") },
+                        label = { Text(i18nProvider[StringKey.Services.SERVICE_NAME]) },
                         isError = uiState.nameError != null,
                         supportingText = uiState.nameError?.let { { Text(it) } },
                         modifier = Modifier.fillMaxWidth(),
@@ -162,7 +168,7 @@ fun ServiceFormScreenContent(
                     OutlinedTextField(
                         value = uiState.description,
                         onValueChange = onDescriptionChange,
-                        label = { Text("Description") },
+                        label = { Text(i18nProvider[StringKey.Services.DESCRIPTION]) },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 3,
                         maxLines = 5,
@@ -172,7 +178,7 @@ fun ServiceFormScreenContent(
                     OutlinedTextField(
                         value = uiState.basePrice,
                         onValueChange = onPriceChange,
-                        label = { Text("Base Price *") },
+                        label = { Text(i18nProvider[StringKey.Services.BASE_PRICE]) },
                         isError = uiState.priceError != null,
                         supportingText = uiState.priceError?.let { { Text(it) } },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -184,7 +190,7 @@ fun ServiceFormScreenContent(
                     OutlinedTextField(
                         value = uiState.durationMinutes,
                         onValueChange = onDurationChange,
-                        label = { Text("Duration (minutes) *") },
+                        label = { Text(i18nProvider[StringKey.Services.DURATION_MINUTES]) },
                         isError = uiState.durationError != null,
                         supportingText = uiState.durationError?.let { { Text(it) } },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -196,7 +202,7 @@ fun ServiceFormScreenContent(
                     OutlinedTextField(
                         value = uiState.categoryId,
                         onValueChange = onCategoryChange,
-                        label = { Text("Category ID *") },
+                        label = { Text(i18nProvider[StringKey.Services.CATEGORY]) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
@@ -207,7 +213,7 @@ fun ServiceFormScreenContent(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text("Active")
+                        Text(i18nProvider[StringKey.Services.ACTIVE])
                         Switch(
                             checked = uiState.isActive,
                             onCheckedChange = onActiveChange,
@@ -237,7 +243,7 @@ fun ServiceFormScreenContent(
                                 color = MaterialTheme.colorScheme.onPrimary,
                             )
                         } else {
-                            Text(if (isEditMode) "Update Service" else "Create Service")
+                            Text(if (isEditMode) i18nProvider[StringKey.SAVE] else i18nProvider[StringKey.Services.ADD_SERVICE])
                         }
                     }
                 }

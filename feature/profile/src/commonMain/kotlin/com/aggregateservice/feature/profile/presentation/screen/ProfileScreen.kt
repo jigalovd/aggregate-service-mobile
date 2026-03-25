@@ -42,9 +42,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.profile.domain.model.Profile
 import com.aggregateservice.feature.profile.presentation.screenmodel.ProfileScreenModel
 import coil3.compose.AsyncImage
+import org.koin.compose.koinInject
 
 /**
  * Voyager Screen for user profile management.
@@ -55,13 +58,14 @@ class ProfileScreen : Screen {
     override fun Content() {
         val screenModel = koinScreenModel<ProfileScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
+        val i18nProvider: I18nProvider = koinInject()
         val snackbarHostState = remember { SnackbarHostState() }
 
         // Show success snackbar
         LaunchedEffect(uiState.saveSuccess) {
             if (uiState.saveSuccess) {
                 snackbarHostState.showSnackbar(
-                    message = "Profile updated successfully",
+                    message = i18nProvider[StringKey.SUCCESS],
                     duration = SnackbarDuration.Short,
                 )
                 screenModel.clearSaveSuccess()
@@ -69,6 +73,7 @@ class ProfileScreen : Screen {
         }
 
         ProfileScreenContent(
+            i18nProvider = i18nProvider,
             uiState = uiState,
             snackbarHostState = snackbarHostState,
             onStartEditing = screenModel::startEditing,
@@ -85,6 +90,7 @@ class ProfileScreen : Screen {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreenContent(
+    i18nProvider: I18nProvider,
     uiState: com.aggregateservice.feature.profile.presentation.model.ProfileUiState,
     snackbarHostState: SnackbarHostState,
     onStartEditing: () -> Unit,
@@ -98,7 +104,7 @@ fun ProfileScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Profile") },
+                title = { Text(i18nProvider[StringKey.Profile.TITLE]) },
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -124,12 +130,12 @@ fun ProfileScreenContent(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "Error: ${uiState.error?.message}",
+                            text = "${i18nProvider[StringKey.ERROR]}: ${uiState.error?.message}",
                             color = MaterialTheme.colorScheme.error,
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         TextButton(onClick = onRetry) {
-                            Text("Retry")
+                            Text(i18nProvider[StringKey.RETRY])
                         }
                     }
                 }
@@ -154,11 +160,13 @@ fun ProfileScreenContent(
                             onPhoneChanged = onPhoneChanged,
                             onSave = onSave,
                             onCancel = onCancelEditing,
+                            i18nProvider = i18nProvider,
                         )
                     } else {
                         ViewProfileInfo(
                             profile = uiState.profile,
                             onEdit = onStartEditing,
+                            i18nProvider = i18nProvider,
                         )
                     }
 
@@ -174,11 +182,11 @@ fun ProfileScreenContent(
         if (uiState.error != null && !uiState.isLoading) {
             AlertDialog(
                 onDismissRequest = onErrorDismiss,
-                title = { Text("Error") },
+                title = { Text(i18nProvider[StringKey.ERROR]) },
                 text = { Text(uiState.error?.message ?: "Unknown error") },
                 confirmButton = {
                     TextButton(onClick = onErrorDismiss) {
-                        Text("OK")
+                        Text(i18nProvider[StringKey.OK])
                     }
                 },
             )
@@ -217,6 +225,7 @@ fun ProfileHeader(profile: Profile) {
 fun ViewProfileInfo(
     profile: Profile,
     onEdit: () -> Unit,
+    i18nProvider: I18nProvider,
 ) {
     Column(
         modifier = Modifier
@@ -224,14 +233,14 @@ fun ViewProfileInfo(
             .padding(horizontal = 16.dp),
     ) {
         ProfileInfoRow(
-            label = "Full Name",
+            label = i18nProvider[StringKey.Profile.FULL_NAME],
             value = profile.fullName ?: "Not set",
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
         ProfileInfoRow(
-            label = "Phone",
+            label = i18nProvider[StringKey.Profile.PHONE],
             value = profile.phone ?: "Not set",
         )
 
@@ -241,7 +250,7 @@ fun ViewProfileInfo(
             onClick = onEdit,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text("Edit Profile")
+            Text(i18nProvider[StringKey.Profile.EDIT])
         }
     }
 }
@@ -272,6 +281,7 @@ fun EditProfileForm(
     onPhoneChanged: (String) -> Unit,
     onSave: () -> Unit,
     onCancel: () -> Unit,
+    i18nProvider: I18nProvider,
 ) {
     Column(
         modifier = Modifier
@@ -281,7 +291,7 @@ fun EditProfileForm(
         OutlinedTextField(
             value = uiState.editFullName,
             onValueChange = onFullNameChanged,
-            label = { Text("Full Name") },
+            label = { Text(i18nProvider[StringKey.Profile.FULL_NAME]) },
             isError = uiState.fullNameError != null,
             supportingText = uiState.fullNameError?.let { { Text(it) } },
             singleLine = true,
@@ -293,7 +303,7 @@ fun EditProfileForm(
         OutlinedTextField(
             value = uiState.editPhone,
             onValueChange = onPhoneChanged,
-            label = { Text("Phone") },
+            label = { Text(i18nProvider[StringKey.Profile.PHONE]) },
             isError = uiState.phoneError != null,
             supportingText = uiState.phoneError?.let { { Text(it) } },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -312,7 +322,7 @@ fun EditProfileForm(
                 modifier = Modifier.weight(1f),
                 enabled = !uiState.isSaving,
             ) {
-                Text("Cancel")
+                Text(i18nProvider[StringKey.CANCEL])
             }
 
             Button(
@@ -326,7 +336,7 @@ fun EditProfileForm(
                         strokeWidth = 2.dp,
                     )
                 } else {
-                    Text("Save")
+                    Text(i18nProvider[StringKey.SAVE])
                 }
             }
         }

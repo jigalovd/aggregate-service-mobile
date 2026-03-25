@@ -21,8 +21,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.reviews.domain.usecase.CreateReviewUseCase
 import com.aggregateservice.feature.reviews.presentation.model.WriteReviewUiState
+import org.koin.compose.koinInject
 
 /**
  * Dialog for writing a review.
@@ -36,6 +39,7 @@ fun WriteReviewDialog(
     onSubmit: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    i18nProvider: I18nProvider = koinInject(),
 ) {
     AlertDialog(
         onDismissRequest = {
@@ -47,15 +51,16 @@ fun WriteReviewDialog(
     ) {
         when {
             state.isChecking -> {
-                CheckingContent()
+                CheckingContent(i18nProvider = i18nProvider)
             }
             state.isSuccess -> {
-                SuccessContent(onDismiss = onDismiss)
+                SuccessContent(onDismiss = onDismiss, i18nProvider = i18nProvider)
             }
             !state.canReview -> {
                 CannotReviewContent(
-                    error = state.error ?: "Вы уже оставили отзыв",
+                    error = state.error ?: i18nProvider[StringKey.Reviews.NO_REVIEWS],
                     onDismiss = onDismiss,
+                    i18nProvider = i18nProvider,
                 )
             }
             else -> {
@@ -65,6 +70,7 @@ fun WriteReviewDialog(
                     onCommentChange = onCommentChange,
                     onSubmit = onSubmit,
                     onDismiss = onDismiss,
+                    i18nProvider = i18nProvider,
                 )
             }
         }
@@ -72,7 +78,7 @@ fun WriteReviewDialog(
 }
 
 @Composable
-private fun CheckingContent() {
+private fun CheckingContent(i18nProvider: I18nProvider) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -83,7 +89,7 @@ private fun CheckingContent() {
         CircularProgressIndicator()
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Проверка...",
+            text = i18nProvider[StringKey.LOADING],
             style = MaterialTheme.typography.bodyMedium,
         )
     }
@@ -92,6 +98,7 @@ private fun CheckingContent() {
 @Composable
 private fun SuccessContent(
     onDismiss: () -> Unit,
+    i18nProvider: I18nProvider,
 ) {
     Column(
         modifier = Modifier
@@ -106,11 +113,11 @@ private fun SuccessContent(
             color = MaterialTheme.colorScheme.primary,
         )
         Text(
-            text = "Спасибо за отзыв!",
+            text = i18nProvider[StringKey.SUCCESS],
             style = MaterialTheme.typography.titleMedium,
         )
         TextButton(onClick = onDismiss) {
-            Text("Закрыть")
+            Text(i18nProvider[StringKey.Reviews.CLOSE])
         }
     }
 }
@@ -119,6 +126,7 @@ private fun SuccessContent(
 private fun CannotReviewContent(
     error: String,
     onDismiss: () -> Unit,
+    i18nProvider: I18nProvider,
 ) {
     Column(
         modifier = Modifier
@@ -138,7 +146,7 @@ private fun CannotReviewContent(
             textAlign = TextAlign.Center,
         )
         TextButton(onClick = onDismiss) {
-            Text("Закрыть")
+            Text(i18nProvider[StringKey.Reviews.CLOSE])
         }
     }
 }
@@ -150,6 +158,7 @@ private fun WriteReviewContent(
     onCommentChange: (String) -> Unit,
     onSubmit: () -> Unit,
     onDismiss: () -> Unit,
+    i18nProvider: I18nProvider,
 ) {
     Column(
         modifier = Modifier
@@ -158,7 +167,7 @@ private fun WriteReviewContent(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
-            text = "Оставить отзыв",
+            text = i18nProvider[StringKey.Reviews.WRITE_REVIEW],
             style = MaterialTheme.typography.titleLarge,
         )
 
@@ -175,7 +184,7 @@ private fun WriteReviewContent(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
-                text = "Оценка *",
+                text = i18nProvider[StringKey.Reviews.RATING],
                 style = MaterialTheme.typography.labelMedium,
             )
             Row(
@@ -203,7 +212,7 @@ private fun WriteReviewContent(
         OutlinedTextField(
             value = state.comment,
             onValueChange = onCommentChange,
-            label = { Text("Комментарий (необязательно)") },
+            label = { Text(i18nProvider[StringKey.Reviews.COMMENT_PLACEHOLDER]) },
             modifier = Modifier.fillMaxWidth(),
             minLines = 3,
             maxLines = 5,
@@ -228,7 +237,7 @@ private fun WriteReviewContent(
                 onClick = onDismiss,
                 enabled = !state.isSubmitting,
             ) {
-                Text("Отмена")
+                Text(i18nProvider[StringKey.Reviews.CANCEL])
             }
             Spacer(modifier = Modifier.width(8.dp))
             TextButton(
@@ -241,7 +250,7 @@ private fun WriteReviewContent(
                         strokeWidth = 2.dp,
                     )
                 } else {
-                    Text("Отправить")
+                    Text(i18nProvider[StringKey.Reviews.SUBMIT])
                 }
             }
         }

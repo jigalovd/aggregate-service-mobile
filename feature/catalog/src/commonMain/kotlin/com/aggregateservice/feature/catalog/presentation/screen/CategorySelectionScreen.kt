@@ -30,8 +30,11 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.presentation.screenmodel.CatalogScreenModel
+import org.koin.compose.koinInject
 
 /**
  * Voyager Screen для выбора категории услуг.
@@ -49,8 +52,10 @@ data class CategorySelectionScreen(
         val navigator = LocalNavigator.currentOrThrow
         val catalogScreenModel = koinScreenModel<CatalogScreenModel>()
         val catalogState by catalogScreenModel.uiState.collectAsState()
+        val i18nProvider: I18nProvider = koinInject()
 
         CategorySelectionScreenContent(
+            i18nProvider = i18nProvider,
             categories = catalogState.categories,
             selectedCategoryId = selectedCategoryId,
             isLoading = catalogState.isLoading && catalogState.categories.isEmpty(),
@@ -67,6 +72,7 @@ data class CategorySelectionScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategorySelectionScreenContent(
+    i18nProvider: I18nProvider,
     categories: List<Category>,
     selectedCategoryId: String?,
     isLoading: Boolean,
@@ -76,7 +82,7 @@ fun CategorySelectionScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Выберите категорию") },
+                title = { Text(i18nProvider[StringKey.Category.SELECT_CATEGORY]) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Text("←")
@@ -98,6 +104,7 @@ fun CategorySelectionScreenContent(
                     category = null,
                     isSelected = selectedCategoryId == null,
                     onClick = { onCategoryClick(null) },
+                    i18nProvider = i18nProvider,
                 )
 
                 // Category list
@@ -110,6 +117,7 @@ fun CategorySelectionScreenContent(
                             category = category,
                             isSelected = selectedCategoryId == category.id,
                             onClick = { onCategoryClick(category) },
+                            i18nProvider = i18nProvider,
                         )
                     }
                 }
@@ -123,6 +131,7 @@ fun CategoryItem(
     category: Category?,
     isSelected: Boolean,
     onClick: () -> Unit,
+    i18nProvider: I18nProvider,
 ) {
     Row(
         modifier = Modifier
@@ -133,7 +142,7 @@ fun CategoryItem(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = category?.name ?: "Все категории",
+                text = category?.name ?: i18nProvider[StringKey.Catalog.ALL],
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                 color = if (isSelected) {
