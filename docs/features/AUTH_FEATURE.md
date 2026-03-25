@@ -1,21 +1,22 @@
 # 🔐 Auth Feature Documentation
 
-**Feature Name**: Authentication
+**Feature Name**: Authentication & Registration
 **Epic**: E1
 **Status**: ✅ Complete (100%)
-**Last Updated**: 2026-03-21
+**Last Updated**: 2026-03-25
 
 ---
 
 ## 📋 Overview
 
-Auth Feature реализует полный цикл аутентификации пользователей с поддержкой **Guest Mode**: незарегистрированные пользователи могут просматривать каталог, а для действий требующих записи (бронирование, отзывы, избранное) им предлагается зарегистрироваться. Построена на принципах Clean Architecture с полным разделением на Domain, Data, Presentation и DI слои.
+Auth Feature реализует полный цикл аутентификации и регистрации пользователей с поддержкой **Guest Mode** и **Multi-role System**: незарегистрированные пользователи могут просматривать каталог, а для действий требующих записи (бронирование, отзывы, избранное) им предлагается зарегистрироваться. Построена на принципах Clean Architecture с полным разделением на Domain, Data, Presentation и DI слои.
 
 ### Бизнес-ценность
 
 | Функция | Описание | Ценность |
 |---------|----------|----------|
 | **Guest Mode** | Просмотр каталога без регистрации | Низкий барьер входа для новых пользователей |
+| **Registration** | Регистрация с поддержкой ролей (client/provider) | Гибкая система доступа для разных типов пользователей |
 | **Login** | Вход по email/паролю | Пользователи получают доступ к персонализированному контенту |
 | **Auto Refresh** | Автоматическое обновление токенов | Бесшовный опыт без повторного логина |
 | **Logout** | Безопасный выход в Guest состояние | Защита данных пользователя |
@@ -35,6 +36,49 @@ Auth Feature реализует полный цикл аутентификаци
  │   Dialog   │              │  Register    │
 └─────────────┘              └──────────────┘
 ```
+
+### Registration Flow
+
+```
+┌──────────────────┐
+│ RegistrationScreen│
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐    Validate    ┌───────────────────┐
+│ RegistrationUiState│ ──────────►  │ RegisterUseCase   │
+│ (email, password, │               │ (business rules)  │
+│  roles, phone)    │               └─────────┬─────────┘
+└──────────────────┘                         │
+                                             ▼
+                                   ┌───────────────────┐
+                                   │ AuthRepository    │
+                                   │ .register()       │
+                                   └─────────┬─────────┘
+                                             │
+                                             ▼
+                                   ┌───────────────────┐
+                                   │ POST /auth/register│
+                                   │ → AuthResponse    │
+                                   └─────────┬─────────┘
+                                             │
+                                             ▼
+                                   ┌───────────────────┐
+                                   │ AuthState.        │
+                                   │ Authenticated     │
+                                   └───────────────────┘
+```
+
+### Multi-role Support
+
+Пользователи могут иметь несколько ролей одновременно:
+
+| Роль | Описание | Доступ |
+|------|----------|--------|
+| `CLIENT` | Клиент сервиса | Бронирование, отзывы, избранное |
+| `PROVIDER` | Мастер/поставщик услуг | Управление услугами, расписание, отзывы на клиентов |
+
+**Текущий контекст** хранится в JWT токене (`current_role`), переключение через API.
 
 ---
 
@@ -98,6 +142,36 @@ sealed class AuthState {
 |-------|----------|
 | `AuthState` | Sealed class: Guest / Authenticated с `canWrite` property |
 | `LoginCredentials` | Value object для учётных данных (email, password) |
+| `RegistrationRequest` | Domain model для регистрации с валидацией (email, password, roles, phone, languageCode) |
+| `UserRole` | Enum: CLIENT, PROVIDER - поддержка multi-role системы |
+
+#### UserRole Enum
+
+```kotlin
+enum class UserRole {
+    CLIENT,    // Клиент сервиса
+    PROVIDER,  // Мастер/поставщик услуг
+}
+```
+
+#### RegistrationRequest Model
+
+```kotlin
+data class RegistrationRequest(
+    val email: String,
+    val password: String,
+    val roles: Set<UserRole> = setOf(UserRole.CLIENT),
+    val phone: String? = null,
+    val languageCode: String? = null,
+) {
+    // Validation in init block:
+    // - email: не пустой
+    // - password: минимум Config.passwordMinLength символов
+    // - roles: минимум одна, только CLIENT/PROVIDER
+    // - phone: формат +XXXXXXXXXXX (опционально)
+    // - languageCode: ru, he, en (опционально)
+}
+```
 
 #### Repository Interface
 
@@ -117,8 +191,26 @@ interface AuthRepository {
 | UseCase | Описание | Параметры | Возврат |
 |---------|----------|-----------|---------|
 | `LoginUseCase` | Аутентификация пользователя | LoginCredentials | Result<AuthState> |
+| `RegisterUseCase` | Регистрация нового пользователя | RegistrationRequest | Result<AuthState> |
 | `LogoutUseCase` | Выход в Guest состояние | - | Result<Unit> |
 | `ObserveAuthStateUseCase` | Наблюдение за состоянием | - | StateFlow<AuthState> |
+
+#### RegisterUseCase
+
+```kotlin
+class RegisterUseCase(
+    private val repository: AuthRepository,
+) {
+    suspend operator fun invoke(request: RegistrationRequest): Result<AuthState> {
+        // Business validation:
+        // 1. Email length <= 255
+        // 2. Email format (RFC 5322 simplified)
+        // 3. At least one role
+        // 4. Repository call
+        return repository.register(request)
+    }
+}
+```
 
 ---
 
@@ -136,11 +228,22 @@ data class LoginRequest(
 )
 
 @Serializable
+data class RegisterRequestDto(
+    @SerialName("email") val email: String,
+    @SerialName("password") val password: String,
+    @SerialName("roles") val roles: List<String>,
+    @SerialName("phone") val phone: String? = null,
+    @SerialName("language_code") val languageCode: String? = null,
+)
+
+@Serializable
 data class AuthResponse(
     @SerialName("access_token") val accessToken: String,
     @SerialName("refresh_token") val refreshToken: String,
     @SerialName("expires_in") val expiresIn: Long,
-    @SerialName("token_type") val tokenType: String = "Bearer"
+    @SerialName("token_type") val tokenType: String = "Bearer",
+    @SerialName("user_id") val userId: String? = null,
+    @SerialName("roles") val roles: List<String>? = null,
 )
 
 @Serializable
@@ -256,6 +359,53 @@ data class LoginUiState(
     val generalError: String? = null,
     val isFormValid: Boolean = false
 )
+
+// RegistrationUiState.kt
+data class RegistrationUiState(
+    val email: String = "",
+    val password: String = "",
+    val confirmPassword: String = "",
+    val phone: String = "",
+    val selectedRoles: Set<UserRole> = setOf(UserRole.CLIENT),
+    val languageCode: String? = null,
+    val emailError: String? = null,
+    val passwordError: String? = null,
+    val confirmPasswordError: String? = null,
+    val phoneError: String? = null,
+    val isLoading: Boolean = false,
+    val generalError: String? = null,
+    val isFormValid: Boolean = false,
+    val registrationSuccess: Boolean = false,
+    val navigateToLogin: Boolean = false,
+)
+```
+
+#### Registration Screen
+
+```kotlin
+// RegistrationScreen.kt
+@Composable
+fun RegistrationScreenContent(
+    uiState: RegistrationUiState,
+    onEmailChanged: (String) -> Unit,
+    onPasswordChanged: (String) -> Unit,
+    onConfirmPasswordChanged: (String) -> Unit,
+    onPhoneChanged: (String) -> Unit,
+    onRoleToggled: (UserRole) -> Unit,
+    onRegisterClick: () -> Unit,
+    onClearError: () -> Unit,
+    onNavigateToLogin: () -> Unit,
+    // ...
+) {
+    // Form fields:
+    // - Email input
+    // - Password input (with visibility toggle)
+    // - Confirm password input
+    // - Phone input (optional)
+    // - Role selection (Client/Provider checkboxes)
+    // - Register button
+    // - "Already have account? Login" link
+}
 ```
 
 ---
@@ -343,6 +493,7 @@ val authModule = module {
 
 | Endpoint | Method | Description | Request | Response |
 |----------|--------|-------------|---------|----------|
+| `/auth/register` | POST | Регистрация нового пользователя | RegisterRequestDto | AuthResponse |
 | `/auth/login` | POST | Аутентификация | LoginRequest | AuthResponse |
 | `/auth/refresh` | POST | Обновление токена | refresh_token | RefreshTokenResponse |
 | `/auth/logout` | POST | Выход из системы | - | 204 No Content |
@@ -396,11 +547,14 @@ feature/auth/
     │   ├── domain/
     │   │   ├── model/
     │   │   │   ├── AuthState.kt           # sealed class: Guest, Authenticated
-    │   │   │   └── LoginCredentials.kt
+    │   │   │   ├── LoginCredentials.kt    # value object для login
+    │   │   │   ├── RegistrationRequest.kt # domain model для регистрации
+    │   │   │   └── UserRole.kt            # enum: CLIENT, PROVIDER
     │   │   ├── repository/
-    │   │   │   └── AuthRepository.kt
+    │   │   │   └── AuthRepository.kt      # interface: login, register, logout, refresh
     │   │   └── usecase/
     │   │       ├── LoginUseCase.kt
+    │   │       ├── RegisterUseCase.kt     # регистрация с валидацией
     │   │       ├── LogoutUseCase.kt
     │   │       └── ObserveAuthStateUseCase.kt
     │   │
@@ -408,30 +562,36 @@ feature/auth/
     │   │   ├── dto/
     │   │   │   ├── AuthResponse.kt
     │   │   │   ├── LoginRequest.kt
+    │   │   │   ├── RegisterRequestDto.kt  # DTO для регистрации
     │   │   │   └── RefreshTokenResponse.kt
     │   │   └── repository/
-    │   │       └── AuthRepositoryImpl.kt
+    │   │       └── AuthRepositoryImpl.kt  # login, register, logout, refresh
     │   │
     │   ├── presentation/
     │   │   ├── component/
     │   │   │   └── AuthPromptDialog.kt    # Guest registration prompt
     │   │   ├── model/
-    │   │   │   └── LoginUiState.kt
+    │   │   │   ├── LoginUiState.kt
+    │   │   │   └── RegistrationUiState.kt # UDF state для регистрации
     │   │   ├── screenmodel/
-    │   │   │   └── LoginScreenModel.kt
+    │   │   │   ├── LoginScreenModel.kt
+    │   │   │   └── RegistrationScreenModel.kt
     │   │   └── screen/
-    │   │       └── LoginScreen.kt
+    │   │       ├── LoginScreen.kt
+    │   │       └── RegistrationScreen.kt  # Compose UI регистрации
     │   │
     │   └── di/
-    │       └── AuthModule.kt
+    │       └── AuthModule.kt              # Koin: repository, useCases, screenModels
     │
     └── commonTest/kotlin/com/aggregateservice/feature/auth/
         ├── domain/
         │   ├── model/
         │   │   ├── AuthStateTest.kt       # Tests for Guest/Authenticated states
-        │   │   └── LoginCredentialsTest.kt
+        │   │   ├── LoginCredentialsTest.kt
+        │   │   └── RegistrationRequestTest.kt  # Tests для валидации регистрации
         │   └── usecase/
         │       ├── LoginUseCaseTest.kt
+        │       ├── RegisterUseCaseTest.kt # Tests для регистрации
         │       ├── LogoutUseCaseTest.kt
         │       └── ObserveAuthStateUseCaseTest.kt
         ├── data/
@@ -440,7 +600,8 @@ feature/auth/
         │       └── AuthRepositoryErrorHandlingTest.kt
         └── presentation/
             └── screenmodel/
-                └── LoginScreenModelTest.kt
+                ├── LoginScreenModelTest.kt
+                └── RegistrationScreenModelTest.kt
 
 core/navigation/
 └── src/commonMain/kotlin/
@@ -466,42 +627,48 @@ Auth Feature зависит от следующих core модулей:
 
 ## 🧪 Testing
 
-### Unit Tests (79 tests)
+### Unit Tests (100+ tests)
 
 | Test | Описание | Coverage |
 |------|----------|----------|
 | `AuthStateTest` | Тестирование Guest/Authenticated states | 12 tests |
 | `LoginCredentialsTest` | Value object validation | 14 tests |
+| `RegistrationRequestTest` | Валидация RegistrationRequest | 10 tests |
 | `LoginUseCaseTest` | UseCase с валидацией | 9 tests |
+| `RegisterUseCaseTest` | UseCase для регистрации | 8 tests |
 | `LogoutUseCaseTest` | Logout → Guest transition | 5 tests |
 | `ObserveAuthStateUseCaseTest` | StateFlow observation | 6 tests |
 | `AuthRepositoryImplTest` | Repository implementation | 3 tests |
 | `AuthRepositoryErrorHandlingTest` | Error scenarios | 15 tests |
 | `LoginScreenModelTest` | ScreenModel state management | 14 tests |
+| `RegistrationScreenModelTest` | ScreenModel для регистрации | 12 tests |
 
-### Test Example: AuthState
+### Test Example: RegistrationRequest Validation
 
 ```kotlin
 @Test
-fun `Guest state should not be authenticated`() {
-    val state = AuthState.Guest
+fun `RegistrationRequest should validate roles`() {
+    // Given
+    val validRequest = RegistrationRequest(
+        email = "test@example.com",
+        password = "password123",
+        roles = setOf(UserRole.CLIENT, UserRole.PROVIDER),
+    )
 
-    assertFalse(state.isAuthenticated)
-    assertFalse(state.canWrite)
-    assertNull(state.userId)
+    // Then
+    assertTrue(validRequest.roles.contains(UserRole.CLIENT))
+    assertTrue(validRequest.roles.contains(UserRole.PROVIDER))
 }
 
 @Test
-fun `Authenticated state should have write access`() {
-    val state = AuthState.Authenticated(
-        accessToken = "token",
-        userId = "user_123",
-        userEmail = "user@example.com"
-    )
-
-    assertTrue(state.isAuthenticated)
-    assertTrue(state.canWrite)
-    assertEquals("user_123", state.userId)
+fun `RegistrationRequest should reject empty roles`() {
+    assertThrows<IllegalArgumentException> {
+        RegistrationRequest(
+            email = "test@example.com",
+            password = "password123",
+            roles = emptySet(),
+        )
+    }
 }
 ```
 
@@ -516,6 +683,6 @@ fun `Authenticated state should have write access`() {
 
 ---
 
-**Версия документа**: 2.0
-**Last Updated**: 2026-03-21
+**Версия документа**: 2.1
+**Last Updated**: 2026-03-25
 **Maintainer**: Development Team

@@ -1,7 +1,7 @@
 # UI Components Plan - Aggregate Service Mobile
 
 **Дата создания**: 2026-03-24
-**Версия**: 1.0
+**Версия**: 1.1
 **Приоритет**: HIGH
 **Зависимости**: core:theme (AppColors, Spacing, Dimensions, Typography)
 
@@ -14,7 +14,7 @@
 | Категория | Файлы | Компоненты | Статус |
 |-----------|-------|------------|--------|
 | **Theme** | 5 | AppColors, Spacing, Dimensions, Typography, Theme | ✅ Complete |
-| **Foundation Components** | 0 | - | ❌ Missing |
+| **Foundation Components** | 5 | AppButton, AppTextField, AppPasswordField, AppSearchField, AppCheckbox | ✅ Complete |
 | **Navigation Components** | 0 | - | ❌ Missing |
 | **Feedback Components** | 0 | - | ❌ Missing |
 | **Feature Components** | 0 | - | ❌ Missing |
@@ -137,11 +137,12 @@ core/ui/
 
 ---
 
-## 📋 Phase 1: Foundation Components (Atoms)
+## 📋 Phase 1: Foundation Components (Atoms) ✅ COMPLETE
 
-### 1.1 AppButton
+### 1.1 AppButton ✅ IMPLEMENTED
 
 **Файл:** `foundation/button/AppButton.kt`
+**Статус:** ✅ Complete (2026-03-24)
 
 **API Design:**
 
@@ -214,9 +215,10 @@ enum class ButtonSize {
 
 ---
 
-### 1.2 AppTextField
+### 1.2 AppTextField ✅ IMPLEMENTED
 
 **Файл:** `foundation/input/AppTextField.kt`
+**Статус:** ✅ Complete (2026-03-24)
 
 **API Design:**
 
@@ -270,9 +272,10 @@ fun AppTextField(
 
 ---
 
-### 1.3 AppPasswordField
+### 1.3 AppPasswordField ✅ IMPLEMENTED
 
 **Файл:** `foundation/input/AppPasswordField.kt`
+**Статус:** ✅ Complete (2026-03-24)
 
 **API Design:**
 
@@ -315,9 +318,10 @@ fun AppPasswordField(
 
 ---
 
-### 1.4 AppSearchField
+### 1.4 AppSearchField ✅ IMPLEMENTED
 
 **Файл:** `foundation/input/AppSearchField.kt`
+**Статус:** ✅ Complete (2026-03-24)
 
 **API Design:**
 
@@ -362,9 +366,10 @@ fun AppSearchField(
 
 ---
 
-### 1.5 AppCheckbox
+### 1.5 AppCheckbox ✅ IMPLEMENTED
 
 **Файл:** `foundation/selection/AppCheckbox.kt`
+**Статус:** ✅ Complete (2026-03-24)
 
 **API Design:**
 
