@@ -168,13 +168,13 @@ loginUseCase(credentials).fold(
 @OptIn(ExperimentalCoroutinesApi::class)
 class LoginScreenModelTest {
     private val testDispatcher = StandardTestDispatcher()
-    
+
     @BeforeTest
     fun setup() { Dispatchers.setMain(testDispatcher) }
-    
+
     @AfterTest
     fun tearDown() { Dispatchers.resetMain() }
-    
+
     @Test
     fun `initial state is empty`() = runTest { /* ... */ }
 }
@@ -206,3 +206,5 @@ implementation(compose.runtime)
 2. `./gradlew detektAll`
 3. `./gradlew testAll`
 4. Verify JVM 21 target in all modules
+
+# Языки общения: Русский / English !
