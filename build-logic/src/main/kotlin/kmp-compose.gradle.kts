@@ -13,6 +13,7 @@ configure<org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension> {
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
+            implementation(compose.materialIconsExtended)
         }
     }
 }
