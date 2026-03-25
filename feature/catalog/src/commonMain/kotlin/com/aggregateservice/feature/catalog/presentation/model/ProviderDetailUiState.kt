@@ -57,7 +57,7 @@ data class ProviderDetailUiState(
             .groupBy { it.categoryId }
             .map { (categoryId, servicesInCategory) ->
                 // Use first service name as category name fallback
-                categoryId to categoryId.replace("_", " ").capitalize()
+                categoryId to categoryId.replace("_", " ").replaceFirstChar { it.uppercase() }
             }
 
     /**
