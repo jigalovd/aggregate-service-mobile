@@ -20,6 +20,9 @@ kotlin {
             // Koin Compose for koinInject() in @Composable functions
             implementation(libs.koin.compose)
 
+            // i18n for localized strings
+            implementation(project(":core:i18n"))
+
             // Auth state access via core:navigation abstraction (not direct feature:auth dependency)
             // AuthStateProvider is implemented by feature:auth and injected via Koin
         }

@@ -14,6 +14,12 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.kotlinx.datetime)
 
+            // Koin Compose for koinInject() in @Composable functions
+            implementation(libs.koin.compose)
+
+            // i18n for localized strings
+            implementation(project(":core:i18n"))
+
             // NOTE: feature:booking is isolated from feature:catalog
             // See docs/architecture/FEATURE_ISOLATION.md for details
         }

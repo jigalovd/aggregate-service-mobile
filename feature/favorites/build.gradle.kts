@@ -15,6 +15,12 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor3)
+
+            // Koin Compose for koinInject() in @Composable functions
+            implementation(libs.koin.compose)
+
+            // i18n for localized strings
+            implementation(project(":core:i18n"))
         }
 
         maybeCreate("androidMain").dependencies {
