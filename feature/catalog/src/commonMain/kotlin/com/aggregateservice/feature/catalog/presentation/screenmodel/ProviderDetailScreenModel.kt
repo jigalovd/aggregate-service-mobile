@@ -2,7 +2,6 @@ package com.aggregateservice.feature.catalog.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.aggregateservice.core.network.AppError
 import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.catalog.domain.usecase.GetProviderDetailsUseCase
 import com.aggregateservice.feature.catalog.domain.usecase.GetProviderServicesUseCase
@@ -72,7 +71,7 @@ class ProviderDetailScreenModel(
                             provider = provider,
                             isLoading = false,
                             error = null,
-                            isFavorite = false, // TODO: Check favorite status
+                            isFavorite = false, // TODO: Implement favorite status check via GetFavoriteStatusUseCase
                         )
                     },
                     onFailure = { error ->
@@ -99,12 +98,11 @@ class ProviderDetailScreenModel(
                             isLoadingServices = false,
                         )
                     },
-                    onFailure = { error ->
-                        // Ошибка загрузки услуг не критична - сохраняем state, но логируем
+                    onFailure = { _ ->
+                        // Ошибка загрузки услуг не критична - UI отобразит пустой список услуг
                         _uiState.value = _uiState.value.copy(
                             isLoadingServices = false,
                         )
-                        println("Failed to load provider services: ${error.message}")
                     },
                 )
         }
@@ -134,7 +132,7 @@ class ProviderDetailScreenModel(
     fun onFavoriteToggle() {
         val currentState = _uiState.value
 
-        // TODO: Implement with AddToFavoritesUseCase / RemoveFromFavoritesUseCase
+        // TODO: Replace with AddToFavoritesUseCase / RemoveFromFavoritesUseCase when available
         // For now, just toggle the local state
         _uiState.value = currentState.copy(
             isFavorite = !currentState.isFavorite,

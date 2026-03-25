@@ -2,7 +2,6 @@ package com.aggregateservice.feature.catalog.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.aggregateservice.core.network.AppError
 import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
@@ -67,9 +66,8 @@ class CatalogScreenModel(
                             categories = categories,
                         )
                     },
-                    onFailure = { error ->
-                        // Ошибка загрузки категорий не критична - просто логируем
-                        println("Failed to load categories: ${error.message}")
+                    onFailure = { _ ->
+                        // Ошибка загрузки категорий не критична - UI отобразит пустой список
                     },
                 )
         }
