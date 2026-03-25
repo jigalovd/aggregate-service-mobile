@@ -41,7 +41,7 @@ subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
     extensions.configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-        ignoreFailures.set(true)
+        ignoreFailures.set(false)
         filter {
             exclude("**/generated/**")
             exclude("**/build/**")
@@ -52,13 +52,6 @@ subprojects {
     extensions.configure<io.gitlab.arturbosch.detekt.extensions.DetektExtension> {
         config.setFrom(files(rootProject.file("config/quality/detekt.yml")))
         buildUponDefaultConfig = true
-    }
-
-    tasks.matching { it.name.matches(Regex("ktlint.+SourceSetCheck")) }.configureEach {
-        enabled = false
-    }
-    tasks.matching { it.name.matches(Regex("runKtlintCheckOver.+SourceSet")) }.configureEach {
-        enabled = false
     }
 }
 
