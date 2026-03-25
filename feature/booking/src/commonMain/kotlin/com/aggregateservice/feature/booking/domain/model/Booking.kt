@@ -1,5 +1,6 @@
 package com.aggregateservice.feature.booking.domain.model
 
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
 /**
@@ -58,7 +59,7 @@ data class Booking(
      * Является ли бронирование прошедшим (время окончания прошло).
      */
     val isPast: Boolean
-        get() = endTime < Instant.fromEpochMilliseconds(System.currentTimeMillis())
+        get() = endTime < Clock.System.now()
 
     /**
      * Можно ли отменить бронирование.
@@ -70,7 +71,7 @@ data class Booking(
             if (!status.isCancellable || isPast) return false
 
             // US-3.5: Проверка 2-часового окна
-            val now = Instant.fromEpochMilliseconds(System.currentTimeMillis())
+            val now = Clock.System.now()
             val minCancelTime = Instant.fromEpochMilliseconds(
                 startTime.toEpochMilliseconds() - CANCEL_WINDOW_HOURS * 60 * 60 * 1000,
             )
@@ -86,7 +87,7 @@ data class Booking(
             if (!status.isReschedulable || isPast) return false
 
             // US-3.11: Проверка 2-часового окна
-            val now = Instant.fromEpochMilliseconds(System.currentTimeMillis())
+            val now = Clock.System.now()
             val minRescheduleTime = Instant.fromEpochMilliseconds(
                 startTime.toEpochMilliseconds() - RESCHEDULE_WINDOW_HOURS * 60 * 60 * 1000,
             )

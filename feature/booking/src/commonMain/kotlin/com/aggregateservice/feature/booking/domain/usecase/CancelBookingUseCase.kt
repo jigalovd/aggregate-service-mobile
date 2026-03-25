@@ -3,6 +3,7 @@ package com.aggregateservice.feature.booking.domain.usecase
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.booking.domain.model.Booking
 import com.aggregateservice.feature.booking.domain.repository.BookingRepository
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
 /**
@@ -52,7 +53,7 @@ class CancelBookingUseCase(
         }
 
         // Validation: 2-hour window before start time (US-3.5)
-        val now = Instant.fromEpochMilliseconds(System.currentTimeMillis())
+        val now = Clock.System.now()
         val minCancelTime = Instant.fromEpochMilliseconds(
             booking.startTime.toEpochMilliseconds() - CANCEL_WINDOW_HOURS * 60 * 60 * 1000,
         )
