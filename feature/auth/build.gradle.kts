@@ -11,6 +11,7 @@ kotlin {
         maybeCreate("commonMain").dependencies {
             // Core modules
             implementation(project(":core:navigation"))
+            implementation(project(":core:i18n"))
 
             // Network (для Repository)
             implementation(libs.ktor.client.core)
@@ -19,6 +20,7 @@ kotlin {
 
             // DI
             implementation(libs.koin.core)
+            implementation(libs.koin.compose)
 
             // Navigation
             implementation(libs.voyager.navigator)

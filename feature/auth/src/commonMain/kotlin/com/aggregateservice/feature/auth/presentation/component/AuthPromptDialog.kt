@@ -6,7 +6,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.core.navigation.AuthPromptTrigger
+import org.koin.compose.koinInject
 
 /**
  * Soft registration prompt dialog.
@@ -37,6 +40,7 @@ import com.aggregateservice.core.navigation.AuthPromptTrigger
  */
 @Composable
 fun AuthPromptDialog(
+    i18nProvider: I18nProvider,
     trigger: AuthPromptTrigger,
     onDismiss: () -> Unit,
     onRegister: () -> Unit,
@@ -44,15 +48,15 @@ fun AuthPromptDialog(
     modifier: Modifier = Modifier,
 ) {
     val title = when (trigger) {
-        AuthPromptTrigger.Booking -> "Book this service?"
-        AuthPromptTrigger.Review -> "Share your experience?"
-        AuthPromptTrigger.Favorites -> "Save for later?"
+        AuthPromptTrigger.Booking -> i18nProvider[StringKey.GuestPrompt.BOOKING_TITLE]
+        AuthPromptTrigger.Review -> i18nProvider[StringKey.GuestPrompt.REVIEW_TITLE]
+        AuthPromptTrigger.Favorites -> i18nProvider[StringKey.GuestPrompt.FAVORITES_TITLE]
     }
 
     val message = when (trigger) {
-        AuthPromptTrigger.Booking -> "Create an account to book appointments and manage your schedule."
-        AuthPromptTrigger.Review -> "Register to leave reviews and help others find great services."
-        AuthPromptTrigger.Favorites -> "Sign in to save your favorite providers and access them anytime."
+        AuthPromptTrigger.Booking -> i18nProvider[StringKey.GuestPrompt.BOOKING_MESSAGE]
+        AuthPromptTrigger.Review -> i18nProvider[StringKey.GuestPrompt.REVIEW_MESSAGE]
+        AuthPromptTrigger.Favorites -> i18nProvider[StringKey.GuestPrompt.FAVORITES_MESSAGE]
     }
 
     AlertDialog(
@@ -62,12 +66,12 @@ fun AuthPromptDialog(
         text = { Text(message) },
         confirmButton = {
             Button(onClick = onRegister) {
-                Text("Create Account")
+                Text(i18nProvider[StringKey.GuestPrompt.CREATE_ACCOUNT])
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Maybe Later")
+                Text(i18nProvider[StringKey.GuestPrompt.MAYBE_LATER])
             }
         },
     )
@@ -78,7 +82,9 @@ fun AuthPromptDialog(
  */
 @Composable
 fun AuthPromptDialogPreview() {
+    val i18nProvider: I18nProvider = koinInject()
     AuthPromptDialog(
+        i18nProvider = i18nProvider,
         trigger = AuthPromptTrigger.Booking,
         onDismiss = {},
         onRegister = {},

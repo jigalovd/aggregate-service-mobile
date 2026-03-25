@@ -38,10 +38,13 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.auth.domain.model.UserRole
 import com.aggregateservice.feature.auth.presentation.model.RegistrationUiState
 import com.aggregateservice.feature.auth.presentation.screenmodel.RegistrationScreenModel
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 /**
  * Composable Screen для экрана регистрации (Presentation слой).
@@ -74,8 +77,10 @@ class RegistrationScreen : Screen {
         val screenModel = koinScreenModel<RegistrationScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
         val navigator = LocalNavigator.current
+        val i18nProvider: I18nProvider = koinInject()
 
         RegistrationScreenContent(
+            i18nProvider = i18nProvider,
             uiState = uiState,
             onEmailChanged = screenModel::onEmailChanged,
             onPasswordChanged = screenModel::onPasswordChanged,
@@ -101,6 +106,7 @@ class RegistrationScreen : Screen {
 @Suppress("LongParameterList", "LongMethod")
 @Composable
 fun RegistrationScreenContent(
+    i18nProvider: I18nProvider,
     uiState: RegistrationUiState,
     onEmailChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
@@ -145,7 +151,7 @@ fun RegistrationScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Регистрация") },
+                title = { Text(i18nProvider[StringKey.Auth.SIGN_UP]) },
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -164,7 +170,7 @@ fun RegistrationScreenContent(
             OutlinedTextField(
                 value = uiState.email,
                 onValueChange = onEmailChanged,
-                label = { Text("Email *") },
+                label = { Text(i18nProvider[StringKey.Auth.EMAIL]) },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
@@ -179,7 +185,7 @@ fun RegistrationScreenContent(
             OutlinedTextField(
                 value = uiState.password,
                 onValueChange = onPasswordChanged,
-                label = { Text("Пароль *") },
+                label = { Text(i18nProvider[StringKey.Auth.PASSWORD]) },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
@@ -195,7 +201,7 @@ fun RegistrationScreenContent(
             OutlinedTextField(
                 value = uiState.confirmPassword,
                 onValueChange = onConfirmPasswordChanged,
-                label = { Text("Подтвердите пароль *") },
+                label = { Text(i18nProvider[StringKey.Auth.CONFIRM_PASSWORD]) },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
@@ -211,7 +217,7 @@ fun RegistrationScreenContent(
             OutlinedTextField(
                 value = uiState.phone,
                 onValueChange = onPhoneChanged,
-                label = { Text("Телефон (опционально)") },
+                label = { Text(i18nProvider[StringKey.Auth.PHONE]) },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Phone,
@@ -226,7 +232,7 @@ fun RegistrationScreenContent(
 
             // Role selection
             Text(
-                text = "Выберите роль:",
+                text = i18nProvider[StringKey.Auth.SELECT_ROLE],
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -242,7 +248,7 @@ fun RegistrationScreenContent(
                     enabled = !uiState.isLoading,
                 )
                 Text(
-                    text = "Клиент (записываться к мастерам)",
+                    text = i18nProvider[StringKey.Auth.CLIENT_ROLE],
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
@@ -258,7 +264,7 @@ fun RegistrationScreenContent(
                     enabled = !uiState.isLoading,
                 )
                 Text(
-                    text = "Мастер (предоставлять услуги)",
+                    text = i18nProvider[StringKey.Auth.PROVIDER_ROLE],
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
@@ -277,7 +283,7 @@ fun RegistrationScreenContent(
                         color = MaterialTheme.colorScheme.onPrimary,
                     )
                 } else {
-                    Text("Зарегистрироваться")
+                    Text(i18nProvider[StringKey.Auth.SIGN_UP])
                 }
             }
 
@@ -288,7 +294,7 @@ fun RegistrationScreenContent(
                 onClick = onNavigateToLogin,
                 enabled = !uiState.isLoading,
             ) {
-                Text("Уже есть аккаунт? Войти")
+                Text("${i18nProvider[StringKey.Onboarding.ALREADY_HAVE_ACCOUNT]} ${i18nProvider[StringKey.Onboarding.SIGN_IN]}")
             }
         }
     }

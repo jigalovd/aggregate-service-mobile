@@ -9,6 +9,7 @@ import com.aggregateservice.feature.auth.data.dto.AuthResponse
 import com.aggregateservice.feature.auth.data.dto.LoginRequest
 import com.aggregateservice.feature.auth.data.dto.RefreshTokenResponse
 import com.aggregateservice.feature.auth.data.dto.RegisterRequestDto
+import com.aggregateservice.feature.auth.data.dto.UserResponseDto
 import com.aggregateservice.feature.auth.data.dto.toDto
 import com.aggregateservice.feature.auth.domain.model.AuthState
 import com.aggregateservice.feature.auth.domain.model.LoginCredentials
@@ -16,6 +17,7 @@ import com.aggregateservice.feature.auth.domain.model.RegistrationRequest
 import com.aggregateservice.feature.auth.domain.repository.AuthRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -81,13 +83,27 @@ class AuthRepositoryImpl(
         // Загружаем сохраненный токен
         val savedToken = tokenStorage.getAccessTokenSync()
         if (!savedToken.isNullOrBlank()) {
-            // Токен есть, но нам также нужна информация о пользователе
-            // Для сейчас просто устанавливаем Authenticated без email
-            // В реальном приложении можно сделать вызов /auth/me для получения email
-            _authState.value = AuthState.Authenticated(
-                accessToken = savedToken,
-                userId = "restored", // Placeholder userId for restored sessions
-                userEmail = null, // Email not stored, will need UI to fetch
+            // Токен есть - запрашиваем информацию о пользователе
+            val userResponse = safeApiCall<UserResponseDto> {
+                httpClient.get("/api/v1/auth/me") {
+                    contentType(ContentType.Application.Json)
+                }
+            }
+
+            userResponse.fold(
+                onSuccess = { user ->
+                    _authState.value = AuthState.Authenticated(
+                        accessToken = savedToken,
+                        userId = user.id,
+                        userEmail = user.email,
+                    )
+                },
+                onFailure = {
+                    // Токен может быть невалидным/просроченным
+                    // Очищаем и оставляем Guest
+                    tokenStorage.clearTokens()
+                    _authState.value = AuthState.Guest
+                }
             )
         }
     }

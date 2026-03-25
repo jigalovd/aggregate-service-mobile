@@ -34,9 +34,12 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.auth.presentation.model.LoginUiState
 import com.aggregateservice.feature.auth.presentation.screenmodel.LoginScreenModel
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 /**
  * Composable Screen для экрана логина (Presentation слой).
@@ -69,8 +72,10 @@ class LoginScreen : Screen {
         val screenModel = koinScreenModel<LoginScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
         val navigator = LocalNavigator.current
+        val i18nProvider: I18nProvider = koinInject()
 
         LoginScreenContent(
+            i18nProvider = i18nProvider,
             uiState = uiState,
             onEmailChanged = screenModel::onEmailChanged,
             onPasswordChanged = screenModel::onPasswordChanged,
@@ -87,6 +92,7 @@ class LoginScreen : Screen {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreenContent(
+    i18nProvider: I18nProvider,
     uiState: LoginUiState,
     onEmailChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
@@ -117,7 +123,7 @@ fun LoginScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Вход") },
+                title = { Text(i18nProvider[StringKey.Auth.LOGIN]) },
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -134,7 +140,7 @@ fun LoginScreenContent(
             OutlinedTextField(
                 value = uiState.email,
                 onValueChange = onEmailChanged,
-                label = { Text("Email") },
+                label = { Text(i18nProvider[StringKey.Auth.EMAIL]) },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
@@ -149,7 +155,7 @@ fun LoginScreenContent(
             OutlinedTextField(
                 value = uiState.password,
                 onValueChange = onPasswordChanged,
-                label = { Text("Пароль") },
+                label = { Text(i18nProvider[StringKey.Auth.PASSWORD]) },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
@@ -173,7 +179,7 @@ fun LoginScreenContent(
                         color = MaterialTheme.colorScheme.onPrimary,
                     )
                 } else {
-                    Text("Войти")
+                    Text(i18nProvider[StringKey.Auth.LOGIN])
                 }
             }
 
@@ -185,7 +191,7 @@ fun LoginScreenContent(
                 onClick = { /* No-op: Forgot password feature pending */ },
                 enabled = !uiState.isLoading,
             ) {
-                Text("Забыли пароль?")
+                Text(i18nProvider[StringKey.Auth.FORGOT_PASSWORD])
             }
         }
     }
