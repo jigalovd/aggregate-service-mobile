@@ -31,6 +31,13 @@ data class LoginUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val isLoginSuccess: Boolean = false,
+
+    // Firebase Auth
+    val linkAccount: LinkAccountState = LinkAccountState(),
+    val isFirebaseLoading: Boolean = false,
+
+    // Phone Auth
+    val phoneAuth: PhoneAuthState = PhoneAuthState(),
 ) {
     /**
      * Проверяет, можно ли выполнить вход.
@@ -54,3 +61,43 @@ data class LoginUiState(
     fun hasValidationErrors(): Boolean =
         emailError != null || passwordError != null
 }
+
+/**
+ * Phone authentication state.
+ *
+ * @property isInPhoneMode Whether phone input is active
+ * @property phoneNumber Current phone input
+ * @property countryCode Country code (e.g., "+7", "+1")
+ * @property verificationId Firebase verification ID after SMS sent
+ * @property verificationCode User input verification code
+ * @property isWaitingForCode Whether SMS has been sent and awaiting code
+ * @property isResendAvailable Whether resend button is active
+ * @property resendCountdown Seconds until resend available
+ */
+@Stable
+data class PhoneAuthState(
+    val isInPhoneMode: Boolean = false,
+    val phoneNumber: String = "",
+    val countryCode: String = "+7",
+    val verificationId: String? = null,
+    val verificationCode: String = "",
+    val isWaitingForCode: Boolean = false,
+    val isResendAvailable: Boolean = false,
+    val resendCountdown: Int = 0,
+)
+
+/**
+ * Account linking state from Firebase response.
+ *
+ * @property email Email requiring linking
+ * @property firebaseUid Firebase UID to link
+ * @property authProvider Firebase auth provider
+ * @property showDialog Whether to show linking dialog
+ */
+@Stable
+data class LinkAccountState(
+    val email: String = "",
+    val firebaseUid: String = "",
+    val authProvider: String = "",
+    val showDialog: Boolean = false,
+)
