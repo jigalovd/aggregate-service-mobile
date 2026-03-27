@@ -2,6 +2,7 @@ package com.aggregateservice.feature.auth.presentation.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +12,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -23,8 +25,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -36,10 +40,14 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
+import com.aggregateservice.feature.auth.domain.repository.AuthRepository
+import com.aggregateservice.feature.auth.presentation.component.LinkAccountDialog
+import com.aggregateservice.feature.auth.presentation.model.LinkAccountState
 import com.aggregateservice.feature.auth.presentation.model.LoginUiState
 import com.aggregateservice.feature.auth.presentation.screenmodel.LoginScreenModel
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import org.koin.core.parameter.parametersOf
 
 /**
  * Composable Screen для экрана логина (Presentation слой).
@@ -69,7 +77,8 @@ class LoginScreen : Screen {
 
     @Composable
     override fun Content() {
-        val screenModel = koinScreenModel<LoginScreenModel>()
+        val authRepository: AuthRepository = koinInject()
+        val screenModel = koinScreenModel<LoginScreenModel> { parametersOf(authRepository) }
         val uiState by screenModel.uiState.collectAsState()
         val navigator = LocalNavigator.current
         val i18nProvider: I18nProvider = koinInject()
@@ -85,6 +94,18 @@ class LoginScreen : Screen {
                 // Navigate to main screen
                 // navigator.push(MainScreen())
             },
+            // Firebase handlers
+            onGoogleSignIn = screenModel::onGoogleSignIn,
+            onAppleSignIn = screenModel::onAppleSignIn,
+            onPhoneModeToggle = screenModel::onPhoneModeToggle,
+            onPhoneNumberChanged = screenModel::onPhoneNumberChanged,
+            onCountryCodeChanged = screenModel::onCountryCodeChanged,
+            onSendPhoneCode = screenModel::onSendPhoneCode,
+            onVerifyPhoneCode = screenModel::onVerifyPhoneCode,
+            // Link account
+            linkAccountState = uiState.linkAccount,
+            onLinkAccount = screenModel::onLinkAccount,
+            onDismissLinkDialog = screenModel::onDismissLinkDialog,
         )
     }
 }
@@ -99,9 +120,22 @@ fun LoginScreenContent(
     onLoginClick: () -> Unit,
     onClearError: () -> Unit,
     onLoginSuccess: () -> Unit,
+    // Firebase handlers
+    onGoogleSignIn: () -> Unit,
+    onAppleSignIn: () -> Unit,
+    onPhoneModeToggle: () -> Unit,
+    onPhoneNumberChanged: (String) -> Unit,
+    onCountryCodeChanged: (String) -> Unit,
+    onSendPhoneCode: () -> Unit,
+    onVerifyPhoneCode: () -> Unit,
+    // Link account
+    linkAccountState: LinkAccountState,
+    onLinkAccount: (String) -> Unit,
+    onDismissLinkDialog: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    var localPhoneVerificationCode by remember { mutableStateOf("") }
 
     // Show error message in snackbar
     LaunchedEffect(uiState.errorMessage) {
@@ -167,6 +201,141 @@ fun LoginScreenContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Firebase Divider
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                HorizontalDivider(modifier = Modifier.weight(1f))
+                Text(
+                    text = " or ",
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                HorizontalDivider(modifier = Modifier.weight(1f))
+            }
+
+            // Google Sign-In Button
+            Button(
+                onClick = onGoogleSignIn,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading && !uiState.isFirebaseLoading,
+            ) {
+                if (uiState.isFirebaseLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.height(24.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                } else {
+                    Text("Sign in with Google")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Apple Sign-In Button
+            Button(
+                onClick = onAppleSignIn,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading && !uiState.isFirebaseLoading,
+            ) {
+                Text("Sign in with Apple")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Phone Auth Toggle
+            TextButton(
+                onClick = onPhoneModeToggle,
+                enabled = !uiState.isLoading && !uiState.isFirebaseLoading,
+            ) {
+                Text(
+                    if (uiState.phoneAuth.isInPhoneMode) "Hide phone auth"
+                    else "Sign in with phone"
+                )
+            }
+
+            // Phone Auth Section (inline)
+            if (uiState.phoneAuth.isInPhoneMode) {
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Country code + Phone input
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    OutlinedTextField(
+                        value = uiState.phoneAuth.countryCode,
+                        onValueChange = onCountryCodeChanged,
+                        label = { Text("Code") },
+                        modifier = Modifier.weight(0.25f),
+                        singleLine = true,
+                        enabled = !uiState.isFirebaseLoading,
+                    )
+                    OutlinedTextField(
+                        value = uiState.phoneAuth.phoneNumber,
+                        onValueChange = onPhoneNumberChanged,
+                        label = { Text("Phone") },
+                        modifier = Modifier.weight(0.75f),
+                        singleLine = true,
+                        enabled = !uiState.isFirebaseLoading && !uiState.phoneAuth.isWaitingForCode,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                if (!uiState.phoneAuth.isWaitingForCode) {
+                    Button(
+                        onClick = onSendPhoneCode,
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = uiState.phoneAuth.phoneNumber.isNotBlank() && !uiState.isFirebaseLoading,
+                    ) {
+                        Text("Send Code")
+                    }
+                } else {
+                    // Verification code input
+                    OutlinedTextField(
+                        value = localPhoneVerificationCode,
+                        onValueChange = {
+                            localPhoneVerificationCode = it
+                            // Update the state in screen model via a dedicated handler
+                        },
+                        label = { Text("Verification Code") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        enabled = !uiState.isFirebaseLoading,
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        TextButton(
+                            onClick = onSendPhoneCode,
+                            enabled = uiState.phoneAuth.isResendAvailable && !uiState.isFirebaseLoading,
+                        ) {
+                            Text(
+                                if (uiState.phoneAuth.isResendAvailable) "Resend Code"
+                                else "Resend in ${uiState.phoneAuth.resendCountdown}s"
+                            )
+                        }
+
+                        Button(
+                            onClick = onVerifyPhoneCode,
+                            enabled = localPhoneVerificationCode.isNotBlank() && !uiState.isFirebaseLoading,
+                        ) {
+                            Text("Verify")
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             // Login button
             Button(
                 onClick = onLoginClick,
@@ -194,5 +363,16 @@ fun LoginScreenContent(
                 Text(i18nProvider[StringKey.Auth.FORGOT_PASSWORD])
             }
         }
+    }
+
+    // Link Account Dialog
+    if (linkAccountState.showDialog) {
+        LinkAccountDialog(
+            i18nProvider = i18nProvider,
+            email = linkAccountState.email,
+            authProvider = linkAccountState.authProvider,
+            onLink = onLinkAccount,
+            onDismiss = onDismissLinkDialog,
+        )
     }
 }
