@@ -107,6 +107,9 @@ object StringKey {
         const val SELECT_ROLE = "auth_select_role"
         const val CLIENT_ROLE = "auth_client_role"
         const val PROVIDER_ROLE = "auth_provider_role"
+        const val LINK_ACCOUNT_TITLE = "auth_link_account_title"
+        const val LINK_ACCOUNT_MESSAGE = "auth_link_account_message"
+        const val LINK_ACCOUNT = "auth_link_account"
     }
 
     // Navigation

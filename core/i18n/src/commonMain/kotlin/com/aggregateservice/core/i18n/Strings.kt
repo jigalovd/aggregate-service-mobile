@@ -52,6 +52,9 @@ public object DefaultStrings {
         "auth_select_role" to "Select role:",
         "auth_client_role" to "Client (book appointments)",
         "auth_provider_role" to "Provider (offer services)",
+        "auth_link_account_title" to "Link your account",
+        "auth_link_account_message" to "This email is already registered:",
+        "auth_link_account" to "Link Account",
 
         // Navigation
         "nav_home" to "Home",
@@ -219,6 +222,9 @@ public object DefaultStrings {
         "auth_select_role" to "Выберите роль:",
         "auth_client_role" to "Клиент (записываться к мастерам)",
         "auth_provider_role" to "Мастер (предоставлять услуги)",
+        "auth_link_account_title" to "Свяжите ваш аккаунт",
+        "auth_link_account_message" to "Этот email уже зарегистрирован:",
+        "auth_link_account" to "Связать аккаунт",
 
         // Navigation
         "nav_home" to "Главная",
@@ -386,6 +392,9 @@ public object DefaultStrings {
         "auth_select_role" to "בחר תפקיד:",
         "auth_client_role" to "לקוח (לקבוע תורים)",
         "auth_provider_role" to "ספק (להציע שירותים)",
+        "auth_link_account_title" to "קשר את החשבון שלך",
+        "auth_link_account_message" to "כתובת האימייל הזו כבר רשומה:",
+        "auth_link_account" to "קשר חשבון",
 
         // Navigation
         "nav_home" to "בית",
