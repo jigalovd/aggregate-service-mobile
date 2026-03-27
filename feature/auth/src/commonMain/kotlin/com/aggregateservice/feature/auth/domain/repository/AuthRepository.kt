@@ -60,4 +60,25 @@ interface AuthRepository {
      * @return Текущий AuthState
      */
     fun getCurrentAuthState(): AuthState
+
+    /**
+     * Проверяет Firebase токен и выполняет вход через Firebase (Google, Apple, Phone).
+     *
+     * @param authProvider Провайдер Firebase (google, apple, phone)
+     * @param firebaseToken Firebase ID token полученный от Firebase SDK
+     * @return Result с AuthState при успехе (включая случаи когда требуется linking),
+     *         или AppError при ошибке
+     */
+    suspend fun verifyFirebaseToken(authProvider: String, firebaseToken: String): Result<AuthState>
+
+    /**
+     * Связывает Firebase аккаунт с существующим аккаунтом.
+     *
+     * Вызывается после verifyFirebaseToken когда returned Result указывает на необходимость linking.
+     *
+     * @param tempToken Temporary token из FirebaseLinkRequiredResponse
+     * @param password Пароль существующего аккаунта
+     * @return Result с AuthState при успехе, или AppError при ошибке
+     */
+    suspend fun linkFirebaseAccount(tempToken: String, password: String): Result<AuthState>
 }
