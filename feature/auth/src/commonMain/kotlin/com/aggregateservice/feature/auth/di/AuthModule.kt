@@ -39,7 +39,13 @@ val authModule = module {
     factoryOf(::RegisterUseCase)
 
     // ScreenModels
-    factoryOf(::LoginScreenModel)
+    factory { (authRepository: AuthRepository) ->
+        LoginScreenModel(
+            loginUseCase = get(),
+            observeAuthStateUseCase = get(),
+            authRepository = authRepository,
+        )
+    }
     factoryOf(::RegistrationScreenModel)
 
     // AuthStateProvider - abstraction for cross-feature auth access

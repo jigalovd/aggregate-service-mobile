@@ -2,14 +2,19 @@ package com.aggregateservice.feature.auth.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.aggregateservice.core.firebase.FirebaseAuthApi
+import com.aggregateservice.core.firebase.FirebaseAuthApiFactory
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.core.utils.EmailValidator
 import com.aggregateservice.core.utils.PasswordValidator
 import com.aggregateservice.core.utils.ValidationResult
 import com.aggregateservice.feature.auth.domain.model.LoginCredentials
+import com.aggregateservice.feature.auth.domain.repository.AuthRepository
 import com.aggregateservice.feature.auth.domain.usecase.LoginUseCase
 import com.aggregateservice.feature.auth.domain.usecase.ObserveAuthStateUseCase
+import com.aggregateservice.feature.auth.presentation.model.LinkAccountState
 import com.aggregateservice.feature.auth.presentation.model.LoginUiState
+import com.aggregateservice.feature.auth.presentation.model.PhoneAuthState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,10 +36,14 @@ import kotlinx.coroutines.launch
  *
  * @property loginUseCase UseCase для входа
  * @property observeAuthStateUseCase UseCase для наблюдения за auth state
+ * @property authRepository Repository для Firebase операций
+ * @property firebaseAuthApi Firebase Auth API
  */
 class LoginScreenModel(
     private val loginUseCase: LoginUseCase,
     private val observeAuthStateUseCase: ObserveAuthStateUseCase,
+    private val authRepository: AuthRepository,
+    private val firebaseAuthApi: FirebaseAuthApi = FirebaseAuthApiFactory.create(),
 ) : ScreenModel {
 
     // UI State
@@ -148,6 +157,246 @@ class LoginScreenModel(
                 )
         }
     }
+
+    /**
+     * Toggle phone auth mode visibility.
+     */
+    fun onPhoneModeToggle() {
+        _uiState.value = _uiState.value.copy(
+            phoneAuth = _uiState.value.phoneAuth.copy(
+                isInPhoneMode = !_uiState.value.phoneAuth.isInPhoneMode,
+                isWaitingForCode = false,
+                verificationId = null,
+                verificationCode = "",
+                phoneNumber = "",
+            ),
+        )
+    }
+
+    /**
+     * Update phone number input.
+     */
+    fun onPhoneNumberChanged(phone: String) {
+        _uiState.value = _uiState.value.copy(
+            phoneAuth = _uiState.value.phoneAuth.copy(phoneNumber = phone),
+        )
+    }
+
+    /**
+     * Update country code selection.
+     */
+    fun onCountryCodeChanged(countryCode: String) {
+        _uiState.value = _uiState.value.copy(
+            phoneAuth = _uiState.value.phoneAuth.copy(countryCode = countryCode),
+        )
+    }
+
+    /**
+     * Send verification code for phone auth.
+     */
+    fun onSendPhoneCode() {
+        val phone = _uiState.value.phoneAuth
+        if (phone.phoneNumber.isBlank()) return
+
+        val fullPhone = "${phone.countryCode}${phone.phoneNumber}"
+        _uiState.value = _uiState.value.copy(
+            isFirebaseLoading = true,
+            phoneAuth = phone.copy(isWaitingForCode = true),
+        )
+
+        screenModelScope.launch {
+            firebaseAuthApi.signInWithPhoneStart(fullPhone)
+                .fold(
+                    onSuccess = { verificationId ->
+                        _uiState.value = _uiState.value.copy(
+                            isFirebaseLoading = false,
+                            phoneAuth = _uiState.value.phoneAuth.copy(
+                                verificationId = verificationId,
+                                isResendAvailable = false,
+                            ),
+                        )
+                        // Start countdown for resend
+                        startResendCountdown()
+                    },
+                    onFailure = { error ->
+                        _uiState.value = _uiState.value.copy(
+                            isFirebaseLoading = false,
+                            errorMessage = "SMS send failed: ${error.message}",
+                            phoneAuth = _uiState.value.phoneAuth.copy(isWaitingForCode = false),
+                        )
+                    },
+                )
+        }
+    }
+
+    /**
+     * Confirm phone verification code.
+     */
+    fun onVerifyPhoneCode() {
+        val phone = _uiState.value.phoneAuth
+        val verificationId = phone.verificationId ?: return
+        if (phone.verificationCode.isBlank()) return
+
+        _uiState.value = _uiState.value.copy(isFirebaseLoading = true)
+
+        screenModelScope.launch {
+            firebaseAuthApi.confirmPhoneCode(verificationId, phone.verificationCode)
+                .fold(
+                    onSuccess = { token ->
+                        verifyFirebaseWithBackend(token.authProvider, token.idToken)
+                    },
+                    onFailure = { error ->
+                        _uiState.value = _uiState.value.copy(
+                            isFirebaseLoading = false,
+                            errorMessage = "Verification failed: ${error.message}",
+                        )
+                    },
+                )
+        }
+    }
+
+    /**
+     * Handle Google Sign-In.
+     */
+    fun onGoogleSignIn() {
+        _uiState.value = _uiState.value.copy(isFirebaseLoading = true)
+
+        screenModelScope.launch {
+            firebaseAuthApi.signInWithGoogle()
+                .fold(
+                    onSuccess = { token ->
+                        verifyFirebaseWithBackend(token.authProvider, token.idToken)
+                    },
+                    onFailure = { error ->
+                        _uiState.value = _uiState.value.copy(
+                            isFirebaseLoading = false,
+                            errorMessage = "Google sign-in failed: ${error.message}",
+                        )
+                    },
+                )
+        }
+    }
+
+    /**
+     * Handle Apple Sign-In.
+     */
+    fun onAppleSignIn() {
+        _uiState.value = _uiState.value.copy(isFirebaseLoading = true)
+
+        screenModelScope.launch {
+            firebaseAuthApi.signInWithApple()
+                .fold(
+                    onSuccess = { token ->
+                        verifyFirebaseWithBackend(token.authProvider, token.idToken)
+                    },
+                    onFailure = { error ->
+                        _uiState.value = _uiState.value.copy(
+                            isFirebaseLoading = false,
+                            errorMessage = "Apple sign-in failed: ${error.message}",
+                        )
+                    },
+                )
+        }
+    }
+
+    /**
+     * Internal: Verify Firebase token with backend.
+     */
+    private fun verifyFirebaseWithBackend(authProvider: String, firebaseToken: String) {
+        screenModelScope.launch {
+            authRepository.verifyFirebaseToken(authProvider, firebaseToken)
+                .fold(
+                    onSuccess = { authState ->
+                        _uiState.value = _uiState.value.copy(
+                            isFirebaseLoading = false,
+                            isLoginSuccess = true,
+                        )
+                    },
+                    onFailure = { error ->
+                        // Check if link_required
+                        if (error.message?.contains("link_required") == true) {
+                            // Parse link_required response and show dialog
+                            _uiState.value = _uiState.value.copy(
+                                isFirebaseLoading = false,
+                                linkAccount = LinkAccountState(
+                                    email = extractEmailFromError(error),
+                                    firebaseUid = extractFirebaseUidFromError(error),
+                                    authProvider = authProvider,
+                                    showDialog = true,
+                                ),
+                            )
+                        } else {
+                            _uiState.value = _uiState.value.copy(
+                                isFirebaseLoading = false,
+                                errorMessage = error.message ?: "Authentication failed",
+                            )
+                        }
+                    },
+                )
+        }
+    }
+
+    /**
+     * Handle account linking with password.
+     */
+    fun onLinkAccount(password: String) {
+        val linkState = _uiState.value.linkAccount
+
+        screenModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isFirebaseLoading = true,
+                linkAccount = linkState.copy(showDialog = false),
+            )
+
+            // First get fresh Firebase token (stored internally)
+            authRepository.linkFirebaseAccount(linkState.firebaseUid, password)
+                .fold(
+                    onSuccess = {
+                        _uiState.value = _uiState.value.copy(
+                            isFirebaseLoading = false,
+                            isLoginSuccess = true,
+                        )
+                    },
+                    onFailure = { error ->
+                        _uiState.value = _uiState.value.copy(
+                            isFirebaseLoading = false,
+                            errorMessage = if (error.message?.contains("invalid_credentials") == true) {
+                                "Wrong password"
+                            } else {
+                                error.message ?: "Linking failed"
+                            },
+                            linkAccount = linkState.copy(showDialog = true),
+                        )
+                    },
+                )
+        }
+    }
+
+    /**
+     * Dismiss link account dialog.
+     */
+    fun onDismissLinkDialog() {
+        _uiState.value = _uiState.value.copy(
+            linkAccount = _uiState.value.linkAccount.copy(showDialog = false),
+        )
+    }
+
+    private fun startResendCountdown() {
+        screenModelScope.launch {
+            for (i in 60 downTo 0) {
+                _uiState.value = _uiState.value.copy(
+                    phoneAuth = _uiState.value.phoneAuth.copy(
+                        resendCountdown = i,
+                        isResendAvailable = i == 0,
+                    ),
+                )
+                kotlinx.coroutines.delay(1000)
+            }
+        }
+    }
+
+    private fun extractEmailFromError(error: Throwable): String = ""
+    private fun extractFirebaseUidFromError(error: Throwable): String = ""
 
     /**
      * Преобразует AppError в понятное пользователю сообщение.
