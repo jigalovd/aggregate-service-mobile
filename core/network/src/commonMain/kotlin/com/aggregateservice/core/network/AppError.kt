@@ -129,6 +129,22 @@ sealed class AppError(
         val throwable: Throwable? = null,
         override val message: String? = null,
     ) : AppError(message, throwable)
+
+    /**
+     * Требуется связывание Firebase аккаунта с существующим аккаунтом (409 Conflict)
+     *
+     * Возникает при попытке войти через Firebase, когда Firebase аккаунт
+     * не связан с существующим аккаунтом в системе.
+     *
+     * @property tempToken Temporary token для завершения связывания
+     * @property message Сообщение об ошибке
+     *
+     * @see BACKEND_API_REFERENCE.md секция "Firebase Authentication"
+     */
+    data class FirebaseLinkRequired(
+        val tempToken: String,
+        override val message: String,
+    ) : AppError(message)
 }
 
 /**

@@ -6,6 +6,11 @@ import com.aggregateservice.core.network.httpCodeToAppError
 import com.aggregateservice.core.network.safeApiCall
 import com.aggregateservice.core.storage.TokenStorage
 import com.aggregateservice.feature.auth.data.dto.AuthResponse
+import com.aggregateservice.feature.auth.data.dto.FirebaseAlreadyLinkedResponse
+import com.aggregateservice.feature.auth.data.dto.FirebaseLinkRequest
+import com.aggregateservice.feature.auth.data.dto.FirebaseLinkRequiredResponse
+import com.aggregateservice.feature.auth.data.dto.FirebaseVerifyRequest
+import com.aggregateservice.feature.auth.data.dto.FirebaseVerifyResponse
 import com.aggregateservice.feature.auth.data.dto.LoginRequest
 import com.aggregateservice.feature.auth.data.dto.RefreshTokenResponse
 import com.aggregateservice.feature.auth.data.dto.RegisterRequestDto
@@ -234,4 +239,116 @@ class AuthRepositoryImpl(
 
     override fun getCurrentAuthState(): AuthState =
         _authState.value
+
+    override suspend fun verifyFirebaseToken(
+        authProvider: String,
+        firebaseToken: String,
+    ): Result<AuthState> {
+        // 1. Маппим Domain модель → DTO
+        val verifyRequest = FirebaseVerifyRequest(
+            authProvider = authProvider,
+            firebaseToken = firebaseToken,
+        )
+
+        // 2. Проверяем какой тип ответа пришел - FirebaseAlreadyLinkedResponse или FirebaseLinkRequiredResponse
+        // Используем generic safeApiCall с десериализацией в Union тип
+        val response = safeApiCall<FirebaseVerifyResponse> {
+            httpClient.post("auth/firebase/verify") {
+                contentType(ContentType.Application.Json)
+                setBody(verifyRequest)
+            }
+        }
+
+        // 3. Обрабатываем ответ
+        return response.fold(
+            onSuccess = { firebaseResponse ->
+                when (firebaseResponse) {
+                    is FirebaseAlreadyLinkedResponse -> {
+                        // Firebase аккаунт уже связан - получаем access token
+                        val newToken = firebaseResponse.accessToken
+
+                        // 4. Сохраняем токен
+                        tokenStorage.saveAccessToken(newToken)
+
+                        // 5. Маппим в AuthState.Authenticated
+                        // Note: userId и userEmail暂时从他处获取, пока API не вернёт
+                        val newState = AuthState.Authenticated(
+                            accessToken = newToken,
+                            userId = "", // TODO: API должен вернуть userId
+                            userEmail = null,
+                        )
+
+                        // 6. Обновляем состояние
+                        _authState.value = newState
+
+                        Result.success(newState)
+                    }
+
+                    is FirebaseLinkRequiredResponse -> {
+                        // Требуется связывание аккаунта
+                        // Возвращаем ошибку с tempToken для UI
+                        Result.failure(
+                            AppError.FirebaseLinkRequired(
+                                tempToken = firebaseResponse.tempToken,
+                                message = firebaseResponse.message,
+                            ),
+                        )
+                    }
+                }
+            },
+            onFailure = { error ->
+                when (error) {
+                    is AppError -> Result.failure(error)
+                    else -> Result.failure(AppError.UnknownError(error))
+                }
+            }
+        )
+    }
+
+    override suspend fun linkFirebaseAccount(
+        tempToken: String,
+        password: String,
+    ): Result<AuthState> {
+        // 1. Маппим в DTO
+        val linkRequest = FirebaseLinkRequest(
+            tempToken = tempToken,
+            password = password,
+        )
+
+        // 2. Выполняем API вызов
+        val response = safeApiCall<AuthResponse> {
+            httpClient.post("auth/firebase/link") {
+                contentType(ContentType.Application.Json)
+                setBody(linkRequest)
+            }
+        }
+
+        // 3. Обрабатываем ответ
+        return response.fold(
+            onSuccess = { authResponse ->
+                val newToken = authResponse.accessToken
+
+                // 4. Сохраняем токен
+                tokenStorage.saveAccessToken(newToken)
+
+                // 5. Маппим в AuthState
+                val newState = AuthState.Authenticated(
+                    accessToken = newToken,
+                    userId = "", // TODO: API должен вернуть userId
+                    userEmail = null,
+                )
+
+                // 6. Обновляем состояние
+                _authState.value = newState
+
+                Result.success(newState)
+            },
+            onFailure = { error ->
+                when (error) {
+                    is AppError -> Result.failure(error)
+                    else -> Result.failure(AppError.UnknownError(error))
+                }
+            }
+        )
+    }
 }

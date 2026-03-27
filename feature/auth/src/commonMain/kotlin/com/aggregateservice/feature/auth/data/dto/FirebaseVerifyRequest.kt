@@ -24,6 +24,14 @@ data class FirebaseVerifyRequest(
 )
 
 /**
+ * Sealed interface для polymorphic deserialization Firebase verify responses.
+ *
+ * Backend возвращает либо FirebaseAlreadyLinkedResponse либо FirebaseLinkRequiredResponse.
+ */
+@Serializable
+sealed interface FirebaseVerifyResponse
+
+/**
  * DTO для ответа when Firebase token is valid but account linking is required.
  *
  * This response indicates that the Firebase credential is valid, but the
@@ -37,7 +45,7 @@ data class FirebaseLinkRequiredResponse(
     @SerialName("temp_token")
     val tempToken: String,
     val message: String,
-)
+) : FirebaseVerifyResponse
 
 /**
  * DTO для ответа when Firebase account is already linked.
@@ -53,4 +61,4 @@ data class FirebaseAlreadyLinkedResponse(
     @SerialName("access_token")
     val accessToken: String,
     val message: String,
-)
+) : FirebaseVerifyResponse
