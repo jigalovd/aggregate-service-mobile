@@ -16,13 +16,21 @@
 1. User can browse catalog and see real providers
 2. User can search providers by name/category
 3. User can view provider details with services
-4. User can complete full booking flow (select service → date/time → confirm)
+4. User can complete full booking flow (select service -> date/time -> confirm)
 5. User can view and manage their bookings
 6. User can add/remove favorites
 7. User can view and write reviews
 8. User can edit their profile
 9. All screens properly navigate via Voyager
 10. User can register with email/password
+
+**Plans:**
+- [ ] 01-01-PLAN.md -- Navigation Foundation (bottom nav + screen wiring)
+- [ ] 01-02-PLAN.md -- Core Bug Fixes (hardcoded values, navigation comments)
+- [ ] 01-03-PLAN.md -- Catalog UI Wiring (CatalogScreen, SearchScreen, ProviderDetailScreen, CategorySelectionScreen)
+- [ ] 01-04-PLAN.md -- Booking Flow Completion (SelectService, SelectDateTime, BookingConfirmation, BookingHistory)
+- [ ] 01-05-PLAN.md -- Favorites, Reviews, Profile Wiring
+- [ ] 01-06-PLAN.md -- Auth Integration (currentUserId, registration flow)
 
 ---
 
