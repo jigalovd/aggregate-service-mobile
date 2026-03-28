@@ -29,6 +29,12 @@ data class ProviderService(
     val createdAt: Instant,
     val updatedAt: Instant,
 ) {
+    init {
+        require(durationMinutes in 5..480) {
+            "Duration must be between 5 and 480 minutes"
+        }
+    }
+
     val formattedPrice: String
         get() = String.format("%.2f", basePrice)
 
