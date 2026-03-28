@@ -33,6 +33,9 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 
 ## Phase History
 
+- Plan 01-04 (Booking Flow Completion): COMPLETED 2026-03-28
+  - Verified SelectServiceScreen, SelectDateTimeScreen, BookingHistoryScreen wiring
+  - Fixed BookingConfirmationScreen services bug (was emptyList(), now loads via GetBookingServicesUseCase)
 - Plan 01-03 (Catalog UI Wiring): COMPLETED 2026-03-28
   - Verified CatalogScreen uses CatalogScreenModel and ProviderCard
   - Verified SearchScreen uses SearchScreenModel with debounced search
@@ -59,9 +62,8 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 
 ## Next Actions
 
-1. Execute Phase 01 plan 04 (Booking Flow Completion)
-2. Run `./gradlew :feature:catalog:compileKotlinAndroid :feature:favorites:compileKotlinAndroid` to verify circular dependency resolution
-3. Run `/gsd:plan-phase 1` to plan remaining Phase 1 work
+1. Execute Phase 01 plan 05 (Favorites, Reviews, Profile Wiring)
+2. Run `/gsd:plan-phase 1` to plan remaining Phase 1 work
 
 ---
 
