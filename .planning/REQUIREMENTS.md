@@ -24,7 +24,7 @@ Requirements for MVP completion. Based on existing 86% implementation.
 - [x] **CAT-03**: Presentation layer (UiState, ScreenModels, screens) — partial, UI pending
 - [ ] **CAT-04**: CatalogScreen — UI connected to real data — PENDING
 - [ ] **CAT-05**: SearchScreen — search with debounced input — PENDING
-- [ ] **CAT-06**: ProviderDetailScreen — provider profile with services — PENDING
+- [x] **CAT-06**: ProviderDetailScreen — provider profile with services — PENDING
 - [ ] **CAT-07**: CategorySelectionScreen — category picker — PENDING
 - [ ] **CAT-08**: ProviderCard component — display provider in list — PENDING
 
@@ -38,7 +38,7 @@ Requirements for MVP completion. Based on existing 86% implementation.
 - [ ] **BOOK-06**: SelectServiceScreen — select provider service — PENDING
 - [ ] **BOOK-07**: SelectDateTimeScreen — calendar + time slots — PENDING
 - [ ] **BOOK-08**: BookingConfirmationScreen — confirm booking — PENDING
-- [ ] **BOOK-09**: BookingHistoryScreen — list user bookings — PENDING
+- [x] **BOOK-09**: BookingHistoryScreen — list user bookings — PENDING
 
 ### Services (Provider)
 
@@ -57,8 +57,8 @@ Requirements for MVP completion. Based on existing 86% implementation.
 
 - [x] **FAV-01**: Favorite entity, repository, use cases — implemented
 - [x] **FAV-02**: FavoritesScreenModel — implemented
-- [ ] **FAV-03**: FavoritesScreen UI — list favorites — PENDING
-- [ ] **FAV-04**: Add/remove from favorites — PENDING
+- [x] **FAV-03**: FavoritesScreen UI — list favorites — PENDING
+- [x] **FAV-04**: Add/remove from favorites — PENDING
 
 ### Reviews
 
@@ -126,7 +126,7 @@ Deferred to future release.
 | CAT-03 | — | Complete |
 | CAT-04 | Phase 1 | Pending |
 | CAT-05 | Phase 1 | Pending |
-| CAT-06 | Phase 1 | Pending |
+| CAT-06 | Phase 1 | Complete |
 | CAT-07 | Phase 1 | Pending |
 | CAT-08 | Phase 1 | Pending |
 | BOOK-01 | — | Complete |
@@ -137,7 +137,7 @@ Deferred to future release.
 | BOOK-06 | Phase 1 | Pending |
 | BOOK-07 | Phase 1 | Pending |
 | BOOK-08 | Phase 1 | Pending |
-| BOOK-09 | Phase 1 | Pending |
+| BOOK-09 | Phase 1 | Complete |
 | SERV-01 | — | Complete |
 | SERV-02 | — | Complete |
 | SERV-03 | — | Complete |
@@ -147,8 +147,8 @@ Deferred to future release.
 | PROF-04 | Phase 1 | Pending |
 | FAV-01 | — | Complete |
 | FAV-02 | — | Complete |
-| FAV-03 | Phase 1 | Pending |
-| FAV-04 | Phase 1 | Pending |
+| FAV-03 | Phase 1 | Complete |
+| FAV-04 | Phase 1 | Complete |
 | REV-01 | — | Complete |
 | REV-02 | — | Complete |
 | REV-03 | — | Complete |
