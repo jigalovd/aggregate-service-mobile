@@ -30,6 +30,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
+import com.aggregateservice.core.navigation.AuthStateProvider
 import com.aggregateservice.feature.booking.domain.model.Booking
 import com.aggregateservice.feature.booking.domain.model.BookingStatus
 import com.aggregateservice.feature.booking.presentation.screenmodel.BookingHistoryScreenModel
@@ -45,9 +46,9 @@ object BookingHistoryScreen : Screen {
         val screenModel = koinScreenModel<BookingHistoryScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
         val i18nProvider: I18nProvider = koinInject()
+        val authProvider: AuthStateProvider = koinInject()
 
-        // TODO: Get clientId from AuthState
-        val clientId = "current-user-id"
+        val clientId = authProvider.currentUserId ?: ""
 
         LaunchedEffect(clientId) {
             screenModel.loadBookings(clientId)
