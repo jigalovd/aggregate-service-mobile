@@ -35,7 +35,7 @@ fun AppBottomNavHost(
         var selectedIndex by remember { mutableIntStateOf(0) }
 
         // Update selected index when current screen changes
-        val currentScreen = navigator.currentScreen
+        val currentScreen = navigator.lastItem
         selectedIndex = bottomNavItems.indexOfFirst { item ->
             // Compare by screen instance type name
             item.screen::class.simpleName == currentScreen::class.simpleName

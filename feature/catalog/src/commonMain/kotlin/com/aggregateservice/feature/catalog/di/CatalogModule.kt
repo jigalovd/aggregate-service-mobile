@@ -7,6 +7,7 @@ import com.aggregateservice.feature.catalog.domain.usecase.GetCategoriesUseCase
 import com.aggregateservice.feature.catalog.domain.usecase.GetProviderDetailsUseCase
 import com.aggregateservice.feature.catalog.domain.usecase.GetProviderServicesUseCase
 import com.aggregateservice.feature.catalog.domain.usecase.SearchProvidersUseCase
+import com.aggregateservice.feature.catalog.navigation.CatalogNavigatorImpl
 import com.aggregateservice.feature.catalog.presentation.screenmodel.CatalogScreenModel
 import com.aggregateservice.feature.catalog.presentation.screenmodel.ProviderDetailScreenModel
 import com.aggregateservice.feature.catalog.presentation.screenmodel.SearchScreenModel
@@ -64,4 +65,7 @@ val catalogModule = module {
     factoryOf(::CatalogScreenModel)
     factoryOf(::ProviderDetailScreenModel)
     factoryOf(::SearchScreenModel)
+
+    // Navigation
+    singleOf(::CatalogNavigatorImpl)
 }

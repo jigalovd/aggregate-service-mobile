@@ -41,6 +41,7 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
+import com.aggregateservice.core.navigation.CatalogNavigator
 import com.aggregateservice.feature.auth.domain.model.UserRole
 import com.aggregateservice.feature.auth.presentation.model.RegistrationUiState
 import com.aggregateservice.feature.auth.presentation.screenmodel.RegistrationScreenModel
@@ -79,6 +80,7 @@ class RegistrationScreen : Screen {
         val uiState by screenModel.uiState.collectAsState()
         val navigator = LocalNavigator.current
         val i18nProvider: I18nProvider = koinInject()
+        val catalogNavigator: CatalogNavigator = koinInject()
 
         RegistrationScreenContent(
             i18nProvider = i18nProvider,
@@ -94,7 +96,7 @@ class RegistrationScreen : Screen {
             onNavigationHandled = screenModel::onNavigationHandled,
             onRegistrationSuccess = {
                 // Navigate to main screen after successful registration
-                navigator?.replaceAll(CatalogScreen())
+                navigator?.replaceAll(catalogNavigator.createCatalogScreen())
             },
             onNavigateToLoginScreen = {
                 navigator?.pop()
