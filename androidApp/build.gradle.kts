@@ -1,5 +1,6 @@
 plugins {
     id("app-module")
+    alias(libs.plugins.googleServices)
 }
 
 // ============================================================
