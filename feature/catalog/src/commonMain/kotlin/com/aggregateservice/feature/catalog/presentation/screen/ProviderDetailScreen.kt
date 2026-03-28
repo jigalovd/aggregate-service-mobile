@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aggregateservice.core.theme.Spacing
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -111,7 +112,14 @@ data class ProviderDetailScreen(
             i18nProvider = i18nProvider,
             uiState = uiState,
             onBackClick = { navigator.pop() },
-            onFavoriteToggle = screenModel::onFavoriteToggle,
+            onFavoriteToggle = {
+                executeProtectedAction(
+                    isAuthenticated = isAuthenticated,
+                    trigger = AuthPromptTrigger.Favorites,
+                    onShowPrompt = { showAuthPrompt = true },
+                    action = screenModel::onFavoriteToggle,
+                )
+            },
             onCategorySelected = screenModel::onCategorySelected,
             onServiceClick = { service ->
                 // Service click could navigate to booking with pre-selected service
@@ -217,6 +225,7 @@ fun ProviderDetailScreenContent(
                 isOpenNow = uiState.isOpenNow,
                 onCategorySelected = onCategorySelected,
                 onServiceClick = { service -> onServiceClick(service) },
+                i18nProvider = i18nProvider,
                 modifier = Modifier.padding(paddingValues),
             )
         }
@@ -263,11 +272,12 @@ fun ProviderDetailContent(
     isOpenNow: Boolean,
     onCategorySelected: (String?) -> Unit,
     onServiceClick: (Service) -> Unit,
+    i18nProvider: I18nProvider,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(modifier = modifier.fillMaxSize()) {
         item {
-            ProviderHeader(provider = provider, isOpenNow = isOpenNow)
+            ProviderHeader(provider = provider, isOpenNow = isOpenNow, i18nProvider = i18nProvider)
         }
 
         if (serviceCategories.isNotEmpty()) {
@@ -283,7 +293,7 @@ fun ProviderDetailContent(
         if (isLoadingServices && services.isEmpty()) {
             item {
                 Box(
-                    modifier = Modifier.fillMaxWidth().padding(32.dp),
+                    modifier = Modifier.fillMaxWidth().padding(Spacing.XL),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()
@@ -306,55 +316,59 @@ fun ProviderDetailContent(
 }
 
 @Composable
-fun ProviderHeader(provider: Provider, isOpenNow: Boolean) {
-    Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+fun ProviderHeader(
+    provider: Provider,
+    isOpenNow: Boolean,
+    i18nProvider: I18nProvider,
+) {
+    Column(modifier = Modifier.fillMaxWidth().padding(Spacing.MD)) {
         Text(
             text = provider.businessName,
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(Spacing.SM))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("⭐", style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(Spacing.XS))
             Text(
                 text = provider.formattedRating,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(Spacing.SM))
             Text(
-                text = "(${provider.reviewCount} reviews)",
+                text = "(${i18nProvider.get(StringKey.Plurals.REVIEWS_COUNT, provider.reviewCount)})",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
 
         if (provider.isVerified) {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.SM))
             Text(
-                text = "✓ Verified",
+                text = "✓ ${i18nProvider[StringKey.Provider.VERIFIED]}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.primary,
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(Spacing.MD))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("📍", style = MaterialTheme.typography.bodyMedium)
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(Spacing.SM))
             Text(text = provider.location.city, style = MaterialTheme.typography.bodyMedium)
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(Spacing.SM))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("🕐", style = MaterialTheme.typography.bodyMedium)
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(Spacing.SM))
             Text(
-                text = if (isOpenNow) "Open now" else "Closed",
+                text = if (isOpenNow) i18nProvider[StringKey.Provider.OPEN_NOW] else i18nProvider[StringKey.Provider.CLOSED],
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (isOpenNow) {
                     MaterialTheme.colorScheme.primary
@@ -365,7 +379,7 @@ fun ProviderHeader(provider: Provider, isOpenNow: Boolean) {
         }
 
         provider.description?.let { desc ->
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.MD))
             Text(
                 text = desc,
                 style = MaterialTheme.typography.bodyMedium,
@@ -383,16 +397,16 @@ fun ServiceCategoryChips(
     onCategorySelected: (String?) -> Unit,
 ) {
     val i18nProvider: I18nProvider = koinInject()
-    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+    Column(modifier = Modifier.padding(horizontal = Spacing.MD)) {
         Text(
             text = i18nProvider[StringKey.Provider.SERVICES],
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(Spacing.SM))
         FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.SM),
+            verticalArrangement = Arrangement.spacedBy(Spacing.SM),
         ) {
             FilterChip(
                 selected = selectedCategoryId == null,
@@ -414,9 +428,9 @@ fun ServiceCategoryChips(
 fun ServiceCard(service: Service, onClick: () -> Unit) {
     Card(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.MD, vertical = Spacing.XS),
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(Spacing.MD)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -424,7 +438,7 @@ fun ServiceCard(service: Service, onClick: () -> Unit) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(text = service.name, style = MaterialTheme.typography.titleSmall)
                     service.description?.let { desc ->
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(Spacing.XS))
                         Text(
                             text = desc,
                             style = MaterialTheme.typography.bodySmall,
@@ -433,14 +447,14 @@ fun ServiceCard(service: Service, onClick: () -> Unit) {
                         )
                     }
                 }
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(Spacing.MD))
                 Text(
                     text = service.formattedPrice,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.SM))
             Text(
                 text = "${service.durationMinutes} min",
                 style = MaterialTheme.typography.bodySmall,
@@ -453,7 +467,7 @@ fun ServiceCard(service: Service, onClick: () -> Unit) {
 @Composable
 fun BookButtonBar(onBookClick: () -> Unit) {
     val i18nProvider: I18nProvider = koinInject()
-    Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+    Column(modifier = Modifier.fillMaxWidth().padding(Spacing.MD)) {
         Button(onClick = onBookClick, modifier = Modifier.fillMaxWidth()) {
             Text(i18nProvider[StringKey.Confirmation.BOOKING_CONFIRMED])
         }
@@ -476,13 +490,13 @@ fun ProviderErrorState(
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = i18nProvider[StringKey.ERROR], style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.SM))
             Text(
                 text = error.message ?: i18nProvider[StringKey.Error.UNKNOWN],
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.MD))
             OutlinedButton(onClick = onRetry) {
                 Text(i18nProvider[StringKey.RETRY])
             }
@@ -493,7 +507,7 @@ fun ProviderErrorState(
 @Composable
 fun EmptyServicesState() {
     val i18nProvider: I18nProvider = koinInject()
-    Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+    Box(modifier = Modifier.fillMaxWidth().padding(Spacing.XL), contentAlignment = Alignment.Center) {
         Text(
             text = i18nProvider[StringKey.Scheduling.NO_SLOTS_AVAILABLE],
             style = MaterialTheme.typography.bodyMedium,
