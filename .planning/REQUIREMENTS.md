@@ -22,11 +22,11 @@ Requirements for MVP completion. Based on existing 86% implementation.
 - [x] **CAT-01**: Domain layer (Provider, Service, Category, Location, WorkingHours) — implemented
 - [x] **CAT-02**: Data layer (DTOs, mappers, API, repository) — implemented
 - [x] **CAT-03**: Presentation layer (UiState, ScreenModels, screens) — partial, UI pending
-- [ ] **CAT-04**: CatalogScreen — UI connected to real data — PENDING
-- [ ] **CAT-05**: SearchScreen — search with debounced input — PENDING
-- [x] **CAT-06**: ProviderDetailScreen — provider profile with services — PENDING
-- [ ] **CAT-07**: CategorySelectionScreen — category picker — PENDING
-- [ ] **CAT-08**: ProviderCard component — display provider in list — PENDING
+- [x] **CAT-04**: CatalogScreen — UI connected to real data — COMPLETE
+- [x] **CAT-05**: SearchScreen — search with debounced input — COMPLETE
+- [x] **CAT-06**: ProviderDetailScreen — provider profile with services — COMPLETE
+- [x] **CAT-07**: CategorySelectionScreen — category picker — COMPLETE
+- [x] **CAT-08**: ProviderCard component — display provider in list — COMPLETE
 
 ### Booking
 
@@ -124,11 +124,11 @@ Deferred to future release.
 | CAT-01 | — | Complete |
 | CAT-02 | — | Complete |
 | CAT-03 | — | Complete |
-| CAT-04 | Phase 1 | Pending |
-| CAT-05 | Phase 1 | Pending |
+| CAT-04 | Phase 1 | Complete |
+| CAT-05 | Phase 1 | Complete |
 | CAT-06 | Phase 1 | Complete |
-| CAT-07 | Phase 1 | Pending |
-| CAT-08 | Phase 1 | Pending |
+| CAT-07 | Phase 1 | Complete |
+| CAT-08 | Phase 1 | Complete |
 | BOOK-01 | — | Complete |
 | BOOK-02 | — | Complete |
 | BOOK-03 | — | Complete |
@@ -170,4 +170,4 @@ Deferred to future release.
 
 ---
 *Requirements defined: 2026-03-28*
-*Last updated: 2026-03-28 after GSD initialization*
+*Last updated: 2026-03-28 after completing plan 01-03 (catalog UI wiring)*
