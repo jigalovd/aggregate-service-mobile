@@ -20,6 +20,8 @@ import kotlinx.datetime.todayIn
  * @property isLoading Загрузка слотов
  * @property error Ошибка загрузки
  * @property currentMonth Текущий месяц для календаря
+ * @property maxAdvanceDays Максимальное количество дней для бронирования вперед (US-3.34)
+ * @property bookingHorizonVisible Видимость подсказки о горизонте бронирования
  */
 @Stable
 data class SelectDateTimeUiState(
@@ -29,6 +31,8 @@ data class SelectDateTimeUiState(
     val isLoading: Boolean = false,
     val error: AppError? = null,
     val currentMonth: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
+    val maxAdvanceDays: Int = BOOKING_HORIZON_DAYS,
+    val bookingHorizonVisible: Boolean = false,
 ) {
     /**
      * Есть ли полный выбор (дата + слот).
@@ -67,5 +71,11 @@ data class SelectDateTimeUiState(
          * Начальное состояние.
          */
         val Initial = SelectDateTimeUiState()
+
+        /**
+         * Максимальное количество дней для бронирования вперед.
+         * US-3.34: Мастер хочет ограничить бронирование 30 днями вперед.
+         */
+        const val BOOKING_HORIZON_DAYS = 30
     }
 }

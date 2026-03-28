@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aggregateservice.core.theme.Spacing
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -128,7 +129,7 @@ fun SelectDateTimeScreenContent(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
+                            .padding(Spacing.MD),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
@@ -180,7 +181,7 @@ fun SelectDateTimeScreenContent(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .padding(16.dp),
+                        .padding(Spacing.MD),
                 ) {
                     // Date selection header
                     Text(
@@ -188,15 +189,25 @@ fun SelectDateTimeScreenContent(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(Spacing.SM))
 
-                    // Date chips (next 7 days)
+                    // Booking horizon hint (US-3.34)
+                    if (uiState.bookingHorizonVisible) {
+                        Text(
+                            text = "Бронирование возможно не более чем за ${uiState.maxAdvanceDays} дней",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                        Spacer(modifier = Modifier.height(Spacing.SM))
+                    }
+
+                    // Date chips (next 35 days to allow testing booking horizon, US-3.34)
                     FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(Spacing.SM),
+                        verticalArrangement = Arrangement.spacedBy(Spacing.SM),
                     ) {
                         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
-                        repeat(7) { offset ->
+                        repeat(35) { offset ->
                             val date = today.plus(offset, DateTimeUnit.DAY)
                             DateChip(
                                 date = date,
@@ -207,7 +218,7 @@ fun SelectDateTimeScreenContent(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(Spacing.LG))
 
                     // Time slots
                     if (uiState.selectedDate != null) {
@@ -216,7 +227,7 @@ fun SelectDateTimeScreenContent(
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(Spacing.SM))
 
                         if (uiState.availableSlotsForDate.isEmpty()) {
                             Text(
@@ -226,13 +237,14 @@ fun SelectDateTimeScreenContent(
                             )
                         } else {
                             LazyColumn(
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(Spacing.SM),
                             ) {
                                 items(uiState.availableSlotsForDate, key = { it.startTime.toString() }) { slot ->
                                     TimeSlotItem(
                                         slot = slot,
                                         isSelected = uiState.selectedSlot == slot,
                                         onClick = { onSelectSlot(slot) },
+                                        i18nProvider = i18nProvider,
                                     )
                                 }
                             }
@@ -286,6 +298,7 @@ fun TimeSlotItem(
     slot: TimeSlot,
     isSelected: Boolean,
     onClick: () -> Unit,
+    i18nProvider: I18nProvider,
 ) {
     Card(
         modifier = Modifier
@@ -302,17 +315,17 @@ fun TimeSlotItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(Spacing.MD),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = slot.formattedTimeRange,
                 style = MaterialTheme.typography.titleMedium,
             )
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(Spacing.MD))
             if (!slot.isAvailable) {
                 Text(
-                    text = "Booked",
+                    text = i18nProvider[StringKey.Booking.SLOT_BOOKED],
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
                 )

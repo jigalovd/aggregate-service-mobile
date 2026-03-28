@@ -70,10 +70,15 @@ class SelectDateTimeScreenModel(
      * @param date Выбранная дата
      */
     fun selectDate(date: LocalDate) {
+        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+        val maxDate = today.plus(SelectDateTimeUiState.BOOKING_HORIZON_DAYS, DateTimeUnit.DAY)
+        val isBeyondHorizon = date > maxDate
+
         _uiState.update { state ->
             state.copy(
                 selectedDate = date,
                 selectedSlot = null, // Reset slot when date changes
+                bookingHorizonVisible = isBeyondHorizon,
             )
         }
     }
