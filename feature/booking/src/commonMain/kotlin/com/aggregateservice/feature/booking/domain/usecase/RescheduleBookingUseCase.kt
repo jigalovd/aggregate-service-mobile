@@ -5,6 +5,7 @@ import com.aggregateservice.feature.booking.domain.model.Booking
 import com.aggregateservice.feature.booking.domain.repository.BookingRepository
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlin.time.Duration.Companion.hours
 
 /**
  * UseCase для переноса бронирования на другое время.
@@ -52,9 +53,7 @@ class RescheduleBookingUseCase(
 
         // Validation: 2-hour window before start time (US-3.11)
         // Клиент может перенести минимум за 2 часа до начала
-        val minRescheduleTime = Instant.fromEpochMilliseconds(
-            booking.startTime.toEpochMilliseconds() - RESCHEDULE_WINDOW_HOURS * 60 * 60 * 1000,
-        )
+        val minRescheduleTime = booking.startTime.minus(RESCHEDULE_WINDOW_HOURS.toInt().hours)
 
         if (now > minRescheduleTime) {
             return Result.failure(
