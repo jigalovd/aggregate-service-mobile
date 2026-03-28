@@ -25,10 +25,10 @@ data class ReviewStats(
     /**
      * Percentage of reviews for a given rating.
      */
-    fun getPercentageForRating(rating: Int): Int {
-        if (totalReviews == 0) return 0
+    fun getPercentageForRating(rating: Int): Double {
+        if (totalReviews == 0) return 0.0
         val count = ratingDistribution[rating] ?: 0
-        return (count * 100) / totalReviews
+        return (count * 100.0) / totalReviews
     }
 
     /**

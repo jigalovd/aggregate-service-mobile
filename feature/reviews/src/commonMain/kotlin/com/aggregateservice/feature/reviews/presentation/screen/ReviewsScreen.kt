@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.aggregateservice.core.theme.Spacing
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -152,7 +153,7 @@ private fun ReviewsScreenContent(
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(Spacing.SM),
                     ) {
                         // Stats header
                         uiState.stats?.let { stats ->
@@ -168,7 +169,7 @@ private fun ReviewsScreenContent(
                         ) { review ->
                             ReviewCard(
                                 review = review,
-                                modifier = Modifier.padding(horizontal = 16.dp),
+                                modifier = Modifier.padding(horizontal = Spacing.MD),
                             )
                         }
 
@@ -178,7 +179,7 @@ private fun ReviewsScreenContent(
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(16.dp),
+                                        .padding(Spacing.MD),
                                     contentAlignment = Alignment.Center,
                                 ) {
                                     CircularProgressIndicator()
@@ -195,19 +196,20 @@ private fun ReviewsScreenContent(
 @Composable
 private fun ReviewStatsHeader(
     stats: ReviewStats,
+    i18nProvider: I18nProvider,
     modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(Spacing.MD),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(Spacing.MD),
     ) {
         // Average rating
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.SM),
         ) {
             Text(
                 text = stats.formattedAverageRating,
@@ -215,7 +217,7 @@ private fun ReviewStatsHeader(
                 color = MaterialTheme.colorScheme.primary,
             )
             Column {
-                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(Spacing.XXS)) {
                     repeat(5) { index ->
                         val isFilled = index < stats.averageRating.toInt()
                         Text(
@@ -230,7 +232,8 @@ private fun ReviewStatsHeader(
                     }
                 }
                 Text(
-                    text = "${stats.totalReviews} отзывов",
+                    text = i18nProvider[StringKey.Plurals.REVIEWS_COUNT]
+                        .replace("{count}", "${stats.totalReviews}"),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -256,18 +259,18 @@ private fun ReviewStatsHeader(
 private fun RatingDistributionRow(
     rating: Int,
     count: Int,
-    percentage: Int,
+    percentage: Double,
     modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.SM),
     ) {
         Text(
             text = "$rating",
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.width(16.dp),
+            modifier = Modifier.width(Spacing.MD),
         )
         Text(
             text = "★",
@@ -278,7 +281,7 @@ private fun RatingDistributionRow(
         Box(
             modifier = Modifier
                 .weight(1f)
-                .height(8.dp)
+                .height(Spacing.SM)
                 .fillMaxWidth(percentage / 100f),
         ) {
             Box(
@@ -290,7 +293,7 @@ private fun RatingDistributionRow(
             text = "$count",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.width(32.dp),
+            modifier = Modifier.width(Spacing.XXS),
             textAlign = TextAlign.End,
         )
     }
@@ -318,7 +321,7 @@ private fun ErrorState(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(Spacing.MD),
         ) {
             Text(
                 text = message,
@@ -340,7 +343,7 @@ private fun EmptyState(i18nProvider: I18nProvider) {
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(Spacing.SM),
         ) {
             Text(
                 text = "💬",
