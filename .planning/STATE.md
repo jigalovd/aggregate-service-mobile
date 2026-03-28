@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-03-28T20:08:26.325Z"
+last_updated: "2026-03-28T20:17:47.000Z"
 progress:
   total_phases: 2
   completed_phases: 0
   total_plans: 6
-  completed_plans: 4
+  completed_plans: 5
 ---
 
 # Project State
@@ -33,6 +33,12 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 
 ## Phase History
 
+- Plan 01-05 (Favorites/Reviews/Profile Wiring): COMPLETED 2026-03-28
+  - Verified FavoritesScreen loadFavorites and removeFavorite are wired
+  - Added WriteReviewDialog integration to ReviewsScreen with "Write Review" button
+  - Added AuthStateProvider integration to ProfileScreen for currentUserId access
+  - Added core:navigation dependency to feature:profile
+  - Note: WriteReviewDialog uses placeholder bookingId pending booking flow integration
 - Plan 01-04 (Booking Flow Completion): COMPLETED 2026-03-28
   - Verified SelectServiceScreen, SelectDateTimeScreen, BookingHistoryScreen wiring
   - Fixed BookingConfirmationScreen services bug (was emptyList(), now loads via GetBookingServicesUseCase)
@@ -55,6 +61,8 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 | 2026-03-28 | GSD initialization | Migrate existing 86% implementation to GSD workflow | — Pending |
 | 2026-03-28 | Added currentUserId to AuthStateProvider | Allows BookingHistoryScreen to get actual user ID | — Complete |
 | 2026-03-28 | Added cross-feature dependencies (catalog->favorites, favorites->catalog) | Required for favorite use cases and navigation | — Build verification needed |
+| 2026-03-28 | ProfileScreen uses AuthStateProvider.currentUserId | Plan specification for accessing authenticated user ID | — Complete |
+| 2026-03-28 | ReviewsScreen uses WriteReviewScreenModel for dialog | WriteReviewDialog expects WriteReviewUiState and callbacks | — Partial (placeholder bookingId) |
 
 ## Blockers
 
@@ -62,9 +70,9 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 
 ## Next Actions
 
-1. Execute Phase 01 plan 05 (Favorites, Reviews, Profile Wiring)
-2. Run `/gsd:plan-phase 1` to plan remaining Phase 1 work
+1. Execute Phase 01 plan 06 (Auth Integration - currentUserId implementation, registration flow)
+2. Run verification builds to confirm all wiring compiles
 
 ---
 
-*State updated: 2026-03-28 after completing plan 01-02*
+*State updated: 2026-03-28 after completing plan 01-05*

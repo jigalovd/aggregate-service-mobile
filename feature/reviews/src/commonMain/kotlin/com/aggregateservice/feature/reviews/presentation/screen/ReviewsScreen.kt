@@ -27,7 +27,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -42,8 +44,11 @@ import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.reviews.domain.model.Review
 import com.aggregateservice.feature.reviews.domain.model.ReviewStats
 import com.aggregateservice.feature.reviews.presentation.component.ReviewCard
+import com.aggregateservice.feature.reviews.presentation.component.WriteReviewDialog
 import com.aggregateservice.feature.reviews.presentation.model.ReviewsUiState
+import com.aggregateservice.feature.reviews.presentation.model.WriteReviewUiState
 import com.aggregateservice.feature.reviews.presentation.screenmodel.ReviewsScreenModel
+import com.aggregateservice.feature.reviews.presentation.screenmodel.WriteReviewScreenModel
 import org.koin.compose.koinInject
 
 /**
@@ -61,11 +66,26 @@ class ReviewsScreen(
     override fun Content() {
         val screenModel = koinScreenModel<ReviewsScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
+        val writeReviewScreenModel: WriteReviewScreenModel = koinScreenModel()
+        val writeReviewState by writeReviewScreenModel.uiState.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
         val i18nProvider: I18nProvider = koinInject()
 
+        var showWriteReviewDialog by remember { mutableStateOf(false) }
+
         LaunchedEffect(providerId) {
             screenModel.initialize(providerId)
+        }
+
+        // Initialize write review dialog when shown
+        LaunchedEffect(showWriteReviewDialog) {
+            if (showWriteReviewDialog && writeReviewState.bookingId.isEmpty()) {
+                // TODO: Get actual bookingId for this provider (requires booking flow integration)
+                writeReviewScreenModel.initialize(
+                    bookingId = "placeholder-booking-id",
+                    providerName = providerName,
+                )
+            }
         }
 
         ReviewsScreenContent(
@@ -75,7 +95,25 @@ class ReviewsScreen(
             onRefresh = { screenModel.refresh() },
             onLoadMore = { screenModel.loadMore() },
             onBackClick = { navigator.pop() },
+            onWriteReviewClick = { showWriteReviewDialog = true },
         )
+
+        // Write Review Dialog
+        if (showWriteReviewDialog) {
+            WriteReviewDialog(
+                state = writeReviewState,
+                onRatingChange = { writeReviewScreenModel.setRating(it) },
+                onCommentChange = { writeReviewScreenModel.setComment(it) },
+                onSubmit = { writeReviewScreenModel.submitReview() },
+                onDismiss = {
+                    showWriteReviewDialog = false
+                    // Refresh reviews after submission
+                    if (writeReviewState.isSuccess) {
+                        screenModel.refresh()
+                    }
+                },
+            )
+        }
     }
 }
 
@@ -88,6 +126,7 @@ private fun ReviewsScreenContent(
     onRefresh: () -> Unit,
     onLoadMore: () -> Unit,
     onBackClick: () -> Unit,
+    onWriteReviewClick: () -> Unit,
 ) {
     val pullToRefreshState = rememberPullToRefreshState()
     val listState = rememberLazyListState()
@@ -121,6 +160,11 @@ private fun ReviewsScreenContent(
                         Text(i18nProvider[StringKey.Reviews.BACK])
                     }
                 },
+                actions = {
+                    TextButton(onClick = onWriteReviewClick) {
+                        Text(i18nProvider[StringKey.Reviews.WRITE_REVIEW])
+                    }
+                },
             )
         },
     ) { paddingValues ->
@@ -146,7 +190,10 @@ private fun ReviewsScreenContent(
                 }
 
                 uiState.isEmpty -> {
-                    EmptyState(i18nProvider = i18nProvider)
+                    EmptyState(
+                        i18nProvider = i18nProvider,
+                        onWriteReviewClick = onWriteReviewClick,
+                    )
                 }
 
                 else -> {
@@ -336,7 +383,10 @@ private fun ErrorState(
 }
 
 @Composable
-private fun EmptyState(i18nProvider: I18nProvider) {
+private fun EmptyState(
+    i18nProvider: I18nProvider,
+    onWriteReviewClick: () -> Unit,
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
@@ -355,11 +405,9 @@ private fun EmptyState(i18nProvider: I18nProvider) {
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.outline,
             )
-            Text(
-                text = i18nProvider[StringKey.Reviews.WRITE_REVIEW],
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.outline,
-            )
+            TextButton(onClick = onWriteReviewClick) {
+                Text(i18nProvider[StringKey.Reviews.WRITE_REVIEW])
+            }
         }
     }
 }
