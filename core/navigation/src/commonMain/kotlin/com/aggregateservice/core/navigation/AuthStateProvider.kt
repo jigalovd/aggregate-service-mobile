@@ -47,4 +47,10 @@ interface AuthStateProvider {
      * Current user's ID if authenticated, null otherwise.
      */
     val currentUserId: String?
+        get() = currentUserIdFlow.value
+
+    /**
+     * Flow of current user's ID.
+     */
+    val currentUserIdFlow: StateFlow<String?>
 }

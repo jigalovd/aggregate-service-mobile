@@ -2,7 +2,9 @@ package com.aggregateservice.feature.booking.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.aggregateservice.feature.booking.domain.model.BookingService
 import com.aggregateservice.feature.booking.domain.usecase.CreateBookingUseCase
+import com.aggregateservice.feature.booking.domain.usecase.GetBookingServicesUseCase
 import com.aggregateservice.feature.booking.presentation.model.BookingConfirmationUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,13 +21,37 @@ import kotlinx.coroutines.launch
  * - Обработка успеха/ошибки
  *
  * @property createBookingUseCase UseCase для создания бронирования
+ * @property getBookingServicesUseCase UseCase для получения услуг
  */
 class BookingConfirmationScreenModel(
     private val createBookingUseCase: CreateBookingUseCase,
+    private val getBookingServicesUseCase: GetBookingServicesUseCase,
 ) : ScreenModel {
 
     private val _uiState = MutableStateFlow(BookingConfirmationUiState.Initial)
     val uiState: StateFlow<BookingConfirmationUiState> = _uiState.asStateFlow()
+
+    /**
+     * Загружает услуги по их IDs.
+     *
+     * @param providerId ID провайдера
+     * @param serviceIds Список ID услуг
+     */
+    fun loadServices(providerId: String, serviceIds: List<String>) {
+        if (serviceIds.isEmpty()) return
+
+        screenModelScope.launch {
+            getBookingServicesUseCase(providerId).fold(
+                onSuccess = { allServices ->
+                    val filteredServices = allServices.filter { it.id in serviceIds }
+                    _uiState.update { it.copy(services = filteredServices) }
+                },
+                onFailure = {
+                    _uiState.update { it.copy(services = emptyList()) }
+                },
+            )
+        }
+    }
 
     /**
      * Инициализирует состояние с данными из предыдущих экранов.
@@ -39,7 +65,7 @@ class BookingConfirmationScreenModel(
     fun initialize(
         providerId: String,
         providerName: String,
-        services: List<com.aggregateservice.feature.booking.domain.model.BookingService>,
+        services: List<BookingService>,
         selectedDate: kotlinx.datetime.LocalDate?,
         selectedSlot: com.aggregateservice.feature.booking.domain.model.TimeSlot?,
     ) {

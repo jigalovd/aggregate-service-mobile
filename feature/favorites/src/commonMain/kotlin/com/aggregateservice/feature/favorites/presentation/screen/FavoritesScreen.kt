@@ -43,7 +43,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
-import com.aggregateservice.feature.catalog.presentation.screen.ProviderDetailScreen
+import com.aggregateservice.core.navigation.CatalogNavigator
 import com.aggregateservice.feature.favorites.domain.model.Favorite
 import com.aggregateservice.feature.favorites.presentation.model.FavoritesUiState
 import com.aggregateservice.feature.favorites.presentation.screenmodel.FavoritesScreenModel
@@ -60,6 +60,7 @@ class FavoritesScreen : Screen {
         val uiState by screenModel.uiState.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
         val i18nProvider: I18nProvider = koinInject()
+        val catalogNavigator: CatalogNavigator = koinInject()
 
         LaunchedEffect(Unit) {
             screenModel.loadFavorites()
@@ -70,7 +71,7 @@ class FavoritesScreen : Screen {
             uiState = uiState,
             onRefresh = { screenModel.loadFavorites() },
             onFavoriteClick = { favorite ->
-                navigator.push(ProviderDetailScreen(favorite.providerId))
+                navigator.push(catalogNavigator.createProviderDetailScreen(favorite.providerId))
             },
             onRemoveClick = { screenModel.confirmRemove(it) },
             onConfirmRemove = { screenModel.removeFavorite() },

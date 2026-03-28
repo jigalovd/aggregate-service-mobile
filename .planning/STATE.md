@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-03-28T20:17:47.000Z"
+last_updated: "2026-03-28T23:47:00.000Z"
 progress:
   total_phases: 2
   completed_phases: 0
   total_plans: 6
-  completed_plans: 5
+  completed_plans: 6
 ---
 
 # Project State
@@ -33,6 +33,10 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 
 ## Phase History
 
+- Plan 01-06 (Auth Integration): COMPLETED 2026-03-28
+  - Verified AuthStateProviderImpl exposes currentUserId and currentUserIdFlow
+  - Verified RegistrationScreen uses CatalogNavigator for navigation after registration
+  - Build verification passed for :feature:auth:compileDebugKotlinAndroid
 - Plan 01-05 (Favorites/Reviews/Profile Wiring): COMPLETED 2026-03-28
   - Verified FavoritesScreen loadFavorites and removeFavorite are wired
   - Added WriteReviewDialog integration to ReviewsScreen with "Write Review" button
@@ -70,9 +74,9 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 
 ## Next Actions
 
-1. Execute Phase 01 plan 06 (Auth Integration - currentUserId implementation, registration flow)
-2. Run verification builds to confirm all wiring compiles
+1. Run full APK build to verify Phase 1 completion
+2. Proceed to Phase 2 verification
 
 ---
 
-*State updated: 2026-03-28 after completing plan 01-05*
+*State updated: 2026-03-28 after completing plan 01-06*
