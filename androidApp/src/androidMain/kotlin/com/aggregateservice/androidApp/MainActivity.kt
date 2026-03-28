@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.aggregateservice.core.i18n.I18nProvider
-import com.aggregateservice.core.navigation.AppNavHost
+import com.aggregateservice.app.navigation.AppBottomNavHost
 import com.aggregateservice.core.theme.appTheme
 import com.aggregateservice.feature.catalog.presentation.screen.CatalogScreen
 import org.koin.java.KoinJavaComponent.inject
@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                 ) {
-                    AppNavHost(
+                    AppBottomNavHost(
                         startScreen = CatalogScreen(),
                     )
                 }
