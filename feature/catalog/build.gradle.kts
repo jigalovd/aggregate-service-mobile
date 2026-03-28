@@ -25,6 +25,9 @@ kotlin {
 
             // Auth state access via core:navigation abstraction (not direct feature:auth dependency)
             // AuthStateProvider is implemented by feature:auth and injected via Koin
+
+            // Favorites use cases for checking/managing favorite status on provider detail
+            implementation(project(":feature:favorites"))
         }
     }
 }

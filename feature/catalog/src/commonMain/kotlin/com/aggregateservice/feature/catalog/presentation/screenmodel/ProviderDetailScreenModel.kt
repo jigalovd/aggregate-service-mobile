@@ -6,6 +6,9 @@ import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.catalog.domain.usecase.GetProviderDetailsUseCase
 import com.aggregateservice.feature.catalog.domain.usecase.GetProviderServicesUseCase
 import com.aggregateservice.feature.catalog.presentation.model.ProviderDetailUiState
+import com.aggregateservice.feature.favorites.domain.usecase.AddFavoriteUseCase
+import com.aggregateservice.feature.favorites.domain.usecase.IsFavoriteUseCase
+import com.aggregateservice.feature.favorites.domain.usecase.RemoveFavoriteUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,6 +34,9 @@ import kotlinx.coroutines.launch
 class ProviderDetailScreenModel(
     private val getProviderDetailsUseCase: GetProviderDetailsUseCase,
     private val getProviderServicesUseCase: GetProviderServicesUseCase,
+    private val isFavoriteUseCase: IsFavoriteUseCase,
+    private val addFavoriteUseCase: AddFavoriteUseCase,
+    private val removeFavoriteUseCase: RemoveFavoriteUseCase,
 ) : ScreenModel {
 
     // UI State
@@ -67,11 +73,12 @@ class ProviderDetailScreenModel(
             getProviderDetailsUseCase(id)
                 .fold(
                     onSuccess = { provider ->
+                        val isFavorite = isFavoriteUseCase(id).getOrElse { false }
                         _uiState.value = _uiState.value.copy(
                             provider = provider,
                             isLoading = false,
                             error = null,
-                            isFavorite = false, // TODO: Implement favorite status check via GetFavoriteStatusUseCase
+                            isFavorite = isFavorite,
                         )
                     },
                     onFailure = { error ->
@@ -131,12 +138,16 @@ class ProviderDetailScreenModel(
      */
     fun onFavoriteToggle() {
         val currentState = _uiState.value
+        val providerId = currentState.provider?.id ?: return
 
-        // TODO: Replace with AddToFavoritesUseCase / RemoveFromFavoritesUseCase when available
-        // For now, just toggle the local state
-        _uiState.value = currentState.copy(
-            isFavorite = !currentState.isFavorite,
-        )
+        screenModelScope.launch {
+            if (currentState.isFavorite) {
+                removeFavoriteUseCase(providerId)
+            } else {
+                addFavoriteUseCase(providerId)
+            }
+            _uiState.value = currentState.copy(isFavorite = !currentState.isFavorite)
+        }
     }
 
     /**
