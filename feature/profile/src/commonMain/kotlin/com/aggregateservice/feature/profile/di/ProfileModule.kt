@@ -19,8 +19,8 @@ import org.koin.dsl.module
  * - ScreenModels (presentation layer)
  */
 val profileModule = module {
-    // API Service
-    single { ProfileApiService(get()) }
+    // API Service (with TokenStorage for authenticated calls)
+    single { ProfileApiService(get(), get()) }
 
     // Repository
     single<ProfileRepository> {

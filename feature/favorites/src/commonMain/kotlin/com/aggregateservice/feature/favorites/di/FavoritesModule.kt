@@ -21,7 +21,7 @@ import org.koin.dsl.module
  */
 val favoritesModule = module {
     // API Service
-    single { FavoritesApiService(get()) }
+    single { FavoritesApiService(get(), get()) }
 
     // Repository
     single<FavoritesRepository> {

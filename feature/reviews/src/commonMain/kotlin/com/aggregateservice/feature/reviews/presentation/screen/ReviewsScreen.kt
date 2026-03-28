@@ -282,7 +282,7 @@ private fun RatingDistributionRow(
             modifier = Modifier
                 .weight(1f)
                 .height(Spacing.SM)
-                .fillMaxWidth(percentage / 100f),
+                .fillMaxWidth((percentage / 100).toFloat()),
         ) {
             Box(
                 modifier = Modifier

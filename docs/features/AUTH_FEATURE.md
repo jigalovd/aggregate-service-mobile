@@ -3,7 +3,7 @@
 **Feature Name**: Authentication & Registration
 **Epic**: E1
 **Status**: ✅ Complete (100%)
-**Last Updated**: 2026-03-25
+**Last Updated**: 2026-03-28
 
 ---
 
@@ -79,6 +79,57 @@ Auth Feature реализует полный цикл аутентификаци
 | `PROVIDER` | Мастер/поставщик услуг | Управление услугами, расписание, отзывы на клиентов |
 
 **Текущий контекст** хранится в JWT токене (`current_role`), переключение через API.
+
+---
+
+## 🔥 Firebase Authentication
+
+### Overview
+
+Auth Feature поддерживает Firebase Authentication (Google, Apple, Phone) в дополнение к традиционному email/password:
+
+| Провайдер | Метод | Описание |
+|-----------|-------|----------|
+| **Email/Password** | `login()` | Традиционная аутентификация |
+| **Google** | `signInWithGoogle()` | Google Sign-In через Firebase |
+| **Apple** | `signInWithApple()` | Sign in with Apple |
+| **Phone** | `signInWithPhone()` | SMS verification code |
+
+### Firebase Auth Flow
+
+```
+┌──────────────────┐    Firebase SDK     ┌──────────────────┐
+│   LoginScreen    │ ─────────────────►  │   Firebase       │
+│   (Compose UI)   │                     │   Auth SDK       │
+└────────┬─────────┘                     └────────┬─────────┘
+         │                                        │
+         │  ID Token                              │  Firebase Token
+         ▼                                        ▼
+┌──────────────────┐                     ┌──────────────────┐
+│  LoginScreenModel │ ───► verifyFirebaseToken() ──►  Backend API
+│  (handle result) │                     │  /auth/provider/verify
+└──────────────────┘                     └────────┬─────────┘
+                                                  │
+                                     ┌────────────┴────────────┐
+                                     │                         │
+                              HTTP 201/200               HTTP 409 (link_required)
+                                     │                         │
+                                     ▼                         ▼
+                           AuthState.Authenticated    LinkAccountState
+```
+
+### Account Linking Flow
+
+Когда Firebase аккаунт не связан с существующим аккаунтом в системе:
+
+```
+1. User attempts Firebase sign-in
+2. Backend returns { link_required: true, email: "..." }
+3. App shows LinkAccountDialog
+4. User enters existing password
+5. App calls: linkFirebaseAccount(tempToken, password)
+6. Backend links Firebase account → returns AuthState
+```
 
 ---
 
@@ -181,8 +232,21 @@ interface AuthRepository {
     val authState: StateFlow<AuthState>
 
     suspend fun login(credentials: LoginCredentials): Result<AuthState>
-    suspend fun logout(): Result<Unit>
-    suspend fun refreshTokens(): Result<String>
+    suspend fun register(request: RegistrationRequest): Result<AuthState>
+    suspend fun logout()
+    suspend fun refreshToken(): Result<String>
+    fun observeAuthState(): StateFlow<AuthState>
+    fun getCurrentAuthState(): AuthState
+
+    /**
+     * Проверяет Firebase токен и выполняет вход через Firebase (Google, Apple, Phone).
+     */
+    suspend fun verifyFirebaseToken(authProvider: String, firebaseToken: String): Result<AuthState>
+
+    /**
+     * Связывает Firebase аккаунт с существующим аккаунтом.
+     */
+    suspend fun linkFirebaseAccount(tempToken: String, password: String): Result<AuthState>
 }
 ```
 
@@ -346,6 +410,51 @@ fun AuthPromptDialog(
 }
 ```
 
+#### LinkAccountDialog (Firebase Account Linking)
+
+```kotlin
+// LinkAccountDialog.kt
+@Composable
+fun LinkAccountDialog(
+    email: String,
+    authProvider: String,
+    onLink: (password: String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var password by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Link $authProvider account") },
+        text = {
+            Column {
+                Text("This $authProvider account is not linked to any account.")
+                Text("Enter your password to link it with: $email")
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onLink(password) },
+                enabled = password.isNotBlank()
+            ) {
+                Text("Link Account")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+```
+
 #### UI State (UDF Pattern)
 
 ```kotlin
@@ -356,8 +465,43 @@ data class LoginUiState(
     val emailError: String? = null,
     val passwordError: String? = null,
     val isLoading: Boolean = false,
-    val generalError: String? = null,
-    val isFormValid: Boolean = false
+    val errorMessage: String? = null,
+    val isLoginSuccess: Boolean = false,
+
+    // Firebase Auth
+    val linkAccount: LinkAccountState = LinkAccountState(),
+    val isFirebaseLoading: Boolean = false,
+
+    // Phone Auth
+    val phoneAuth: PhoneAuthState = PhoneAuthState(),
+) {
+    fun canLogin(): Boolean =
+        email.isNotBlank() &&
+        password.isNotBlank() &&
+        emailError == null &&
+        passwordError == null &&
+        !isLoading
+}
+
+// PhoneAuthState.kt
+data class PhoneAuthState(
+    val isInPhoneMode: Boolean = false,
+    val phoneNumber: String = "",
+    val countryCode: String = "+7",
+    val verificationId: String? = null,
+    val verificationCode: String = "",
+    val isWaitingForCode: Boolean = false,
+    val isResendAvailable: Boolean = false,
+    val resendCountdown: Int = 0,
+)
+
+// LinkAccountState.kt
+data class LinkAccountState(
+    val email: String = "",
+    val tempToken: String = "",
+    val firebaseUid: String = "",
+    val authProvider: String = "",
+    val showDialog: Boolean = false,
 )
 
 // RegistrationUiState.kt
@@ -473,17 +617,31 @@ val authModule = module {
         AuthRepositoryImpl(
             httpClient = get(),
             tokenStorage = get(),
-            ioDispatcher = Dispatchers.IO
         )
     }
 
-    // UseCases
-    factory { LoginUseCase(get()) }
-    factory { LogoutUseCase(get()) }
-    factory { ObserveAuthStateUseCase(get()) }
+    // Firebase Auth API (platform-specific implementation)
+    single<FirebaseAuthApi> { FirebaseAuthApiFactory.create() }
 
-    // ScreenModel
-    factory { LoginScreenModel(get(), get(), get()) }
+    // UseCases
+    factoryOf(::LoginUseCase)
+    factoryOf(::LogoutUseCase)
+    factoryOf(::ObserveAuthStateUseCase)
+    factoryOf(::RegisterUseCase)
+
+    // ScreenModels
+    factory { (authRepository: AuthRepository) ->
+        LoginScreenModel(
+            loginUseCase = get(),
+            observeAuthStateUseCase = get(),
+            authRepository = authRepository,
+            firebaseAuthApi = get<FirebaseAuthApi>(),
+        )
+    }
+    factoryOf(::RegistrationScreenModel)
+
+    // AuthStateProvider - abstraction for cross-feature auth access
+    single<AuthStateProvider> { AuthStateProviderImpl(get()) }
 }
 ```
 
@@ -497,6 +655,8 @@ val authModule = module {
 | `/auth/login` | POST | Аутентификация | LoginRequest | AuthResponse |
 | `/auth/refresh` | POST | Обновление токена | refresh_token | RefreshTokenResponse |
 | `/auth/logout` | POST | Выход из системы | - | 204 No Content |
+| `/auth/provider/verify` | POST | Verify Firebase token | FirebaseVerifyRequest | AuthResponse |
+| `/auth/provider/link` | POST | Link Firebase to existing | FirebaseLinkRequest | AuthResponse |
 
 ---
 
@@ -531,8 +691,30 @@ fun AppError.toUserMessage(): String = when (this) {
     is AppError.NetworkError -> "Ошибка сети: $message"
     is AppError.RateLimitExceeded -> "Превышен лимит запросов. Повторите через $retryAfter сек"
     is AppError.Forbidden -> "Доступ запрещён"
+    is AppError.FirebaseLinkRequired -> "Требуется связывание аккаунта"
     else -> message ?: "Произошла неизвестная ошибка"
 }
+```
+
+### AppError.FirebaseLinkRequired
+
+```kotlin
+/**
+ * Требуется связывание Firebase аккаунта с существующим аккаунтом (409 Conflict)
+ *
+ * Возникает при попытке войти через Firebase, когда Firebase аккаунт
+ * не связан с существующим аккаунтом в системе.
+ *
+ * @property tempToken Temporary token для завершения связывания
+ * @property email Email существующего аккаунта
+ * @property firebaseUid Firebase UID
+ */
+data class FirebaseLinkRequired(
+    val tempToken: String,
+    val email: String,
+    val firebaseUid: String,
+    override val message: String,
+) : AppError(message)
 ```
 
 ---
@@ -622,6 +804,7 @@ Auth Feature зависит от следующих core модулей:
 | `:core:utils` | EmailValidator, PasswordValidator |
 | `:core:navigation` | Voyager Navigator, Screen, AuthGuard |
 | `:core:i18n` | StringKey для Guest Mode строк |
+| `:core:firebase-auth` | Firebase Auth API (Google, Apple, Phone) |
 
 ---
 
@@ -683,6 +866,6 @@ fun `RegistrationRequest should reject empty roles`() {
 
 ---
 
-**Версия документа**: 2.1
-**Last Updated**: 2026-03-25
+**Версия документа**: 2.2
+**Last Updated**: 2026-03-28
 **Maintainer**: Development Team

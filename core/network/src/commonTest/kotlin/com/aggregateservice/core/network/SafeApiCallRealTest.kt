@@ -287,6 +287,59 @@ class SafeApiCallRealTest {
         assertEquals(lockUntil, (error as AppError.AccountLocked).until)
     }
 
+    /**
+     * Test 8: CancellationException should propagate through safeApiCall
+     */
+    @Test
+    fun cancellationExceptionIsRethrown() = runTest {
+        // Arrange
+        val mockEngine = MockEngine { _ ->
+            respond(
+                content = "",
+                status = HttpStatusCode.OK
+            )
+        }
+        val client = HttpClient(mockEngine)
+
+        // Act & Assert - CancellationException should be rethrown, not caught
+        try {
+            safeApiCall<String> {
+                throw kotlinx.coroutines.CancellationException("Test cancellation")
+            }
+            assertTrue(false, "Expected CancellationException to be rethrown")
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            assertEquals("Test cancellation", e.message)
+        }
+    }
+
+    /**
+     * Test 9: 204 No Content should return Result.success(null)
+     */
+    @Test
+    fun noContentReturnsNull() = runTest {
+        // Arrange
+        val mockEngine = MockEngine { _ ->
+            respond(
+                content = "",
+                status = HttpStatusCode.NoContent
+            )
+        }
+        val client = HttpClient(mockEngine) {
+            install(ContentNegotiation) {
+                json(json)
+            }
+        }
+
+        // Act
+        val result = safeApiCall<String> {
+            client.get("https://api.test.com/data")
+        }
+
+        // Assert
+        assertTrue(result.isSuccess, "Result should be successful")
+        assertEquals(null, result.getOrNull())
+    }
+
     // ============== Test Data Classes ==============
 
     @Serializable

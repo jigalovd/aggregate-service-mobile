@@ -13,8 +13,8 @@
 
 **✅ Gap Analysis:** Backend MVP готов на 100%, mobile реализует все 7 фич: Auth (100%) + Catalog (95%) + Booking (100%) + Services (100%) + Profile (100%) + Favorites (100%) + Reviews (100%). Оставшиеся задачи: Registration, UI tests.
 
-**Last Updated**: 2026-03-25
-**Project Phase**: Phase 2 Complete - All Features Implemented
+**Last Updated**: 2026-03-28
+**Project Phase**: Phase 2 Complete - All Features Implemented + Firebase Auth
 **Architecture**: Feature-First + Clean Architecture
 
 ---
@@ -172,6 +172,7 @@ gradle = "8.14.4"             # ✅ Latest wrapper
   - [x] LoginUseCase (with validation)
   - [x] LogoutUseCase (transitions to Guest state)
   - [x] ObserveAuthStateUseCase
+  - [x] RegisterUseCase (registration with validation)
 
 - **Data Layer** ✅ Complete
   - [x] AuthRepositoryImpl (Ktor + TokenStorage)
@@ -179,12 +180,15 @@ gradle = "8.14.4"             # ✅ Latest wrapper
   - [x] TokenStorage integration
   - [x] safeApiCall wrapper usage
   - [x] Authenticated API calls with refresh
+  - [x] Firebase token verification (verifyFirebaseToken, linkFirebaseAccount)
 
 - **Presentation Layer** ✅ Complete
-  - [x] LoginUiState (UDF pattern)
-  - [x] LoginScreenModel (Voyager)
-  - [x] LoginScreen (Compose)
+  - [x] LoginUiState (UDF pattern with Firebase, Phone, LinkAccount state)
+  - [x] LoginScreenModel (Voyager with Firebase handlers)
+  - [x] LoginScreen (Compose with Firebase UI)
+  - [x] RegistrationScreen/RegistrationScreenModel
   - [x] AuthPromptDialog (guest registration prompt)
+  - [x] LinkAccountDialog (Firebase account linking)
   - [x] Error handling with AppError.toUserMessage()
   - [x] Form validation (email, password)
 
@@ -193,7 +197,14 @@ gradle = "8.14.4"             # ✅ Latest wrapper
   - [x] AuthPromptTrigger enum (Booking, Review, Favorites)
 
 - **DI Layer** ✅ Complete
-  - [x] AuthModule (Koin)
+  - [x] AuthModule (Koin with FirebaseAuthApi)
+
+- **Firebase Integration** ✅ Complete
+  - [x] FirebaseAuthApi interface (expect/actual pattern)
+  - [x] Google Sign-In handler
+  - [x] Apple Sign-In handler
+  - [x] Phone Sign-In handler (SMS verification)
+  - [x] Account linking flow (LinkAccountDialog)
 
 - **Test Coverage** ✅ Complete (79 tests)
   - [x] LoginUseCaseTest (9 tests)
@@ -1034,6 +1045,6 @@ Sprint: 10/12
 
 ---
 
-**Documentation Version**: 3.4
-**Last Sync**: 2026-03-22 (Sprint 10: Reviews Feature)
-**Next Review**: 2026-03-29
+**Documentation Version**: 3.5
+**Last Sync**: 2026-03-28 (Firebase Auth Integration + i18n)
+**Next Review**: 2026-04-04

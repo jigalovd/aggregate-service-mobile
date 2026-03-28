@@ -1,6 +1,8 @@
 package com.aggregateservice.feature.reviews.data.api
 
 import com.aggregateservice.core.network.safeApiCall
+import com.aggregateservice.core.network.withAuth
+import com.aggregateservice.core.storage.TokenStorage
 import com.aggregateservice.feature.reviews.data.dto.CanReviewResponseDto
 import com.aggregateservice.feature.reviews.data.dto.CreateReviewRequest
 import com.aggregateservice.feature.reviews.data.dto.ReviewDto
@@ -16,9 +18,19 @@ import kotlinx.serialization.builtins.ListSerializer
 
 /**
  * API service for reviews endpoints.
+ *
+ * **Endpoints:**
+ * - GET    /api/v1/reviews/provider/{providerId}  - Get provider reviews (public)
+ * - GET    /api/v1/reviews/stats/provider/{providerId} - Get review stats (public)
+ * - GET    /api/v1/bookings/{bookingId}/can-review - Check if can review (auth)
+ * - POST   /api/v1/reviews - Create review (auth)
+ *
+ * @property client HTTP client (Ktor)
+ * @property tokenStorage Token storage for auth header injection
  */
 class ReviewsApiService(
     private val client: HttpClient,
+    private val tokenStorage: TokenStorage,
 ) {
     suspend fun getProviderReviews(
         providerId: String,
@@ -47,6 +59,7 @@ class ReviewsApiService(
     suspend fun createReview(request: CreateReviewRequest): Result<ReviewDto> = safeApiCall {
         client.post(REVIEWS_PATH) {
             contentType(ContentType.Application.Json)
+            withAuth(tokenStorage)
             setBody(request)
         }
     }

@@ -34,6 +34,7 @@ class LoginScreenModelTest {
 
     private lateinit var loginUseCase: LoginUseCase
     private lateinit var observeAuthStateUseCase: ObserveAuthStateUseCase
+    private lateinit var mockAuthRepository: com.aggregateservice.feature.auth.domain.repository.AuthRepository
     private lateinit var screenModel: LoginScreenModel
 
     @BeforeTest
@@ -69,8 +70,29 @@ class LoginScreenModelTest {
                 override suspend fun register(request: RegistrationRequest): Result<AuthState> {
                     return Result.failure(NotImplementedError("Use mock"))
                 }
+                override suspend fun verifyFirebaseToken(authProvider: String, firebaseToken: String): Result<AuthState> {
+                    return Result.failure(NotImplementedError("Use mock"))
+                }
+                override suspend fun linkFirebaseAccount(tempToken: String, password: String): Result<AuthState> {
+                    return Result.failure(NotImplementedError("Use mock"))
+                }
             }
         )
+
+        mockAuthRepository = object : com.aggregateservice.feature.auth.domain.repository.AuthRepository {
+            override fun observeAuthState(): StateFlow<AuthState> = authStateFlow
+            override fun getCurrentAuthState(): AuthState = authStateFlow.value
+            override suspend fun login(credentials: LoginCredentials): Result<AuthState> = Result.success(AuthState.Initial)
+            override suspend fun logout() {}
+            override suspend fun refreshToken(): Result<String> = Result.success("token")
+            override suspend fun register(request: RegistrationRequest): Result<AuthState> = Result.success(AuthState.Guest)
+            override suspend fun verifyFirebaseToken(authProvider: String, firebaseToken: String): Result<AuthState> {
+                return Result.success(AuthState.Authenticated(accessToken = "token", userId = "test", userEmail = "test@test.com"))
+            }
+            override suspend fun linkFirebaseAccount(tempToken: String, password: String): Result<AuthState> {
+                return Result.success(AuthState.Authenticated(accessToken = "token", userId = "test", userEmail = "test@test.com"))
+            }
+        }
     }
 
     @AfterTest
@@ -86,7 +108,7 @@ class LoginScreenModelTest {
                 AuthState.Authenticated(accessToken = "token", userId = "test@test.com", userEmail = "test@test.com")
             ))
         )
-        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase)
+        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase, mockAuthRepository)
 
         val state = screenModel.uiState.value
         assertEquals("", state.email)
@@ -99,7 +121,7 @@ class LoginScreenModelTest {
     @Test
     fun `onEmailChanged updates email and clears error when valid`() = runTest {
         loginUseCase = LoginUseCase(createMockRepository(Result.success(AuthState.Initial)))
-        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase)
+        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase, mockAuthRepository)
 
         screenModel.onEmailChanged("test@example.com")
         testDispatcher.scheduler.advanceUntilIdle()
@@ -112,7 +134,7 @@ class LoginScreenModelTest {
     @Test
     fun `onEmailChanged sets error when email is invalid`() = runTest {
         loginUseCase = LoginUseCase(createMockRepository(Result.success(AuthState.Initial)))
-        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase)
+        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase, mockAuthRepository)
 
         screenModel.onEmailChanged("invalid-email")
         testDispatcher.scheduler.advanceUntilIdle()
@@ -125,7 +147,7 @@ class LoginScreenModelTest {
     @Test
     fun `onPasswordChanged updates password and clears error when valid`() = runTest {
         loginUseCase = LoginUseCase(createMockRepository(Result.success(AuthState.Initial)))
-        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase)
+        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase, mockAuthRepository)
 
         screenModel.onPasswordChanged("ValidPassword123")
         testDispatcher.scheduler.advanceUntilIdle()
@@ -138,7 +160,7 @@ class LoginScreenModelTest {
     @Test
     fun `onPasswordChanged sets error when password is too short`() = runTest {
         loginUseCase = LoginUseCase(createMockRepository(Result.success(AuthState.Initial)))
-        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase)
+        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase, mockAuthRepository)
 
         screenModel.onPasswordChanged("short")
         testDispatcher.scheduler.advanceUntilIdle()
@@ -151,7 +173,7 @@ class LoginScreenModelTest {
     @Test
     fun `clearError removes all error messages`() = runTest {
         loginUseCase = LoginUseCase(createMockRepository(Result.success(AuthState.Initial)))
-        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase)
+        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase, mockAuthRepository)
 
         screenModel.onEmailChanged("invalid")
         screenModel.onPasswordChanged("short")
@@ -171,7 +193,7 @@ class LoginScreenModelTest {
     @Test
     fun `canLogin returns false when email is empty`() = runTest {
         loginUseCase = LoginUseCase(createMockRepository(Result.success(AuthState.Initial)))
-        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase)
+        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase, mockAuthRepository)
 
         screenModel.onPasswordChanged("ValidPassword123")
         testDispatcher.scheduler.advanceUntilIdle()
@@ -182,7 +204,7 @@ class LoginScreenModelTest {
     @Test
     fun `canLogin returns false when password is empty`() = runTest {
         loginUseCase = LoginUseCase(createMockRepository(Result.success(AuthState.Initial)))
-        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase)
+        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase, mockAuthRepository)
 
         screenModel.onEmailChanged("test@example.com")
         testDispatcher.scheduler.advanceUntilIdle()
@@ -193,7 +215,7 @@ class LoginScreenModelTest {
     @Test
     fun `canLogin returns true when all fields are valid`() = runTest {
         loginUseCase = LoginUseCase(createMockRepository(Result.success(AuthState.Initial)))
-        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase)
+        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase, mockAuthRepository)
 
         screenModel.onEmailChanged("test@example.com")
         screenModel.onPasswordChanged("ValidPassword123")
@@ -207,7 +229,7 @@ class LoginScreenModelTest {
         loginUseCase = LoginUseCase(createMockRepository(Result.success(
             AuthState.Authenticated(accessToken = "token", userId = "test@test.com", userEmail = "test@test.com")
         )))
-        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase)
+        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase, mockAuthRepository)
 
         screenModel.onEmailChanged("test@example.com")
         screenModel.onPasswordChanged("ValidPassword123")
@@ -223,7 +245,7 @@ class LoginScreenModelTest {
         loginUseCase = LoginUseCase(createMockRepository(Result.success(
             AuthState.Authenticated(accessToken = "token", userId = "test@test.com", userEmail = "test@test.com")
         )))
-        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase)
+        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase, mockAuthRepository)
 
         screenModel.onEmailChanged("test@example.com")
         screenModel.onPasswordChanged("ValidPassword123")
@@ -241,7 +263,7 @@ class LoginScreenModelTest {
     @Test
     fun `onLoginClick sets errorMessage on login failure`() = runTest {
         loginUseCase = LoginUseCase(createMockRepository(Result.failure(AppError.Unauthorized)))
-        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase)
+        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase, mockAuthRepository)
 
         screenModel.onEmailChanged("test@example.com")
         screenModel.onPasswordChanged("ValidPassword123")
@@ -260,7 +282,7 @@ class LoginScreenModelTest {
     @Test
     fun `onLoginClick handles AccountLocked error`() = runTest {
         loginUseCase = LoginUseCase(createMockRepository(Result.failure(AppError.AccountLocked("2024-01-01T00:00:00Z"))))
-        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase)
+        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase, mockAuthRepository)
 
         screenModel.onEmailChanged("test@example.com")
         screenModel.onPasswordChanged("ValidPassword123")
@@ -277,7 +299,7 @@ class LoginScreenModelTest {
     @Test
     fun `onLoginClick handles NetworkError`() = runTest {
         loginUseCase = LoginUseCase(createMockRepository(Result.failure(AppError.NetworkError(500, "Server error"))))
-        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase)
+        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase, mockAuthRepository)
 
         screenModel.onEmailChanged("test@example.com")
         screenModel.onPasswordChanged("ValidPassword123")
@@ -296,7 +318,7 @@ class LoginScreenModelTest {
         loginUseCase = LoginUseCase(createMockRepository(Result.success(
             AuthState.Authenticated(accessToken = "token", userId = "test@test.com", userEmail = "test@test.com")
         )))
-        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase)
+        screenModel = LoginScreenModel(loginUseCase, observeAuthStateUseCase, mockAuthRepository)
 
         screenModel.onLoginClick()
         testDispatcher.scheduler.advanceUntilIdle()
@@ -313,6 +335,8 @@ class LoginScreenModelTest {
             override suspend fun logout() {}
             override suspend fun refreshToken(): Result<String> = Result.success("new_token")
             override suspend fun register(request: RegistrationRequest): Result<AuthState> = result
+            override suspend fun verifyFirebaseToken(authProvider: String, firebaseToken: String): Result<AuthState> = result
+            override suspend fun linkFirebaseAccount(tempToken: String, password: String): Result<AuthState> = result
         }
     }
 }

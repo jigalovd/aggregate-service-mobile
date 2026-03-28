@@ -12,14 +12,14 @@ import kotlinx.serialization.Serializable
  * - Domain: LinkRequest → DTO: FirebaseLinkRequest (в Repository)
  * - Network: FirebaseLinkRequest → JSON (Ktor сериализация)
  *
- * @property tempToken Temporary token from FirebaseLinkRequiredResponse
+ * @property firebaseToken Firebase token from FirebaseLinkRequiredResponse
  * @property password User's existing account password
  *
  * @see BACKEND_API_REFERENCE.md секция "Firebase Authentication"
  */
 @Serializable
 data class FirebaseLinkRequest(
-    @SerialName("temp_token")
-    val tempToken: String,
+    @SerialName("firebase_token")
+    val firebaseToken: String,
     val password: String,
 )

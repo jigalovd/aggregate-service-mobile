@@ -10,7 +10,12 @@
       "mcp__idea__get_file_problems",
       "mcp__idea__find_files_by_name_keyword",
       "mcp__idea__get_repositories",
-      "mcp__idea__get_file_text_by_path"
+      "mcp__idea__get_file_text_by_path",
+      "mcp__idea__find_files_by_glob",
+      "mcp__idea__search_file",
+      "mcp__idea__search_regex",
+      "mcp__idea__execute_terminal_command",
+      "mcp__idea__create_new_file"
     ]
   }
 }

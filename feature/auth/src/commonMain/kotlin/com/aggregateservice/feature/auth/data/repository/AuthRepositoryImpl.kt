@@ -253,7 +253,7 @@ class AuthRepositoryImpl(
         // 2. Проверяем какой тип ответа пришел - FirebaseAlreadyLinkedResponse или FirebaseLinkRequiredResponse
         // Используем generic safeApiCall с десериализацией в Union тип
         val response = safeApiCall<FirebaseVerifyResponse> {
-            httpClient.post("auth/firebase/verify") {
+            httpClient.post("auth/provider/verify") {
                 contentType(ContentType.Application.Json)
                 setBody(verifyRequest)
             }
@@ -286,10 +286,12 @@ class AuthRepositoryImpl(
 
                     is FirebaseLinkRequiredResponse -> {
                         // Требуется связывание аккаунта
-                        // Возвращаем ошибку с tempToken для UI
+                        // Возвращаем ошибку с tempToken, email и firebaseUid для UI
                         Result.failure(
                             AppError.FirebaseLinkRequired(
                                 tempToken = firebaseResponse.tempToken,
+                                email = firebaseResponse.email,
+                                firebaseUid = firebaseResponse.firebaseUid,
                                 message = firebaseResponse.message,
                             ),
                         )
@@ -311,13 +313,13 @@ class AuthRepositoryImpl(
     ): Result<AuthState> {
         // 1. Маппим в DTO
         val linkRequest = FirebaseLinkRequest(
-            tempToken = tempToken,
+            firebaseToken = tempToken,
             password = password,
         )
 
         // 2. Выполняем API вызов
         val response = safeApiCall<AuthResponse> {
-            httpClient.post("auth/firebase/link") {
+            httpClient.post("auth/provider/link") {
                 contentType(ContentType.Application.Json)
                 setBody(linkRequest)
             }

@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.aggregateservice.core.theme.Spacing
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -169,7 +170,7 @@ private fun ErrorState(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(Spacing.MD),
         ) {
             Text(
                 text = message,
@@ -191,7 +192,7 @@ private fun EmptyState(i18nProvider: I18nProvider) {
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(Spacing.SM),
         ) {
             Text(
                 text = "♡",
@@ -220,7 +221,7 @@ private fun FavoritesList(
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(Spacing.SM),
     ) {
         items(
             items = favorites,
@@ -245,12 +246,12 @@ private fun FavoriteCard(
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = Spacing.XXS),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(Spacing.XXS),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // Logo
@@ -258,17 +259,17 @@ private fun FavoriteCard(
                 model = favorite.logoUrl,
                 contentDescription = null,
                 modifier = Modifier
-                    .size(64.dp)
+                    .size(Spacing.XS)
                     .clip(MaterialTheme.shapes.medium),
                 contentScale = ContentScale.Crop,
             )
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(Spacing.XXS))
 
             // Content
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(Spacing.XS),
             ) {
                 Text(
                     text = favorite.businessName,
@@ -280,7 +281,7 @@ private fun FavoriteCard(
                 // Rating row
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.XS),
                 ) {
                     Text(
                         text = "★",
@@ -301,7 +302,7 @@ private fun FavoriteCard(
                 // Address row
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.XS),
                 ) {
                     Text(
                         text = "📍",
@@ -347,8 +348,8 @@ private fun RemoveConfirmationDialog(
             ) {
                 if (isRemoving) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(16.dp),
-                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(Spacing.MD),
+                        strokeWidth = Spacing.XXS,
                     )
                 } else {
                     Text(i18nProvider[StringKey.DELETE])

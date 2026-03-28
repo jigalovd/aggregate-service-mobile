@@ -260,6 +260,7 @@ class RegistrationScreenModel(
         is AppError.AccountLocked -> "Аккаунт заблокирован до $until"
         is AppError.SlotNotAvailable -> reason
         is AppError.NotFound -> "Ресурс не найден"
+        is AppError.FirebaseLinkRequired -> "Требуется связывание аккаунта"
         is AppError.UnknownError -> message ?: "Произошла неизвестная ошибка"
     }
 }

@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aggregateservice.core.theme.Spacing
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -48,6 +49,7 @@ import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
+import com.aggregateservice.feature.catalog.presentation.component.ProviderCard
 import com.aggregateservice.feature.catalog.presentation.model.SearchUiState
 import com.aggregateservice.feature.catalog.presentation.screenmodel.SearchScreenModel
 import kotlinx.coroutines.launch
@@ -222,7 +224,7 @@ fun SearchField(
         onValueChange = onQueryChanged,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(Spacing.MD),
         placeholder = { Text(i18nProvider[StringKey.Search.SEARCH_HINT]) },
         singleLine = true,
         trailingIcon = {
@@ -243,9 +245,9 @@ fun CategoryFilterChips(
     onCategoryToggle: (String) -> Unit,
 ) {
     FlowRow(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(horizontal = Spacing.MD),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.SM),
+        verticalArrangement = Arrangement.spacedBy(Spacing.SM),
     ) {
         categories.forEach { category ->
             FilterChip(
@@ -255,7 +257,7 @@ fun CategoryFilterChips(
             )
         }
     }
-    Spacer(modifier = Modifier.height(8.dp))
+    Spacer(modifier = Modifier.height(Spacing.SM))
 }
 
 @Composable
@@ -283,14 +285,14 @@ fun SearchEmptyState(
                 text = i18nProvider[StringKey.Catalog.NO_RESULTS],
                 style = MaterialTheme.typography.titleMedium,
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.SM))
             if (hasFilters) {
                 Text(
                     text = i18nProvider[StringKey.Search.RESET_FILTERS],
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(Spacing.MD))
                 Button(onClick = onClearFilters) {
                     Text(i18nProvider[StringKey.CLEAR])
                 }
@@ -315,12 +317,12 @@ fun RecentSearchesSection(
                     text = "🔍",
                     style = MaterialTheme.typography.displayMedium,
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(Spacing.MD))
                 Text(
                     text = i18nProvider[StringKey.Search.TITLE],
                     style = MaterialTheme.typography.titleMedium,
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Spacing.SM))
                 Text(
                     text = i18nProvider[StringKey.Search.SEARCH_HINT],
                     style = MaterialTheme.typography.bodyMedium,
@@ -329,13 +331,13 @@ fun RecentSearchesSection(
             }
         }
     } else {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(Spacing.MD)) {
             Text(
                 text = i18nProvider[StringKey.Search.RESET_FILTERS],
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.SM))
             recentSearches.forEach { query ->
                 androidx.compose.material3.TextButton(
                     onClick = { onRecentSearchClick(query) },
@@ -377,7 +379,7 @@ fun SearchResultsList(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(Spacing.MD),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp))

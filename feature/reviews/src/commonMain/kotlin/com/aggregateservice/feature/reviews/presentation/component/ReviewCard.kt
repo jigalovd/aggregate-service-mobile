@@ -1,5 +1,6 @@
 package com.aggregateservice.feature.reviews.presentation.component
 
+import com.aggregateservice.core.theme.Spacing
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,7 +36,7 @@ fun ReviewCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = Spacing.None),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
         ),
@@ -43,8 +44,8 @@ fun ReviewCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+                .padding(Spacing.MD),
+            verticalArrangement = Arrangement.spacedBy(Spacing.SM),
         ) {
             // Header: Client name and date
             Row(
@@ -80,7 +81,7 @@ fun ReviewCard(
 
             // Provider reply
             if (review.hasProviderReply) {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(Spacing.XS))
                 ProviderReplySection(reply = review.providerReply!!)
             }
         }
@@ -94,7 +95,7 @@ private fun RatingStars(
 ) {
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.XXS),
     ) {
         repeat(5) { index ->
             val isSelected = index < rating
@@ -123,12 +124,12 @@ private fun ProviderReplySection(
         ),
     ) {
         Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier.padding(Spacing.MD),
+            verticalArrangement = Arrangement.spacedBy(Spacing.XS),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.XS),
             ) {
                 Text(
                     text = "Ответ мастера",

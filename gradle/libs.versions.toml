@@ -22,6 +22,11 @@ voyager = "1.1.0-beta02"
 # Images and UI
 coil = "3.4.0"
 
+# Firebase
+firebase-bom = "33.7.0"
+firebase-auth = "23.2.0"
+google-play-services-auth = "21.3.0"
+
 # Code Quality & Testing
 detekt = "1.23.8"
 ktlint = "13.1.0"
@@ -73,6 +78,11 @@ androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling
 # Logging
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 logback-android = { module = "com.github.tony19:logback-android", version.ref = "logback" }
+
+# Firebase
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
+firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx", version.ref = "firebase-auth" }
+google-play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "google-play-services-auth" }
 
 # Code Quality & Testing
 # Detekt plugins for custom rules

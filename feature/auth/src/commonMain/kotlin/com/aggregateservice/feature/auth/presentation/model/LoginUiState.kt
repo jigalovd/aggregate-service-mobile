@@ -90,6 +90,7 @@ data class PhoneAuthState(
  * Account linking state from Firebase response.
  *
  * @property email Email requiring linking
+ * @property tempToken Temporary token for linking
  * @property firebaseUid Firebase UID to link
  * @property authProvider Firebase auth provider
  * @property showDialog Whether to show linking dialog
@@ -97,6 +98,7 @@ data class PhoneAuthState(
 @Stable
 data class LinkAccountState(
     val email: String = "",
+    val tempToken: String = "",
     val firebaseUid: String = "",
     val authProvider: String = "",
     val showDialog: Boolean = false,

@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.aggregateservice.core.theme.Spacing
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import com.aggregateservice.core.i18n.I18nProvider
@@ -133,7 +134,7 @@ fun ProfileScreenContent(
                             text = "${i18nProvider[StringKey.ERROR]}: ${uiState.error?.message}",
                             color = MaterialTheme.colorScheme.error,
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(Spacing.MD))
                         TextButton(onClick = onRetry) {
                             Text(i18nProvider[StringKey.RETRY])
                         }
@@ -151,7 +152,7 @@ fun ProfileScreenContent(
                     // Avatar and basic info
                     ProfileHeader(profile = uiState.profile!!)
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(Spacing.LG))
 
                     if (uiState.isEditing) {
                         EditProfileForm(
@@ -170,7 +171,7 @@ fun ProfileScreenContent(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(Spacing.LG))
 
                     // Stats section
                     ProfileStats(profile = uiState.profile)
@@ -199,7 +200,7 @@ fun ProfileHeader(profile: Profile) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(Spacing.MD),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // Avatar
@@ -212,7 +213,7 @@ fun ProfileHeader(profile: Profile) {
             contentScale = ContentScale.Crop,
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(Spacing.MD))
 
         Text(
             text = profile.displayName,
@@ -230,21 +231,21 @@ fun ViewProfileInfo(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = Spacing.MD),
     ) {
         ProfileInfoRow(
             label = i18nProvider[StringKey.Profile.FULL_NAME],
-            value = profile.fullName ?: "Not set",
+            value = profile.fullName ?: i18nProvider[StringKey.Profile.NOT_SET],
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(Spacing.XXS))
 
         ProfileInfoRow(
             label = i18nProvider[StringKey.Profile.PHONE],
-            value = profile.phone ?: "Not set",
+            value = profile.phone ?: i18nProvider[StringKey.Profile.NOT_SET],
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(Spacing.LG))
 
         OutlinedButton(
             onClick = onEdit,
@@ -266,7 +267,7 @@ fun ProfileInfoRow(
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(Spacing.XS))
         Text(
             text = value,
             style = MaterialTheme.typography.bodyLarge,
@@ -286,7 +287,7 @@ fun EditProfileForm(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = Spacing.MD),
     ) {
         OutlinedTextField(
             value = uiState.editFullName,
@@ -298,7 +299,7 @@ fun EditProfileForm(
             modifier = Modifier.fillMaxWidth(),
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(Spacing.MD))
 
         OutlinedTextField(
             value = uiState.editPhone,
@@ -311,11 +312,11 @@ fun EditProfileForm(
             modifier = Modifier.fillMaxWidth(),
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(Spacing.LG))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.SM),
         ) {
             OutlinedButton(
                 onClick = onCancel,
@@ -333,7 +334,7 @@ fun EditProfileForm(
                 if (uiState.isSaving) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
-                        strokeWidth = 2.dp,
+                        strokeWidth = Spacing.XXS,
                     )
                 } else {
                     Text(i18nProvider[StringKey.SAVE])
@@ -348,14 +349,14 @@ fun ProfileStats(profile: Profile) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = Spacing.MD),
     ) {
         Text(
             text = "Booking Statistics",
             style = MaterialTheme.typography.titleMedium,
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(Spacing.MD))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -385,7 +386,7 @@ fun StatItem(
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary,
         )
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(Spacing.XS))
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall,

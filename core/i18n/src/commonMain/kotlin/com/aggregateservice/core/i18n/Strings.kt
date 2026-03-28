@@ -55,6 +55,7 @@ public object DefaultStrings {
         "auth_link_account_title" to "Link your account",
         "auth_link_account_message" to "This email is already registered:",
         "auth_link_account" to "Link Account",
+        "auth_or_divider" to " or ",
 
         // Navigation
         "nav_home" to "Home",
@@ -88,6 +89,7 @@ public object DefaultStrings {
         "booking_no_bookings" to "No bookings yet",
         "booking_cancel_confirmation" to "Are you sure you want to cancel this booking?",
         "booking_cancel_success" to "Booking cancelled successfully",
+        "booking_slot_booked" to "Booked",
 
         // Provider
         "provider_services" to "Services",
@@ -98,6 +100,9 @@ public object DefaultStrings {
         "provider_location" to "Location",
         "provider_add_favorites" to "Add to favorites",
         "provider_remove_favorites" to "Remove from favorites",
+        "provider_verified" to "Verified",
+        "provider_open_now" to "Open now",
+        "provider_closed" to "Closed",
 
         // Profile
         "profile_title" to "Profile",
@@ -107,6 +112,7 @@ public object DefaultStrings {
         "profile_language" to "Language",
         "profile_theme" to "Theme",
         "profile_logout" to "Logout",
+        "profile_not_set" to "Not set",
 
         // Error messages
         "error_network" to "Network error. Please check your connection.",
@@ -225,6 +231,7 @@ public object DefaultStrings {
         "auth_link_account_title" to "Свяжите ваш аккаунт",
         "auth_link_account_message" to "Этот email уже зарегистрирован:",
         "auth_link_account" to "Связать аккаунт",
+        "auth_or_divider" to " или ",
 
         // Navigation
         "nav_home" to "Главная",
@@ -258,6 +265,7 @@ public object DefaultStrings {
         "booking_no_bookings" to "Записей пока нет",
         "booking_cancel_confirmation" to "Вы уверены, что хотите отменить запись?",
         "booking_cancel_success" to "Запись успешно отменена",
+        "booking_slot_booked" to "Занято",
 
         // Provider
         "provider_services" to "Услуги",
@@ -268,6 +276,9 @@ public object DefaultStrings {
         "provider_location" to "Адрес",
         "provider_add_favorites" to "В избранное",
         "provider_remove_favorites" to "Убрать из избранного",
+        "provider_verified" to "Подтверждён",
+        "provider_open_now" to "Открыто",
+        "provider_closed" to "Закрыто",
 
         // Profile
         "profile_title" to "Профиль",
@@ -277,6 +288,7 @@ public object DefaultStrings {
         "profile_language" to "Язык",
         "profile_theme" to "Тема",
         "profile_logout" to "Выйти",
+        "profile_not_set" to "Не указано",
 
         // Error messages
         "error_network" to "Ошибка сети. Проверьте подключение.",
@@ -395,6 +407,7 @@ public object DefaultStrings {
         "auth_link_account_title" to "קשר את החשבון שלך",
         "auth_link_account_message" to "כתובת האימייל הזו כבר רשומה:",
         "auth_link_account" to "קשר חשבון",
+        "auth_or_divider" to " או ",
 
         // Navigation
         "nav_home" to "בית",
@@ -428,6 +441,7 @@ public object DefaultStrings {
         "booking_no_bookings" to "אין הזמנות עדיין",
         "booking_cancel_confirmation" to "האם אתה בטוח שברצונך לבטל הזמנה זו?",
         "booking_cancel_success" to "ההזמנה בוטלה בהצלחה",
+        "booking_slot_booked" to "תפוס",
 
         // Provider
         "provider_services" to "שירותים",
@@ -438,6 +452,9 @@ public object DefaultStrings {
         "provider_location" to "מיקום",
         "provider_add_favorites" to "הוסף למועדפים",
         "provider_remove_favorites" to "הסר ממועדפים",
+        "provider_verified" to "מאומת",
+        "provider_open_now" to "פתוח",
+        "provider_closed" to "סגור",
 
         // Profile
         "profile_title" to "פרופיל",
@@ -447,6 +464,7 @@ public object DefaultStrings {
         "profile_language" to "שפה",
         "profile_theme" to "ערכת נושא",
         "profile_logout" to "התנתקות",
+        "profile_not_set" to "לא הוגדר",
 
         // Error messages
         "error_network" to "שגיאת רשת. בדוק את החיבור.",

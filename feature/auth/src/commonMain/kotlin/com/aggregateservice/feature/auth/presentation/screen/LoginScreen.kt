@@ -34,13 +34,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.aggregateservice.core.theme.Spacing
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
-import com.aggregateservice.feature.auth.domain.repository.AuthRepository
 import com.aggregateservice.feature.auth.presentation.component.LinkAccountDialog
 import com.aggregateservice.feature.auth.presentation.model.LinkAccountState
 import com.aggregateservice.feature.auth.presentation.model.LoginUiState
@@ -77,8 +77,7 @@ class LoginScreen : Screen {
 
     @Composable
     override fun Content() {
-        val authRepository: AuthRepository = koinInject()
-        val screenModel = koinScreenModel<LoginScreenModel> { parametersOf(authRepository) }
+        val screenModel = koinScreenModel<LoginScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
         val navigator = LocalNavigator.current
         val i18nProvider: I18nProvider = koinInject()
@@ -166,7 +165,7 @@ fun LoginScreenContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(Spacing.MD),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -183,7 +182,7 @@ fun LoginScreenContent(
                 singleLine = true,
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.SM))
 
             // Password field
             OutlinedTextField(
@@ -199,19 +198,19 @@ fun LoginScreenContent(
                 singleLine = true,
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.MD))
 
             // Firebase Divider
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 16.dp),
+                    .padding(vertical = Spacing.MD),
                 horizontalArrangement = Arrangement.Center,
             ) {
                 HorizontalDivider(modifier = Modifier.weight(1f))
                 Text(
-                    text = " or ",
-                    modifier = Modifier.padding(horizontal = 8.dp),
+                    text = i18nProvider[StringKey.Auth.OR_DIVIDER],
+                    modifier = Modifier.padding(horizontal = Spacing.SM),
                     style = MaterialTheme.typography.bodySmall,
                 )
                 HorizontalDivider(modifier = Modifier.weight(1f))
@@ -225,15 +224,15 @@ fun LoginScreenContent(
             ) {
                 if (uiState.isFirebaseLoading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.height(24.dp),
+                        modifier = Modifier.height(Spacing.LG),
                         color = MaterialTheme.colorScheme.onPrimary,
                     )
                 } else {
-                    Text("Sign in with Google")
+                    Text(i18nProvider[StringKey.Auth.SIGN_IN_WITH_GOOGLE])
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.SM))
 
             // Apple Sign-In Button
             Button(
@@ -241,10 +240,10 @@ fun LoginScreenContent(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !uiState.isLoading && !uiState.isFirebaseLoading,
             ) {
-                Text("Sign in with Apple")
+                Text(i18nProvider[StringKey.Auth.SIGN_IN_WITH_APPLE])
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.SM))
 
             // Phone Auth Toggle
             TextButton(
@@ -252,24 +251,24 @@ fun LoginScreenContent(
                 enabled = !uiState.isLoading && !uiState.isFirebaseLoading,
             ) {
                 Text(
-                    if (uiState.phoneAuth.isInPhoneMode) "Hide phone auth"
-                    else "Sign in with phone"
+                    if (uiState.phoneAuth.isInPhoneMode) i18nProvider[StringKey.Auth.HIDE_PHONE_AUTH]
+                    else i18nProvider[StringKey.Auth.SIGN_IN_WITH_PHONE]
                 )
             }
 
             // Phone Auth Section (inline)
             if (uiState.phoneAuth.isInPhoneMode) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Spacing.SM))
 
                 // Country code + Phone input
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.SM),
                 ) {
                     OutlinedTextField(
                         value = uiState.phoneAuth.countryCode,
                         onValueChange = onCountryCodeChanged,
-                        label = { Text("Code") },
+                        label = { Text(i18nProvider[StringKey.Auth.CODE]) },
                         modifier = Modifier.weight(0.25f),
                         singleLine = true,
                         enabled = !uiState.isFirebaseLoading,
@@ -277,14 +276,14 @@ fun LoginScreenContent(
                     OutlinedTextField(
                         value = uiState.phoneAuth.phoneNumber,
                         onValueChange = onPhoneNumberChanged,
-                        label = { Text("Phone") },
+                        label = { Text(i18nProvider[StringKey.Auth.PHONE_NUMBER]) },
                         modifier = Modifier.weight(0.75f),
                         singleLine = true,
                         enabled = !uiState.isFirebaseLoading && !uiState.phoneAuth.isWaitingForCode,
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Spacing.SM))
 
                 if (!uiState.phoneAuth.isWaitingForCode) {
                     Button(
@@ -292,7 +291,7 @@ fun LoginScreenContent(
                         modifier = Modifier.fillMaxWidth(),
                         enabled = uiState.phoneAuth.phoneNumber.isNotBlank() && !uiState.isFirebaseLoading,
                     ) {
-                        Text("Send Code")
+                        Text(i18nProvider[StringKey.Auth.SEND_CODE])
                     }
                 } else {
                     // Verification code input
@@ -302,13 +301,13 @@ fun LoginScreenContent(
                             localPhoneVerificationCode = it
                             // Update the state in screen model via a dedicated handler
                         },
-                        label = { Text("Verification Code") },
+                        label = { Text(i18nProvider[StringKey.Auth.VERIFICATION_CODE]) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         enabled = !uiState.isFirebaseLoading,
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(Spacing.SM))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -319,8 +318,8 @@ fun LoginScreenContent(
                             enabled = uiState.phoneAuth.isResendAvailable && !uiState.isFirebaseLoading,
                         ) {
                             Text(
-                                if (uiState.phoneAuth.isResendAvailable) "Resend Code"
-                                else "Resend in ${uiState.phoneAuth.resendCountdown}s"
+                                if (uiState.phoneAuth.isResendAvailable) i18nProvider[StringKey.Auth.RESEND_CODE]
+                                else "${i18nProvider[StringKey.Auth.RESEND_IN]} ${uiState.phoneAuth.resendCountdown}s"
                             )
                         }
 
@@ -328,13 +327,13 @@ fun LoginScreenContent(
                             onClick = onVerifyPhoneCode,
                             enabled = localPhoneVerificationCode.isNotBlank() && !uiState.isFirebaseLoading,
                         ) {
-                            Text("Verify")
+                            Text(i18nProvider[StringKey.Auth.VERIFY])
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.MD))
 
             // Login button
             Button(
@@ -344,7 +343,7 @@ fun LoginScreenContent(
             ) {
                 if (uiState.isLoading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.height(24.dp),
+                        modifier = Modifier.height(Spacing.LG),
                         color = MaterialTheme.colorScheme.onPrimary,
                     )
                 } else {
@@ -352,7 +351,7 @@ fun LoginScreenContent(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.SM))
 
             // Forgot password button
             // Feature: Forgot password navigation planned for v1.1

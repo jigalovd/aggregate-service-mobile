@@ -32,8 +32,8 @@ val bookingModule = module {
     // Navigator for cross-feature navigation
     single<BookingNavigator> { BookingNavigatorImpl() }
 
-    // API Service
-    single { BookingApiService(get()) }
+    // API Service (with TokenStorage for authenticated calls)
+    single { BookingApiService(get(), get()) }
 
     // Repository
     single<BookingRepository> {

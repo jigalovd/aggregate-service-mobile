@@ -359,10 +359,10 @@ shared/
 
 ## Status
 
-| Platform    | Status        | Notes                   |
-|-------------|---------------|-------------------------|
-| Backend API | ✅ Done        | 4 endpoints implemented |
-| Android     | ⬜ Not Started |                         |
-| iOS         | ⬜ Not Started |                         |
-| KMP Shared  | ⬜ Not Started |                         |
-| E2E Testing | ⬜ Not Started |                         |
+| Platform    | Status        | Notes                              |
+|-------------|---------------|------------------------------------|
+| Backend API | ✅ Done        | 4 endpoints implemented            |
+| Android     | ✅ Done        | Firebase SDK integrated            |
+| iOS         | ✅ Done        | Firebase SDK integrated            |
+| KMP Shared  | ✅ Done        | FirebaseAuthApi implemented        |
+| E2E Testing | ⬜ Not Started |                                    |

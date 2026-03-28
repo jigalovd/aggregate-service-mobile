@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.aggregateservice.core.theme.Spacing
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -125,7 +126,7 @@ fun ServicesListScreenContent(
                             text = "${i18nProvider[StringKey.ERROR]}: ${uiState.error?.message}",
                             color = MaterialTheme.colorScheme.error,
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(Spacing.MD))
                         TextButton(onClick = onRetry) {
                             Text(i18nProvider[StringKey.RETRY])
                         }
@@ -142,7 +143,7 @@ fun ServicesListScreenContent(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(i18nProvider[StringKey.Services.NO_SERVICES])
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(Spacing.SM))
                         TextButton(onClick = onAddService) {
                             Text(i18nProvider[StringKey.Services.ADD_FIRST])
                         }
@@ -183,7 +184,7 @@ fun ServicesListScreenContent(
                         enabled = !uiState.isDeleting,
                     ) {
                         if (uiState.isDeleting) {
-                            CircularProgressIndicator(modifier = Modifier.height(16.dp))
+                            CircularProgressIndicator(modifier = Modifier.height(Spacing.MD))
                         } else {
                             Text(i18nProvider[StringKey.DELETE], color = MaterialTheme.colorScheme.error)
                         }
@@ -209,12 +210,12 @@ fun ServiceListItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = Spacing.MD, vertical = Spacing.SM),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(Spacing.MD),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
@@ -230,9 +231,9 @@ fun ServiceListItem(
                         maxLines = 2,
                     )
                 }
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(Spacing.XS))
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.MD),
                 ) {
                     Text(
                         text = service.formattedPrice,

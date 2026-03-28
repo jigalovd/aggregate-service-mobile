@@ -211,5 +211,13 @@ class LoginUseCaseTest {
         override suspend fun refreshToken(): Result<String> {
             return Result.success("new_token")
         }
+
+        override suspend fun verifyFirebaseToken(authProvider: String, firebaseToken: String): Result<AuthState> {
+            return Result.success(AuthState.Authenticated(accessToken = "token", userId = "test", userEmail = "test@test.com"))
+        }
+
+        override suspend fun linkFirebaseAccount(tempToken: String, password: String): Result<AuthState> {
+            return Result.success(AuthState.Authenticated(accessToken = "token", userId = "test", userEmail = "test@test.com"))
+        }
     }
 }

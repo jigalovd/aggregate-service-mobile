@@ -1,6 +1,8 @@
 package com.aggregateservice.feature.favorites.data.api
 
 import com.aggregateservice.core.network.safeApiCall
+import com.aggregateservice.core.network.withAuth
+import com.aggregateservice.core.storage.TokenStorage
 import com.aggregateservice.feature.favorites.data.dto.FavoriteDto
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
@@ -13,15 +15,17 @@ import io.ktor.http.contentType
  * API service for favorites management.
  *
  * **Endpoints:**
- * - GET    /api/v1/catalog/favorites                  - List all favorites
- * - POST   /api/v1/catalog/favorites/{providerId}     - Add to favorites
- * - DELETE /api/v1/catalog/favorites/{providerId}     - Remove from favorites
- * - GET    /api/v1/catalog/favorites/{providerId}/check - Check if favorite
+ * - GET    /api/v1/catalog/favorites                  - List all favorites (auth)
+ * - POST   /api/v1/catalog/favorites/{providerId}     - Add to favorites (auth)
+ * - DELETE /api/v1/catalog/favorites/{providerId}     - Remove from favorites (auth)
+ * - GET    /api/v1/catalog/favorites/{providerId}/check - Check if favorite (auth)
  *
  * @property client HTTP client (Ktor)
+ * @property tokenStorage Token storage for auth header injection
  */
 class FavoritesApiService(
     private val client: HttpClient,
+    private val tokenStorage: TokenStorage,
 ) {
     /**
      * Retrieves all favorites for the authenticated user.
@@ -32,6 +36,7 @@ class FavoritesApiService(
         return safeApiCall<List<FavoriteDto>> {
             client.get("/api/v1/catalog/favorites") {
                 contentType(ContentType.Application.Json)
+                withAuth(tokenStorage)
             }
         }
     }
@@ -45,6 +50,7 @@ class FavoritesApiService(
         return safeApiCall<Unit> {
             client.post("/api/v1/catalog/favorites/$providerId") {
                 contentType(ContentType.Application.Json)
+                withAuth(tokenStorage)
             }
         }
     }
@@ -58,6 +64,7 @@ class FavoritesApiService(
         return safeApiCall<Unit> {
             client.delete("/api/v1/catalog/favorites/$providerId") {
                 contentType(ContentType.Application.Json)
+                withAuth(tokenStorage)
             }
         }
     }
@@ -71,6 +78,7 @@ class FavoritesApiService(
         return safeApiCall<Boolean> {
             client.get("/api/v1/catalog/favorites/$providerId/check") {
                 contentType(ContentType.Application.Json)
+                withAuth(tokenStorage)
             }
         }
     }

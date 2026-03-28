@@ -29,6 +29,7 @@ include(":core:utils")
 include(":core:navigation")
 include(":core:config")
 include(":core:di")
+include(":core:firebase-auth")
 include(":core:test-utils")
 include(":core:ui")
 

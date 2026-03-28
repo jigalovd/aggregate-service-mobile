@@ -43,7 +43,7 @@ class LoginScreenModel(
     private val loginUseCase: LoginUseCase,
     private val observeAuthStateUseCase: ObserveAuthStateUseCase,
     private val authRepository: AuthRepository,
-    private val firebaseAuthApi: FirebaseAuthApi = FirebaseAuthApiFactory.create(),
+    private val firebaseAuthApi: FirebaseAuthApi? = null,
 ) : ScreenModel {
 
     // UI State
@@ -197,6 +197,7 @@ class LoginScreenModel(
     fun onSendPhoneCode() {
         val phone = _uiState.value.phoneAuth
         if (phone.phoneNumber.isBlank()) return
+        val api = firebaseAuthApi ?: return
 
         val fullPhone = "${phone.countryCode}${phone.phoneNumber}"
         _uiState.value = _uiState.value.copy(
@@ -205,7 +206,7 @@ class LoginScreenModel(
         )
 
         screenModelScope.launch {
-            firebaseAuthApi.signInWithPhoneStart(fullPhone)
+            api.signInWithPhoneStart(fullPhone)
                 .fold(
                     onSuccess = { verificationId ->
                         _uiState.value = _uiState.value.copy(
@@ -236,11 +237,12 @@ class LoginScreenModel(
         val phone = _uiState.value.phoneAuth
         val verificationId = phone.verificationId ?: return
         if (phone.verificationCode.isBlank()) return
+        val api = firebaseAuthApi ?: return
 
         _uiState.value = _uiState.value.copy(isFirebaseLoading = true)
 
         screenModelScope.launch {
-            firebaseAuthApi.confirmPhoneCode(verificationId, phone.verificationCode)
+            api.confirmPhoneCode(verificationId, phone.verificationCode)
                 .fold(
                     onSuccess = { token ->
                         verifyFirebaseWithBackend(token.authProvider, token.idToken)
@@ -259,10 +261,11 @@ class LoginScreenModel(
      * Handle Google Sign-In.
      */
     fun onGoogleSignIn() {
+        val api = firebaseAuthApi ?: return
         _uiState.value = _uiState.value.copy(isFirebaseLoading = true)
 
         screenModelScope.launch {
-            firebaseAuthApi.signInWithGoogle()
+            api.signInWithGoogle()
                 .fold(
                     onSuccess = { token ->
                         verifyFirebaseWithBackend(token.authProvider, token.idToken)
@@ -281,10 +284,11 @@ class LoginScreenModel(
      * Handle Apple Sign-In.
      */
     fun onAppleSignIn() {
+        val api = firebaseAuthApi ?: return
         _uiState.value = _uiState.value.copy(isFirebaseLoading = true)
 
         screenModelScope.launch {
-            firebaseAuthApi.signInWithApple()
+            api.signInWithApple()
                 .fold(
                     onSuccess = { token ->
                         verifyFirebaseWithBackend(token.authProvider, token.idToken)
@@ -313,14 +317,14 @@ class LoginScreenModel(
                         )
                     },
                     onFailure = { error ->
-                        // Check if link_required
-                        if (error.message?.contains("link_required") == true) {
-                            // Parse link_required response and show dialog
+                        // Check if link_required using typed error
+                        if (error is AppError.FirebaseLinkRequired) {
                             _uiState.value = _uiState.value.copy(
                                 isFirebaseLoading = false,
                                 linkAccount = LinkAccountState(
-                                    email = extractEmailFromError(error),
-                                    firebaseUid = extractFirebaseUidFromError(error),
+                                    email = error.email,
+                                    tempToken = error.tempToken,
+                                    firebaseUid = error.firebaseUid,
                                     authProvider = authProvider,
                                     showDialog = true,
                                 ),
@@ -348,8 +352,8 @@ class LoginScreenModel(
                 linkAccount = linkState.copy(showDialog = false),
             )
 
-            // First get fresh Firebase token (stored internally)
-            authRepository.linkFirebaseAccount(linkState.firebaseUid, password)
+            // Use tempToken to link Firebase account with existing account
+            authRepository.linkFirebaseAccount(linkState.tempToken, password)
                 .fold(
                     onSuccess = {
                         _uiState.value = _uiState.value.copy(
@@ -394,9 +398,6 @@ class LoginScreenModel(
             }
         }
     }
-
-    private fun extractEmailFromError(error: Throwable): String = ""
-    private fun extractFirebaseUidFromError(error: Throwable): String = ""
 
     /**
      * Преобразует AppError в понятное пользователю сообщение.

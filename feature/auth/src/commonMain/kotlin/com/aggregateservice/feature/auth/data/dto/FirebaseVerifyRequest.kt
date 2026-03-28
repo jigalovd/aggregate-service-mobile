@@ -38,12 +38,17 @@ sealed interface FirebaseVerifyResponse
  * Firebase account is not yet linked to an existing account in the system.
  *
  * @property tempToken Temporary token to complete account linking
+ * @property email Email of the existing account to link with
+ * @property firebaseUid Firebase UID of the credential
  * @property message User-friendly message
  */
 @Serializable
 data class FirebaseLinkRequiredResponse(
     @SerialName("temp_token")
     val tempToken: String,
+    val email: String,
+    @SerialName("firebase_uid")
+    val firebaseUid: String,
     val message: String,
 ) : FirebaseVerifyResponse
 

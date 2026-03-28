@@ -12,6 +12,7 @@ kotlin {
             // Core modules
             implementation(project(":core:navigation"))
             implementation(project(":core:i18n"))
+            implementation(project(":core:firebase-auth"))
 
             // Network (для Repository)
             implementation(libs.ktor.client.core)

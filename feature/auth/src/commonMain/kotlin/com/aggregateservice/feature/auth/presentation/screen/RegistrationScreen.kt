@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.aggregateservice.core.theme.Spacing
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -160,7 +161,7 @@ fun RegistrationScreenContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp)
+                .padding(Spacing.MD)
                 .verticalScroll(rememberScrollState())
                 .imePadding(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -228,7 +229,7 @@ fun RegistrationScreenContent(
                 supportingText = uiState.phoneError?.let { { Text(it) } },
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.SM))
 
             // Role selection
             Text(
@@ -269,7 +270,7 @@ fun RegistrationScreenContent(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.MD))
 
             // Register button
             Button(
@@ -279,7 +280,7 @@ fun RegistrationScreenContent(
             ) {
                 if (uiState.isLoading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.height(24.dp),
+                        modifier = Modifier.height(Spacing.LG),
                         color = MaterialTheme.colorScheme.onPrimary,
                     )
                 } else {
@@ -287,7 +288,7 @@ fun RegistrationScreenContent(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.SM))
 
             // Login link
             TextButton(

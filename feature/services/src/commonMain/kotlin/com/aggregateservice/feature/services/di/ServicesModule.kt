@@ -23,7 +23,7 @@ import org.koin.dsl.module
  */
 val servicesModule = module {
     // API Service
-    single { ServicesApiService(get()) }
+    single { ServicesApiService(get(), get()) }
 
     // Repository
     single<ServicesRepository> {

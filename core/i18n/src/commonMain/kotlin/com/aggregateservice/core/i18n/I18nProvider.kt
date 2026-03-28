@@ -110,6 +110,23 @@ object StringKey {
         const val LINK_ACCOUNT_TITLE = "auth_link_account_title"
         const val LINK_ACCOUNT_MESSAGE = "auth_link_account_message"
         const val LINK_ACCOUNT = "auth_link_account"
+        // Firebase auth strings
+        const val SIGN_IN_WITH_GOOGLE = "auth_sign_in_with_google"
+        const val SIGN_IN_WITH_APPLE = "auth_sign_in_with_apple"
+        const val SIGN_IN_WITH_PHONE = "auth_sign_in_with_phone"
+        const val HIDE_PHONE_AUTH = "auth_hide_phone_auth"
+        const val CODE = "auth_code"
+        const val PHONE_NUMBER = "auth_phone_number"
+        const val SEND_CODE = "auth_send_code"
+        const val RESEND_CODE = "auth_resend_code"
+        const val RESEND_IN = "auth_resend_in"
+        const val VERIFICATION_CODE = "auth_verification_code"
+        const val VERIFY = "auth_verify"
+        const val SIGN_IN_WITH = "auth_sign_in_with"
+        const val PROVIDER_GOOGLE = "auth_provider_google"
+        const val PROVIDER_APPLE = "auth_provider_apple"
+        const val PROVIDER_PHONE = "auth_provider_phone"
+        const val OR_DIVIDER = "auth_or_divider"
     }
 
     // Navigation
@@ -185,6 +202,7 @@ object StringKey {
         const val STATUS_CANCELLED = "booking_status_cancelled"
         const val STATUS_EXPIRED = "booking_status_expired"
         const val STATUS_NO_SHOW = "booking_status_no_show"
+        const val SLOT_BOOKED = "booking_slot_booked"
     }
 
     // Provider
@@ -198,6 +216,9 @@ object StringKey {
         const val ADD_TO_FAVORITES = "provider_add_favorites"
         const val REMOVE_FROM_FAVORITES = "provider_remove_favorites"
         const val REMOVE_CONFIRM = "provider_remove_confirm"
+        const val VERIFIED = "provider_verified"
+        const val OPEN_NOW = "provider_open_now"
+        const val CLOSED = "provider_closed"
     }
 
     // Profile
@@ -211,6 +232,7 @@ object StringKey {
         const val LANGUAGE = "profile_language"
         const val THEME = "profile_theme"
         const val LOGOUT = "profile_logout"
+        const val NOT_SET = "profile_not_set"
     }
 
     // Error messages

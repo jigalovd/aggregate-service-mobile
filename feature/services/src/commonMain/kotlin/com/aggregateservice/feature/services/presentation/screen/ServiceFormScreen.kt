@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.aggregateservice.core.theme.Spacing
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -136,7 +137,7 @@ fun ServiceFormScreenContent(
                             text = "${i18nProvider[StringKey.ERROR]}: ${uiState.error?.message}",
                             color = MaterialTheme.colorScheme.error,
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(Spacing.MD))
                         TextButton(onClick = onBack) {
                             Text(i18nProvider[StringKey.Services.GO_BACK])
                         }
@@ -149,9 +150,9 @@ fun ServiceFormScreenContent(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .padding(16.dp)
+                        .padding(Spacing.MD)
                         .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.MD),
                 ) {
                     // Name field
                     OutlinedTextField(
@@ -229,7 +230,7 @@ fun ServiceFormScreenContent(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(Spacing.MD))
 
                     // Save button
                     Button(

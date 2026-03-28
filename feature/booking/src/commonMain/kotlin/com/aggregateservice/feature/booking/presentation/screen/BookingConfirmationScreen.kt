@@ -22,8 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -35,6 +33,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
+import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.feature.booking.domain.model.BookingService
 import com.aggregateservice.feature.booking.domain.model.TimeSlot
 import com.aggregateservice.feature.booking.presentation.screenmodel.BookingConfirmationScreenModel
@@ -66,8 +65,9 @@ data class BookingConfirmationScreen(
         val uiState by screenModel.uiState.collectAsState()
         val i18nProvider: I18nProvider = koinInject()
 
-        // Services passed from previous screen (in real app, would be passed or loaded)
-        val services = remember { mutableStateOf<List<BookingService>>(emptyList()) }
+        // TODO: Services should be passed from previous screen or loaded via repository
+        // Currently passing empty list - booking will fail if services are required
+        val services: List<BookingService> = emptyList()
 
         // Initialize with data
         LaunchedEffect(providerId) {
@@ -82,7 +82,7 @@ data class BookingConfirmationScreen(
             screenModel.initialize(
                 providerId = providerId,
                 providerName = providerName,
-                services = services.value,
+                services = services,
                 selectedDate = LocalDate.parse(selectedDate),
                 selectedSlot = slot,
             )
@@ -139,7 +139,7 @@ fun BookingConfirmationScreenContent(
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(Spacing.MD),
                     ) {
                         Text(
                             text = "✓",
@@ -158,7 +158,7 @@ fun BookingConfirmationScreenContent(
                                 textAlign = TextAlign.Center,
                             )
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(Spacing.MD))
                         Button(onClick = onDone) {
                             Text(i18nProvider[StringKey.DONE])
                         }
@@ -171,7 +171,7 @@ fun BookingConfirmationScreenContent(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .padding(16.dp),
+                        .padding(Spacing.MD),
                 ) {
                     // Provider info
                     Text(
@@ -180,17 +180,17 @@ fun BookingConfirmationScreenContent(
                         fontWeight = FontWeight.Bold,
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(Spacing.MD))
 
                     // Booking summary card
                     Card(modifier = Modifier.fillMaxWidth()) {
-                        Column(modifier = Modifier.padding(16.dp)) {
+                        Column(modifier = Modifier.padding(Spacing.MD)) {
                             Text(
                                 text = i18nProvider[StringKey.Confirmation.REVIEW_DETAILS],
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(Spacing.SM))
 
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -199,7 +199,7 @@ fun BookingConfirmationScreenContent(
                                 Text(i18nProvider[StringKey.Booking.SERVICES], style = MaterialTheme.typography.bodyMedium)
                                 Text("${uiState.services.size}", style = MaterialTheme.typography.bodyMedium)
                             }
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(Spacing.XS))
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -207,7 +207,7 @@ fun BookingConfirmationScreenContent(
                                 Text(i18nProvider[StringKey.Booking.DURATION], style = MaterialTheme.typography.bodyMedium)
                                 Text(uiState.formattedDuration, style = MaterialTheme.typography.bodyMedium)
                             }
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(Spacing.XS))
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -227,7 +227,7 @@ fun BookingConfirmationScreenContent(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(Spacing.MD))
 
                     // Notes input
                     OutlinedTextField(
@@ -250,7 +250,7 @@ fun BookingConfirmationScreenContent(
                     ) {
                         if (uiState.isSubmitting) {
                             CircularProgressIndicator(
-                                modifier = Modifier.padding(end = 8.dp),
+                                modifier = Modifier.padding(end = Spacing.SM),
                                 color = MaterialTheme.colorScheme.onPrimary,
                             )
                         }
@@ -259,7 +259,7 @@ fun BookingConfirmationScreenContent(
 
                     // Error display
                     uiState.error?.let { error ->
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(Spacing.SM))
                         Text(
                             text = error.message ?: i18nProvider[StringKey.Error.UNKNOWN],
                             style = MaterialTheme.typography.bodySmall,

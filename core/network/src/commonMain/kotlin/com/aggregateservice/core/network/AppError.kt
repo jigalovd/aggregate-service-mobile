@@ -137,12 +137,16 @@ sealed class AppError(
      * не связан с существующим аккаунтом в системе.
      *
      * @property tempToken Temporary token для завершения связывания
+     * @property email Email существующего аккаунта
+     * @property firebaseUid Firebase UID
      * @property message Сообщение об ошибке
      *
      * @see BACKEND_API_REFERENCE.md секция "Firebase Authentication"
      */
     data class FirebaseLinkRequired(
         val tempToken: String,
+        val email: String,
+        val firebaseUid: String,
         override val message: String,
     ) : AppError(message)
 }

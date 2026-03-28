@@ -1,5 +1,7 @@
 package com.aggregateservice.feature.auth.di
 
+import com.aggregateservice.core.firebase.FirebaseAuthApi
+import com.aggregateservice.core.firebase.FirebaseAuthApiFactory
 import com.aggregateservice.core.navigation.AuthStateProvider
 import com.aggregateservice.feature.auth.AuthStateProviderImpl
 import com.aggregateservice.feature.auth.data.repository.AuthRepositoryImpl
@@ -32,6 +34,9 @@ val authModule = module {
         )
     }
 
+    // Firebase Auth API (platform-specific implementation)
+    single<FirebaseAuthApi> { FirebaseAuthApiFactory.create() }
+
     // UseCases
     factoryOf(::LoginUseCase)
     factoryOf(::LogoutUseCase)
@@ -39,13 +44,7 @@ val authModule = module {
     factoryOf(::RegisterUseCase)
 
     // ScreenModels
-    factory { (authRepository: AuthRepository) ->
-        LoginScreenModel(
-            loginUseCase = get(),
-            observeAuthStateUseCase = get(),
-            authRepository = authRepository,
-        )
-    }
+    factoryOf(::LoginScreenModel)
     factoryOf(::RegistrationScreenModel)
 
     // AuthStateProvider - abstraction for cross-feature auth access

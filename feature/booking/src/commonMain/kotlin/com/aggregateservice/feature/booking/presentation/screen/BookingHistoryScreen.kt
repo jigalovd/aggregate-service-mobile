@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aggregateservice.core.theme.Spacing
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import com.aggregateservice.core.i18n.I18nProvider
@@ -130,7 +131,7 @@ fun BookingHistoryScreenContent(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .padding(horizontal = 16.dp),
+                        .padding(horizontal = Spacing.MD),
                 ) {
                     // Upcoming bookings
                     if (uiState.upcomingBookings.isNotEmpty()) {
@@ -139,7 +140,7 @@ fun BookingHistoryScreenContent(
                                 text = i18nProvider[StringKey.Booking.UPCOMING],
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(vertical = 8.dp),
+                                modifier = Modifier.padding(vertical = Spacing.SM),
                             )
                         }
                         items(uiState.upcomingBookings, key = { it.id }) { booking ->
@@ -154,12 +155,12 @@ fun BookingHistoryScreenContent(
                     // Past bookings
                     if (uiState.pastBookings.isNotEmpty()) {
                         item {
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(Spacing.MD))
                             Text(
                                 text = i18nProvider[StringKey.Booking.PAST],
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(vertical = 8.dp),
+                                modifier = Modifier.padding(vertical = Spacing.SM),
                             )
                         }
                         items(uiState.pastBookings, key = { it.id }) { booking ->
@@ -185,9 +186,9 @@ fun BookingCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = Spacing.SM),
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(Spacing.MD)) {
             // Provider name
             Text(
                 text = booking.providerName,
@@ -195,12 +196,12 @@ fun BookingCard(
                 fontWeight = FontWeight.Bold,
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(Spacing.XS))
 
             // Status chip
             StatusChip(status = booking.status, i18nProvider = i18nProvider)
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.SM))
 
             // Services summary
             Text(
@@ -208,7 +209,7 @@ fun BookingCard(
                 style = MaterialTheme.typography.bodyMedium,
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.SM))
 
             // Price and duration
             Row(
@@ -228,7 +229,7 @@ fun BookingCard(
 
             // Cancel button (if applicable)
             if (onCancel != null && booking.canCancel) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Spacing.SM))
                 androidx.compose.material3.TextButton(onClick = onCancel) {
                     Text(
                         text = i18nProvider[StringKey.Booking.CANCEL],
@@ -259,7 +260,7 @@ fun StatusChip(status: BookingStatus, i18nProvider: I18nProvider) {
         Text(
             text = text,
             style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            modifier = Modifier.padding(horizontal = Spacing.SM, vertical = Spacing.XS),
         )
     }
 }

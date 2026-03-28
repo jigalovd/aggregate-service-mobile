@@ -1,6 +1,8 @@
 package com.aggregateservice.feature.booking.data.api
 
 import com.aggregateservice.core.network.safeApiCall
+import com.aggregateservice.core.network.withAuth
+import com.aggregateservice.core.storage.TokenStorage
 import com.aggregateservice.feature.booking.data.dto.BookingDto
 import com.aggregateservice.feature.booking.data.dto.CancelRequest
 import com.aggregateservice.feature.booking.data.dto.CreateBookingRequest
@@ -26,18 +28,20 @@ import kotlinx.datetime.LocalDate
  * - Возврат Result с DTO или ошибкой
  *
  * **Endpoints:**
- * - POST   /bookings                    - Создать бронирование
- * - GET    /bookings/{id}               - Получить бронирование
- * - GET    /bookings/client/{id}        - История клиента
- * - PATCH  /bookings/{id}/confirm       - Подтвердить
- * - PATCH  /bookings/{id}/cancel        - Отменить
- * - PATCH  /bookings/{id}/reschedule    - Перенести
- * - GET    /bookings/slots              - Доступные слоты
+ * - POST   /bookings                    - Создать бронирование (auth)
+ * - GET    /bookings/{id}               - Получить бронирование (auth)
+ * - GET    /bookings/client/{id}        - История клиента (auth)
+ * - PATCH  /bookings/{id}/confirm       - Подтвердить (auth)
+ * - PATCH  /bookings/{id}/cancel        - Отменить (auth)
+ * - PATCH  /bookings/{id}/reschedule    - Перенести (auth)
+ * - GET    /bookings/slots              - Доступные слоты (auth)
  *
  * @property client HTTP клиент (Ktor)
+ * @property tokenStorage Token storage for auth header injection
  */
 class BookingApiService(
     private val client: HttpClient,
+    private val tokenStorage: TokenStorage,
 ) {
     /**
      * Создаёт новое бронирование.
@@ -48,6 +52,7 @@ class BookingApiService(
         return safeApiCall<BookingDto> {
             client.post("/bookings") {
                 contentType(ContentType.Application.Json)
+                withAuth(tokenStorage)
                 setBody(request)
             }
         }
@@ -62,6 +67,7 @@ class BookingApiService(
         return safeApiCall<BookingDto> {
             client.get("/bookings/$bookingId") {
                 contentType(ContentType.Application.Json)
+                withAuth(tokenStorage)
             }
         }
     }
@@ -80,6 +86,7 @@ class BookingApiService(
         return safeApiCall<List<BookingDto>> {
             client.get("/bookings/client/$clientId") {
                 contentType(ContentType.Application.Json)
+                withAuth(tokenStorage)
                 status?.let { parameter("status", it) }
                 parameter("page", page)
                 parameter("pageSize", pageSize)
@@ -96,6 +103,7 @@ class BookingApiService(
         return safeApiCall<BookingDto> {
             client.patch("/bookings/$bookingId/confirm") {
                 contentType(ContentType.Application.Json)
+                withAuth(tokenStorage)
             }
         }
     }
@@ -109,6 +117,7 @@ class BookingApiService(
         return safeApiCall<BookingDto> {
             client.patch("/bookings/$bookingId/cancel") {
                 contentType(ContentType.Application.Json)
+                withAuth(tokenStorage)
                 setBody(request)
             }
         }
@@ -123,6 +132,7 @@ class BookingApiService(
         return safeApiCall<BookingDto> {
             client.patch("/bookings/$bookingId/reschedule") {
                 contentType(ContentType.Application.Json)
+                withAuth(tokenStorage)
                 setBody(request)
             }
         }
@@ -141,6 +151,7 @@ class BookingApiService(
         return safeApiCall<List<TimeSlotDto>> {
             client.get("/bookings/slots") {
                 contentType(ContentType.Application.Json)
+                withAuth(tokenStorage)
                 parameter("providerId", providerId)
                 parameter("date", date.toString())
                 serviceIds.forEach { parameter("serviceIds", it) }
@@ -160,6 +171,7 @@ class BookingApiService(
         return safeApiCall<List<ServiceDto>> {
             client.get("/providers/$providerId/services") {
                 contentType(ContentType.Application.Json)
+                withAuth(tokenStorage)
             }
         }
     }

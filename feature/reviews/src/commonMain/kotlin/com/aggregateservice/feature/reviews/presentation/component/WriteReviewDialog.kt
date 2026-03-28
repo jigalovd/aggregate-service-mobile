@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.reviews.domain.usecase.CreateReviewUseCase
 import com.aggregateservice.feature.reviews.presentation.model.WriteReviewUiState
@@ -82,12 +83,12 @@ private fun CheckingContent(i18nProvider: I18nProvider) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(32.dp),
+            .padding(Spacing.XXXL),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         CircularProgressIndicator()
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(Spacing.MD))
         Text(
             text = i18nProvider[StringKey.LOADING],
             style = MaterialTheme.typography.bodyMedium,
@@ -103,9 +104,9 @@ private fun SuccessContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(24.dp),
+            .padding(Spacing.LG),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(Spacing.MD),
     ) {
         Text(
             text = "✓",
@@ -131,9 +132,9 @@ private fun CannotReviewContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(24.dp),
+            .padding(Spacing.LG),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(Spacing.MD),
     ) {
         Text(
             text = "⚠",
@@ -163,8 +164,8 @@ private fun WriteReviewContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .padding(Spacing.LG),
+        verticalArrangement = Arrangement.spacedBy(Spacing.MD),
     ) {
         Text(
             text = i18nProvider[StringKey.Reviews.WRITE_REVIEW],
@@ -181,14 +182,14 @@ private fun WriteReviewContent(
 
         // Rating selection
         Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(Spacing.SM),
         ) {
             Text(
                 text = i18nProvider[StringKey.Reviews.RATING],
                 style = MaterialTheme.typography.labelMedium,
             )
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.SM),
             ) {
                 for (rating in CreateReviewUseCase.MIN_RATING..CreateReviewUseCase.MAX_RATING) {
                     val isSelected = rating <= state.rating
@@ -239,15 +240,15 @@ private fun WriteReviewContent(
             ) {
                 Text(i18nProvider[StringKey.Reviews.CANCEL])
             }
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(Spacing.SM))
             TextButton(
                 onClick = onSubmit,
                 enabled = state.isValid && !state.isSubmitting,
             ) {
                 if (state.isSubmitting) {
                     CircularProgressIndicator(
-                        modifier = Modifier.width(16.dp).height(16.dp),
-                        strokeWidth = 2.dp,
+                        modifier = Modifier.width(Spacing.MD).height(Spacing.MD),
+                        strokeWidth = Spacing.XXS,
                     )
                 } else {
                     Text(i18nProvider[StringKey.Reviews.SUBMIT])
