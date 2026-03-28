@@ -56,6 +56,7 @@ class SelectServiceScreenModel(
 
     /**
      * Переключает выбор услуги.
+     * Нельзя выбрать несколько услуг, если одна из них некомбинируемая.
      *
      * @param service Услуга для выбора/отмены
      */
@@ -66,11 +67,18 @@ class SelectServiceScreenModel(
 
             if (existingIndex >= 0) {
                 currentSelected.removeAt(existingIndex)
+                state.copy(selectedServices = currentSelected.toList(), nonCombinableError = null)
             } else {
-                currentSelected.add(service)
+                val hasNonCombinableSelected = currentSelected.any { !it.isCombinable }
+                if (hasNonCombinableSelected) {
+                    state.copy(nonCombinableError = "Некомбинируемые услуги нельзя выбрать вместе с другими")
+                } else if (!service.isCombinable && currentSelected.isNotEmpty()) {
+                    state.copy(nonCombinableError = "Некомбинируемые услуги нельзя выбрать вместе с другими")
+                } else {
+                    currentSelected.add(service)
+                    state.copy(selectedServices = currentSelected.toList(), nonCombinableError = null)
+                }
             }
-
-            state.copy(selectedServices = currentSelected.toList())
         }
     }
 

@@ -26,6 +26,7 @@ data class BookingService(
     val price: Double,
     val currency: String,
     val durationMinutes: Int,
+    val isCombinable: Boolean = true,
 ) {
     /**
      * Форматированная цена (например, "150 ₪" или "150 ILS").

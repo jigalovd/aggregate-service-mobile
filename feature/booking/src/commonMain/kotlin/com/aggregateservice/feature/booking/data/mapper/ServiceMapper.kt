@@ -20,6 +20,7 @@ object ServiceMapper {
         price = dto.price,
         currency = dto.currency,
         durationMinutes = dto.durationMinutes,
+        isCombinable = dto.isCombinable,
     )
 
     /**

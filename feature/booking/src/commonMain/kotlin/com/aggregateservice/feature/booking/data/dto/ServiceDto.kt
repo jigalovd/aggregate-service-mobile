@@ -25,4 +25,6 @@ data class ServiceDto(
     val currency: String = "ILS",
     @SerialName("durationMinutes")
     val durationMinutes: Int,
+    @SerialName("isCombinable")
+    val isCombinable: Boolean = true,
 )

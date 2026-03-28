@@ -8,6 +8,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
@@ -44,13 +45,14 @@ class FavoritesApiService(
     /**
      * Adds a provider to favorites.
      *
-     * **Endpoint:** POST /api/v1/catalog/favorites/{providerId}
+     * **Endpoint:** POST /api/v1/catalog/favorites
      */
     suspend fun addFavorite(providerId: String): Result<Unit> {
         return safeApiCall<Unit> {
-            client.post("/api/v1/catalog/favorites/$providerId") {
+            client.post("/api/v1/catalog/favorites") {
                 contentType(ContentType.Application.Json)
                 withAuth(tokenStorage)
+                setBody(mapOf("provider_id" to providerId))
             }
         }
     }

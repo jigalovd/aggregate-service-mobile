@@ -20,6 +20,7 @@ data class SelectServiceUiState(
     val selectedServices: List<BookingService> = emptyList(),
     val isLoading: Boolean = true,
     val error: AppError? = null,
+    val nonCombinableError: String? = null,
 ) {
     /**
      * Общая стоимость выбранных услуг.

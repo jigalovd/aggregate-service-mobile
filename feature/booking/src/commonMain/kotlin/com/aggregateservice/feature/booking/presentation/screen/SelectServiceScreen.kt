@@ -141,6 +141,20 @@ fun SelectServiceScreenContent(
                 }
             }
 
+            uiState.nonCombinableError != null -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = uiState.nonCombinableError ?: "",
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+
             uiState.services.isEmpty() -> {
                 Box(
                     modifier = Modifier
