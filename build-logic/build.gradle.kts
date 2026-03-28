@@ -7,15 +7,6 @@ plugins {
 group = "com.aggregateservice.buildlogic"
 
 dependencies {
-    compileOnly(libs.android.gradlePlugin)
-    compileOnly(libs.kotlin.gradlePlugin)
-    compileOnly(libs.compose.gradlePlugin)
-    compileOnly(libs.compose.compiler.gradlePlugin)
-    compileOnly(libs.kotlin.serialization.gradlePlugin)
-    compileOnly(libs.detekt.gradlePlugin)
-    compileOnly(libs.ktlint.gradlePlugin)
-    compileOnly(libs.kover.gradlePlugin)
-
     // Подключаем плагины, чтобы они были доступны внутри .gradle.kts файлов
     implementation(libs.android.gradlePlugin)
     implementation(libs.kotlin.gradlePlugin)
