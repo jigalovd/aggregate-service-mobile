@@ -4,11 +4,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -22,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
 
@@ -47,17 +46,16 @@ fun LinkAccountDialog(
     modifier: Modifier = Modifier,
 ) {
     var password by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
 
     val providerDisplayName = when (authProvider) {
-        "google.com" -> "Google"
-        "apple.com" -> "Apple"
-        "phone" -> "Phone"
+        "google.com" -> i18nProvider[StringKey.Auth.PROVIDER_GOOGLE]
+        "apple.com" -> i18nProvider[StringKey.Auth.PROVIDER_APPLE]
+        "phone" -> i18nProvider[StringKey.Auth.PROVIDER_PHONE]
         else -> authProvider
     }
 
     AlertDialog(
-        onDismissRequest = { if (!isLoading) onDismiss() },
+        onDismissRequest = onDismiss,
         modifier = modifier,
         title = { Text(i18nProvider[StringKey.Auth.LINK_ACCOUNT_TITLE]) },
         text = {
@@ -67,22 +65,22 @@ fun LinkAccountDialog(
                     style = MaterialTheme.typography.bodyMedium,
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Spacing.SM))
 
                 Text(
                     text = email,
                     style = MaterialTheme.typography.bodyLarge,
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(Spacing.XS))
 
                 Text(
-                    text = "Sign in with: $providerDisplayName",
+                    text = "${i18nProvider[StringKey.Auth.SIGN_IN_WITH]} $providerDisplayName",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(Spacing.MD))
 
                 OutlinedTextField(
                     value = password,
@@ -94,29 +92,20 @@ fun LinkAccountDialog(
                     ),
                     visualTransformation = PasswordVisualTransformation(),
                     singleLine = true,
-                    enabled = !isLoading,
                 )
             }
         },
         confirmButton = {
             Button(
                 onClick = { onLink(password) },
-                enabled = password.isNotBlank() && !isLoading,
+                enabled = password.isNotBlank(),
             ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.height(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                    )
-                } else {
-                    Text(i18nProvider[StringKey.Auth.LINK_ACCOUNT])
-                }
+                Text(i18nProvider[StringKey.Auth.LINK_ACCOUNT])
             }
         },
         dismissButton = {
             TextButton(
                 onClick = onDismiss,
-                enabled = !isLoading,
             ) {
                 Text(i18nProvider[StringKey.CANCEL])
             }

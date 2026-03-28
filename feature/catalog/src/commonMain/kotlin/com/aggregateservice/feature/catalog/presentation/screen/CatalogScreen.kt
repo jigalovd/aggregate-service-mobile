@@ -12,10 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -36,6 +36,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.aggregateservice.core.theme.Spacing
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -44,6 +45,7 @@ import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
+import com.aggregateservice.feature.catalog.presentation.component.ProviderCard
 import com.aggregateservice.feature.catalog.presentation.model.CatalogUiState
 import com.aggregateservice.feature.catalog.presentation.screenmodel.CatalogScreenModel
 import kotlinx.coroutines.launch
@@ -133,7 +135,7 @@ fun CatalogScreenContent(
         uiState.error?.let { error ->
             scope.launch {
                 snackbarHostState.showSnackbar(
-                    message = error.message ?: "Произошла ошибка",
+                    message = error.message ?: i18nProvider[StringKey.Error.UNKNOWN],
                 )
                 onClearError()
             }
@@ -170,7 +172,7 @@ fun CatalogScreenContent(
                     selectedCategory = uiState.selectedCategory,
                     onCategorySelected = onCategorySelected,
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Spacing.SM))
             }
 
             // Content
@@ -194,6 +196,7 @@ fun CatalogScreenContent(
                         isLoadingMore = uiState.isLoadingMore,
                         listState = listState,
                         onProviderClick = onProviderClick,
+                        i18nProvider = i18nProvider,
                     )
                 }
             }
@@ -233,18 +236,23 @@ fun CategoryChipsRow(
     selectedCategory: Category?,
     onCategorySelected: (Category?) -> Unit,
 ) {
-    Row(
+    LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+            .padding(horizontal = Spacing.MD),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.SM),
     ) {
-        FilterChip(
-            selected = selectedCategory == null,
-            onClick = { onCategorySelected(null) },
-            label = { Text(i18nProvider[StringKey.Catalog.ALL]) },
-        )
-        categories.forEach { category ->
+        item(key = "all") {
+            FilterChip(
+                selected = selectedCategory == null,
+                onClick = { onCategorySelected(null) },
+                label = { Text(i18nProvider[StringKey.Catalog.ALL]) },
+            )
+        }
+        items(
+            items = categories,
+            key = { it.id },
+        ) { category ->
             FilterChip(
                 selected = selectedCategory?.id == category.id,
                 onClick = { onCategorySelected(category) },
@@ -268,7 +276,7 @@ fun LoadingState(i18nProvider: I18nProvider) {
             verticalArrangement = Arrangement.Center,
         ) {
             CircularProgressIndicator()
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.MD))
             Text(
                 text = i18nProvider[StringKey.LOADING],
                 style = MaterialTheme.typography.bodyMedium,
@@ -298,13 +306,13 @@ fun EmptyState(
                 text = i18nProvider[StringKey.Catalog.NO_RESULTS],
                 style = MaterialTheme.typography.titleMedium,
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.SM))
             if (hasFilters) {
                 Text(
                     text = i18nProvider[StringKey.Catalog.FILTER_BY_CATEGORY],
                     style = MaterialTheme.typography.bodyMedium,
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(Spacing.MD))
                 Button(onClick = onClearFilters) {
                     Text(i18nProvider[StringKey.CLEAR])
                 }
@@ -327,6 +335,7 @@ fun ProvidersList(
     isLoadingMore: Boolean,
     listState: LazyListState,
     onProviderClick: (Provider) -> Unit,
+    i18nProvider: I18nProvider,
 ) {
     LazyColumn(
         state = listState,
@@ -339,6 +348,7 @@ fun ProvidersList(
             ProviderCard(
                 provider = provider,
                 onClick = { onProviderClick(provider) },
+                i18nProvider = i18nProvider,
             )
         }
 
@@ -348,67 +358,14 @@ fun ProvidersList(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(Spacing.MD),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
+                        modifier = Modifier.size(Spacing.SM),
                     )
                 }
             }
-        }
-    }
-}
-
-/**
- * Card for displaying provider info.
- *
- * TODO: Move to separate file when design system is finalized
- */
-@Composable
-fun ProviderCard(
-    provider: Provider,
-    onClick: () -> Unit,
-) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-        ) {
-            Text(
-                text = provider.businessName,
-                style = MaterialTheme.typography.titleMedium,
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            provider.shortDescription?.let { desc ->
-                Text(
-                    text = desc,
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 2,
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "⭐ ${provider.formattedRating}",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Text(
-                    text = " • ${provider.reviewCount} отзывов",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = provider.location.city,
-                style = MaterialTheme.typography.bodySmall,
-            )
         }
     }
 }

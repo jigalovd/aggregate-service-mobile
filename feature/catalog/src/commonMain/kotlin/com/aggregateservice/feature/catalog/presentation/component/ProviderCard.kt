@@ -1,5 +1,6 @@
 package com.aggregateservice.feature.catalog.presentation.component
 
+import com.aggregateservice.core.theme.Spacing
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,32 +14,35 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.catalog.domain.model.Provider
+import org.koin.compose.koinInject
 
 /**
  * Card for displaying provider info.
- *
- * TODO: Move to separate file when design system is finalized
  */
 @Composable
 fun ProviderCard(
     provider: Provider,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    i18nProvider: I18nProvider = koinInject(),
 ) {
     Card(
         onClick = onClick,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = Spacing.MD, vertical = Spacing.SM),
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(Spacing.MD),
         ) {
             Text(
                 text = provider.businessName,
                 style = MaterialTheme.typography.titleMedium,
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(Spacing.XS))
             provider.shortDescription?.let { desc ->
                 Text(
                     text = desc,
@@ -46,7 +50,7 @@ fun ProviderCard(
                     maxLines = 2,
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.SM))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -55,11 +59,11 @@ fun ProviderCard(
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Text(
-                    text = " • ${provider.reviewCount} отзывов",
+                    text = " • ${i18nProvider.get(StringKey.Plurals.REVIEWS_COUNT, provider.reviewCount)}",
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(Spacing.XS))
             Text(
                 text = provider.location.city,
                 style = MaterialTheme.typography.bodySmall,
