@@ -50,7 +50,7 @@ class BookingApiService(
      */
     suspend fun createBooking(request: CreateBookingRequest): Result<BookingDto> {
         return safeApiCall<BookingDto> {
-            client.post("/bookings") {
+            client.post("/api/v1/bookings") {
                 contentType(ContentType.Application.Json)
                 withAuth(tokenStorage)
                 setBody(request)
@@ -65,7 +65,7 @@ class BookingApiService(
      */
     suspend fun getBookingById(bookingId: String): Result<BookingDto> {
         return safeApiCall<BookingDto> {
-            client.get("/bookings/$bookingId") {
+            client.get("/api/v1/bookings/$bookingId") {
                 contentType(ContentType.Application.Json)
                 withAuth(tokenStorage)
             }
@@ -84,7 +84,7 @@ class BookingApiService(
         pageSize: Int,
     ): Result<List<BookingDto>> {
         return safeApiCall<List<BookingDto>> {
-            client.get("/bookings/client/$clientId") {
+            client.get("/api/v1/bookings/client/$clientId") {
                 contentType(ContentType.Application.Json)
                 withAuth(tokenStorage)
                 status?.let { parameter("status", it) }
@@ -101,7 +101,7 @@ class BookingApiService(
      */
     suspend fun confirmBooking(bookingId: String): Result<BookingDto> {
         return safeApiCall<BookingDto> {
-            client.patch("/bookings/$bookingId/confirm") {
+            client.patch("/api/v1/bookings/$bookingId/confirm") {
                 contentType(ContentType.Application.Json)
                 withAuth(tokenStorage)
             }
@@ -115,7 +115,7 @@ class BookingApiService(
      */
     suspend fun cancelBooking(bookingId: String, request: CancelRequest): Result<BookingDto> {
         return safeApiCall<BookingDto> {
-            client.patch("/bookings/$bookingId/cancel") {
+            client.patch("/api/v1/bookings/$bookingId/cancel") {
                 contentType(ContentType.Application.Json)
                 withAuth(tokenStorage)
                 setBody(request)
@@ -130,7 +130,7 @@ class BookingApiService(
      */
     suspend fun rescheduleBooking(bookingId: String, request: RescheduleRequest): Result<BookingDto> {
         return safeApiCall<BookingDto> {
-            client.patch("/bookings/$bookingId/reschedule") {
+            client.patch("/api/v1/bookings/$bookingId/reschedule") {
                 contentType(ContentType.Application.Json)
                 withAuth(tokenStorage)
                 setBody(request)
