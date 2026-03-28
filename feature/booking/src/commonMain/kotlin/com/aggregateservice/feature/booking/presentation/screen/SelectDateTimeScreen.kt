@@ -201,13 +201,13 @@ fun SelectDateTimeScreenContent(
                         Spacer(modifier = Modifier.height(Spacing.SM))
                     }
 
-                    // Date chips (next 35 days to allow testing booking horizon, US-3.34)
+                    // Date chips (next 30 days maximum, US-3.34)
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(Spacing.SM),
                         verticalArrangement = Arrangement.spacedBy(Spacing.SM),
                     ) {
                         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
-                        repeat(35) { offset ->
+                        repeat(30) { offset ->
                             val date = today.plus(offset, DateTimeUnit.DAY)
                             DateChip(
                                 date = date,

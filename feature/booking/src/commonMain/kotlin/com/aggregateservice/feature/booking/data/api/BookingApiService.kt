@@ -149,7 +149,7 @@ class BookingApiService(
         serviceIds: List<String>,
     ): Result<List<TimeSlotDto>> {
         return safeApiCall<List<TimeSlotDto>> {
-            client.get("/bookings/slots") {
+            client.get("/api/v1/bookings/slots") {
                 contentType(ContentType.Application.Json)
                 withAuth(tokenStorage)
                 parameter("providerId", providerId)
@@ -169,7 +169,7 @@ class BookingApiService(
      */
     suspend fun getProviderServices(providerId: String): Result<List<ServiceDto>> {
         return safeApiCall<List<ServiceDto>> {
-            client.get("/providers/$providerId/services") {
+            client.get("/api/v1/catalog/providers/$providerId/services") {
                 contentType(ContentType.Application.Json)
                 withAuth(tokenStorage)
             }
