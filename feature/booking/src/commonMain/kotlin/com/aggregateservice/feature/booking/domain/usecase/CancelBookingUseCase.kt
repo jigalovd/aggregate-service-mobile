@@ -5,6 +5,7 @@ import com.aggregateservice.feature.booking.domain.model.Booking
 import com.aggregateservice.feature.booking.domain.repository.BookingRepository
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlin.time.Duration.Companion.hours
 
 /**
  * UseCase для отмены бронирования.
@@ -54,9 +55,7 @@ class CancelBookingUseCase(
 
         // Validation: 2-hour window before start time (US-3.5)
         val now = Clock.System.now()
-        val minCancelTime = Instant.fromEpochMilliseconds(
-            booking.startTime.toEpochMilliseconds() - CANCEL_WINDOW_HOURS * 60 * 60 * 1000,
-        )
+        val minCancelTime = booking.startTime.minus(CANCEL_WINDOW_HOURS.toInt().hours)
 
         if (now > minCancelTime) {
             return Result.failure(
