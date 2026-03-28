@@ -21,6 +21,9 @@ kotlin {
 
             // i18n for localized strings
             implementation(project(":core:i18n"))
+
+            // ProviderDetailScreen for navigation from favorites list
+            implementation(project(":feature:catalog"))
         }
 
         maybeCreate("androidMain").dependencies {

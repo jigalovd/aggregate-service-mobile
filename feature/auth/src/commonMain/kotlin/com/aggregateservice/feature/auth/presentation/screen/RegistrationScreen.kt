@@ -94,7 +94,7 @@ class RegistrationScreen : Screen {
             onNavigationHandled = screenModel::onNavigationHandled,
             onRegistrationSuccess = {
                 // Navigate to main screen after successful registration
-                // navigator.replaceAll(MainScreen())
+                navigator?.replaceAll(CatalogScreen())
             },
             onNavigateToLoginScreen = {
                 navigator?.pop()

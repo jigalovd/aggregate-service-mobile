@@ -20,6 +20,10 @@ kotlin {
 
             // i18n for localized strings
             implementation(project(":core:i18n"))
+
+            // Auth state access via core:navigation abstraction
+            // AuthStateProvider is implemented by feature:auth and injected via Koin
+            implementation(project(":core:navigation"))
         }
 
         maybeCreate("androidMain").dependencies {

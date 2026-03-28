@@ -22,6 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -36,6 +39,7 @@ import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.feature.booking.domain.model.BookingService
 import com.aggregateservice.feature.booking.domain.model.TimeSlot
+import com.aggregateservice.feature.booking.domain.usecase.GetBookingServicesUseCase
 import com.aggregateservice.feature.booking.presentation.screenmodel.BookingConfirmationScreenModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
@@ -64,28 +68,41 @@ data class BookingConfirmationScreen(
         val screenModel = koinScreenModel<BookingConfirmationScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
         val i18nProvider: I18nProvider = koinInject()
+        var loadedServices by remember { mutableStateOf<List<BookingService>?>(null) }
 
-        // TODO: Services should be passed from previous screen or loaded via repository
-        // Currently passing empty list - booking will fail if services are required
-        val services: List<BookingService> = emptyList()
+        // Load services from repository based on serviceIds
+        LaunchedEffect(providerId, serviceIds) {
+            if (serviceIds.isNotEmpty()) {
+                val getServicesUseCase: GetBookingServicesUseCase = koinInject()
+                getServicesUseCase(providerId).fold(
+                    onSuccess = { allServices ->
+                        loadedServices = allServices.filter { it.id in serviceIds }
+                    },
+                    onFailure = {
+                        loadedServices = emptyList()
+                    },
+                )
+            }
+        }
 
-        // Initialize with data
-        LaunchedEffect(providerId) {
-            // In real implementation, services would be passed via SavedState or loaded
-            val startInstant = Instant.parse(slotStartTime)
-            val slot = TimeSlot(
-                startTime = startInstant,
-                endTime = Instant.fromEpochMilliseconds(startInstant.toEpochMilliseconds() + 60 * 60 * 1000),
-                isAvailable = true,
-                providerId = providerId,
-            )
-            screenModel.initialize(
-                providerId = providerId,
-                providerName = providerName,
-                services = services,
-                selectedDate = LocalDate.parse(selectedDate),
-                selectedSlot = slot,
-            )
+        // Initialize with data once services are loaded
+        LaunchedEffect(loadedServices) {
+            loadedServices?.let { services ->
+                val startInstant = Instant.parse(slotStartTime)
+                val slot = TimeSlot(
+                    startTime = startInstant,
+                    endTime = Instant.fromEpochMilliseconds(startInstant.toEpochMilliseconds() + 60 * 60 * 1000),
+                    isAvailable = true,
+                    providerId = providerId,
+                )
+                screenModel.initialize(
+                    providerId = providerId,
+                    providerName = providerName,
+                    services = services,
+                    selectedDate = LocalDate.parse(selectedDate),
+                    selectedSlot = slot,
+                )
+            }
         }
 
         BookingConfirmationScreenContent(

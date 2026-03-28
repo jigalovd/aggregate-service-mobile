@@ -10,6 +10,9 @@ import com.aggregateservice.feature.catalog.domain.usecase.SearchProvidersUseCas
 import com.aggregateservice.feature.catalog.presentation.screenmodel.CatalogScreenModel
 import com.aggregateservice.feature.catalog.presentation.screenmodel.ProviderDetailScreenModel
 import com.aggregateservice.feature.catalog.presentation.screenmodel.SearchScreenModel
+import com.aggregateservice.feature.favorites.domain.usecase.AddFavoriteUseCase
+import com.aggregateservice.feature.favorites.domain.usecase.IsFavoriteUseCase
+import com.aggregateservice.feature.favorites.domain.usecase.RemoveFavoriteUseCase
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module

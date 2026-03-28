@@ -46,4 +46,16 @@ class AuthStateProviderImpl(
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = false,
             )
+
+    override val currentUserIdFlow: StateFlow<String?> =
+        observeAuthStateUseCase()
+            .map { it.userId }
+            .stateIn(
+                scope = scope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = null,
+            )
+
+    override val currentUserId: String?
+        get() = currentUserIdFlow.value
 }

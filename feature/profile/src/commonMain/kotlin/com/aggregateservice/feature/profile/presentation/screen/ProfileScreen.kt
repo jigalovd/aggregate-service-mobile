@@ -41,6 +41,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.aggregateservice.core.theme.Spacing
+import com.aggregateservice.core.navigation.AuthStateProvider
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import com.aggregateservice.core.i18n.I18nProvider
@@ -60,7 +61,11 @@ class ProfileScreen : Screen {
         val screenModel = koinScreenModel<ProfileScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
         val i18nProvider: I18nProvider = koinInject()
+        val authStateProvider: AuthStateProvider = koinInject()
         val snackbarHostState = remember { SnackbarHostState() }
+
+        // Get current user ID from auth provider
+        val currentUserId = authStateProvider.currentUserId
 
         // Show success snackbar
         LaunchedEffect(uiState.saveSuccess) {

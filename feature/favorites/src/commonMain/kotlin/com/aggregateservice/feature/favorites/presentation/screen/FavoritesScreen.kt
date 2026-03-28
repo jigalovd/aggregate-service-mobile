@@ -43,6 +43,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
+import com.aggregateservice.feature.catalog.presentation.screen.ProviderDetailScreen
 import com.aggregateservice.feature.favorites.domain.model.Favorite
 import com.aggregateservice.feature.favorites.presentation.model.FavoritesUiState
 import com.aggregateservice.feature.favorites.presentation.screenmodel.FavoritesScreenModel
@@ -69,8 +70,7 @@ class FavoritesScreen : Screen {
             uiState = uiState,
             onRefresh = { screenModel.loadFavorites() },
             onFavoriteClick = { favorite ->
-                // TODO: Navigate to ProviderDetailScreen
-                // navigator.push(ProviderDetailScreen(favorite.providerId))
+                navigator.push(ProviderDetailScreen(favorite.providerId))
             },
             onRemoveClick = { screenModel.confirmRemove(it) },
             onConfirmRemove = { screenModel.removeFavorite() },
