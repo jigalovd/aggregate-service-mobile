@@ -75,7 +75,6 @@ suspend inline fun <reified T : Any> safeApiCall(
 
                 // Unauthorized (401)
                 HttpStatusCode.Unauthorized -> {
-                    val errorBody = response.body<ErrorResponse>()
                     Result.failure(
                         AppError.Unauthorized,
                     )
@@ -93,7 +92,6 @@ suspend inline fun <reified T : Any> safeApiCall(
 
                 // Not Found (404)
                 HttpStatusCode.NotFound -> {
-                    val errorBody = response.body<ErrorResponse>()
                     Result.failure(
                         AppError.NotFound,
                     )
@@ -156,6 +154,7 @@ suspend inline fun <reified T : Any> safeApiCall(
                 }
             }
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             lastException = e
             if (e is kotlinx.serialization.SerializationException) {
                 // Ошибка парсинга - не retry
