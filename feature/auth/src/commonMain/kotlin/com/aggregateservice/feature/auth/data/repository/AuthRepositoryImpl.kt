@@ -122,7 +122,7 @@ class AuthRepositoryImpl(
 
         // 2. Выполняем API вызов с safe handling
         val response = safeApiCall<AuthResponse> {
-            httpClient.post("auth/login") {
+            httpClient.post("/api/v1/auth/login") {
                 contentType(ContentType.Application.Json)
                 setBody(loginRequest)
             }
@@ -164,7 +164,7 @@ class AuthRepositoryImpl(
 
         // 2. Выполняем API вызов с safe handling
         val response = safeApiCall<AuthResponse> {
-            httpClient.post("auth/register") {
+            httpClient.post("/api/v1/auth/register") {
                 contentType(ContentType.Application.Json)
                 setBody(registerRequest)
             }
@@ -211,7 +211,7 @@ class AuthRepositoryImpl(
         // Refresh token находится в HTTP-only cookie,
         // Ktor автоматически отправит его с запросом
         val response = safeApiCall<RefreshTokenResponse> {
-            httpClient.post("auth/refresh") {
+            httpClient.post("/api/v1/auth/refresh") {
                 contentType(ContentType.Application.Json)
             }
         }
@@ -253,7 +253,7 @@ class AuthRepositoryImpl(
         // 2. Проверяем какой тип ответа пришел - FirebaseAlreadyLinkedResponse или FirebaseLinkRequiredResponse
         // Используем generic safeApiCall с десериализацией в Union тип
         val response = safeApiCall<FirebaseVerifyResponse> {
-            httpClient.post("auth/provider/verify") {
+            httpClient.post("/api/v1/auth/provider/verify") {
                 contentType(ContentType.Application.Json)
                 setBody(verifyRequest)
             }
@@ -319,7 +319,7 @@ class AuthRepositoryImpl(
 
         // 2. Выполняем API вызов
         val response = safeApiCall<AuthResponse> {
-            httpClient.post("auth/provider/link") {
+            httpClient.post("/api/v1/auth/provider/link") {
                 contentType(ContentType.Application.Json)
                 setBody(linkRequest)
             }
