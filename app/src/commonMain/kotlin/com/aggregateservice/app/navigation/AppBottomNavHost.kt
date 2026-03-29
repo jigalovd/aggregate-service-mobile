@@ -41,6 +41,10 @@ fun AppBottomNavHost(
             item.screen::class.simpleName == currentScreen::class.simpleName
         }.coerceAtLeast(0)
 
+        // Render the current screen content FIRST
+        currentScreen.Content()
+
+        // Then render the bottom navigation bar as an overlay
         NavigationBar {
             bottomNavItems.forEachIndexed { index, item ->
                 NavigationBarItem(
