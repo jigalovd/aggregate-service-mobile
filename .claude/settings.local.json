@@ -15,7 +15,9 @@
       "mcp__idea__search_file",
       "mcp__idea__search_regex",
       "mcp__idea__execute_terminal_command",
-      "mcp__idea__create_new_file"
+      "mcp__idea__create_new_file",
+      "Skill(gsd:stats)",
+      "Skill(gsd:stats:*)"
     ]
   }
 }

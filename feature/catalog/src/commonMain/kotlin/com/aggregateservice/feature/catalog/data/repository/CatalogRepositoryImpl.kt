@@ -62,8 +62,8 @@ class CatalogRepositoryImpl(
         val result = apiService.getCategories(parentId)
 
         return result.fold(
-            onSuccess = { categories ->
-                val domainCategories = categories.map { CategoryMapper.toDomain(it) }
+            onSuccess = { response ->
+                val domainCategories = response.categories.map { CategoryMapper.toDomain(it) }
                 Result.success(domainCategories)
             },
             onFailure = { error ->

@@ -18,9 +18,18 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CategoryDto(
     val id: String,
-    val name: String,
+    val name: Map<String, String>,
     val icon: String? = null,
-    val parentId: String? = null,
-    @SerialName("isActive") val isActive: Boolean = true,
-    @SerialName("sortOrder") val sortOrder: Int = 0,
+    @SerialName("parent_id") val parentId: String? = null,
+    @SerialName("is_active") val isActive: Boolean = true,
+    @SerialName("sort_order") val sortOrder: Int = 0,
+)
+
+/**
+ * Wrapper DTO для response API списка категорий.
+ * API возвращает {"categories": [...]} но Ktor ожидает тип для десериализации.
+ */
+@Serializable
+data class CategoriesResponseDto(
+    @SerialName("categories") val categories: List<CategoryDto>
 )

@@ -45,7 +45,7 @@ private object SensitiveDataLogger : io.ktor.client.plugins.logging.Logger {
  * Creates configured HttpClient with all necessary plugins.
  *
  * @param engine Platform-specific HTTP engine
- * @param apiBaseUrl API base URL (without protocol)
+ * @param apiBaseUrl API base URL (with optional protocol, e.g. "https://api.example.com" or "http://localhost:8080")
  * @param apiVersion API version (default: v1)
  * @param enableLogging Enable HTTP logging for debugging
  * @param networkTimeoutMs Timeout in milliseconds (default: 30_000)
@@ -79,9 +79,12 @@ fun createHttpClient(
     }
 
     defaultRequest {
+        val baseUrl = apiBaseUrl.trimEnd('/')
+        val isHttps = baseUrl.startsWith("https://")
+        val host = baseUrl.removePrefix("http://").removePrefix("https://")
         url {
-            protocol = URLProtocol.HTTPS
-            host = apiBaseUrl
+            protocol = if (isHttps) URLProtocol.HTTPS else URLProtocol.HTTP
+            this.host = host
             parameters.append("api_version", apiVersion)
         }
     }

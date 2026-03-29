@@ -5,16 +5,21 @@ plugins {
 
 // ============================================================
 // Environment Configuration (centralized)
+// API_BASE_URL can be overridden via:
+//   - gradle.properties: api.base.url=http://localhost:8080
+//   - local.properties: api.base.url=http://10.0.2.2:8080 (for emulator)
 // ============================================================
+val apiBaseUrl = project.findProperty("api.base.url") as String? ?: "https://api.dev.aggregateservice.com"
+
 val envConfig = mapOf(
     "debug" to mapOf(
-        "API_BASE_URL" to "https://api.dev.aggregateservice.com",
+        "API_BASE_URL" to apiBaseUrl,
         "ENVIRONMENT" to "DEV",
         "DEBUG" to "true",
         "ENABLE_LOGGING" to "true"
     ),
     "release" to mapOf(
-        "API_BASE_URL" to "https://api.staging.aggregateservice.com",
+        "API_BASE_URL" to apiBaseUrl,
         "ENVIRONMENT" to "STAGING",
         "DEBUG" to "false",
         "ENABLE_LOGGING" to "false"

@@ -18,6 +18,21 @@ secretsFiles.forEach { secretsFile ->
     }
 }
 
+// Load local.properties for local development (api.base.url, etc.)
+val localPropsFile = rootProject.file("local.properties")
+if (localPropsFile.exists()) {
+    val localProps = java.util.Properties()
+    localProps.load(localPropsFile.inputStream())
+
+    localProps.forEach keys@{ (key, value) ->
+        if (key !is String) return@keys
+        // Only set if not already set (gradle.properties takes precedence)
+        if (!project.extensions.extraProperties.has(key)) {
+            project.extensions.extraProperties.set(key, value)
+        }
+    }
+}
+
 plugins {
     alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.androidApplication) apply false

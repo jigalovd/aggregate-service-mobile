@@ -2,6 +2,7 @@ package com.aggregateservice.feature.catalog.data.api
 
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.core.network.safeApiCall
+import com.aggregateservice.feature.catalog.data.dto.CategoriesResponseDto
 import com.aggregateservice.feature.catalog.data.dto.CategoryDto
 import com.aggregateservice.feature.catalog.data.dto.ProviderDto
 import com.aggregateservice.feature.catalog.data.dto.ServiceDto
@@ -62,8 +63,8 @@ class CatalogApiService(
      *
      * **Endpoint:** GET /api/v1/catalog/categories
      */
-    suspend fun getCategories(parentId: String?): Result<List<CategoryDto>> {
-        return safeApiCall<List<CategoryDto>> {
+    suspend fun getCategories(parentId: String?): Result<CategoriesResponseDto> {
+        return safeApiCall<CategoriesResponseDto> {
             client.get("/api/v1/catalog/categories") {
                 contentType(ContentType.Application.Json)
                 parentId?.let { parameter("parentId", it) }
