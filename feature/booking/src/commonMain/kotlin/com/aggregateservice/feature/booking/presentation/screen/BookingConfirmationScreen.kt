@@ -187,12 +187,55 @@ fun BookingConfirmationScreenContent(
                             )
                             Spacer(modifier = Modifier.height(Spacing.SM))
 
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                            ) {
-                                Text(i18nProvider[StringKey.Booking.SERVICES], style = MaterialTheme.typography.bodyMedium)
-                                Text("${uiState.services.size}", style = MaterialTheme.typography.bodyMedium)
+                            // Show service names in expandable section
+                            if (uiState.services.isNotEmpty()) {
+                                Text(
+                                    text = i18nProvider[StringKey.Booking.SERVICES],
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                                Spacer(modifier = Modifier.height(Spacing.XS))
+                                uiState.services.forEach { service ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                    ) {
+                                        Text(
+                                            text = service.name,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            modifier = Modifier.weight(1f),
+                                        )
+                                        Text(
+                                            text = service.formattedPrice,
+                                            style = MaterialTheme.typography.bodySmall,
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(Spacing.SM))
+                                // Total row
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                ) {
+                                    Text(
+                                        text = "${uiState.services.size} service${if (uiState.services.size > 1) "s" else ""}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    Text(
+                                        text = uiState.formattedTotal,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary,
+                                    )
+                                }
+                            } else {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                ) {
+                                    Text(i18nProvider[StringKey.Booking.SERVICES], style = MaterialTheme.typography.bodyMedium)
+                                    Text("${uiState.services.size}", style = MaterialTheme.typography.bodyMedium)
+                                }
                             }
                             Spacer(modifier = Modifier.height(Spacing.XS))
                             Row(
