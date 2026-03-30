@@ -4,6 +4,7 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.aggregateservice.feature.booking.domain.model.BookingService
 import com.aggregateservice.feature.booking.domain.usecase.CreateBookingUseCase
+import com.aggregateservice.feature.booking.domain.usecase.GetAvailableSlotsUseCase
 import com.aggregateservice.feature.booking.domain.usecase.GetBookingServicesUseCase
 import com.aggregateservice.feature.booking.presentation.model.BookingConfirmationUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +27,7 @@ import kotlinx.coroutines.launch
 class BookingConfirmationScreenModel(
     private val createBookingUseCase: CreateBookingUseCase,
     private val getBookingServicesUseCase: GetBookingServicesUseCase,
+    private val getAvailableSlotsUseCase: GetAvailableSlotsUseCase,
 ) : ScreenModel {
 
     private val _uiState = MutableStateFlow(BookingConfirmationUiState.Initial)
@@ -98,14 +100,43 @@ class BookingConfirmationScreenModel(
         val currentState = _uiState.value
 
         if (!currentState.canSubmit) return
-
         val slot = currentState.selectedSlot ?: return
+        val date = currentState.selectedDate ?: return
+        if (currentState.services.isEmpty()) return
 
         screenModelScope.launch {
             _uiState.update { it.copy(isSubmitting = true, error = null) }
 
             val serviceIds = currentState.services.map { it.id }
 
+            // D-04: Auto-refresh slots before confirmation
+            val slotsResult = getAvailableSlotsUseCase(
+                providerId = currentState.providerId,
+                date = date,
+                serviceIds = serviceIds,
+            )
+
+            val isSlotStillAvailable = slotsResult.fold(
+                onSuccess = { availableSlots ->
+                    availableSlots.any { it.startTime == slot.startTime && it.isAvailable }
+                },
+                onFailure = { false },
+            )
+
+            if (!isSlotStillAvailable) {
+                _uiState.update {
+                    it.copy(
+                        isSubmitting = false,
+                        error = com.aggregateservice.core.network.AppError.ValidationError(
+                            field = "slot",
+                            message = "Selected time slot is no longer available. Please choose another slot.",
+                        ),
+                    )
+                }
+                return@launch
+            }
+
+            // Slot verified, proceed with booking
             createBookingUseCase(
                 providerId = currentState.providerId,
                 serviceIds = serviceIds,
@@ -126,7 +157,10 @@ class BookingConfirmationScreenModel(
                         it.copy(
                             isSubmitting = false,
                             error = error as? com.aggregateservice.core.network.AppError
-                                ?: com.aggregateservice.core.network.AppError.UnknownError(throwable = error, message = error.message),
+                                ?: com.aggregateservice.core.network.AppError.UnknownError(
+                                    throwable = error,
+                                    message = error.message,
+                                ),
                         )
                     }
                 },
