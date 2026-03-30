@@ -6,16 +6,20 @@ import com.aggregateservice.core.config.Environment
 import com.aggregateservice.core.config.Language
 import com.aggregateservice.core.storage.TokenStorage
 import com.aggregateservice.feature.auth.data.dto.AuthResponse
+import com.aggregateservice.feature.auth.data.dto.FirebaseAlreadyLinkedResponse
+import com.aggregateservice.feature.auth.data.dto.FirebaseUserResponse
 import com.aggregateservice.feature.auth.domain.model.AuthState
 import com.aggregateservice.feature.auth.domain.model.LoginCredentials
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -26,7 +30,10 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import io.mockk.mockk
+import app.cash.turbine.test
 
 class AuthRepositoryImplTest {
 
@@ -63,6 +70,7 @@ class AuthRepositoryImplTest {
         val email = "test@example.com"
         val password = "ValidPassword123"
         val accessToken = "test_access_token_12345"
+        val userId = "user-123"
 
         var savedToken: String? = null
         val tokenStorage = createMockTokenStorage(
@@ -71,7 +79,15 @@ class AuthRepositoryImplTest {
 
         val mockEngine = MockEngine { _ ->
             respond(
-                content = json.encodeToString(AuthResponse(accessToken)),
+                content = json.encodeToString(
+                    AuthResponse(
+                        accessToken = accessToken,
+                        user = FirebaseUserResponse(
+                            id = userId,
+                            email = email
+                        )
+                    )
+                ),
                 status = HttpStatusCode.OK,
                 headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
@@ -111,7 +127,12 @@ class AuthRepositoryImplTest {
 
         val mockEngine = MockEngine { _ ->
             respond(
-                content = json.encodeToString(AuthResponse("token")),
+                content = json.encodeToString(
+                    AuthResponse(
+                        accessToken = "token",
+                        user = FirebaseUserResponse(id = "user-123", email = "test@example.com")
+                    )
+                ),
                 status = HttpStatusCode.OK,
                 headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
@@ -139,10 +160,16 @@ class AuthRepositoryImplTest {
     fun `should observe auth state changes`() = runTest {
         val tokenStorage = createMockTokenStorage()
         val accessToken = "test_access_token"
+        val userId = "user-456"
 
         val mockEngine = MockEngine { _ ->
             respond(
-                content = json.encodeToString(AuthResponse(accessToken)),
+                content = json.encodeToString(
+                    AuthResponse(
+                        accessToken = accessToken,
+                        user = FirebaseUserResponse(id = userId, email = "test@example.com")
+                    )
+                ),
                 status = HttpStatusCode.OK,
                 headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
@@ -169,14 +196,163 @@ class AuthRepositoryImplTest {
         assertFalse(loggedOutState.isAuthenticated, "Auth state should not be authenticated after logout")
     }
 
+    // MARK: - MockK Tests with Turbine (Plan 03)
+
+    private val testUserId = "550e8400-e29b-41d4-a716-446655440000"
+    private val testEmail = "test@example.com"
+    private val testAccessToken = "test-access-token"
+
+    private lateinit var mockkHttpClient: HttpClient
+    private lateinit var mockkTokenStorage: TokenStorage
+    private lateinit var mockkRepository: AuthRepositoryImpl
+
+    @BeforeTest
+    fun mockkSetup() {
+        mockkHttpClient = mockk(relaxed = true)
+        mockkTokenStorage = mockk(relaxed = true)
+        mockkRepository = AuthRepositoryImpl(mockkHttpClient, mockkTokenStorage)
+    }
+
+    @AfterTest
+    fun mockkTearDown() {
+        // Clean up if needed
+    }
+
+    @Test
+    fun `verifyFirebaseToken returns userId from firebaseResponse`() = runTest {
+        // Arrange
+        val firebaseResponse = FirebaseAlreadyLinkedResponse(
+            accessToken = testAccessToken,
+            message = "Already linked",
+            user = FirebaseUserResponse(
+                id = testUserId,
+                email = testEmail,
+                isActive = true,
+                isVerified = true,
+                roles = listOf("client"),
+                currentRole = "client"
+            )
+        )
+
+        // Create a mock that returns the correct response type
+        val mockEngine = MockEngine { _ ->
+            respond(
+                content = json.encodeToString(firebaseResponse),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+        val httpClient = HttpClient(mockEngine) {
+            install(ContentNegotiation) {
+                json(json)
+            }
+        }
+        val repository = AuthRepositoryImpl(httpClient, mockkTokenStorage)
+
+        // Act
+        val result = repository.verifyFirebaseToken("google", "firebase-token")
+
+        // Assert
+        assertTrue(result.isSuccess)
+        val authState = result.getOrNull()
+        assertIs<AuthState.Authenticated>(authState)
+        assertEquals(testUserId, authState.userId)
+        assertEquals(testEmail, authState.userEmail)
+        assertEquals(testAccessToken, authState.accessToken)
+    }
+
+    @Test
+    fun `linkFirebaseAccount returns userId from authResponse`() = runTest {
+        // Arrange
+        val authResponse = AuthResponse(
+            accessToken = testAccessToken,
+            user = FirebaseUserResponse(
+                id = testUserId,
+                email = testEmail,
+                isActive = true,
+                isVerified = true,
+                roles = listOf("client"),
+                currentRole = "client"
+            )
+        )
+
+        val mockEngine = MockEngine { _ ->
+            respond(
+                content = json.encodeToString(authResponse),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+        val httpClient = HttpClient(mockEngine) {
+            install(ContentNegotiation) {
+                json(json)
+            }
+        }
+        val repository = AuthRepositoryImpl(httpClient, mockkTokenStorage)
+
+        // Act
+        val result = repository.linkFirebaseAccount("temp-token", "password")
+
+        // Assert
+        assertTrue(result.isSuccess)
+        val authState = result.getOrNull()
+        assertIs<AuthState.Authenticated>(authState)
+        assertEquals(testUserId, authState.userId)
+        assertEquals(testEmail, authState.userEmail)
+    }
+
+    @Test
+    fun `observeAuthState emits updated state after verifyFirebaseToken succeeds`() = runTest {
+        // Arrange
+        val firebaseResponse = FirebaseAlreadyLinkedResponse(
+            accessToken = testAccessToken,
+            message = "Already linked",
+            user = FirebaseUserResponse(
+                id = testUserId,
+                email = testEmail,
+                isActive = true,
+                isVerified = true,
+                roles = listOf("client"),
+                currentRole = "client"
+            )
+        )
+
+        val mockEngine = MockEngine { _ ->
+            respond(
+                content = json.encodeToString(firebaseResponse),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+        val httpClient = HttpClient(mockEngine) {
+            install(ContentNegotiation) {
+                json(json)
+            }
+        }
+        val repository = AuthRepositoryImpl(httpClient, mockkTokenStorage)
+
+        // Act
+        repository.verifyFirebaseToken("google", "firebase-token")
+
+        // Assert - collect using Turbine test{}
+        repository._authState.test {
+            val state = awaitItem()
+            assertIs<AuthState.Authenticated>(state)
+            assertEquals(testUserId, state.userId)
+            assertEquals(testAccessToken, state.accessToken)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
     private fun createMockTokenStorage(
         onGetAccessToken: () -> String? = { null },
+        onGetAccessTokenSync: () -> String? = { null },
         onSaveAccessToken: suspend (String) -> Unit = {},
         onClearTokens: suspend () -> Unit = {}
     ): TokenStorage {
         return object : TokenStorage {
             override fun getAccessToken() = flowOf(onGetAccessToken())
-            override suspend fun getAccessTokenSync() = onGetAccessToken()
+            override suspend fun getAccessTokenSync() = onGetAccessTokenSync()
             override suspend fun saveAccessToken(token: String) = onSaveAccessToken(token)
             override suspend fun clearTokens() = onClearTokens()
         }

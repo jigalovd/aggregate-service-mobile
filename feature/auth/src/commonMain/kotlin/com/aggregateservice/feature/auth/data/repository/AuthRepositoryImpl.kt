@@ -53,8 +53,8 @@ class AuthRepositoryImpl(
     private val tokenStorage: TokenStorage,
 ) : AuthRepository {
 
-    // Private mutable state
-    private val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
+    // Internal mutable state for testing and observation
+    internal val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
 
     // Flag to track if initialization has been done
     // Note: Simple boolean is sufficient for single-threaded initialization on app startup

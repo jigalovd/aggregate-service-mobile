@@ -31,5 +31,13 @@ kotlin {
             // Coroutines
             implementation(libs.kotlinx.coroutines.core)
         }
+        maybeCreate("commonTest").dependencies {
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.turbine)
+            implementation(libs.mockk)
+            implementation(libs.ktor.client.mock)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.datetime)
+        }
     }
 }
