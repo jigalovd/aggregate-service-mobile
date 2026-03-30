@@ -23,18 +23,10 @@ class GetClientBookingsUseCase(
     private val repository: BookingRepository,
 ) {
     suspend operator fun invoke(
-        clientId: String,
         status: String? = null,
         page: Int = 1,
         pageSize: Int = DEFAULT_PAGE_SIZE,
     ): Result<List<Booking>> {
-        // Validation: clientId
-        if (clientId.isBlank()) {
-            return Result.failure(
-                AppError.ValidationError("clientId", "Client ID is required"),
-            )
-        }
-
         // Validation: page
         if (page < 1) {
             return Result.failure(
@@ -49,7 +41,7 @@ class GetClientBookingsUseCase(
             )
         }
 
-        return repository.getClientBookings(clientId, status, page, pageSize)
+        return repository.getClientBookings(status, page, pageSize)
     }
 
     companion object {
