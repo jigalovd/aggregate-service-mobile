@@ -54,12 +54,11 @@ class BookingRepositoryImpl(
     }
 
     override suspend fun getClientBookings(
-        clientId: String,
         status: String?,
         page: Int,
         pageSize: Int,
     ): Result<List<Booking>> {
-        return apiService.getClientBookings(clientId, status, page, pageSize).fold(
+        return apiService.getClientBookings(status, page, pageSize).fold(
             onSuccess = { dtos -> Result.success(BookingMapper.toDomainList(dtos)) },
             onFailure = { error -> Result.failure(error) },
         )
