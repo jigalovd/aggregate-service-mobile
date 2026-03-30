@@ -2,6 +2,11 @@ package com.aggregateservice.feature.auth.data.dto
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.json.JsonContentPolymorphicSerializer
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 /**
  * DTO для verify Firebase token запроса (Data слой).
@@ -28,7 +33,7 @@ data class FirebaseVerifyRequest(
  *
  * Backend возвращает либо FirebaseAlreadyLinkedResponse либо FirebaseLinkRequiredResponse.
  */
-@Serializable
+@Serializable(FirebaseVerifyResponseSerializer::class)
 sealed interface FirebaseVerifyResponse
 
 /**
@@ -74,6 +79,27 @@ data class FirebaseUserResponse(
     @SerialName("current_role")
     val currentRole: String? = null,
 )
+
+/**
+ * Custom serializer for FirebaseVerifyResponse sealed interface.
+ *
+ * Backend does not include a discriminator field, so we detect the response type
+ * by checking for the presence of specific fields:
+ * - If "user" field exists -> FirebaseAlreadyLinkedResponse
+ * - If "temp_token" field exists -> FirebaseLinkRequiredResponse
+ *
+ * This avoids requiring backend API changes.
+ */
+object FirebaseVerifyResponseSerializer : JsonContentPolymorphicSerializer<FirebaseVerifyResponse>(FirebaseVerifyResponse::class) {
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out FirebaseVerifyResponse> {
+        val jsonObject = element.jsonObject
+        return when {
+            jsonObject.containsKey("user") -> FirebaseAlreadyLinkedResponse.serializer()
+            jsonObject.containsKey("temp_token") -> FirebaseLinkRequiredResponse.serializer()
+            else -> throw IllegalArgumentException("Unknown FirebaseVerifyResponse type: ${element}")
+        }
+    }
+}
 
 /**
  * DTO для ответа when Firebase account is already linked.
