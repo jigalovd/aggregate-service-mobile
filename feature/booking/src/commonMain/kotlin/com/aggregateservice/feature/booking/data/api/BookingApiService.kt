@@ -75,16 +75,15 @@ class BookingApiService(
     /**
      * Получает историю бронирований клиента.
      *
-     * **Endpoint:** GET /bookings/client/{clientId}
+     * **Endpoint:** GET /bookings/client/me
      */
     suspend fun getClientBookings(
-        clientId: String,
         status: String?,
         page: Int,
         pageSize: Int,
     ): Result<List<BookingDto>> {
         return safeApiCall<List<BookingDto>> {
-            client.get("/api/v1/bookings/client/$clientId") {
+            client.get("/api/v1/bookings/client/me") {
                 contentType(ContentType.Application.Json)
                 withAuth(tokenStorage)
                 status?.let { parameter("status", it) }
