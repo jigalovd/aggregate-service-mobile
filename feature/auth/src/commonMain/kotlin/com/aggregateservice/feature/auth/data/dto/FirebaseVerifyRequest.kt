@@ -53,6 +53,29 @@ data class FirebaseLinkRequiredResponse(
 ) : FirebaseVerifyResponse
 
 /**
+ * DTO for user object in Firebase verify responses.
+ *
+ * @property id User UUID from backend
+ * @property email User email address
+ * @property isActive Whether user account is active
+ * @property isVerified Whether user has verified their email
+ * @property roles List of user roles
+ * @property currentRole Current active role
+ */
+@Serializable
+data class FirebaseUserResponse(
+    val id: String,
+    val email: String? = null,
+    @SerialName("is_active")
+    val isActive: Boolean = true,
+    @SerialName("is_verified")
+    val isVerified: Boolean = true,
+    val roles: List<String> = emptyList(),
+    @SerialName("current_role")
+    val currentRole: String? = null,
+)
+
+/**
  * DTO для ответа when Firebase account is already linked.
  *
  * This response indicates that the Firebase credential is valid and
@@ -60,10 +83,12 @@ data class FirebaseLinkRequiredResponse(
  *
  * @property accessToken JWT access token
  * @property message User-friendly message
+ * @property user User data from backend
  */
 @Serializable
 data class FirebaseAlreadyLinkedResponse(
     @SerialName("access_token")
     val accessToken: String,
     val message: String,
+    val user: FirebaseUserResponse,
 ) : FirebaseVerifyResponse
