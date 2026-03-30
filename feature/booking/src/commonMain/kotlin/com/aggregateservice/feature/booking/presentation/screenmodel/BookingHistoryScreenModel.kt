@@ -33,15 +33,12 @@ class BookingHistoryScreenModel(
 
     /**
      * Загружает историю бронирований.
-     *
-     * @param clientId ID клиента
      */
-    fun loadBookings(clientId: String) {
+    fun loadBookings() {
         screenModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
 
             getClientBookingsUseCase(
-                clientId = clientId,
                 status = _uiState.value.selectedStatus?.name,
             ).fold(
                 onSuccess = { bookings ->
@@ -62,13 +59,11 @@ class BookingHistoryScreenModel(
 
     /**
      * Обновляет историю (pull-to-refresh).
-     *
-     * @param clientId ID клиента
      */
-    fun refresh(clientId: String) {
+    fun refresh() {
         screenModelScope.launch {
             _uiState.update { it.copy(isRefreshing = true) }
-            loadBookings(clientId)
+            loadBookings()
             _uiState.update { it.copy(isRefreshing = false) }
         }
     }
