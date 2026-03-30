@@ -46,14 +46,14 @@ interface BookingRepository {
     /**
      * Получает историю бронирований клиента.
      *
-     * @param clientId ID клиента
+     * Backend извлекает user_id из JWT токена.
+     *
      * @param status Фильтр по статусу (опционально)
      * @param page Номер страницы (начиная с 1)
      * @param pageSize Размер страницы
      * @return Result со списком бронирований
      */
     suspend fun getClientBookings(
-        clientId: String,
         status: String?,
         page: Int,
         pageSize: Int,
