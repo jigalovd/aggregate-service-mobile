@@ -271,11 +271,10 @@ class AuthRepositoryImpl(
                         tokenStorage.saveAccessToken(newToken)
 
                         // 5. Маппим в AuthState.Authenticated
-                        // Note: userId и userEmail暂时从他处获取, пока API не вернёт
                         val newState = AuthState.Authenticated(
                             accessToken = newToken,
-                            userId = "", // TODO: API должен вернуть userId
-                            userEmail = null,
+                            userId = firebaseResponse.user.id,
+                            userEmail = firebaseResponse.user.email,
                         )
 
                         // 6. Обновляем состояние
@@ -336,8 +335,8 @@ class AuthRepositoryImpl(
                 // 5. Маппим в AuthState
                 val newState = AuthState.Authenticated(
                     accessToken = newToken,
-                    userId = "", // TODO: API должен вернуть userId
-                    userEmail = null,
+                    userId = authResponse.user.id,
+                    userEmail = authResponse.user.email,
                 )
 
                 // 6. Обновляем состояние
