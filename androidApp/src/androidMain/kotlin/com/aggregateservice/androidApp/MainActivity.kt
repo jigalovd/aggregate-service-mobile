@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import com.aggregateservice.core.firebase.FirebaseAuthApi
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.app.navigation.AppBottomNavHost
 import com.aggregateservice.core.theme.appTheme
@@ -28,9 +29,13 @@ import org.koin.java.KoinJavaComponent.inject
 class MainActivity : ComponentActivity() {
 
     private val i18nProvider: I18nProvider by inject(I18nProvider::class.java)
+    private val firebaseAuthApi: FirebaseAuthApi by inject(FirebaseAuthApi::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Inject Activity into FirebaseAuthApi for Google Sign-In
+        firebaseAuthApi.setActivity(this)
 
         setContent {
             appTheme(
@@ -40,7 +45,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     AppBottomNavHost(
-                        startScreen = CatalogScreen(),
+                        startScreen = CatalogScreen,
                     )
                 }
             }
