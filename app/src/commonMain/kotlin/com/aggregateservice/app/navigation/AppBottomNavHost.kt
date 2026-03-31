@@ -1,7 +1,11 @@
 package com.aggregateservice.app.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -14,6 +18,7 @@ import cafe.adriel.voyager.navigator.Navigator
 
 /**
  * Bottom navigation host composable that wraps the main content with a bottom navigation bar.
+ * Uses Scaffold to properly position the bottom bar at the bottom of the screen.
  *
  * @param startScreen The initial screen to display
  * @param modifier Optional modifier for the container
@@ -41,23 +46,32 @@ fun AppBottomNavHost(
             item.screen::class.simpleName == currentScreen::class.simpleName
         }.coerceAtLeast(0)
 
-        // Render the current screen content FIRST
-        currentScreen.Content()
-
-        // Then render the bottom navigation bar as an overlay
-        NavigationBar {
-            bottomNavItems.forEachIndexed { index, item ->
-                NavigationBarItem(
-                    icon = { Text(item.icon) },
-                    label = { Text(item.title) },
-                    selected = selectedIndex == index,
-                    onClick = {
-                        if (selectedIndex != index) {
-                            selectedIndex = index
-                            navigator.replace(item.screen)
-                        }
-                    },
-                )
+        Scaffold(
+            bottomBar = {
+                NavigationBar {
+                    bottomNavItems.forEachIndexed { index, item ->
+                        NavigationBarItem(
+                            icon = { Text(item.icon) },
+                            label = { Text(item.title) },
+                            selected = selectedIndex == index,
+                            onClick = {
+                                if (selectedIndex != index) {
+                                    selectedIndex = index
+                                    navigator.replace(item.screen)
+                                }
+                            },
+                        )
+                    }
+                }
+            },
+        ) { paddingValues ->
+            // Content fills the space above the bottom navigation
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+            ) {
+                currentScreen.Content()
             }
         }
     }

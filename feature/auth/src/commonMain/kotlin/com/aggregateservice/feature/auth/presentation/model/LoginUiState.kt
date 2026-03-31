@@ -38,6 +38,10 @@ data class LoginUiState(
 
     // Phone Auth
     val phoneAuth: PhoneAuthState = PhoneAuthState(),
+
+    // Platform-specific flags
+    val showEmailLogin: Boolean = false,
+    val isIOS: Boolean = false,
 ) {
     /**
      * Проверяет, можно ли выполнить вход.

@@ -118,7 +118,7 @@ actual class FirebaseAuthApi actual constructor() {
         pendingContinuation = continuation
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken("YOUR_WEB_CLIENT_ID.apps.googleusercontent.com")
+            .requestIdToken("55183234968-pn4t94d6s66ue76qmcbvkf3c2qpoffu9.apps.googleusercontent.com")
             .requestEmail()
             .build()
 

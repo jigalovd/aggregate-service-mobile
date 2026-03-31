@@ -105,6 +105,9 @@ class LoginScreen : Screen {
             linkAccountState = uiState.linkAccount,
             onLinkAccount = screenModel::onLinkAccount,
             onDismissLinkDialog = screenModel::onDismissLinkDialog,
+            // Platform flags
+            showEmailLogin = uiState.showEmailLogin,
+            isIOS = uiState.isIOS,
         )
     }
 }
@@ -131,6 +134,9 @@ fun LoginScreenContent(
     linkAccountState: LinkAccountState,
     onLinkAccount: (String) -> Unit,
     onDismissLinkDialog: () -> Unit,
+    // Platform flags
+    showEmailLogin: Boolean = false,
+    isIOS: Boolean = false,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -169,36 +175,38 @@ fun LoginScreenContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            // Email field
-            OutlinedTextField(
-                value = uiState.email,
-                onValueChange = onEmailChanged,
-                label = { Text(i18nProvider[StringKey.Auth.EMAIL]) },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                ),
-                enabled = !uiState.isLoading,
-                singleLine = true,
-            )
+            // Email field (only shown when email login is enabled)
+            if (showEmailLogin) {
+                OutlinedTextField(
+                    value = uiState.email,
+                    onValueChange = onEmailChanged,
+                    label = { Text(i18nProvider[StringKey.Auth.EMAIL]) },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                    ),
+                    enabled = !uiState.isLoading,
+                    singleLine = true,
+                )
 
-            Spacer(modifier = Modifier.height(Spacing.SM))
+                Spacer(modifier = Modifier.height(Spacing.SM))
 
-            // Password field
-            OutlinedTextField(
-                value = uiState.password,
-                onValueChange = onPasswordChanged,
-                label = { Text(i18nProvider[StringKey.Auth.PASSWORD]) },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                ),
-                visualTransformation = PasswordVisualTransformation(),
-                enabled = !uiState.isLoading,
-                singleLine = true,
-            )
+                // Password field
+                OutlinedTextField(
+                    value = uiState.password,
+                    onValueChange = onPasswordChanged,
+                    label = { Text(i18nProvider[StringKey.Auth.PASSWORD]) },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                    ),
+                    visualTransformation = PasswordVisualTransformation(),
+                    enabled = !uiState.isLoading,
+                    singleLine = true,
+                )
 
-            Spacer(modifier = Modifier.height(Spacing.MD))
+                Spacer(modifier = Modifier.height(Spacing.MD))
+            }
 
             // Firebase Divider
             Row(
@@ -234,16 +242,18 @@ fun LoginScreenContent(
 
             Spacer(modifier = Modifier.height(Spacing.SM))
 
-            // Apple Sign-In Button
-            Button(
-                onClick = onAppleSignIn,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isLoading && !uiState.isFirebaseLoading,
-            ) {
-                Text(i18nProvider[StringKey.Auth.SIGN_IN_WITH_APPLE])
-            }
+            // Apple Sign-In Button (iOS only)
+            if (isIOS) {
+                Button(
+                    onClick = onAppleSignIn,
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !uiState.isLoading && !uiState.isFirebaseLoading,
+                ) {
+                    Text(i18nProvider[StringKey.Auth.SIGN_IN_WITH_APPLE])
+                }
 
-            Spacer(modifier = Modifier.height(Spacing.SM))
+                Spacer(modifier = Modifier.height(Spacing.SM))
+            }
 
             // Phone Auth Toggle
             TextButton(
@@ -335,31 +345,33 @@ fun LoginScreenContent(
 
             Spacer(modifier = Modifier.height(Spacing.MD))
 
-            // Login button
-            Button(
-                onClick = onLoginClick,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = uiState.canLogin(),
-            ) {
-                if (uiState.isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.height(Spacing.LG),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                    )
-                } else {
-                    Text(i18nProvider[StringKey.Auth.LOGIN])
+            // Login button (only shown when email login is enabled)
+            if (showEmailLogin) {
+                Button(
+                    onClick = onLoginClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = uiState.canLogin(),
+                ) {
+                    if (uiState.isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.height(Spacing.LG),
+                            color = MaterialTheme.colorScheme.onPrimary,
+                        )
+                    } else {
+                        Text(i18nProvider[StringKey.Auth.LOGIN])
+                    }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(Spacing.SM))
+                Spacer(modifier = Modifier.height(Spacing.SM))
 
-            // Forgot password button
-            // Feature: Forgot password navigation planned for v1.1
-            TextButton(
-                onClick = { /* No-op: Forgot password feature pending */ },
-                enabled = !uiState.isLoading,
-            ) {
-                Text(i18nProvider[StringKey.Auth.FORGOT_PASSWORD])
+                // Forgot password button
+                // Feature: Forgot password navigation planned for v1.1
+                TextButton(
+                    onClick = { /* No-op: Forgot password feature pending */ },
+                    enabled = !uiState.isLoading,
+                ) {
+                    Text(i18nProvider[StringKey.Auth.FORGOT_PASSWORD])
+                }
             }
         }
     }
