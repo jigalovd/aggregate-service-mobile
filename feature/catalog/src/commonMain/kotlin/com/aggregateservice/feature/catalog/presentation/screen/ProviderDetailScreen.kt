@@ -49,6 +49,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
+import com.aggregateservice.core.navigation.AuthNavigator
 import com.aggregateservice.core.navigation.AuthPromptTrigger
 import com.aggregateservice.core.navigation.AuthStateProvider
 import com.aggregateservice.core.navigation.BookingNavigator
@@ -83,6 +84,9 @@ data class ProviderDetailScreen(
         // Booking navigator for cross-feature navigation
         val bookingNavigator: BookingNavigator = koinInject()
 
+        // Auth navigator for cross-feature navigation
+        val authNavigator: AuthNavigator = koinInject()
+
         // i18n provider for localized strings
         val i18nProvider: I18nProvider = koinInject()
 
@@ -99,11 +103,11 @@ data class ProviderDetailScreen(
                 onDismiss = { showAuthPrompt = false },
                 onLogin = {
                     showAuthPrompt = false
-                    // navigator.push(LoginScreen)
+                    navigator.push(authNavigator.createLoginScreen())
                 },
                 onRegister = {
                     showAuthPrompt = false
-                    // navigator.push(RegisterScreen)
+                    navigator.push(authNavigator.createRegisterScreen())
                 },
             )
         }

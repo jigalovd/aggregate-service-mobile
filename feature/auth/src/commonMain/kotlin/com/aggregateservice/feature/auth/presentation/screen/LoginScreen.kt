@@ -90,8 +90,7 @@ class LoginScreen : Screen {
             onLoginClick = screenModel::onLoginClick,
             onClearError = screenModel::clearError,
             onLoginSuccess = {
-                // Navigate to main screen
-                // navigator.push(MainScreen())
+                navigator?.pop()
             },
             // Firebase handlers
             onGoogleSignIn = screenModel::onGoogleSignIn,
