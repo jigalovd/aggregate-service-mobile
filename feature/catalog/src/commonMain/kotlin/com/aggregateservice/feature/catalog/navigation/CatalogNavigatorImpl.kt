@@ -10,7 +10,7 @@ import cafe.adriel.voyager.core.screen.Screen
  */
 class CatalogNavigatorImpl : CatalogNavigator {
     override fun createCatalogScreen(): Screen {
-        return CatalogScreen()
+        return CatalogScreen
     }
 
     override fun createProviderDetailScreen(providerId: String): Screen {

@@ -44,6 +44,8 @@ import coil3.compose.AsyncImage
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.core.navigation.CatalogNavigator
+import com.aggregateservice.core.navigation.AuthNavigator
+import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.favorites.domain.model.Favorite
 import com.aggregateservice.feature.favorites.presentation.model.FavoritesUiState
 import com.aggregateservice.feature.favorites.presentation.screenmodel.FavoritesScreenModel
@@ -52,7 +54,7 @@ import org.koin.compose.koinInject
 /**
  * Favorites screen displaying user's favorite providers.
  */
-class FavoritesScreen : Screen {
+object FavoritesScreen : Screen {
 
     @Composable
     override fun Content() {
@@ -61,9 +63,17 @@ class FavoritesScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val i18nProvider: I18nProvider = koinInject()
         val catalogNavigator: CatalogNavigator = koinInject()
+        val authNavigator: AuthNavigator = koinInject()
 
         LaunchedEffect(Unit) {
             screenModel.loadFavorites()
+        }
+
+        // Redirect to auth screen when user is unauthenticated
+        LaunchedEffect(uiState.error) {
+            if (uiState.error is AppError.Unauthorized) {
+                navigator.push(authNavigator.createLoginScreen())
+            }
         }
 
         FavoritesScreenContent(

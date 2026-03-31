@@ -72,7 +72,7 @@ import org.koin.compose.koinInject
  * UI рекомпозиция
  * ```
  */
-class CatalogScreen : Screen {
+object CatalogScreen : Screen {
 
     @Composable
     override fun Content() {

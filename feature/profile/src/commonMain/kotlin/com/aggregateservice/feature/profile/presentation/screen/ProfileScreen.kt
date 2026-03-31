@@ -42,8 +42,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.core.navigation.AuthStateProvider
+import com.aggregateservice.core.navigation.AuthNavigator
+import com.aggregateservice.core.network.AppError
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.profile.domain.model.Profile
@@ -54,7 +58,7 @@ import org.koin.compose.koinInject
 /**
  * Voyager Screen for user profile management.
  */
-class ProfileScreen : Screen {
+object ProfileScreen : Screen {
 
     @Composable
     override fun Content() {
@@ -63,6 +67,8 @@ class ProfileScreen : Screen {
         val i18nProvider: I18nProvider = koinInject()
         val authStateProvider: AuthStateProvider = koinInject()
         val snackbarHostState = remember { SnackbarHostState() }
+        val navigator = LocalNavigator.currentOrThrow
+        val authNavigator: AuthNavigator = koinInject()
 
         // Get current user ID from auth provider
         val currentUserId = authStateProvider.currentUserId
@@ -75,6 +81,13 @@ class ProfileScreen : Screen {
                     duration = SnackbarDuration.Short,
                 )
                 screenModel.clearSaveSuccess()
+            }
+        }
+
+        // Redirect to auth screen when user is unauthenticated
+        LaunchedEffect(uiState.error) {
+            if (uiState.error is AppError.Unauthorized) {
+                navigator.push(authNavigator.createLoginScreen())
             }
         }
 
