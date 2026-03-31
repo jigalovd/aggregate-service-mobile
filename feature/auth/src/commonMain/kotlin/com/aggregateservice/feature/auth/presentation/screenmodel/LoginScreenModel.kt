@@ -323,7 +323,7 @@ class LoginScreenModel(
                                 isFirebaseLoading = false,
                                 linkAccount = LinkAccountState(
                                     email = error.email,
-                                    tempToken = error.tempToken,
+                                    firebaseToken = error.firebaseToken,
                                     firebaseUid = error.firebaseUid,
                                     authProvider = authProvider,
                                     showDialog = true,
@@ -352,8 +352,8 @@ class LoginScreenModel(
                 linkAccount = linkState.copy(showDialog = false),
             )
 
-            // Use tempToken to link Firebase account with existing account
-            authRepository.linkFirebaseAccount(linkState.tempToken, password)
+            // Use firebaseToken to link Firebase account with existing account
+            authRepository.linkFirebaseAccount(linkState.firebaseToken, password)
                 .fold(
                     onSuccess = {
                         _uiState.value = _uiState.value.copy(

@@ -288,13 +288,14 @@ class AuthRepositoryImpl(
 
                     is FirebaseLinkRequiredResponse -> {
                         // Требуется связывание аккаунта
-                        // Возвращаем ошибку с tempToken, email и firebaseUid для UI
+                        // Возвращаем ошибку с firebaseToken, email и firebaseUid для UI
                         Result.failure(
                             AppError.FirebaseLinkRequired(
-                                tempToken = firebaseResponse.tempToken,
+                                firebaseToken = firebaseToken,
                                 email = firebaseResponse.email,
                                 firebaseUid = firebaseResponse.firebaseUid,
-                                message = firebaseResponse.message,
+                                provider = firebaseResponse.provider,
+                                message = firebaseResponse.message ?: "Account linking required",
                             ),
                         )
                     }
@@ -310,12 +311,12 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun linkFirebaseAccount(
-        tempToken: String,
+        firebaseToken: String,
         password: String,
     ): Result<AuthState> {
         // 1. Маппим в DTO
         val linkRequest = FirebaseLinkRequest(
-            firebaseToken = tempToken,
+            firebaseToken = firebaseToken,
             password = password,
         )
 

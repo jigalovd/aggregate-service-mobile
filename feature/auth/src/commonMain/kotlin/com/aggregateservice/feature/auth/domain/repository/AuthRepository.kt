@@ -76,9 +76,9 @@ interface AuthRepository {
      *
      * Вызывается после verifyFirebaseToken когда returned Result указывает на необходимость linking.
      *
-     * @param tempToken Temporary token из FirebaseLinkRequiredResponse
+     * @param firebaseToken Firebase token из verify response
      * @param password Пароль существующего аккаунта
      * @return Result с AuthState при успехе, или AppError при ошибке
      */
-    suspend fun linkFirebaseAccount(tempToken: String, password: String): Result<AuthState>
+    suspend fun linkFirebaseAccount(firebaseToken: String, password: String): Result<AuthState>
 }
