@@ -141,12 +141,22 @@ class ProviderDetailScreenModel(
         val providerId = currentState.provider?.id ?: return
 
         screenModelScope.launch {
-            if (currentState.isFavorite) {
+            val result = if (currentState.isFavorite) {
                 removeFavoriteUseCase(providerId)
             } else {
                 addFavoriteUseCase(providerId)
             }
-            _uiState.value = currentState.copy(isFavorite = !currentState.isFavorite)
+
+            result.fold(
+                onSuccess = {
+                    _uiState.value = currentState.copy(isFavorite = !currentState.isFavorite)
+                },
+                onFailure = { error ->
+                    _uiState.value = currentState.copy(
+                        error = error.toAppError(),
+                    )
+                },
+            )
         }
     }
 
