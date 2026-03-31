@@ -10,20 +10,27 @@ import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.model.SearchResult
 import com.aggregateservice.feature.catalog.domain.model.Service
 import com.aggregateservice.feature.catalog.domain.model.WorkingHours
+import com.aggregateservice.feature.favorites.domain.model.Favorite
+import com.aggregateservice.feature.favorites.domain.repository.FavoritesRepository
+import com.aggregateservice.feature.favorites.domain.usecase.AddFavoriteUseCase
+import com.aggregateservice.feature.favorites.domain.usecase.IsFavoriteUseCase
+import com.aggregateservice.feature.favorites.domain.usecase.RemoveFavoriteUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlin.time.Clock
+import kotlinx.datetime.Instant
 import kotlin.test.AfterTest
+import kotlinx.datetime.Clock
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 /**
  * Tests for ProviderDetailScreenModel using functional mocks.
@@ -46,12 +53,15 @@ class ProviderDetailScreenModelTest {
     private var servicesInvokeCount = 0
     private var lastCategoryId: String? = null
 
+    private lateinit var mockFavoritesRepository: MockFavoritesRepository
+
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         providerInvokeCount = 0
         servicesInvokeCount = 0
         lastCategoryId = null
+        mockFavoritesRepository = MockFavoritesRepository()
     }
 
     @AfterTest
@@ -85,6 +95,9 @@ class ProviderDetailScreenModelTest {
         return ProviderDetailScreenModel(
             getProviderDetailsUseCase = com.aggregateservice.feature.catalog.domain.usecase.GetProviderDetailsUseCase(repository),
             getProviderServicesUseCase = com.aggregateservice.feature.catalog.domain.usecase.GetProviderServicesUseCase(repository),
+            isFavoriteUseCase = IsFavoriteUseCase(mockFavoritesRepository),
+            addFavoriteUseCase = AddFavoriteUseCase(mockFavoritesRepository),
+            removeFavoriteUseCase = RemoveFavoriteUseCase(mockFavoritesRepository),
         )
     }
 
@@ -199,9 +212,24 @@ class ProviderDetailScreenModelTest {
     // ========== Favorite Toggle Tests ==========
 
     @Test
-    fun `onFavoriteToggle should toggle isFavorite`() = runTest {
-        val provider = createTestProvider()
-        getProviderByIdBehavior = { Result.success(provider) }
+    fun `initialize should load isFavorite status`() = runTest {
+        mockFavoritesRepository.isFavoriteResult = Result.success(true)
+        getProviderByIdBehavior = { Result.success(createTestProvider()) }
+        getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
+
+        val screenModel = createScreenModel()
+        screenModel.initialize("provider-123")
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertTrue(screenModel.uiState.value.isFavorite)
+        assertEquals(1, mockFavoritesRepository.isFavoriteCallCount)
+    }
+
+    @Test
+    fun `onFavoriteToggle should call addFavoriteUseCase when not favorite`() = runTest {
+        mockFavoritesRepository.isFavoriteResult = Result.success(false)
+        mockFavoritesRepository.addFavoriteResult = Result.success(Unit)
+        getProviderByIdBehavior = { Result.success(createTestProvider()) }
         getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
 
         val screenModel = createScreenModel()
@@ -211,12 +239,50 @@ class ProviderDetailScreenModelTest {
         assertFalse(screenModel.uiState.value.isFavorite)
 
         screenModel.onFavoriteToggle()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(1, mockFavoritesRepository.addFavoriteCallCount)
+        assertTrue(screenModel.uiState.value.isFavorite)
+    }
+
+    @Test
+    fun `onFavoriteToggle should call removeFavoriteUseCase when favorite`() = runTest {
+        mockFavoritesRepository.isFavoriteResult = Result.success(true)
+        mockFavoritesRepository.removeFavoriteResult = Result.success(Unit)
+        getProviderByIdBehavior = { Result.success(createTestProvider()) }
+        getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
+
+        val screenModel = createScreenModel()
+        screenModel.initialize("provider-123")
+        testDispatcher.scheduler.advanceUntilIdle()
 
         assertTrue(screenModel.uiState.value.isFavorite)
 
         screenModel.onFavoriteToggle()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(1, mockFavoritesRepository.removeFavoriteCallCount)
+        assertFalse(screenModel.uiState.value.isFavorite)
+    }
+
+    @Test
+    fun `onFavoriteToggle should not flip state on API error`() = runTest {
+        mockFavoritesRepository.isFavoriteResult = Result.success(false)
+        mockFavoritesRepository.addFavoriteResult = Result.failure(RuntimeException("API error"))
+        getProviderByIdBehavior = { Result.success(createTestProvider()) }
+        getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
+
+        val screenModel = createScreenModel()
+        screenModel.initialize("provider-123")
+        testDispatcher.scheduler.advanceUntilIdle()
 
         assertFalse(screenModel.uiState.value.isFavorite)
+
+        screenModel.onFavoriteToggle()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertFalse(screenModel.uiState.value.isFavorite)
+        assertNotNull(screenModel.uiState.value.error)
     }
 
     // ========== Refresh Tests ==========
@@ -396,5 +462,35 @@ class ProviderDetailScreenModelTest {
             durationMinutes = 30,
             createdAt = Clock.System.now(),
         )
+    }
+}
+
+/**
+ * Mock implementation of FavoritesRepository for ProviderDetailScreenModel testing.
+ */
+private class MockFavoritesRepository : FavoritesRepository {
+    var getFavoritesResult: Result<List<Favorite>> = Result.success(emptyList())
+    var addFavoriteResult: Result<Unit> = Result.success(Unit)
+    var removeFavoriteResult: Result<Unit> = Result.success(Unit)
+    var isFavoriteResult: Result<Boolean> = Result.success(false)
+    var addFavoriteCallCount = 0
+    var removeFavoriteCallCount = 0
+    var isFavoriteCallCount = 0
+
+    override suspend fun getFavorites(): Result<List<Favorite>> = getFavoritesResult
+
+    override suspend fun addFavorite(providerId: String): Result<Unit> {
+        addFavoriteCallCount++
+        return addFavoriteResult
+    }
+
+    override suspend fun removeFavorite(providerId: String): Result<Unit> {
+        removeFavoriteCallCount++
+        return removeFavoriteResult
+    }
+
+    override suspend fun isFavorite(providerId: String): Result<Boolean> {
+        isFavoriteCallCount++
+        return isFavoriteResult
     }
 }
