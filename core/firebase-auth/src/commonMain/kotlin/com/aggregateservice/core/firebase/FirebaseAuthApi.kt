@@ -1,5 +1,7 @@
 package com.aggregateservice.core.firebase
 
+import android.app.Activity
+
 /**
  * Firebase Authentication API (KMP expect).
  *
@@ -8,6 +10,12 @@ package com.aggregateservice.core.firebase
  * iOS is stub (KMP-only implementation).
  */
 expect class FirebaseAuthApi() {
+
+    /**
+     * Set the Activity context required for Google Sign-In.
+     * Must be called before signInWithGoogle() on Android.
+     */
+    expect fun setActivity(activity: Activity): Unit
 
     /**
      * Sign in with Google and return Firebase ID token.
