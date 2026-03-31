@@ -4,6 +4,7 @@ import com.aggregateservice.core.network.AppError
 import com.aggregateservice.core.network.executeWithRefresh
 import com.aggregateservice.core.network.httpCodeToAppError
 import com.aggregateservice.core.network.safeApiCall
+import com.aggregateservice.core.network.withAuth
 import com.aggregateservice.core.storage.TokenStorage
 import com.aggregateservice.feature.auth.data.dto.AuthResponse
 import com.aggregateservice.feature.auth.data.dto.FirebaseAlreadyLinkedResponse
@@ -89,9 +90,11 @@ class AuthRepositoryImpl(
         val savedToken = tokenStorage.getAccessTokenSync()
         if (!savedToken.isNullOrBlank()) {
             // Токен есть - запрашиваем информацию о пользователе
+            // Use withAuth to send the saved token for validation
             val userResponse = safeApiCall<UserResponseDto> {
                 httpClient.get("/api/v1/auth/me") {
                     contentType(ContentType.Application.Json)
+                    withAuth(tokenStorage)
                 }
             }
 
