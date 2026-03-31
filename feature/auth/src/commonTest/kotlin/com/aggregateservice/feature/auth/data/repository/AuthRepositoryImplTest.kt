@@ -4,10 +4,13 @@ import com.aggregateservice.core.config.AppConfig
 import com.aggregateservice.core.config.Config
 import com.aggregateservice.core.config.Environment
 import com.aggregateservice.core.config.Language
+import com.aggregateservice.core.network.AppError
 import com.aggregateservice.core.storage.TokenStorage
 import com.aggregateservice.feature.auth.data.dto.AuthResponse
 import com.aggregateservice.feature.auth.data.dto.FirebaseAlreadyLinkedResponse
+import com.aggregateservice.feature.auth.data.dto.FirebaseLinkRequiredResponse
 import com.aggregateservice.feature.auth.data.dto.FirebaseUserResponse
+import com.aggregateservice.feature.auth.data.dto.FirebaseVerifyResponse
 import com.aggregateservice.feature.auth.domain.model.AuthState
 import com.aggregateservice.feature.auth.domain.model.LoginCredentials
 import io.ktor.client.HttpClient
@@ -40,6 +43,7 @@ class AuthRepositoryImplTest {
     private val json = Json {
         ignoreUnknownKeys = true
         isLenient = true
+        classDiscriminator = "response_type"
     }
 
     @BeforeTest
@@ -221,7 +225,7 @@ class AuthRepositoryImplTest {
     @Test
     fun `verifyFirebaseToken returns userId from firebaseResponse`() = runTest {
         // Arrange
-        val firebaseResponse = FirebaseAlreadyLinkedResponse(
+        val firebaseResponse: FirebaseVerifyResponse = FirebaseAlreadyLinkedResponse(
             accessToken = testAccessToken,
             message = "Already linked",
             user = FirebaseUserResponse(
@@ -237,7 +241,7 @@ class AuthRepositoryImplTest {
         // Create a mock that returns the correct response type
         val mockEngine = MockEngine { _ ->
             respond(
-                content = json.encodeToString(firebaseResponse),
+                content = json.encodeToString<FirebaseVerifyResponse>(firebaseResponse),
                 status = HttpStatusCode.OK,
                 headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
@@ -304,7 +308,7 @@ class AuthRepositoryImplTest {
     @Test
     fun `observeAuthState emits updated state after verifyFirebaseToken succeeds`() = runTest {
         // Arrange
-        val firebaseResponse = FirebaseAlreadyLinkedResponse(
+        val firebaseResponse: FirebaseVerifyResponse = FirebaseAlreadyLinkedResponse(
             accessToken = testAccessToken,
             message = "Already linked",
             user = FirebaseUserResponse(
@@ -319,7 +323,7 @@ class AuthRepositoryImplTest {
 
         val mockEngine = MockEngine { _ ->
             respond(
-                content = json.encodeToString(firebaseResponse),
+                content = json.encodeToString<FirebaseVerifyResponse>(firebaseResponse),
                 status = HttpStatusCode.OK,
                 headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
@@ -342,6 +346,132 @@ class AuthRepositoryImplTest {
             assertEquals(testAccessToken, state.accessToken)
             cancelAndIgnoreRemainingEvents()
         }
+    }
+
+    // MARK: - Plan 07-02 Tests (link-required, link flow, unknown response_type)
+
+    @Test
+    fun `verifyFirebaseToken returns FirebaseLinkRequired when response_type is link_required`() = runTest {
+        // Arrange
+        val linkRequiredResponse: FirebaseVerifyResponse = FirebaseLinkRequiredResponse(
+            email = "existing@example.com",
+            firebaseUid = "firebase-uid-123",
+            provider = "google.com",
+            message = "Account linking required",
+        )
+
+        val mockEngine = MockEngine { _ ->
+            respond(
+                content = json.encodeToString<FirebaseVerifyResponse>(linkRequiredResponse),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+        val httpClient = HttpClient(mockEngine) {
+            install(ContentNegotiation) {
+                json(json)
+            }
+        }
+        val repository = AuthRepositoryImpl(httpClient, createMockTokenStorage())
+
+        // Act
+        val result = repository.verifyFirebaseToken("google.com", "original-firebase-token")
+
+        // Assert
+        assertTrue(result.isFailure)
+        val error = result.exceptionOrNull()
+        assertIs<AppError.FirebaseLinkRequired>(error)
+        assertEquals("existing@example.com", error.email)
+        assertEquals("firebase-uid-123", error.firebaseUid)
+        assertEquals("google.com", error.provider)
+        assertEquals("original-firebase-token", error.firebaseToken)
+    }
+
+    @Test
+    fun `verifyFirebaseToken then linkFirebaseAccount completes link flow`() = runTest {
+        // Arrange - verify returns link_required
+        val linkRequiredResponse: FirebaseVerifyResponse = FirebaseLinkRequiredResponse(
+            email = "existing@example.com",
+            firebaseUid = "firebase-uid-123",
+            provider = "google.com",
+        )
+
+        var requestCount = 0
+        val mockEngine = MockEngine { _ ->
+            requestCount++
+            if (requestCount == 1) {
+                // First call: verify returns link_required
+                respond(
+                    content = json.encodeToString<FirebaseVerifyResponse>(linkRequiredResponse),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            } else {
+                // Second call: link returns AuthResponse
+                val authResponse = AuthResponse(
+                    accessToken = "linked-access-token",
+                    user = FirebaseUserResponse(
+                        id = "user-id-123",
+                        email = "existing@example.com",
+                        isActive = true,
+                        isVerified = true,
+                        roles = listOf("client"),
+                        currentRole = "client",
+                    )
+                )
+                respond(
+                    content = json.encodeToString(authResponse),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            }
+        }
+        val httpClient = HttpClient(mockEngine) {
+            install(ContentNegotiation) {
+                json(json)
+            }
+        }
+        val repository = AuthRepositoryImpl(httpClient, createMockTokenStorage())
+
+        // Act - Step 1: verify
+        val verifyResult = repository.verifyFirebaseToken("google.com", "original-firebase-token")
+        assertTrue(verifyResult.isFailure)
+        val linkError = verifyResult.exceptionOrNull() as AppError.FirebaseLinkRequired
+
+        // Act - Step 2: link using firebaseToken from error
+        val linkResult = repository.linkFirebaseAccount(linkError.firebaseToken, "user-password")
+
+        // Assert - link succeeds
+        assertTrue(linkResult.isSuccess)
+        val authState = linkResult.getOrNull()
+        assertIs<AuthState.Authenticated>(authState)
+        assertEquals("user-id-123", authState.userId)
+    }
+
+    @Test
+    fun `verifyFirebaseToken throws on unknown response_type`() = runTest {
+        // Arrange - response with unknown discriminator
+        val unknownJson = """{"response_type": "unknown_type", "email": "test@test.com"}"""
+
+        val mockEngine = MockEngine { _ ->
+            respond(
+                content = unknownJson,
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+        val httpClient = HttpClient(mockEngine) {
+            install(ContentNegotiation) {
+                json(json)
+            }
+        }
+        val repository = AuthRepositoryImpl(httpClient, createMockTokenStorage())
+
+        // Act
+        val result = repository.verifyFirebaseToken("google.com", "firebase-token")
+
+        // Assert - deserialization fails for unknown discriminator value
+        assertTrue(result.isFailure)
     }
 
     private fun createMockTokenStorage(
