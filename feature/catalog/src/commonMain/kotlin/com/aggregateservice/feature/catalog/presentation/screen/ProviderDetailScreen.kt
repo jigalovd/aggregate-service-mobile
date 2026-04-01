@@ -49,11 +49,11 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
-import com.aggregateservice.core.navigation.AuthNavigator
 import com.aggregateservice.core.navigation.AuthPromptTrigger
 import com.aggregateservice.core.navigation.AuthStateProvider
 import com.aggregateservice.core.navigation.BookingNavigator
 import com.aggregateservice.core.navigation.executeProtectedAction
+import com.aggregateservice.feature.auth.domain.repository.AuthRepository
 import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.domain.model.Service
 import com.aggregateservice.feature.catalog.presentation.model.ProviderDetailUiState
@@ -84,30 +84,42 @@ data class ProviderDetailScreen(
         // Booking navigator for cross-feature navigation
         val bookingNavigator: BookingNavigator = koinInject()
 
-        // Auth navigator for cross-feature navigation
-        val authNavigator: AuthNavigator = koinInject()
-
         // i18n provider for localized strings
         val i18nProvider: I18nProvider = koinInject()
 
+        // Auth repository for backend verification
+        val authRepository: AuthRepository = koinInject()
+
         var showAuthPrompt by remember { mutableStateOf(false) }
+        var authTrigger by remember { mutableStateOf<AuthPromptTrigger?>(null) }
 
         LaunchedEffect(providerId) {
             screenModel.initialize(providerId)
         }
 
-        // Auth prompt dialog for guests
-        if (showAuthPrompt) {
+        if (showAuthPrompt && authTrigger != null) {
             AuthPromptDialog(
                 i18nProvider = i18nProvider,
-                onDismiss = { showAuthPrompt = false },
-                onLogin = {
+                trigger = authTrigger!!,
+                onDismiss = {
                     showAuthPrompt = false
-                    navigator.push(authNavigator.createLoginScreen())
+                    authTrigger = null
                 },
-                onRegister = {
-                    showAuthPrompt = false
-                    navigator.push(authNavigator.createRegisterScreen())
+                onAuthSuccess = { firebaseToken ->
+                    // Verify Firebase token with backend
+                    val result = authRepository.verifyFirebaseToken(
+                        authProvider = firebaseToken.authProvider,
+                        firebaseToken = firebaseToken.idToken,
+                    )
+                    result.fold(
+                        onSuccess = {
+                            showAuthPrompt = false
+                            authTrigger = null
+                        },
+                        onFailure = { error ->
+                            // Show error - dialog stays open
+                        }
+                    )
                 },
             )
         }
@@ -120,7 +132,10 @@ data class ProviderDetailScreen(
                 executeProtectedAction(
                     isAuthenticated = isAuthenticated,
                     trigger = AuthPromptTrigger.Favorites,
-                    onShowPrompt = { showAuthPrompt = true },
+                    onShowPrompt = { trigger ->
+                        authTrigger = trigger
+                        showAuthPrompt = true
+                    },
                     action = screenModel::onFavoriteToggle,
                 )
             },
@@ -132,7 +147,10 @@ data class ProviderDetailScreen(
                 executeProtectedAction(
                     isAuthenticated = isAuthenticated,
                     trigger = AuthPromptTrigger.Booking,
-                    onShowPrompt = { showAuthPrompt = true },
+                    onShowPrompt = { trigger ->
+                        authTrigger = trigger
+                        showAuthPrompt = true
+                    },
                 ) {
                     uiState.provider?.let { provider ->
                         navigator.push(
@@ -148,30 +166,6 @@ data class ProviderDetailScreen(
             onClearError = screenModel::clearError,
         )
     }
-}
-
-@Composable
-private fun AuthPromptDialog(
-    i18nProvider: I18nProvider,
-    onDismiss: () -> Unit,
-    onLogin: () -> Unit,
-    onRegister: () -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(i18nProvider[StringKey.GuestPrompt.BOOKING_TITLE]) },
-        text = { Text(i18nProvider[StringKey.GuestPrompt.BOOKING_MESSAGE]) },
-        confirmButton = {
-            Button(onClick = onRegister) {
-                Text(i18nProvider[StringKey.GuestPrompt.CREATE_ACCOUNT])
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onLogin) {
-                Text(i18nProvider[StringKey.GuestPrompt.SIGN_IN])
-            }
-        },
-    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
