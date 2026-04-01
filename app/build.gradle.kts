@@ -16,6 +16,7 @@ kotlin {
             api(project(":feature:favorites"))
             api(project(":feature:schedule"))
             api(project(":feature:reviews"))
+            implementation(libs.koin.compose)
         }
     }
 }
