@@ -3,6 +3,7 @@ package com.aggregateservice.feature.catalog.data.mapper
 import com.aggregateservice.feature.catalog.data.dto.DayScheduleDto
 import com.aggregateservice.feature.catalog.data.dto.ProviderDto
 import com.aggregateservice.feature.catalog.data.dto.WorkingHoursDto
+import com.aggregateservice.feature.catalog.data.dto.response.LocationDto
 import com.aggregateservice.feature.catalog.domain.model.DaySchedule
 import com.aggregateservice.feature.catalog.domain.model.Location
 import com.aggregateservice.feature.catalog.domain.model.Provider
@@ -30,8 +31,8 @@ object ProviderMapper {
         rating = dto.rating,
         reviewCount = dto.reviewCount,
         location = Location(
-            latitude = dto.latitude,
-            longitude = dto.longitude,
+            latitude = dto.location?.lat ?: 0.0,
+            longitude = dto.location?.lon ?: 0.0,
             address = dto.address,
             city = dto.city,
             postalCode = dto.postalCode,
