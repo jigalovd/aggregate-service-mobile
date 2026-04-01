@@ -28,13 +28,13 @@ class CatalogRepositoryImpl(
         val result = apiService.searchProviders(filters)
 
         return result.fold(
-            onSuccess = { providers ->
-                val domainProviders = providers.map { ProviderMapper.toDomain(it) }
+            onSuccess = { response ->
+                val domainProviders = response.providers.map { ProviderMapper.toDomain(it) }
                 Result.success(
                     SearchResult(
                         items = domainProviders,
-                        totalCount = domainProviders.size,
-                        totalPages = 1,
+                        totalCount = response.total,
+                        totalPages = (response.total + response.limit - 1) / response.limit,
                         currentPage = filters.page,
                     )
                 )
@@ -49,8 +49,8 @@ class CatalogRepositoryImpl(
         val result = apiService.getProviderById(providerId)
 
         return result.fold(
-            onSuccess = { provider ->
-                Result.success(ProviderMapper.toDomain(provider))
+            onSuccess = { response ->
+                Result.success(ProviderMapper.toDomain(response.data))
             },
             onFailure = { error ->
                 Result.failure(error)
@@ -92,8 +92,8 @@ class CatalogRepositoryImpl(
         val result = apiService.getProviderServices(providerId, categoryId)
 
         return result.fold(
-            onSuccess = { services ->
-                val domainServices = services.map { ServiceMapper.toDomain(it) }
+            onSuccess = { response ->
+                val domainServices = response.services.map { ServiceMapper.toDomain(it) }
                 Result.success(domainServices)
             },
             onFailure = { error ->
