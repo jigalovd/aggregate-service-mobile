@@ -19,7 +19,7 @@ import kotlinx.serialization.Serializable
 data class CategoryDto(
     val id: String,
     val name: Map<String, String>,
-    val icon: String? = null,
+    @SerialName("icon_url") val icon: String? = null,
     @SerialName("parent_id") val parentId: String? = null,
     @SerialName("is_active") val isActive: Boolean = true,
     @SerialName("sort_order") val sortOrder: Int = 0,
