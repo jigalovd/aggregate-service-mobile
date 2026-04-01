@@ -6,6 +6,9 @@ import com.aggregateservice.feature.catalog.data.dto.CategoriesResponseDto
 import com.aggregateservice.feature.catalog.data.dto.CategoryDto
 import com.aggregateservice.feature.catalog.data.dto.ProviderDto
 import com.aggregateservice.feature.catalog.data.dto.ServiceDto
+import com.aggregateservice.feature.catalog.data.dto.response.ProviderSearchResponseDto
+import com.aggregateservice.feature.catalog.data.dto.response.ProviderDetailsResponseDto
+import com.aggregateservice.feature.catalog.data.dto.response.ServiceListResponseDto
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -36,8 +39,8 @@ class CatalogApiService(
      *
      * **Endpoint:** POST /api/v1/catalog/providers/search
      */
-    suspend fun searchProviders(filters: SearchFilters): Result<List<ProviderDto>> {
-        return safeApiCall<List<ProviderDto>> {
+    suspend fun searchProviders(filters: SearchFilters): Result<ProviderSearchResponseDto> {
+        return safeApiCall<ProviderSearchResponseDto> {
             client.post("/api/v1/catalog/providers/search") {
                 contentType(ContentType.Application.Json)
                 setBody(filters)
@@ -50,8 +53,8 @@ class CatalogApiService(
      *
      * **Endpoint:** GET /api/v1/catalog/providers/{id}
      */
-    suspend fun getProviderById(providerId: String): Result<ProviderDto> {
-        return safeApiCall<ProviderDto> {
+    suspend fun getProviderById(providerId: String): Result<ProviderDetailsResponseDto> {
+        return safeApiCall<ProviderDetailsResponseDto> {
             client.get("/api/v1/catalog/providers/$providerId") {
                 contentType(ContentType.Application.Json)
             }
@@ -93,8 +96,8 @@ class CatalogApiService(
     suspend fun getProviderServices(
         providerId: String,
         categoryId: String?
-    ): Result<List<ServiceDto>> {
-        return safeApiCall<List<ServiceDto>> {
+    ): Result<ServiceListResponseDto> {
+        return safeApiCall<ServiceListResponseDto> {
             client.get("/api/v1/catalog/providers/$providerId/services") {
                 contentType(ContentType.Application.Json)
                 categoryId?.let { parameter("categoryId", it) }
