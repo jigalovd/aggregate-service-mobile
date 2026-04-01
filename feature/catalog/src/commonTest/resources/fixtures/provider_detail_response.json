@@ -1,0 +1,77 @@
+{
+  "data": {
+    "id": "p1a2b3c4-d5e6-7890-abcd-ef1234567890",
+    "user_id": "u1a2b3c4-d5e6-7890-abcd-ef1234567890",
+    "display_name": "Beauty Studio Elite",
+    "bio": "Professional hair and beauty services with 10 years of experience. We specialize in hair styling, coloring, and treatments for all hair types.",
+    "avatar_url": "https://cdn.example.com/avatars/provider1.jpg",
+    "photos": [
+      "https://cdn.example.com/photos/provider1/salon1.jpg",
+      "https://cdn.example.com/photos/provider1/salon2.jpg",
+      "https://cdn.example.com/photos/provider1/work1.jpg"
+    ],
+    "phone": "+972-50-123-4567",
+    "location": {
+      "lat": 32.0853,
+      "lon": 34.7818
+    },
+    "address": "123 Herzl Street, Tel Aviv",
+    "city": "Tel Aviv",
+    "postalCode": "12345",
+    "country": "Israel",
+    "rating_cached": 4.8,
+    "reviews_count": 127,
+    "is_verified": true,
+    "is_active": true,
+    "created_at": "2025-06-01T08:00:00Z",
+    "categories": [
+      {
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "parent_id": null,
+        "name": {
+          "ru": "Стрижка и укладка",
+          "he": "תספורת ועיצוב",
+          "en": "Haircut and Styling"
+        },
+        "icon_url": "https://cdn.example.com/icons/haircut.svg",
+        "sort_order": 1,
+        "is_active": true,
+        "created_at": "2026-01-15T10:30:00Z",
+        "updated_at": "2026-01-15T10:30:00Z"
+      }
+    ],
+    "servicesCount": 15,
+    "workingHours": {
+      "monday": {
+        "openTime": "09:00",
+        "closeTime": "18:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      "tuesday": {
+        "openTime": "09:00",
+        "closeTime": "18:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      "wednesday": {
+        "openTime": "09:00",
+        "closeTime": "18:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      "thursday": {
+        "openTime": "09:00",
+        "closeTime": "18:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      "friday": {
+        "openTime": "09:00",
+        "closeTime": "15:00"
+      },
+      "saturday": null,
+      "sunday": null
+    }
+  }
+}

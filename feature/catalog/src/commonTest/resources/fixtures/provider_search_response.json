@@ -1,0 +1,53 @@
+{
+  "providers": [
+    {
+      "id": "p1a2b3c4-d5e6-7890-abcd-ef1234567890",
+      "user_id": "u1a2b3c4-d5e6-7890-abcd-ef1234567890",
+      "display_name": "Beauty Studio Elite",
+      "bio": "Professional hair and beauty services with 10 years of experience",
+      "avatar_url": "https://cdn.example.com/avatars/provider1.jpg",
+      "phone": "+972-50-123-4567",
+      "location": {
+        "lat": 32.0853,
+        "lon": 34.7818
+      },
+      "address": "123 Herzl Street, Tel Aviv",
+      "rating_cached": 4.8,
+      "reviews_count": 127,
+      "is_verified": true,
+      "is_active": true,
+      "distance_km": 1.2,
+      "auto_accept_bookings": false,
+      "allow_rescheduling": true,
+      "min_booking_notice_hours": 2,
+      "created_at": "2025-06-01T08:00:00Z",
+      "updated_at": "2026-03-15T12:00:00Z"
+    },
+    {
+      "id": "p2b3c4d5-e6f7-8901-bcde-f23456789012",
+      "user_id": "u2b3c4d5-e6f7-8901-bcde-f23456789012",
+      "display_name": "Nail Art by Maria",
+      "bio": "Specializing in nail art and gel extensions",
+      "avatar_url": "https://cdn.example.com/avatars/provider2.jpg",
+      "phone": "+972-50-234-5678",
+      "location": {
+        "lat": 32.0865,
+        "lon": 34.7825
+      },
+      "address": "45 Dizengoff Street, Tel Aviv",
+      "rating_cached": 4.6,
+      "reviews_count": 89,
+      "is_verified": true,
+      "is_active": true,
+      "distance_km": 1.8,
+      "auto_accept_bookings": true,
+      "allow_rescheduling": true,
+      "min_booking_notice_hours": 4,
+      "created_at": "2025-08-20T09:00:00Z",
+      "updated_at": "2026-03-10T14:30:00Z"
+    }
+  ],
+  "total": 2,
+  "limit": 20,
+  "offset": 0
+}

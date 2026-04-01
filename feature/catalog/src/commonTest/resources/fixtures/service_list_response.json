@@ -1,0 +1,77 @@
+{
+  "services": [
+    {
+      "id": "s1a2b3c4-d5e6-7890-abcd-ef1234567890",
+      "category_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "title": {
+        "ru": "Женская стрижка",
+        "he": "תספורת נשים",
+        "en": "Women's Haircut"
+      },
+      "description": {
+        "ru": "Профессиональная женская стрижка включая мытье, стрижку и укладку",
+        "he": "תספורת נשים מקצועית כולל שטיפה, גזיזה ועיצוב",
+        "en": "Professional women's haircut including wash, cut, and styling"
+      },
+      "base_price": 15000,
+      "price_min": null,
+      "price_max": null,
+      "currency": "ILS",
+      "duration_minutes": 60,
+      "is_combinable": true,
+      "is_price_variable": false,
+      "is_active": true,
+      "created_at": "2025-06-01T08:00:00Z",
+      "updated_at": "2025-06-01T08:00:00Z"
+    },
+    {
+      "id": "s2b3c4d5-e6f7-8901-bcde-f23456789012",
+      "category_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "title": {
+        "ru": "Мужская стрижка",
+        "he": "תספורת גברים",
+        "en": "Men's Haircut"
+      },
+      "description": {
+        "ru": "Классическая мужская стрижка с современной укладкой",
+        "he": "תספורת גברים קלאסית עם עיצוב מודרני",
+        "en": "Classic men's haircut with modern styling"
+      },
+      "base_price": 8000,
+      "price_min": null,
+      "price_max": null,
+      "currency": "ILS",
+      "duration_minutes": 30,
+      "is_combinable": true,
+      "is_price_variable": false,
+      "is_active": true,
+      "created_at": "2025-06-01T08:00:00Z",
+      "updated_at": "2025-06-01T08:00:00Z"
+    },
+    {
+      "id": "s3c4d5e6-f7a8-9012-cdef-345678901234",
+      "category_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "title": {
+        "ru": "Покраска волос",
+        "he": "צביעת שיער",
+        "en": "Hair Coloring"
+      },
+      "description": {
+        "ru": "Полное окрашивание волос премиальными продуктами",
+        "he": "צביעת שיער מלאה עם מוצרים איכותיים",
+        "en": "Full hair coloring service with premium products"
+      },
+      "base_price": 35000,
+      "price_min": null,
+      "price_max": null,
+      "currency": "ILS",
+      "duration_minutes": 120,
+      "is_combinable": true,
+      "is_price_variable": false,
+      "is_active": true,
+      "created_at": "2025-06-01T08:00:00Z",
+      "updated_at": "2025-06-01T08:00:00Z"
+    }
+  ],
+  "total": 3
+}
