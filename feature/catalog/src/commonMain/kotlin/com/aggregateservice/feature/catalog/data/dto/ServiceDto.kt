@@ -13,9 +13,10 @@ import kotlinx.serialization.Serializable
  * @property id Уникальный идентификатор услуги
  * @property providerId ID мастера
  * @property categoryId ID категории
- * @property name Название услуги (i18n)
- * @property description Описание услуги (i18n)
- * @property price Цена услуги
+ * @property categoryName Название категории
+ * @property titleMap Название услуги (i18n map from backend I18nStringSchema)
+ * @property descriptionMap Описание услуги (i18n map from backend I18nStringSchema)
+ * @property priceInCents Цена услуги в центах (backend returns cents)
  * @property durationMinutes Длительность в минутах
  * @property isActive Активна ли услуга
  * @property createdAt Дата создания услуги
@@ -24,13 +25,26 @@ import kotlinx.serialization.Serializable
 data class ServiceDto(
     val id: String,
     val providerId: String,
-    val categoryId: String,
-    @SerialName("category_name")
-    val categoryName: String? = null,
-    val name: String,
-    val description: String? = null,
-    @SerialName("price") val price: Double,
-    @SerialName("durationMinutes") val durationMinutes: Int,
-    @SerialName("isActive") val isActive: Boolean = true,
-    @SerialName("createdAt") val createdAt: Instant,
-)
+    @SerialName("category_id") val categoryId: String,
+    @SerialName("category_name") val categoryName: String? = null,
+    @SerialName("title") val titleMap: Map<String, String>,
+    @SerialName("description") val descriptionMap: Map<String, String>? = null,
+    @SerialName("base_price") val priceInCents: Int,
+    @SerialName("duration_minutes") val durationMinutes: Int,
+    @SerialName("is_active") val isActive: Boolean = true,
+    @SerialName("created_at") val createdAt: Instant,
+) {
+    /**
+     * Extracts display name from I18nStringSchema.
+     * Priority: ru -> he -> en
+     */
+    val name: String
+        get() = titleMap["ru"] ?: titleMap["he"] ?: titleMap["en"] ?: ""
+
+    /**
+     * Extracts display description from I18nStringSchema.
+     * Priority: ru -> he -> en
+     */
+    val description: String?
+        get() = descriptionMap?.get("ru") ?: descriptionMap?.get("he") ?: descriptionMap?.get("en")
+}
