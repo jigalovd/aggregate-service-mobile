@@ -30,10 +30,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -69,9 +72,11 @@ object ProfileScreen : Screen {
         val snackbarHostState = remember { SnackbarHostState() }
         val navigator = LocalNavigator.currentOrThrow
         val authNavigator: AuthNavigator = koinInject()
+        var isRedirecting by remember { mutableStateOf(false) }
 
-        // Get current user ID from auth provider
-        val currentUserId = authStateProvider.currentUserId
+        // Observe auth state reactively
+        val isAuthenticated by authStateProvider.isAuthenticatedFlow.collectAsState(initial = false)
+        val currentUserId by authStateProvider.currentUserIdFlow.collectAsState(initial = null)
 
         // Show success snackbar
         LaunchedEffect(uiState.saveSuccess) {
@@ -86,8 +91,16 @@ object ProfileScreen : Screen {
 
         // Redirect to auth screen when user is unauthenticated
         LaunchedEffect(uiState.error) {
-            if (uiState.error is AppError.Unauthorized) {
+            if (uiState.error is AppError.Unauthorized && !isRedirecting) {
+                isRedirecting = true
                 navigator.push(authNavigator.createLoginScreen())
+                screenModel.clearError()
+            }
+        }
+
+        DisposableEffect(navigator) {
+            onDispose {
+                isRedirecting = false
             }
         }
 
