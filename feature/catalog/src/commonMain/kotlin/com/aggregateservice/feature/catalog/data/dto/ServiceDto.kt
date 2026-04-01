@@ -24,7 +24,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ServiceDto(
     val id: String,
-    val providerId: String,
+    val providerId: String? = null,
     @SerialName("category_id") val categoryId: String,
     @SerialName("category_name") val categoryName: String? = null,
     @SerialName("title") val titleMap: Map<String, String>,
