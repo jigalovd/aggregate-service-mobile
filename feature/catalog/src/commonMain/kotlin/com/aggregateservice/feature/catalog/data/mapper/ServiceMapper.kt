@@ -23,7 +23,7 @@ object ServiceMapper {
         name = dto.name,
         description = dto.description,
         price = Price(
-            amount = dto.price,
+            amount = dto.priceInCents / 100.0,
             currency = currency,
         ),
         durationMinutes = dto.durationMinutes,
