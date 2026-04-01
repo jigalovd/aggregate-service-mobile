@@ -21,7 +21,7 @@ class FavoritesRepositoryImpl(
 
     override suspend fun getFavorites(): Result<List<Favorite>> {
         return apiService.getFavorites().fold(
-            onSuccess = { dtos -> Result.success(FavoriteMapper.toDomain(dtos)) },
+            onSuccess = { response -> Result.success(FavoriteMapper.toDomain(response.favorites)) },
             onFailure = { error -> Result.failure(error) },
         )
     }
