@@ -4,6 +4,7 @@ import com.aggregateservice.core.network.safeApiCall
 import com.aggregateservice.core.network.withAuth
 import com.aggregateservice.core.storage.TokenStorage
 import com.aggregateservice.feature.favorites.data.dto.FavoriteDto
+import com.aggregateservice.feature.favorites.data.dto.FavoritesListResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -33,8 +34,8 @@ class FavoritesApiService(
      *
      * **Endpoint:** GET /api/v1/catalog/favorites
      */
-    suspend fun getFavorites(): Result<List<FavoriteDto>> {
-        return safeApiCall<List<FavoriteDto>> {
+    suspend fun getFavorites(): Result<FavoritesListResponseDto> {
+        return safeApiCall<FavoritesListResponseDto> {
             client.get("/api/v1/catalog/favorites") {
                 contentType(ContentType.Application.Json)
                 withAuth(tokenStorage)
