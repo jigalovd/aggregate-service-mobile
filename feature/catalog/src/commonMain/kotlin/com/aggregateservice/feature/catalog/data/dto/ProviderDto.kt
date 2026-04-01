@@ -1,5 +1,6 @@
 package com.aggregateservice.feature.catalog.data.dto
 
+import com.aggregateservice.feature.catalog.data.dto.response.LocationDto
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -18,8 +19,7 @@ import kotlinx.serialization.Serializable
  * @property photos URL фотографий
  * @property rating Средний рейтинг
  * @property reviewCount Количество отзывов
- * @property latitude Широта
- * @property longitude Долгота
+ * @property location Локация мастера
  * @property address Адрес
  * @property city Город
  * @property postalCode Почтовый индекс
@@ -33,23 +33,22 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ProviderDto(
     val id: String,
-    val userId: String,
-    val businessName: String,
-    val description: String? = null,
-    val logoUrl: String? = null,
+    @SerialName("user_id") val userId: String,
+    @SerialName("display_name") val businessName: String,
+    @SerialName("bio") val description: String? = null,
+    @SerialName("avatar_url") val logoUrl: String? = null,
     val photos: List<String> = emptyList(),
-    @SerialName("rating") val rating: Double = 0.0,
-    @SerialName("reviewCount") val reviewCount: Int = 0,
-    @SerialName("latitude") val latitude: Double,
-    @SerialName("longitude") val longitude: Double,
-    @SerialName("address") val address: String,
-    @SerialName("city") val city: String,
-    @SerialName("postalCode") val postalCode: String? = null,
-    @SerialName("country") val country: String? = null,
-    @SerialName("isVerified") val isVerified: Boolean = false,
-    @SerialName("isActive") val isActive: Boolean = true,
-    @SerialName("createdAt") val createdAt: Instant,
-    @SerialName("categories") val categories: List<CategoryDto> = emptyList(),
-    @SerialName("servicesCount") val servicesCount: Int = 0,
-    @SerialName("workingHours") val workingHours: WorkingHoursDto? = null,
+    val location: LocationDto? = null,
+    @SerialName("rating_cached") val rating: Double = 0.0,
+    @SerialName("reviews_count") val reviewCount: Int = 0,
+    @SerialName("is_verified") val isVerified: Boolean = false,
+    @SerialName("is_active") val isActive: Boolean = true,
+    @SerialName("created_at") val createdAt: Instant,
+    val address: String = "",
+    val city: String = "",
+    val postalCode: String? = null,
+    val country: String? = null,
+    val categories: List<CategoryDto> = emptyList(),
+    val servicesCount: Int = 0,
+    val workingHours: WorkingHoursDto? = null,
 )
