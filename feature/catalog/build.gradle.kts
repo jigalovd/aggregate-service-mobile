@@ -23,8 +23,16 @@ kotlin {
             // i18n for localized strings
             implementation(project(":core:i18n"))
 
-            // Auth state access via core:navigation abstraction (not direct feature:auth dependency)
+            // Auth state access via core:navigation abstraction
             // AuthStateProvider is implemented by feature:auth and injected via Koin
+
+            // Firebase Auth API types (FirebaseToken) for auth callback
+            implementation(project(":core:firebase-auth"))
+
+            // AuthRepository for verifyFirebaseToken after Firebase Auth completes
+            // This is needed because ProviderDetailScreen triggers auth flow via AuthPromptDialog
+            // and needs to complete the backend verification
+            implementation(project(":feature:auth"))
 
             // Favorites use cases for checking/managing favorite status on provider detail
             implementation(project(":feature:favorites"))
