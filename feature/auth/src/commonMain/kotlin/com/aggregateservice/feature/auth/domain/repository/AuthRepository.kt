@@ -1,9 +1,6 @@
 package com.aggregateservice.feature.auth.domain.repository
 
-import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.auth.domain.model.AuthState
-import com.aggregateservice.feature.auth.domain.model.LoginCredentials
-import com.aggregateservice.feature.auth.domain.model.RegistrationRequest
 import kotlinx.coroutines.flow.StateFlow
 
 /**
@@ -13,28 +10,11 @@ import kotlinx.coroutines.flow.StateFlow
  * Реализация находится в data/repository пакете.
  *
  * **Contract:**
- * - login() возвращает Result с AuthState или AppError
- * - register() возвращает Result с AuthState или AppError
  * - logout() очищает токены
  * - observeAuthState() предоставляет Flow для реактивных обновлений
+ * - verifyFirebaseToken() выполняет вход через Firebase (Google, Apple, Phone)
  */
 interface AuthRepository {
-    /**
-     * Выполняет вход пользователя.
-     *
-     * @param credentials Credential'ы пользователя
-     * @return Result с AuthState при успехе, или AppError при ошибке
-     */
-    suspend fun login(credentials: LoginCredentials): Result<AuthState>
-
-    /**
-     * Выполняет регистрацию нового пользователя.
-     *
-     * @param request Данные для регистрации
-     * @return Result с AuthState при успехе, или AppError при ошибке
-     */
-    suspend fun register(request: RegistrationRequest): Result<AuthState>
-
     /**
      * Выполняет выход пользователя (очищает токены).
      */

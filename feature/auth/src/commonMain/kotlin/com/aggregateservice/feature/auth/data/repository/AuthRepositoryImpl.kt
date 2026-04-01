@@ -12,14 +12,9 @@ import com.aggregateservice.feature.auth.data.dto.FirebaseLinkRequest
 import com.aggregateservice.feature.auth.data.dto.FirebaseLinkRequiredResponse
 import com.aggregateservice.feature.auth.data.dto.FirebaseVerifyRequest
 import com.aggregateservice.feature.auth.data.dto.FirebaseVerifyResponse
-import com.aggregateservice.feature.auth.data.dto.LoginRequest
 import com.aggregateservice.feature.auth.data.dto.RefreshTokenResponse
-import com.aggregateservice.feature.auth.data.dto.RegisterRequestDto
 import com.aggregateservice.feature.auth.data.dto.UserResponseDto
-import com.aggregateservice.feature.auth.data.dto.toDto
 import com.aggregateservice.feature.auth.domain.model.AuthState
-import com.aggregateservice.feature.auth.domain.model.LoginCredentials
-import com.aggregateservice.feature.auth.domain.model.RegistrationRequest
 import com.aggregateservice.feature.auth.domain.repository.AuthRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -114,92 +109,6 @@ class AuthRepositoryImpl(
                 }
             )
         }
-    }
-
-    override suspend fun login(credentials: LoginCredentials): Result<AuthState> {
-        // 1. Маппим Domain модель → DTO
-        val loginRequest = LoginRequest(
-            username = credentials.email,
-            password = credentials.password,
-        )
-
-        // 2. Выполняем API вызов с safe handling
-        val response = safeApiCall<AuthResponse> {
-            httpClient.post("/api/v1/auth/login") {
-                contentType(ContentType.Application.Json)
-                setBody(loginRequest)
-            }
-        }
-
-        // 3. Обрабатываем ответ
-        return response.fold(
-            onSuccess = { authResponse ->
-                val newToken = authResponse.accessToken
-
-                // 4. Сохраняем токен
-                tokenStorage.saveAccessToken(newToken)
-
-                // 5. Маппим DTO → Domain модель
-                // Note: userId from API would be ideal, using email-based placeholder for now
-                val newState = AuthState.Authenticated(
-                    accessToken = newToken,
-                    userId = credentials.email, // Use email as userId until API returns proper userId
-                    userEmail = credentials.email,
-                )
-
-                // 6. Обновляем состояние
-                _authState.value = newState
-
-                Result.success(newState)
-            },
-            onFailure = { error ->
-                when (error) {
-                    is AppError -> Result.failure(error)
-                    else -> Result.failure(AppError.UnknownError(error))
-                }
-            }
-        )
-    }
-
-    override suspend fun register(request: RegistrationRequest): Result<AuthState> {
-        // 1. Маппим Domain модель → DTO
-        val registerRequest = request.toDto()
-
-        // 2. Выполняем API вызов с safe handling
-        val response = safeApiCall<AuthResponse> {
-            httpClient.post("/api/v1/auth/register") {
-                contentType(ContentType.Application.Json)
-                setBody(registerRequest)
-            }
-        }
-
-        // 3. Обрабатываем ответ
-        return response.fold(
-            onSuccess = { authResponse ->
-                val newToken = authResponse.accessToken
-
-                // 4. Сохраняем токен
-                tokenStorage.saveAccessToken(newToken)
-
-                // 5. Маппим DTO → Domain модель
-                val newState = AuthState.Authenticated(
-                    accessToken = newToken,
-                    userId = request.email, // Use email as userId until API returns proper userId
-                    userEmail = request.email,
-                )
-
-                // 6. Обновляем состояние
-                _authState.value = newState
-
-                Result.success(newState)
-            },
-            onFailure = { error ->
-                when (error) {
-                    is AppError -> Result.failure(error)
-                    else -> Result.failure(AppError.UnknownError(error))
-                }
-            }
-        )
     }
 
     override suspend fun logout() {
