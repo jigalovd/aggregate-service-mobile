@@ -157,42 +157,9 @@ suspend inline fun <reified T : Any> HttpClient.executeWithRefresh(
     val response = apiCall()
     val statusCode = response.status.value
 
-    // Парсим первую попытку
-    val (data1, errorBody1) = try {
-        val data: T? =
-            if (statusCode in 200..299 && statusCode != HttpStatusCode.NoContent.value) {
-                try {
-                    response.body<T>()
-                } catch (e: Exception) {
-                    null
-                }
-            } else {
-                null
-            }
-
-        val errorBody: String? =
-            if (statusCode !in 200..299) {
-                try {
-                    response.body<ErrorResponse>().detail
-                } catch (e: Exception) {
-                    response.status.description
-                }
-            } else {
-                null
-            }
-
-        Pair(data, errorBody)
-    } catch (e: Exception) {
-        Pair(null, e.message)
-    }
-
-    // Если успех → возвращаем данные
-    if (statusCode in 200..299) {
-        val data = data1
-        if (data != null) {
-            return Result.success(data)
-        }
-        return Result.failure(AppError.UnknownError(message = "No data in response"))
+    val result = parseResponse<T>(statusCode, response)
+    if (result is ParseResult.Success) {
+        return Result.success(result.data)
     }
 
     // Если 401 → пробуем обновить токен и повторить
@@ -201,69 +168,25 @@ suspend inline fun <reified T : Any> HttpClient.executeWithRefresh(
 
         return refreshResult.fold(
             onSuccess = { newToken ->
-                // Сохраняем новый токен
                 tokenStorage.saveAccessToken(newToken)
+                val retryResponse = apiCall()
+                val retryStatusCode = retryResponse.status.value
 
-                // Повторяем запрос
-                try {
-                    val retryResponse = apiCall()
-                    val retryStatusCode = retryResponse.status.value
-
-                    val (data2, errorBody2) = try {
-                        val data: T? =
-                            if (retryStatusCode in 200..299 && retryStatusCode != HttpStatusCode.NoContent.value) {
-                                try {
-                                    retryResponse.body<T>()
-                                } catch (e: Exception) {
-                                    null
-                                }
-                            } else {
-                                null
-                            }
-
-                        val errorBody: String? =
-                            if (retryStatusCode !in 200..299) {
-                                try {
-                                    retryResponse.body<ErrorResponse>().detail
-                                } catch (e: Exception) {
-                                    retryResponse.status.description
-                                }
-                            } else {
-                                null
-                            }
-
-                        Pair(data, errorBody)
-                    } catch (e: Exception) {
-                        Pair(null, e.message)
-                    }
-
-                    if (retryStatusCode in 200..299) {
-                        val data = data2
-                        if (data != null) {
-                            return Result.success(data)
-                        }
-                        return Result.failure(AppError.UnknownError(message = "No data in retry response"))
-                    } else if (retryStatusCode == HttpStatusCode.Unauthorized.value) {
-                        // Повторный 401 → logout
-                        tokenStorage.clearTokens()
-                        Result.failure(AppError.Unauthorized)
-                    } else {
-                        // Другая ошибка
-                        Result.failure(
-                            httpCodeToAppError(
-                                code = retryStatusCode,
-                                message = errorBody2 ?: "Unknown error",
-                            ),
-                        )
-                    }
-                } catch (e: Exception) {
-                    Result.failure(AppError.UnknownError(e))
+                val retryResult = parseResponse<T>(retryStatusCode, retryResponse)
+                if (retryResult is ParseResult.Success) {
+                    return Result.success(retryResult.data)
                 }
+
+                if (retryStatusCode == HttpStatusCode.Unauthorized.value) {
+                    tokenStorage.clearTokens()
+                    return Result.failure(AppError.Unauthorized)
+                }
+
+                val errorMessage = (retryResult as ParseResult.Error).message
+                Result.failure(httpCodeToAppError(code = retryStatusCode, message = errorMessage))
             },
             onFailure = { error ->
-                // Ошибка refresh → logout
                 tokenStorage.clearTokens()
-
                 when (error) {
                     is AppError -> Result.failure(error)
                     else -> Result.failure(AppError.UnknownError(error))
@@ -272,11 +195,41 @@ suspend inline fun <reified T : Any> HttpClient.executeWithRefresh(
         )
     }
 
-    // Другая ошибка
-    return Result.failure(
-        httpCodeToAppError(
-            code = statusCode,
-            message = errorBody1 ?: "Unknown error",
-        ),
-    )
+    val errorMessage = (result as ParseResult.Error).message
+    return Result.failure(httpCodeToAppError(code = statusCode, message = errorMessage))
+}
+
+sealed class ParseResult<out T> {
+    data class Success<T>(val data: T) : ParseResult<T>()
+    data class Error(val message: String) : ParseResult<Nothing>()
+}
+
+suspend inline fun <reified T : Any> parseResponse(
+    statusCode: Int,
+    response: io.ktor.client.statement.HttpResponse,
+): ParseResult<T> {
+    return try {
+        if (statusCode in 200..299 && statusCode != HttpStatusCode.NoContent.value) {
+            try {
+                val data = response.body<T>()
+                if (data != null) {
+                    ParseResult.Success(data)
+                } else {
+                    ParseResult.Error("No data in response")
+                }
+            } catch (e: Exception) {
+                ParseResult.Error(e.message ?: "Failed to parse response")
+            }
+        } else {
+            val errorMessage = try {
+                val errorBody = response.body<ErrorResponse>()
+                errorBody.message ?: errorBody.error ?: "Unknown error"
+            } catch (e: Exception) {
+                response.status.description
+            }
+            ParseResult.Error(errorMessage)
+        }
+    } catch (e: Exception) {
+        ParseResult.Error(e.message ?: "Unknown error")
+    }
 }
