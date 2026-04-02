@@ -105,10 +105,9 @@ class ProfileScreenModel(
     private val updateProfileUseCase: UpdateProfileUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val catalogNavigator: CatalogNavigator,
-    private val navigator: Navigator,
 ) : ScreenModel {
 
-    fun logout() {
+    fun logout(navigator: Navigator) {
         screenModelScope.launch {
             logoutUseCase()
             navigator.replace(catalogNavigator.createCatalogScreen())
