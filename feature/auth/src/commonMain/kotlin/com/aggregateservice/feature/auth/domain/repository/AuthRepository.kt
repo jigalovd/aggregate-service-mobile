@@ -61,4 +61,12 @@ interface AuthRepository {
      * @return Result с AuthState при успехе, или AppError при ошибке
      */
     suspend fun linkFirebaseAccount(firebaseToken: String, password: String): Result<AuthState>
+
+    /**
+     * Инициализирует состояние аутентификации при старте приложения.
+     *
+     * Проверяет сохранённый токен и валидирует его с бэкендом.
+     * Должен вызываться один раз при старте приложения.
+     */
+    suspend fun initialize()
 }

@@ -8,13 +8,9 @@ import com.aggregateservice.feature.auth.AuthStateProviderImpl
 import com.aggregateservice.feature.auth.AuthNavigatorImpl
 import com.aggregateservice.feature.auth.data.repository.AuthRepositoryImpl
 import com.aggregateservice.feature.auth.domain.repository.AuthRepository
-import com.aggregateservice.feature.auth.domain.usecase.LoginUseCase
+import com.aggregateservice.feature.auth.domain.usecase.InitializeAuthUseCase
 import com.aggregateservice.feature.auth.domain.usecase.LogoutUseCase
 import com.aggregateservice.feature.auth.domain.usecase.ObserveAuthStateUseCase
-import com.aggregateservice.feature.auth.domain.usecase.RegisterUseCase
-import com.aggregateservice.feature.auth.presentation.screenmodel.LoginScreenModel
-import com.aggregateservice.feature.auth.presentation.screenmodel.RegistrationScreenModel
-import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
@@ -40,14 +36,9 @@ val authModule = module {
     single<FirebaseAuthApi> { FirebaseAuthApiFactory.create() }
 
     // UseCases
-    factoryOf(::LoginUseCase)
-    factoryOf(::LogoutUseCase)
-    factoryOf(::ObserveAuthStateUseCase)
-    factoryOf(::RegisterUseCase)
-
-    // ScreenModels
-    factoryOf(::LoginScreenModel)
-    factoryOf(::RegistrationScreenModel)
+    singleOf(::InitializeAuthUseCase)
+    singleOf(::LogoutUseCase)
+    singleOf(::ObserveAuthStateUseCase)
 
     // AuthStateProvider - abstraction for cross-feature auth access
     single<AuthStateProvider> { AuthStateProviderImpl(get()) }

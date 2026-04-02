@@ -76,7 +76,7 @@ class AuthRepositoryImpl(
      * }
      * ```
      */
-    suspend fun initialize() {
+    override suspend fun initialize() {
         if (isInitialized) {
             return // Already initialized
         }
@@ -157,8 +157,8 @@ class AuthRepositoryImpl(
         firebaseToken: String,
     ): Result<AuthState> {
         // 1. Маппим Domain модель → DTO
+        // Note: authProvider not sent to backend - backend extracts provider from Firebase token
         val verifyRequest = FirebaseVerifyRequest(
-            authProvider = authProvider,
             firebaseToken = firebaseToken,
         )
 

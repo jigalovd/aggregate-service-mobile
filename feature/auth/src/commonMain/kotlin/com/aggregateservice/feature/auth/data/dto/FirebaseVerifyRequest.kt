@@ -12,15 +12,12 @@ import kotlinx.serialization.Serializable
  * - Domain: FirebaseToken → DTO: FirebaseVerifyRequest (в Repository)
  * - Network: FirebaseVerifyRequest → JSON (Ktor сериализация)
  *
- * @property authProvider Firebase auth provider (google, apple, phone)
  * @property firebaseToken Firebase ID token from client
  *
  * @see BACKEND_API_REFERENCE.md секция "Firebase Authentication"
  */
 @Serializable
 data class FirebaseVerifyRequest(
-    @SerialName("auth_provider")
-    val authProvider: String,
     @SerialName("firebase_token")
     val firebaseToken: String,
 )
