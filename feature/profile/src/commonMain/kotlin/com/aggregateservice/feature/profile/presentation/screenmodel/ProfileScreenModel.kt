@@ -2,7 +2,10 @@ package com.aggregateservice.feature.profile.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import cafe.adriel.voyager.core.navigator.Navigator
+import com.aggregateservice.core.navigation.CatalogNavigator
 import com.aggregateservice.core.network.toAppError
+import com.aggregateservice.feature.auth.domain.usecase.LogoutUseCase
 import com.aggregateservice.feature.profile.domain.model.UpdateProfileRequest
 import com.aggregateservice.feature.profile.domain.usecase.GetProfileUseCase
 import com.aggregateservice.feature.profile.domain.usecase.UpdateProfileUseCase
@@ -28,6 +31,8 @@ import kotlinx.coroutines.launch
 class ProfileScreenModel(
     private val getProfileUseCase: GetProfileUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase,
+    private val logoutUseCase: LogoutUseCase,
+    private val catalogNavigator: CatalogNavigator,
 ) : ScreenModel {
 
     private val _uiState = MutableStateFlow(ProfileUiState.Loading)
@@ -184,6 +189,16 @@ class ProfileScreenModel(
      */
     fun clearError() {
         _uiState.update { it.copy(error = null) }
+    }
+
+    /**
+     * Performs logout and navigates to CatalogScreen.
+     */
+    fun logout(navigator: Navigator) {
+        screenModelScope.launch {
+            logoutUseCase()
+            navigator.replace(catalogNavigator.createCatalogScreen())
+        }
     }
 
     private fun validateFullName(value: String): String? {
