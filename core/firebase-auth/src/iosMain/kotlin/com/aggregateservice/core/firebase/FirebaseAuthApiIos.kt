@@ -28,7 +28,8 @@ actual class FirebaseAuthApi actual constructor() {
         }
 
     actual suspend fun signOut() = withContext(Dispatchers.Main) {
-        // No-op for iOS stub
+        // Firebase SDK bridging not available in KMP-only mode
+        // Graceful degradation - signOut is idempotent, no-op succeeds
     }
 
     actual fun getCurrentUser(): FirebaseUser? = null
