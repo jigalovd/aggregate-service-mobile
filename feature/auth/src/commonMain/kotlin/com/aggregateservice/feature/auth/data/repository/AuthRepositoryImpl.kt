@@ -112,10 +112,10 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun logout() {
-        // Очищаем токены
+        // Call backend logout endpoint. Errors are ignored — client-side
+        // logout proceeds regardless (session expires on server naturally).
+        safeApiCall { httpClient.post("/api/v1/auth/logout") }
         tokenStorage.clearTokens()
-
-        // Сбрасываем состояние в Guest
         _authState.value = AuthState.Guest
     }
 
