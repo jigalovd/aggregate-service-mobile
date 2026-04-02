@@ -1,10 +1,18 @@
 package com.aggregateservice.feature.profile.presentation.screenmodel
 
+import cafe.adriel.voyager.core.navigator.Navigator
+import com.aggregateservice.core.navigation.CatalogNavigator
+import com.aggregateservice.feature.auth.domain.usecase.LogoutUseCase
 import com.aggregateservice.feature.profile.domain.model.Profile
 import com.aggregateservice.feature.profile.domain.model.UpdateProfileRequest
 import com.aggregateservice.feature.profile.domain.repository.ProfileRepository
 import com.aggregateservice.feature.profile.domain.usecase.GetProfileUseCase
 import com.aggregateservice.feature.profile.domain.usecase.UpdateProfileUseCase
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import io.mockk.any
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -29,6 +37,9 @@ class ProfileScreenModelTest {
     private lateinit var mockRepository: MockProfileRepository
     private lateinit var getProfileUseCase: GetProfileUseCase
     private lateinit var updateProfileUseCase: UpdateProfileUseCase
+    private lateinit var logoutUseCase: LogoutUseCase
+    private lateinit var catalogNavigator: CatalogNavigator
+    private lateinit var mockNavigator: Navigator
 
     @BeforeTest
     fun setup() {
@@ -36,6 +47,10 @@ class ProfileScreenModelTest {
         mockRepository = MockProfileRepository()
         getProfileUseCase = GetProfileUseCase(mockRepository)
         updateProfileUseCase = UpdateProfileUseCase(mockRepository)
+        logoutUseCase = mockk(relaxed = true)
+        catalogNavigator = mockk(relaxed = true)
+        mockNavigator = mockk(relaxed = true)
+        every { catalogNavigator.createCatalogScreen() } returns mockk(relaxed = true)
     }
 
     @AfterTest
@@ -52,6 +67,8 @@ class ProfileScreenModelTest {
         val screenModel = ProfileScreenModel(
             getProfileUseCase = getProfileUseCase,
             updateProfileUseCase = updateProfileUseCase,
+            logoutUseCase = logoutUseCase,
+            catalogNavigator = catalogNavigator,
         )
 
         // Assert - initial state before coroutine completes
@@ -68,6 +85,8 @@ class ProfileScreenModelTest {
         val screenModel = ProfileScreenModel(
             getProfileUseCase = getProfileUseCase,
             updateProfileUseCase = updateProfileUseCase,
+            logoutUseCase = logoutUseCase,
+            catalogNavigator = catalogNavigator,
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -87,6 +106,8 @@ class ProfileScreenModelTest {
         val screenModel = ProfileScreenModel(
             getProfileUseCase = getProfileUseCase,
             updateProfileUseCase = updateProfileUseCase,
+            logoutUseCase = logoutUseCase,
+            catalogNavigator = catalogNavigator,
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -104,6 +125,8 @@ class ProfileScreenModelTest {
         val screenModel = ProfileScreenModel(
             getProfileUseCase = getProfileUseCase,
             updateProfileUseCase = updateProfileUseCase,
+            logoutUseCase = logoutUseCase,
+            catalogNavigator = catalogNavigator,
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -126,6 +149,8 @@ class ProfileScreenModelTest {
         val screenModel = ProfileScreenModel(
             getProfileUseCase = getProfileUseCase,
             updateProfileUseCase = updateProfileUseCase,
+            logoutUseCase = logoutUseCase,
+            catalogNavigator = catalogNavigator,
         )
         testDispatcher.scheduler.advanceUntilIdle()
         screenModel.startEditing()
@@ -150,6 +175,8 @@ class ProfileScreenModelTest {
         val screenModel = ProfileScreenModel(
             getProfileUseCase = getProfileUseCase,
             updateProfileUseCase = updateProfileUseCase,
+            logoutUseCase = logoutUseCase,
+            catalogNavigator = catalogNavigator,
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -168,6 +195,8 @@ class ProfileScreenModelTest {
         val screenModel = ProfileScreenModel(
             getProfileUseCase = getProfileUseCase,
             updateProfileUseCase = updateProfileUseCase,
+            logoutUseCase = logoutUseCase,
+            catalogNavigator = catalogNavigator,
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -189,6 +218,8 @@ class ProfileScreenModelTest {
         val screenModel = ProfileScreenModel(
             getProfileUseCase = getProfileUseCase,
             updateProfileUseCase = updateProfileUseCase,
+            logoutUseCase = logoutUseCase,
+            catalogNavigator = catalogNavigator,
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -217,6 +248,8 @@ class ProfileScreenModelTest {
         val screenModel = ProfileScreenModel(
             getProfileUseCase = getProfileUseCase,
             updateProfileUseCase = updateProfileUseCase,
+            logoutUseCase = logoutUseCase,
+            catalogNavigator = catalogNavigator,
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -242,6 +275,8 @@ class ProfileScreenModelTest {
         val screenModel = ProfileScreenModel(
             getProfileUseCase = getProfileUseCase,
             updateProfileUseCase = updateProfileUseCase,
+            logoutUseCase = logoutUseCase,
+            catalogNavigator = catalogNavigator,
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -263,6 +298,8 @@ class ProfileScreenModelTest {
         val screenModel = ProfileScreenModel(
             getProfileUseCase = getProfileUseCase,
             updateProfileUseCase = updateProfileUseCase,
+            logoutUseCase = logoutUseCase,
+            catalogNavigator = catalogNavigator,
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -277,6 +314,27 @@ class ProfileScreenModelTest {
 
         // Assert
         assertFalse(screenModel.uiState.value.saveSuccess)
+    }
+
+    @Test
+    fun `logout should call useCase and navigate to catalog`() = runTest {
+        // Arrange
+        mockRepository.getProfileResult = Result.success(createTestProfile())
+        val screenModel = ProfileScreenModel(
+            getProfileUseCase = getProfileUseCase,
+            updateProfileUseCase = updateProfileUseCase,
+            logoutUseCase = logoutUseCase,
+            catalogNavigator = catalogNavigator,
+        )
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // when
+        screenModel.logout(mockNavigator)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // then
+        coVerify { logoutUseCase() }
+        verify { mockNavigator.replace(any()) }
     }
 
     private fun createTestProfile(
