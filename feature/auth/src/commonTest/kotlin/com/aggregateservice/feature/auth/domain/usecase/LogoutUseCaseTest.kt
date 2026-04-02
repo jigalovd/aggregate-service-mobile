@@ -4,10 +4,14 @@ import com.aggregateservice.core.config.AppConfig
 import com.aggregateservice.core.config.Config
 import com.aggregateservice.core.config.Environment
 import com.aggregateservice.core.config.Language
+import com.aggregateservice.core.firebase.FirebaseAuthApi
 import com.aggregateservice.feature.auth.domain.model.AuthState
 import com.aggregateservice.feature.auth.domain.model.LoginCredentials
 import com.aggregateservice.feature.auth.domain.model.RegistrationRequest
 import com.aggregateservice.feature.auth.domain.repository.AuthRepository
+import io.mockk.coVerify
+import io.mockk.coVerifyOrder
+import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.test.runTest
@@ -22,6 +26,7 @@ class LogoutUseCaseTest {
 
     private lateinit var logoutUseCase: LogoutUseCase
     private lateinit var mockRepository: MockAuthRepository
+    private lateinit var mockFirebaseAuthApi: FirebaseAuthApi
 
     @BeforeTest
     fun setup() {
@@ -40,7 +45,8 @@ class LogoutUseCaseTest {
             )
         )
         mockRepository = MockAuthRepository()
-        logoutUseCase = LogoutUseCase(mockRepository)
+        mockFirebaseAuthApi = mockk(relaxed = true)
+        logoutUseCase = LogoutUseCase(mockRepository, mockFirebaseAuthApi)
     }
 
     @AfterTest
@@ -105,6 +111,20 @@ class LogoutUseCaseTest {
         val afterLogout = mockRepository.getCurrentAuthState()
         assertFalse(afterLogout.isAuthenticated)
         assertEquals(AuthState.Initial, afterLogout)
+    }
+
+    @Test
+    fun `should call firebase signOut after repository logout`() = runTest {
+        // when
+        logoutUseCase()
+
+        // then
+        coVerify { mockRepository.logout() }
+        coVerify { mockFirebaseAuthApi.signOut() }
+        coVerifyOrder {
+            mockRepository.logout()
+            mockFirebaseAuthApi.signOut()
+        }
     }
 
     /**
