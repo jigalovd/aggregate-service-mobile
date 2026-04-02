@@ -85,7 +85,7 @@ suspend inline fun <reified T : Any> safeApiCall(
                     val errorBody = response.body<ErrorResponse>()
                     Result.failure(
                         AppError.Forbidden(
-                            message = errorBody.detail,
+                            message = errorBody.message,
                         ),
                     )
                 }
@@ -102,7 +102,7 @@ suspend inline fun <reified T : Any> safeApiCall(
                     val errorBody = response.body<ErrorResponse>()
                     Result.failure(
                         AppError.Conflict(
-                            message = errorBody.detail ?: "Conflict",
+                            message = errorBody.message ?: "Conflict",
                         ),
                     )
                 }
@@ -112,7 +112,7 @@ suspend inline fun <reified T : Any> safeApiCall(
                     val errorBody = response.body<ErrorResponse>()
                     Result.failure(
                         AppError.AccountLocked(
-                            until = errorBody.detail ?: "unknown",
+                            until = errorBody.message ?: "unknown",
                         ),
                     )
                 }
@@ -136,7 +136,7 @@ suspend inline fun <reified T : Any> safeApiCall(
                         Result.failure(
                             AppError.NetworkError(
                                 code = 500,
-                                message = errorBody.detail ?: "Internal server error",
+                                message = errorBody.message ?: "Internal server error",
                             ),
                         )
                     }
@@ -148,7 +148,7 @@ suspend inline fun <reified T : Any> safeApiCall(
                     Result.failure(
                         httpCodeToAppError(
                             code = response.status.value,
-                            message = errorBody.detail ?: "Unknown error",
+                            message = errorBody.message ?: "Unknown error",
                         ),
                     )
                 }
@@ -193,20 +193,14 @@ suspend inline fun <reified T : Any> safeApiCall(
  * Бэкенд возвращает ошибки в формате:
  * ```json
  * {
- *   "detail": "Error message in user's language (ru/he/en)"
- * }
- * ```
- *
- * Или для validation errors (422):
- * ```json
- * {
- *   "detail": [
- *     {
- *       "loc": ["body", "email"],
- *       "msg": "field required",
- *       "type": "value_error.missing"
- *     }
- *   ]
+ *   "error": "VALIDATION_ERROR",
+ *   "message": "Сообщение на языке пользователя",
+ *   "details": {
+ *     "errors": [
+ *       {"field": "body.email", "message": "field required", "type": "missing"}
+ *     ]
+ *   },
+ *   "error_id": "uuid"
  * }
  * ```
  *
@@ -214,7 +208,15 @@ suspend inline fun <reified T : Any> safeApiCall(
  */
 @Serializable
 data class ErrorResponse(
-    val detail: String?,
+    val error: String? = null,
+    val message: String? = null,
+    val details: ErrorDetails? = null,
+    val errorId: String? = null,
+)
+
+@Serializable
+data class ErrorDetails(
+    val errors: List<ValidationErrorItem>? = null,
 )
 
 /**
@@ -222,9 +224,9 @@ data class ErrorResponse(
  */
 @Serializable
 data class ValidationErrorItem(
-    val loc: List<String>?,
-    val msg: String?,
-    val type: String?,
+    val field: String? = null,
+    val message: String? = null,
+    val type: String? = null,
 )
 
 /**
@@ -245,33 +247,28 @@ suspend fun parseRetryAfter(response: HttpResponse): Int {
  * @return ValidationError с детальной информацией
  */
 fun parseValidationError(errorBody: ErrorResponse): AppError {
-    // Пытаемся распарсить detail как JSON массив ValidationErrorItem
+    // Получаем errors из details.errors
     return try {
-        val json = Json { ignoreUnknownKeys = true }
-        val validationErrors =
-            json.decodeFromString<List<ValidationErrorItem>>(
-                errorBody.detail ?: "[]",
-            )
+        val validationErrors = errorBody.details?.errors
 
         // Берем первую ошибку
-        val firstError = validationErrors.firstOrNull()
+        val firstError = validationErrors?.firstOrNull()
         if (firstError != null) {
-            val field = firstError.loc?.lastOrNull() ?: "unknown"
             AppError.ValidationError(
-                field = field,
-                message = firstError.msg ?: "Validation error",
+                field = firstError.field ?: "unknown",
+                message = firstError.message ?: "Validation error",
             )
         } else {
             AppError.ValidationError(
                 field = "unknown",
-                message = errorBody.detail ?: "Validation error",
+                message = errorBody.message ?: "Validation error",
             )
         }
     } catch (e: Exception) {
         // Если не удалось распарсить, возвращаем простую ошибку
         AppError.ValidationError(
             field = "unknown",
-            message = errorBody.detail ?: "Validation error",
+            message = errorBody.message ?: "Validation error",
         )
     }
 }
