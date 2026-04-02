@@ -26,13 +26,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,10 +43,9 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
-import com.aggregateservice.core.navigation.CatalogNavigator
 import com.aggregateservice.core.navigation.AuthNavigator
 import com.aggregateservice.core.navigation.AuthStateProvider
-import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.navigation.CatalogNavigator
 import com.aggregateservice.feature.favorites.domain.model.Favorite
 import com.aggregateservice.feature.favorites.presentation.model.FavoritesUiState
 import com.aggregateservice.feature.favorites.presentation.screenmodel.FavoritesScreenModel
@@ -71,25 +66,18 @@ object FavoritesScreen : Screen {
         val authNavigator: AuthNavigator = koinInject()
         val authStateProvider: AuthStateProvider = koinInject()
         val isAuthenticated by authStateProvider.isAuthenticatedFlow.collectAsState(initial = false)
-        var isRedirecting by remember { mutableStateOf(false) }
 
-        LaunchedEffect(Unit) {
-            screenModel.loadFavorites()
-        }
-
-        // Redirect to auth screen when user is unauthenticated
-        LaunchedEffect(uiState.error) {
-            if (uiState.error is AppError.Unauthorized && !isRedirecting) {
-                isRedirecting = true
+        // Navigate to login screen when not authenticated
+        LaunchedEffect(isAuthenticated) {
+            if (!isAuthenticated) {
                 navigator.push(authNavigator.createLoginScreen())
-                screenModel.clearError()
             }
         }
 
-        // Reset redirecting flag when returning to this screen
-        DisposableEffect(navigator) {
-            onDispose {
-                isRedirecting = false
+        // Load favorites when authenticated
+        LaunchedEffect(isAuthenticated) {
+            if (isAuthenticated) {
+                screenModel.loadFavorites()
             }
         }
 

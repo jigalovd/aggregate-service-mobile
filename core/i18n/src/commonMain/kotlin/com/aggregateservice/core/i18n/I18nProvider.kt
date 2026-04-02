@@ -127,6 +127,8 @@ object StringKey {
         const val PROVIDER_APPLE = "auth_provider_apple"
         const val PROVIDER_PHONE = "auth_provider_phone"
         const val OR_DIVIDER = "auth_or_divider"
+        const val SIGN_IN_TITLE = "auth_sign_in_title"
+        const val SIGN_IN_SUBTITLE = "auth_sign_in_subtitle"
     }
 
     // Navigation

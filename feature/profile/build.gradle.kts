@@ -24,6 +24,12 @@ kotlin {
             // Auth state access via core:navigation abstraction
             // AuthStateProvider is implemented by feature:auth and injected via Koin
             implementation(project(":core:navigation"))
+
+            // Firebase Auth API types (FirebaseToken) for auth callback
+            implementation(project(":core:firebase-auth"))
+
+            // AuthRepository and AuthPromptDialog for auth flow
+            implementation(project(":feature:auth"))
         }
 
         maybeCreate("androidMain").dependencies {

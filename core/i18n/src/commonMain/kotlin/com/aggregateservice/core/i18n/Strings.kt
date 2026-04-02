@@ -56,6 +56,9 @@ public object DefaultStrings {
         "auth_link_account_message" to "This email is already registered:",
         "auth_link_account" to "Link Account",
         "auth_or_divider" to " or ",
+        "auth_sign_in_title" to "Sign In",
+        "auth_sign_in_subtitle" to "Sign in to access your account",
+        "auth_sign_in_with_google" to "Sign in with Google",
 
         // Navigation
         "nav_home" to "Home",
@@ -232,6 +235,9 @@ public object DefaultStrings {
         "auth_link_account_message" to "Этот email уже зарегистрирован:",
         "auth_link_account" to "Связать аккаунт",
         "auth_or_divider" to " или ",
+        "auth_sign_in_title" to "Вход",
+        "auth_sign_in_subtitle" to "Войдите, чтобы получить доступ к аккаунту",
+        "auth_sign_in_with_google" to "Войти с Google",
 
         // Navigation
         "nav_home" to "Главная",
@@ -408,6 +414,9 @@ public object DefaultStrings {
         "auth_link_account_message" to "כתובת האימייל הזו כבר רשומה:",
         "auth_link_account" to "קשר חשבון",
         "auth_or_divider" to " או ",
+        "auth_sign_in_title" to "התחברות",
+        "auth_sign_in_subtitle" to "התחבר כדי לגשת לחשבון שלך",
+        "auth_sign_in_with_google" to "התחבר עם Google",
 
         // Navigation
         "nav_home" to "בית",

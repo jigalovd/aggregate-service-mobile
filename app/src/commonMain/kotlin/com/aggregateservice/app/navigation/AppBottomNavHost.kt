@@ -1,24 +1,31 @@
 package com.aggregateservice.app.navigation
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.Navigator
 import com.aggregateservice.core.navigation.AuthStateProvider
+import com.aggregateservice.feature.auth.domain.usecase.InitializeAuthUseCase
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 /**
@@ -28,14 +35,28 @@ import org.koin.compose.koinInject
  * @param startScreen The initial screen to display
  * @param modifier Optional modifier for the container
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppBottomNavHost(
     startScreen: Screen,
     modifier: Modifier = Modifier,
 ) {
     val authStateProvider: AuthStateProvider = koinInject()
+    val initializeAuthUseCase: InitializeAuthUseCase = koinInject()
     val isAuthenticated by authStateProvider.isAuthenticatedFlow.collectAsState(initial = false)
     val currentUserId by authStateProvider.currentUserIdFlow.collectAsState(initial = null)
+    val coroutineScope = rememberCoroutineScope()
+
+    // Initialize auth state on first composition (silent re-login)
+    var authInitialized by remember { mutableIntStateOf(0) }
+    LaunchedEffect(authInitialized) {
+        if (authInitialized == 0) {
+            authInitialized = 1
+            coroutineScope.launch {
+                initializeAuthUseCase()
+            }
+        }
+    }
 
     Navigator(screen = startScreen) { navigator ->
         val bottomNavItems = listOf(
@@ -56,6 +77,26 @@ fun AppBottomNavHost(
         }.coerceAtLeast(0)
 
         Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Aggregate Service") },
+                    actions = {
+                        // Auth state indicator - show user avatar when authenticated
+                        if (isAuthenticated) {
+                            Row(
+                                modifier = Modifier.padding(end = 8.dp)
+                            ) {
+                                Text(
+                                    text = currentUserId?.take(8) ?: "User",
+                                    modifier = Modifier.padding(top = 12.dp, end = 4.dp),
+                                )
+                                Text(text = "👤")
+                            }
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(),
+                )
+            },
             bottomBar = {
                 NavigationBar {
                     bottomNavItems.forEachIndexed { index, item ->
@@ -69,16 +110,6 @@ fun AppBottomNavHost(
                                     navigator.replace(item.screen)
                                 }
                             },
-                        )
-                    }
-                    // Auth state indicator - show user avatar when authenticated
-                    if (isAuthenticated) {
-                        NavigationBarItem(
-                            icon = { Text("👤") },
-                            label = { Text(currentUserId?.take(8) ?: "User") },
-                            selected = false,
-                            onClick = { },
-                            enabled = false,
                         )
                     }
                 }

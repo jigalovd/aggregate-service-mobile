@@ -24,6 +24,12 @@ kotlin {
 
             // CatalogNavigator interface (implementation in feature:catalog)
             implementation(project(":core:navigation"))
+
+            // Firebase Auth API types (FirebaseToken) for auth callback
+            implementation(project(":core:firebase-auth"))
+
+            // AuthRepository and AuthPromptDialog for auth flow
+            implementation(project(":feature:auth"))
         }
 
         maybeCreate("androidMain").dependencies {

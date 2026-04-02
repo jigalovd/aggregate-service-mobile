@@ -17,7 +17,7 @@ object ServiceMapper {
      */
     fun toDomain(dto: ServiceDto, currency: String = "ILS"): Service = Service(
         id = dto.id,
-        providerId = dto.providerId,
+        providerId = dto.providerId ?: "",
         categoryId = dto.categoryId,
         categoryName = dto.categoryName ?: "",
         name = dto.name,
