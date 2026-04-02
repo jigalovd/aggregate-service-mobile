@@ -14,7 +14,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,10 +25,9 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.aggregateservice.core.firebase.FirebaseAuthApi
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
-import com.aggregateservice.feature.auth.domain.repository.AuthRepository
+import com.aggregateservice.feature.auth.domain.usecase.SignInWithFirebaseUseCase
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
@@ -48,8 +46,7 @@ class GoogleLoginScreen : Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val i18nProvider: I18nProvider = koinInject()
-        val firebaseAuthApi: FirebaseAuthApi = koinInject()
-        val authRepository: AuthRepository = koinInject()
+        val signInWithFirebaseUseCase: SignInWithFirebaseUseCase = koinInject()
         val coroutineScope = rememberCoroutineScope()
 
         var isLoading by remember { mutableStateOf(false) }
@@ -91,28 +88,13 @@ class GoogleLoginScreen : Screen {
                                     isLoading = true
                                     errorMessage = null
 
-                                    val firebaseResult = firebaseAuthApi.signInWithGoogle()
-
-                                    firebaseResult.fold(
-                                        onSuccess = { firebaseToken ->
-                                            val verifyResult = authRepository.verifyFirebaseToken(
-                                                authProvider = firebaseToken.authProvider,
-                                                firebaseToken = firebaseToken.idToken,
-                                            )
-
-                                            verifyResult.fold(
-                                                onSuccess = {
-                                                    // Auth successful, navigate back
-                                                    navigator.pop()
-                                                },
-                                                onFailure = { error ->
-                                                    errorMessage = error.message
-                                                        ?: i18nProvider[StringKey.ERROR]
-                                                }
-                                            )
+                                    signInWithFirebaseUseCase().fold(
+                                        onSuccess = { authState ->
+                                            // Auth successful, navigate back
+                                            navigator.pop()
                                         },
-                                        onFailure = { throwable ->
-                                            errorMessage = throwable.message
+                                        onFailure = { error ->
+                                            errorMessage = error.message
                                                 ?: i18nProvider[StringKey.ERROR]
                                         }
                                     )
