@@ -109,6 +109,10 @@ object ProfileScreen : Screen {
             onSave = screenModel::saveProfile,
             onRetry = { screenModel.loadProfile() },
             onErrorDismiss = screenModel::clearError,
+            onLogout = {
+                screenModel.logout(navigator)
+            },
+            navigator = navigator,
         )
     }
 }
@@ -126,6 +130,8 @@ fun ProfileScreenContent(
     onSave: () -> Unit,
     onRetry: () -> Unit,
     onErrorDismiss: () -> Unit,
+    onLogout: () -> Unit,
+    navigator: com.aggregateservice.core.navigation.Navigator,
 ) {
     Scaffold(
         topBar = {
@@ -192,6 +198,7 @@ fun ProfileScreenContent(
                         ViewProfileInfo(
                             profile = uiState.profile,
                             onEdit = onStartEditing,
+                            onLogout = onLogout,
                             i18nProvider = i18nProvider,
                         )
                     }
@@ -251,6 +258,7 @@ fun ProfileHeader(profile: Profile) {
 fun ViewProfileInfo(
     profile: Profile,
     onEdit: () -> Unit,
+    onLogout: () -> Unit,
     i18nProvider: I18nProvider,
 ) {
     Column(
@@ -277,6 +285,13 @@ fun ViewProfileInfo(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(i18nProvider[StringKey.Profile.EDIT])
+        }
+        Spacer(modifier = Modifier.height(Spacing.SM))
+        OutlinedButton(
+            onClick = onLogout,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(i18nProvider[StringKey.Profile.LOGOUT])
         }
     }
 }
