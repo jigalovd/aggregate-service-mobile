@@ -131,7 +131,7 @@ fun ProfileScreenContent(
     onRetry: () -> Unit,
     onErrorDismiss: () -> Unit,
     onLogout: () -> Unit,
-    navigator: com.aggregateservice.core.navigation.Navigator,
+    navigator: cafe.adriel.voyager.navigator.Navigator,
 ) {
     Scaffold(
         topBar = {

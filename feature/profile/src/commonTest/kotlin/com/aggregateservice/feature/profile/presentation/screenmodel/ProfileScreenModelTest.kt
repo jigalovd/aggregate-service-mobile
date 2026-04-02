@@ -1,6 +1,6 @@
 package com.aggregateservice.feature.profile.presentation.screenmodel
 
-import cafe.adriel.voyager.core.navigator.Navigator
+import cafe.adriel.voyager.navigator.Navigator
 import com.aggregateservice.core.navigation.CatalogNavigator
 import com.aggregateservice.feature.auth.domain.usecase.LogoutUseCase
 import com.aggregateservice.feature.profile.domain.model.Profile
@@ -12,7 +12,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import io.mockk.any
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher

@@ -2,7 +2,7 @@ package com.aggregateservice.feature.profile.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import cafe.adriel.voyager.core.navigator.Navigator
+import cafe.adriel.voyager.navigator.Navigator
 import com.aggregateservice.core.navigation.CatalogNavigator
 import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.auth.domain.usecase.LogoutUseCase

@@ -114,7 +114,7 @@ class AuthRepositoryImpl(
     override suspend fun logout() {
         // Call backend logout endpoint. Errors are ignored — client-side
         // logout proceeds regardless (session expires on server naturally).
-        safeApiCall { httpClient.post("/api/v1/auth/logout") }
+        safeApiCall<Unit> { httpClient.post("/api/v1/auth/logout") }
         tokenStorage.clearTokens()
         _authState.value = AuthState.Guest
     }

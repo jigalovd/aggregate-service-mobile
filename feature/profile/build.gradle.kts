@@ -39,5 +39,14 @@ kotlin {
         maybeCreate("iosMain").dependencies {
             implementation(libs.ktor.client.darwin)
         }
+
+        maybeCreate("commonTest").dependencies {
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.turbine)
+            implementation(libs.mockk)
+            implementation(libs.ktor.client.mock)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.datetime)
+        }
     }
 }
