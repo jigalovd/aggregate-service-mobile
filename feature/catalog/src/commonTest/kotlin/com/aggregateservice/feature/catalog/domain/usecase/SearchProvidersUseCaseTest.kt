@@ -13,7 +13,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.time.Clock
+import kotlinx.datetime.Instant
 
 class SearchProvidersUseCaseTest {
     private lateinit var searchProvidersUseCase: SearchProvidersUseCase
@@ -345,7 +345,7 @@ class SearchProvidersUseCaseTest {
                     ),
                 workingHours = WorkingHours(),
                 isVerified = index % 2 == 0,
-                createdAt = Clock.System.now(),
+                createdAt = Instant.fromEpochMilliseconds(0),
                 categories =
                     listOf(
                         Category(id = "cat-1", name = "Category 1"),

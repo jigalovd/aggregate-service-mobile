@@ -13,7 +13,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.time.Clock
+import kotlinx.datetime.Instant
 
 class GetProviderDetailsUseCaseTest {
     private lateinit var getProviderDetailsUseCase: GetProviderDetailsUseCase
@@ -67,7 +67,7 @@ class GetProviderDetailsUseCaseTest {
                     workingHours = WorkingHours(),
                     isVerified = true,
                     isActive = true,
-                    createdAt = Clock.System.now(),
+                    createdAt = Instant.fromEpochMilliseconds(0),
                     categories = listOf(Category(id = "cat-1", name = "Haircut")),
                     servicesCount = 25,
                 )
@@ -103,7 +103,7 @@ class GetProviderDetailsUseCaseTest {
                             city = "City",
                         ),
                     workingHours = WorkingHours(),
-                    createdAt = Clock.System.now(),
+                    createdAt = Instant.fromEpochMilliseconds(0),
                 )
             mockRepository.providerResult = Result.success(provider)
 
@@ -135,7 +135,7 @@ class GetProviderDetailsUseCaseTest {
                             city = "City",
                         ),
                     workingHours = WorkingHours(),
-                    createdAt = Clock.System.now(),
+                    createdAt = Instant.fromEpochMilliseconds(0),
                 )
             mockRepository.providerResult = Result.success(provider)
 
@@ -253,7 +253,7 @@ class GetProviderDetailsUseCaseTest {
                 ),
             workingHours = WorkingHours(),
             isVerified = true,
-            createdAt = Clock.System.now(),
+            createdAt = Instant.fromEpochMilliseconds(0),
             categories = listOf(Category(id = "cat-1", name = "Category 1")),
         )
     }

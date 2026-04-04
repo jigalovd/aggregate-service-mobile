@@ -4,15 +4,15 @@ import com.aggregateservice.feature.catalog.data.dto.CategoryDto
 import com.aggregateservice.feature.catalog.data.dto.DayScheduleDto
 import com.aggregateservice.feature.catalog.data.dto.ProviderDto
 import com.aggregateservice.feature.catalog.data.dto.WorkingHoursDto
-import kotlin.time.Instant
+import com.aggregateservice.feature.catalog.data.dto.response.LocationDto
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import kotlin.test.assertNull
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlinx.datetime.Instant
 
 class ProviderMapperTest {
-
     // ========== Basic Mapping Tests ==========
 
     @Test
@@ -48,18 +48,21 @@ class ProviderMapperTest {
 
     @Test
     fun `should map working hours correctly`() {
-        val dto = createTestProviderDto(
-            workingHours = WorkingHoursDto(
-                monday = DayScheduleDto(openTime = "09:00", closeTime = "18:00"),
-                tuesday = DayScheduleDto(openTime = "10:00", closeTime = "19:00"),
-                friday = DayScheduleDto(
-                    openTime = "09:00",
-                    closeTime = "14:00",
-                    breakStart = "12:00",
-                    breakEnd = "12:30",
-                ),
-            ),
-        )
+        val dto =
+            createTestProviderDto(
+                workingHours =
+                    WorkingHoursDto(
+                        monday = DayScheduleDto(openTime = "09:00", closeTime = "18:00"),
+                        tuesday = DayScheduleDto(openTime = "10:00", closeTime = "19:00"),
+                        friday =
+                            DayScheduleDto(
+                                openTime = "09:00",
+                                closeTime = "14:00",
+                                breakStart = "12:00",
+                                breakEnd = "12:30",
+                            ),
+                    ),
+            )
         val provider = ProviderMapper.toDomain(dto)
 
         assertEquals("09:00", provider.workingHours.monday?.openTime)
@@ -86,12 +89,14 @@ class ProviderMapperTest {
 
     @Test
     fun `should map categories correctly`() {
-        val dto = createTestProviderDto(
-            categories = listOf(
-                CategoryDto(id = "cat-1", name = "Haircut", sortOrder = 1),
-                CategoryDto(id = "cat-2", name = "Manicure", parentId = "cat-parent", sortOrder = 2),
-            ),
-        )
+        val dto =
+            createTestProviderDto(
+                categories =
+                    listOf(
+                        CategoryDto(id = "cat-1", name = mapOf("en" to "Haircut"), sortOrder = 1),
+                        CategoryDto(id = "cat-2", name = mapOf("en" to "Manicure"), parentId = "cat-parent", sortOrder = 2),
+                    ),
+            )
         val provider = ProviderMapper.toDomain(dto)
 
         assertEquals(2, provider.categories.size)
@@ -151,16 +156,13 @@ class ProviderMapperTest {
 
     @Test
     fun `should use default values for optional fields`() {
-        val dto = ProviderDto(
-            id = "provider-1",
-            userId = "user-1",
-            businessName = "Test",
-            latitude = 32.0,
-            longitude = 34.0,
-            address = "Address",
-            city = "City",
-            createdAt = Instant.DISTANT_PAST,
-        )
+        val dto =
+            ProviderDto(
+                id = "provider-1",
+                userId = "user-1",
+                businessName = "Test",
+                createdAt = Instant.DISTANT_PAST,
+            )
         val provider = ProviderMapper.toDomain(dto)
 
         assertNull(provider.description)
@@ -208,10 +210,11 @@ class ProviderMapperTest {
 
     @Test
     fun `provider should have primaryPhotoUrl from photos list`() {
-        val dto = createTestProviderDto(
-            photos = listOf("primary.jpg", "secondary.jpg"),
-            logoUrl = "logo.png",
-        )
+        val dto =
+            createTestProviderDto(
+                photos = listOf("primary.jpg", "secondary.jpg"),
+                logoUrl = "logo.png",
+            )
         val provider = ProviderMapper.toDomain(dto)
 
         assertEquals("primary.jpg", provider.primaryPhotoUrl)
@@ -219,10 +222,11 @@ class ProviderMapperTest {
 
     @Test
     fun `provider should use logoUrl as primaryPhotoUrl when photos is empty`() {
-        val dto = createTestProviderDto(
-            photos = emptyList(),
-            logoUrl = "logo.png",
-        )
+        val dto =
+            createTestProviderDto(
+                photos = emptyList(),
+                logoUrl = "logo.png",
+            )
         val provider = ProviderMapper.toDomain(dto)
 
         assertEquals("logo.png", provider.primaryPhotoUrl)
@@ -230,10 +234,11 @@ class ProviderMapperTest {
 
     @Test
     fun `provider should have null primaryPhotoUrl when no photos or logo`() {
-        val dto = createTestProviderDto(
-            photos = emptyList(),
-            logoUrl = null,
-        )
+        val dto =
+            createTestProviderDto(
+                photos = emptyList(),
+                logoUrl = null,
+            )
         val provider = ProviderMapper.toDomain(dto)
 
         assertNull(provider.primaryPhotoUrl)
@@ -250,8 +255,7 @@ class ProviderMapperTest {
         photos: List<String> = listOf("photo1.jpg", "photo2.jpg"),
         rating: Double = 4.8,
         reviewCount: Int = 150,
-        latitude: Double = 32.0853,
-        longitude: Double = 34.7818,
+        location: LocationDto? = LocationDto(lat = 32.0853, lon = 34.7818),
         address: String = "Dizengoff 100",
         city: String = "Tel Aviv",
         postalCode: String? = "12345",
@@ -259,13 +263,15 @@ class ProviderMapperTest {
         isVerified: Boolean = true,
         isActive: Boolean = true,
         createdAt: Instant = Instant.DISTANT_PAST,
-        categories: List<CategoryDto> = listOf(
-            CategoryDto(id = "cat-1", name = "Haircut"),
-        ),
+        categories: List<CategoryDto> =
+            listOf(
+                CategoryDto(id = "cat-1", name = mapOf("en" to "Haircut")),
+            ),
         servicesCount: Int = 25,
-        workingHours: WorkingHoursDto? = WorkingHoursDto(
-            monday = DayScheduleDto(openTime = "09:00", closeTime = "18:00"),
-        ),
+        workingHours: WorkingHoursDto? =
+            WorkingHoursDto(
+                monday = DayScheduleDto(openTime = "09:00", closeTime = "18:00"),
+            ),
     ): ProviderDto {
         return ProviderDto(
             id = id,
@@ -276,8 +282,7 @@ class ProviderMapperTest {
             photos = photos,
             rating = rating,
             reviewCount = reviewCount,
-            latitude = latitude,
-            longitude = longitude,
+            location = location,
             address = address,
             city = city,
             postalCode = postalCode,

@@ -23,20 +23,36 @@ import kotlin.test.assertTrue
  * Fixture files are stored in: src/commonTest/resources/fixtures/
  */
 class DtoParsingTest {
-
-    private val json = Json {
-        ignoreUnknownKeys = true
-        isLenient = true
-    }
+    private val json =
+        Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+        }
 
     /**
      * Helper to load fixture JSON from resources.
-     * Uses classpath resource loading.
+     * Uses file-based loading since classpath resource loading
+     * doesn't work reliably for Android unit tests.
      */
     private fun loadFixture(fixtureName: String): String {
-        val classLoader = this::class.java.classLoader
-        val resource = classLoader.getResourceAsStream("fixtures/$fixtureName")
-            ?: throw IllegalArgumentException("Fixture not found: $fixtureName")
+        // Try multiple possible resource paths for Android unit test compatibility
+        val possiblePaths = listOf(
+            "src/commonTest/resources/fixtures/$fixtureName",
+            "fixtures/$fixtureName",
+        )
+
+        for (path in possiblePaths) {
+            val file = java.io.File(path)
+            if (file.exists()) {
+                return file.readText()
+            }
+        }
+
+        // Fallback: try classpath loading
+        val classLoader = this::class.java.classLoader ?: ClassLoader.getSystemClassLoader()
+        val resourcePath = "fixtures/$fixtureName"
+        val resource = classLoader.getResourceAsStream(resourcePath)
+            ?: throw IllegalArgumentException("Fixture not found: $fixtureName (searched: $possiblePaths)")
         return resource.bufferedReader().use { it.readText() }
     }
 
@@ -145,9 +161,9 @@ class DtoParsingTest {
         val dto = json.decodeFromString<ProviderSearchResponseDto>(jsonString)
 
         val provider = dto.providers[0]
-        // address is not in backend response but ProviderDto has default ""
-        assertEquals("", provider.address)
-        assertEquals("", provider.city)
+        // address is present in fixture, city is null (not in fixture)
+        assertEquals("123 Herzl Street, Tel Aviv", provider.address)
+        assertNull(provider.city)
     }
 
     // ========== Provider Details Endpoint Tests ==========
@@ -277,7 +293,8 @@ class DtoParsingTest {
 
         val service = dto.services[0]
         // ServiceDto.name getter uses priority: ru -> he -> en
-        assertEquals("Women's Haircut", service.name)
+        // Fixture has Russian first, so it returns Russian
+        assertEquals("Женская стрижка", service.name)
     }
 
     @Test
@@ -287,8 +304,8 @@ class DtoParsingTest {
 
         val service = dto.services[0]
         assertNotNull(service.description)
-        // Description also uses i18n priority
-        assertEquals("Professional women's haircut including wash, cut, and styling", service.description)
+        // Description uses i18n priority ru -> he -> en, returns Russian
+        assertEquals("Профессиональная женская стрижка включая мытье, стрижку и укладку", service.description)
     }
 
     @Test
@@ -296,9 +313,10 @@ class DtoParsingTest {
         val jsonString = loadFixture("service_list_response.json")
         val dto = json.decodeFromString<ServiceListResponseDto>(jsonString)
 
-        assertEquals("Women's Haircut", dto.services[0].name)
-        assertEquals("Men's Haircut", dto.services[1].name)
-        assertEquals("Hair Coloring", dto.services[2].name)
+        // ServiceDto.name getter uses priority ru -> he -> en
+        assertEquals("Женская стрижка", dto.services[0].name)
+        assertEquals("Мужская стрижка", dto.services[1].name)
+        assertEquals("Покраска волос", dto.services[2].name)
 
         // Different prices in cents
         assertEquals(15000, dto.services[0].priceInCents)

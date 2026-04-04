@@ -22,7 +22,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlin.time.Clock
+import kotlinx.datetime.Instant
 
 /**
  * Tests for SearchScreenModel using functional mocks.
@@ -423,7 +423,7 @@ class SearchScreenModelTest {
                         city = "Tel Aviv",
                     ),
                 workingHours = WorkingHours(),
-                createdAt = Clock.System.now(),
+                createdAt = Instant.fromEpochMilliseconds(0),
             )
         }
     }
