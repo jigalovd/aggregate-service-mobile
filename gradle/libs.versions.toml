@@ -26,6 +26,7 @@ coil = "3.4.0"
 firebase-bom = "33.7.0"
 firebase-auth = "23.2.0"
 google-play-services-auth = "21.3.0"
+google-play-services-location = "21.3.0"
 
 # Firebase
 google-services = "4.4.2"
@@ -86,6 +87,7 @@ logback-android = { module = "com.github.tony19:logback-android", version.ref = 
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
 firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx", version.ref = "firebase-auth" }
 google-play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "google-play-services-auth" }
+google-play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "google-play-services-location" }
 
 # Code Quality & Testing
 # Detekt plugins for custom rules
