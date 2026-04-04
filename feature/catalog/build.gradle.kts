@@ -29,6 +29,9 @@ kotlin {
             // Firebase Auth API types (FirebaseToken) for auth callback
             implementation(project(":core:firebase-auth"))
 
+            // LocationProvider for geo-based provider search
+            implementation(project(":core:location"))
+
             // AuthRepository for verifyFirebaseToken after Firebase Auth completes
             // This is needed because ProviderDetailScreen triggers auth flow via AuthPromptDialog
             // and needs to complete the backend verification

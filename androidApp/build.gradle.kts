@@ -106,6 +106,7 @@ kotlin {
             implementation(project(":core:di"))
             implementation(project(":core:config"))
             implementation(project(":core:firebase-auth"))
+            implementation(project(":core:location"))
             implementation(project(":core:navigation"))
             implementation(project(":core:theme"))
             implementation(project(":core:i18n"))
