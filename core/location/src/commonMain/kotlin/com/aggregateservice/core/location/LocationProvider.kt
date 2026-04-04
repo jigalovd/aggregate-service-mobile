@@ -1,5 +1,7 @@
 package com.aggregateservice.core.location
 
+import com.aggregateservice.core.common.model.Location
+
 /**
  * KMP expect class for device geolocation.
  *
@@ -7,7 +9,6 @@ package com.aggregateservice.core.location
  * iOS: CLLocationManager stub (returns Haifa default)
  */
 expect class LocationProvider() {
-
     /**
      * Set the Activity context required for Android location.
      * Must be called before getCurrentLocation() on Android.

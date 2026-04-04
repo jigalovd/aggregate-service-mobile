@@ -1,5 +1,7 @@
 package com.aggregateservice.feature.catalog.domain.model
 
+import com.aggregateservice.core.common.model.Location
+
 /**
  * Чистая доменная модель мастера (Provider).
  *

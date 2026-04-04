@@ -5,4 +5,6 @@ import android.app.Activity
 /**
  * Android implementation of ContextProvider per D-07.
  */
-class AndroidContextProvider(override val context: Activity) : ContextProvider
+class AndroidContextProvider(
+    override val context: Activity,
+) : ContextProvider

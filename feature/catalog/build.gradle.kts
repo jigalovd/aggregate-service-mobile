@@ -32,6 +32,9 @@ kotlin {
             // LocationProvider for geo-based provider search
             implementation(project(":core:location"))
 
+            // Shared Location type
+            implementation(project(":core:common"))
+
             // AuthRepository for verifyFirebaseToken after Firebase Auth completes
             // This is needed because ProviderDetailScreen triggers auth flow via AuthPromptDialog
             // and needs to complete the backend verification

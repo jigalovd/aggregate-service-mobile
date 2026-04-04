@@ -1,5 +1,7 @@
 package com.aggregateservice.core.location
 
+import com.aggregateservice.core.common.model.Location
+
 /**
  * iOS stub implementation per D-03.
  *
@@ -8,7 +10,6 @@ package com.aggregateservice.core.location
  */
 @Suppress("ACTUAL_FUNCTION_WITH_DEFAULT_ARGUMENT")
 actual class LocationProvider actual constructor() {
-
     actual fun setActivity(activity: Any) {
         // Stub - no Activity needed for iOS
     }
@@ -20,8 +21,10 @@ actual class LocationProvider actual constructor() {
                 latitude = 32.8,
                 longitude = 35.0,
                 address = "",
-                city = "Haifa"
-            )
+                city = "Haifa",
+                postalCode = null,
+                country = null,
+            ),
         )
     }
 

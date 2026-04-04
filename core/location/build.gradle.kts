@@ -10,6 +10,7 @@ kotlin {
     sourceSets {
         maybeCreate("commonMain").dependencies {
             implementation(project(":core:config"))
+            implementation(project(":core:common"))
         }
 
         maybeCreate("androidMain").dependencies {
