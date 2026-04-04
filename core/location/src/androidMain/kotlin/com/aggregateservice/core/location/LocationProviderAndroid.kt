@@ -2,7 +2,6 @@ package com.aggregateservice.core.location
 
 import android.Manifest
 import android.app.Activity
-import android.content.pm.PackageManager
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -10,6 +9,7 @@ import com.aggregateservice.core.common.model.Location
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
@@ -22,6 +22,7 @@ actual class LocationProvider actual constructor() {
                 get() = throw IllegalStateException("Activity not set. Call setActivity() first.")
         }
     private var permissionLauncher: ActivityResultLauncher<Array<String>>? = null
+    private var permissionDeferred: CompletableDeferred<LocationPermissionStatus>? = null
 
     actual fun setActivity(activity: Any) {
         val act =
@@ -38,8 +39,17 @@ actual class LocationProvider actual constructor() {
         permissionLauncher =
             componentActivity.registerForActivityResult(
                 ActivityResultContracts.RequestMultiplePermissions(),
-            ) { _ ->
-                // Handle result - continuation is resumed in requestPermission
+            ) { permissions ->
+                val fineGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+                val coarseGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+
+                val status = when {
+                    fineGranted || coarseGranted -> LocationPermissionStatus.Granted
+                    else -> LocationPermissionStatus.Denied
+                }
+
+                permissionDeferred?.complete(status)
+                permissionDeferred = null
             }
     }
 
@@ -108,29 +118,32 @@ actual class LocationProvider actual constructor() {
 
     actual suspend fun requestPermission(): LocationPermissionStatus =
         suspendCancellableCoroutine { continuation ->
-            val activity = contextProvider.context as Activity
+            val deferred = CompletableDeferred<LocationPermissionStatus>()
+            permissionDeferred = deferred
 
-            permissionLauncher?.launch(
+            if (permissionLauncher == null) {
+                continuation.resume(LocationPermissionStatus.Unknown)
+                return@suspendCancellableCoroutine
+            }
+
+            permissionLauncher!!.launch(
                 arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                 ),
             )
 
-            val fineGranted = activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-            val coarseGranted = activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
-
-            val status =
-                when {
-                    fineGranted == PackageManager.PERMISSION_GRANTED || coarseGranted == PackageManager.PERMISSION_GRANTED ->
-                        LocationPermissionStatus.Granted
-                    activity.shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) ->
-                        LocationPermissionStatus.Denied
-                    else -> LocationPermissionStatus.DeniedPermanently
+            // Resume continuation when deferred is completed by callback
+            deferred.invokeOnCompletion { cause ->
+                if (continuation.isActive) {
+                    if (cause != null) {
+                        // Completed exceptionally
+                        continuation.resume(LocationPermissionStatus.Unknown)
+                    } else {
+                        // Completed normally with result
+                        continuation.resume(deferred.getCompleted())
+                    }
                 }
-
-            if (continuation.isActive) {
-                continuation.resume(status)
             }
         }
 }
