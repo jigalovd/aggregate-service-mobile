@@ -1,5 +1,7 @@
 package com.aggregateservice.feature.catalog.di
 
+import com.aggregateservice.core.location.LocationProvider
+import com.aggregateservice.core.location.LocationProviderFactory
 import com.aggregateservice.feature.catalog.data.api.CatalogApiService
 import com.aggregateservice.feature.catalog.data.repository.CatalogRepositoryImpl
 import com.aggregateservice.feature.catalog.domain.repository.CatalogRepository
@@ -66,4 +68,7 @@ val catalogModule = module {
 
     // Navigation
     single<CatalogNavigator> { CatalogNavigatorImpl() }
+
+    // LocationProvider singleton per D-06
+    single { LocationProviderFactory.create() }
 }
