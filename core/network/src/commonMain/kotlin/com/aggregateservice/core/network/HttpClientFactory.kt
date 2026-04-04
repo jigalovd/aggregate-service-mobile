@@ -62,6 +62,7 @@ fun createHttpClient(
             ignoreUnknownKeys = true
             isLenient = true
             prettyPrint = false
+            encodeDefaults = true  // Include default values in serialization
         })
     }
 
