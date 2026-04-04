@@ -2,6 +2,9 @@ package com.aggregateservice.feature.catalog.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.aggregateservice.core.location.LocationAccuracy
+import com.aggregateservice.core.location.LocationPermissionStatus
+import com.aggregateservice.core.location.LocationProvider
 import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
@@ -40,6 +43,7 @@ import kotlinx.coroutines.launch
 class CatalogScreenModel(
     private val searchProvidersUseCase: SearchProvidersUseCase,
     private val getCategoriesUseCase: GetCategoriesUseCase,
+    private val locationProvider: LocationProvider,
 ) : ScreenModel {
 
     // UI State
@@ -47,9 +51,8 @@ class CatalogScreenModel(
     val uiState: StateFlow<CatalogUiState> = _uiState.asStateFlow()
 
     init {
-        // Загружаем начальные данные
         loadCategories()
-        searchProviders()
+        requestLocationAndSearch()
     }
 
     /**
@@ -238,5 +241,43 @@ class CatalogScreenModel(
      */
     fun onSearchSubmit() {
         searchProviders()
+    }
+
+    /**
+     * Requests location permission and performs search with geo filters if granted.
+     * Falls back to non-geo search if permission denied (D-03).
+     */
+    private fun requestLocationAndSearch() {
+        screenModelScope.launch {
+            val status = locationProvider.requestPermission()
+
+            when (status) {
+                is LocationPermissionStatus.Granted -> {
+                    val locationResult = locationProvider.getCurrentLocation(LocationAccuracy.MEDIUM)
+                    locationResult.fold(
+                        onSuccess = { location ->
+                            _uiState.value = _uiState.value.copy(
+                                filters = _uiState.value.filters.copy(
+                                    latitude = location.latitude,
+                                    longitude = location.longitude,
+                                    radiusKm = DEFAULT_RADIUS_KM,
+                                )
+                            )
+                        },
+                        onFailure = { /* Fall back to non-geo search */ }
+                    )
+                    searchProviders()
+                }
+                is LocationPermissionStatus.Denied,
+                is LocationPermissionStatus.DeniedPermanently,
+                is LocationPermissionStatus.Unknown -> {
+                    searchProviders()  // Without geo filters
+                }
+            }
+        }
+    }
+
+    companion object {
+        private const val DEFAULT_RADIUS_KM = 30.0
     }
 }
