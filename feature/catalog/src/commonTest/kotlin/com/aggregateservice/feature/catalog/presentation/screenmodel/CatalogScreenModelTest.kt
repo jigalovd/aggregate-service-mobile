@@ -1,6 +1,10 @@
 package com.aggregateservice.feature.catalog.presentation.screenmodel
 
 import com.aggregateservice.core.common.model.Location
+import com.aggregateservice.core.location.LocationAccuracy
+import com.aggregateservice.core.location.LocationPermissionStatus
+import com.aggregateservice.core.location.LocationProvider
+import com.aggregateservice.core.location.LocationProviderFactory
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
@@ -21,10 +25,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlin.time.Clock
+import kotlinx.datetime.Clock
 
 /**
  * Tests for CatalogScreenModel using functional mocks.
+ *
+ * Note: LocationProvider is an expect class with platform-specific implementations.
+ * This test uses LocationProviderFactory to create instances.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class CatalogScreenModelTest {
@@ -39,11 +46,21 @@ class CatalogScreenModelTest {
     private var searchInvokeCount = 0
     private var lastSearchFilters: SearchFilters? = null
 
+    /**
+     * LocationProvider instance created via factory.
+     * On iOS: returns Granted and default Haifa location
+     * On Android: requires setActivity() to be called first
+     */
+    private lateinit var locationProvider: LocationProvider
+
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         searchInvokeCount = 0
         lastSearchFilters = null
+
+        // Create LocationProvider via factory
+        locationProvider = LocationProviderFactory.create()
     }
 
     @AfterTest
@@ -55,6 +72,7 @@ class CatalogScreenModelTest {
         return CatalogScreenModel(
             searchProvidersUseCase = createSearchProvidersUseCase(),
             getCategoriesUseCase = createGetCategoriesUseCase(),
+            locationProvider = locationProvider,
         )
     }
 
