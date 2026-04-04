@@ -1,9 +1,9 @@
 package com.aggregateservice.feature.catalog.navigation
 
+import cafe.adriel.voyager.core.screen.Screen
 import com.aggregateservice.core.navigation.CatalogNavigator
 import com.aggregateservice.feature.catalog.presentation.screen.CatalogScreen
 import com.aggregateservice.feature.catalog.presentation.screen.ProviderDetailScreen
-import cafe.adriel.voyager.core.screen.Screen
 
 /**
  * Реализация CatalogNavigator для feature:catalog.

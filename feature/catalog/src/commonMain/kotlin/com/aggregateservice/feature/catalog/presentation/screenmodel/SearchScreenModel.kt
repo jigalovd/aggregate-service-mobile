@@ -2,9 +2,7 @@ package com.aggregateservice.feature.catalog.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.aggregateservice.core.network.AppError
 import com.aggregateservice.core.network.toAppError
-import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.usecase.GetCategoriesUseCase
 import com.aggregateservice.feature.catalog.domain.usecase.SearchProvidersUseCase
@@ -37,7 +35,6 @@ class SearchScreenModel(
     private val searchProvidersUseCase: SearchProvidersUseCase,
     private val getCategoriesUseCase: GetCategoriesUseCase,
 ) : ScreenModel {
-
     private val _uiState = MutableStateFlow(SearchUiState.Initial)
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
 
@@ -54,8 +51,7 @@ class SearchScreenModel(
                 if (query.isNotBlank()) {
                     search(query)
                 }
-            }
-            .launchIn(screenModelScope)
+            }.launchIn(screenModelScope)
     }
 
     /**
@@ -84,11 +80,12 @@ class SearchScreenModel(
 
         // Clear results if query is empty
         if (query.isBlank()) {
-            _uiState.value = _uiState.value.copy(
-                providers = emptyList(),
-                currentPage = 0,
-                hasMore = true,
-            )
+            _uiState.value =
+                _uiState.value.copy(
+                    providers = emptyList(),
+                    currentPage = 0,
+                    hasMore = true,
+                )
         }
     }
 
@@ -111,41 +108,46 @@ class SearchScreenModel(
     private fun search(query: String, page: Int = 1) {
         val state = _uiState.value
 
-        _uiState.value = if (page == 1) {
-            state.copy(isLoading = true, error = null)
-        } else {
-            state.copy(isLoadingMore = true)
-        }
+        _uiState.value =
+            if (page == 1) {
+                state.copy(isLoading = true, error = null)
+            } else {
+                state.copy(isLoadingMore = true)
+            }
 
         screenModelScope.launch {
-            val filters = state.filters.copy(
-                query = query,
-                categoryIds = state.selectedCategories.toList(),
-                page = page,
-                pageSize = PAGE_SIZE,
-            )
+            val filters =
+                state.filters.copy(
+                    query = query,
+                    categoryIds = state.selectedCategories.toList(),
+                    page = page,
+                    pageSize = PAGE_SIZE,
+                )
 
             searchProvidersUseCase(filters)
                 .fold(
                     onSuccess = { result ->
-                        _uiState.value = _uiState.value.copy(
-                            isLoading = false,
-                            isLoadingMore = false,
-                            providers = if (page == 1) {
-                                result.items
-                            } else {
-                                _uiState.value.providers + result.items
-                            },
-                            currentPage = page,
-                            hasMore = page < result.totalPages,
-                        )
+                        _uiState.value =
+                            _uiState.value.copy(
+                                isLoading = false,
+                                isLoadingMore = false,
+                                providers =
+                                    if (page == 1) {
+                                        result.items
+                                    } else {
+                                        _uiState.value.providers + result.items
+                                    },
+                                currentPage = page,
+                                hasMore = page < result.totalPages,
+                            )
                     },
                     onFailure = { error ->
-                        _uiState.value = _uiState.value.copy(
-                            isLoading = false,
-                            isLoadingMore = false,
-                            error = error.toAppError(),
-                        )
+                        _uiState.value =
+                            _uiState.value.copy(
+                                isLoading = false,
+                                isLoadingMore = false,
+                                error = error.toAppError(),
+                            )
                     },
                 )
         }
@@ -173,11 +175,12 @@ class SearchScreenModel(
      */
     fun onCategoryToggle(categoryId: String) {
         val state = _uiState.value
-        val newCategories = if (categoryId in state.selectedCategories) {
-            state.selectedCategories - categoryId
-        } else {
-            state.selectedCategories + categoryId
-        }
+        val newCategories =
+            if (categoryId in state.selectedCategories) {
+                state.selectedCategories - categoryId
+            } else {
+                state.selectedCategories + categoryId
+            }
 
         _uiState.value = state.copy(selectedCategories = newCategories)
 
@@ -193,9 +196,10 @@ class SearchScreenModel(
      * **Intent:** Пользователь выбрал рейтинг в фильтре
      */
     fun onMinRatingChanged(rating: Double?) {
-        _uiState.value = _uiState.value.copy(
-            filters = _uiState.value.filters.copy(minRating = rating),
-        )
+        _uiState.value =
+            _uiState.value.copy(
+                filters = _uiState.value.filters.copy(minRating = rating),
+            )
 
         if (_uiState.value.searchQuery.isNotBlank()) {
             search(_uiState.value.searchQuery)
@@ -208,9 +212,10 @@ class SearchScreenModel(
      * **Intent:** Пользователь выбрал поле сортировки
      */
     fun onSortByChanged(sortBy: SearchFilters.SortBy) {
-        _uiState.value = _uiState.value.copy(
-            filters = _uiState.value.filters.copy(sortBy = sortBy),
-        )
+        _uiState.value =
+            _uiState.value.copy(
+                filters = _uiState.value.filters.copy(sortBy = sortBy),
+            )
 
         if (_uiState.value.searchQuery.isNotBlank()) {
             search(_uiState.value.searchQuery)
@@ -223,10 +228,11 @@ class SearchScreenModel(
      * **Intent:** Пользователь нажал "Сбросить фильтры"
      */
     fun onClearFilters() {
-        _uiState.value = _uiState.value.copy(
-            selectedCategories = emptySet(),
-            filters = SearchFilters(),
-        )
+        _uiState.value =
+            _uiState.value.copy(
+                selectedCategories = emptySet(),
+                filters = SearchFilters(),
+            )
 
         if (_uiState.value.searchQuery.isNotBlank()) {
             search(_uiState.value.searchQuery)
@@ -239,9 +245,10 @@ class SearchScreenModel(
      * **Intent:** Пользователь нажал кнопку фильтров
      */
     fun onFilterSheetToggle() {
-        _uiState.value = _uiState.value.copy(
-            isFilterSheetOpen = !_uiState.value.isFilterSheetOpen,
-        )
+        _uiState.value =
+            _uiState.value.copy(
+                isFilterSheetOpen = !_uiState.value.isFilterSheetOpen,
+            )
     }
 
     /**
@@ -266,13 +273,15 @@ class SearchScreenModel(
      * Добавляет запрос в недавние поиски.
      */
     private fun addToRecentSearches(query: String) {
-        val recent = _uiState.value.recentSearches
-            .filterNot { it.equals(query, ignoreCase = true) }
-            .take(MAX_RECENT_SEARCHES - 1)
+        val recent =
+            _uiState.value.recentSearches
+                .filterNot { it.equals(query, ignoreCase = true) }
+                .take(MAX_RECENT_SEARCHES - 1)
 
-        _uiState.value = _uiState.value.copy(
-            recentSearches = listOf(query) + recent,
-        )
+        _uiState.value =
+            _uiState.value.copy(
+                recentSearches = listOf(query) + recent,
+            )
     }
 
     companion object {

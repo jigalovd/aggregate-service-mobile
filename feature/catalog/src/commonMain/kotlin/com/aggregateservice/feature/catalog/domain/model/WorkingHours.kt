@@ -28,16 +28,17 @@ data class WorkingHours(
      * @param dayOfWeek День недели (1 = Monday, 7 = Sunday)
      * @return Расписание или null если выходной
      */
-    fun getSchedule(dayOfWeek: Int): DaySchedule? = when (dayOfWeek) {
-        1 -> monday
-        2 -> tuesday
-        3 -> wednesday
-        4 -> thursday
-        5 -> friday
-        6 -> saturday
-        7 -> sunday
-        else -> null
-    }
+    fun getSchedule(dayOfWeek: Int): DaySchedule? =
+        when (dayOfWeek) {
+            1 -> monday
+            2 -> tuesday
+            3 -> wednesday
+            4 -> thursday
+            5 -> friday
+            6 -> saturday
+            7 -> sunday
+            else -> null
+        }
 
     /**
      * Проверяет, работает ли мастер в указанный день недели.
@@ -82,11 +83,12 @@ data class DaySchedule(
      * Форматированное расписание (например, "09:00 - 18:00").
      */
     val formatted: String
-        get() = if (breakStart != null && breakEnd != null) {
-            "$openTime - $breakStart, $breakEnd - $closeTime"
-        } else {
-            "$openTime - $closeTime"
-        }
+        get() =
+            if (breakStart != null && breakEnd != null) {
+                "$openTime - $breakStart, $breakEnd - $closeTime"
+            } else {
+                "$openTime - $closeTime"
+            }
 
     companion object {
         private val RegexTime = Regex("^([01]?[0-9]|2[0-3]):([0-5][0-9])$")

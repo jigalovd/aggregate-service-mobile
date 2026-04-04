@@ -1,6 +1,5 @@
 package com.aggregateservice.feature.catalog.domain.usecase
 
-import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.repository.CatalogRepository
 

@@ -42,23 +42,25 @@ data class ProviderDetailUiState(
      * Возвращает услуги, отфильтрованные по категории.
      */
     val filteredServices: List<Service>
-        get() = if (selectedCategoryId == null) {
-            services
-        } else {
-            services.filter { it.categoryId == selectedCategoryId }
-        }
+        get() =
+            if (selectedCategoryId == null) {
+                services
+            } else {
+                services.filter { it.categoryId == selectedCategoryId }
+            }
 
     /**
      * Возвращает уникальные категории из услуг как List<Pair<categoryId, categoryName>>.
      * Note: categoryName извлекается из первой услуги каждой категории.
      */
     val serviceCategories: List<Pair<String, String>>
-        get() = services
-            .groupBy { it.categoryId }
-            .map { (categoryId, servicesInCategory) ->
-                // Use first service name as category name fallback
-                categoryId to categoryId.replace("_", " ").replaceFirstChar { it.uppercase() }
-            }
+        get() =
+            services
+                .groupBy { it.categoryId }
+                .map { (categoryId, servicesInCategory) ->
+                    // Use first service name as category name fallback
+                    categoryId to categoryId.replace("_", " ").replaceFirstChar { it.uppercase() }
+                }
 
     /**
      * Проверяет, открыт ли мастер сейчас.
@@ -70,16 +72,18 @@ data class ProviderDetailUiState(
         /**
          * Initial state при загрузке.
          */
-        val Loading = ProviderDetailUiState(
-            isLoading = true,
-        )
+        val Loading =
+            ProviderDetailUiState(
+                isLoading = true,
+            )
 
         /**
          * Создает state с ошибкой.
          */
-        fun error(error: AppError) = ProviderDetailUiState(
-            isLoading = false,
-            error = error,
-        )
+        fun error(error: AppError) =
+            ProviderDetailUiState(
+                isLoading = false,
+                error = error,
+            )
     }
 }

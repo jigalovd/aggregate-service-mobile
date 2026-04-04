@@ -1,5 +1,7 @@
 package com.aggregateservice.feature.catalog.domain.model
 
+import kotlinx.serialization.Serializable
+
 /**
  * Value Object для фильтров поиска мастеров.
  *
@@ -20,6 +22,7 @@ package com.aggregateservice.feature.catalog.domain.model
  * @property page Номер страницы (для пагинации)
  * @property pageSize Размер страницы
  */
+@Serializable
 data class SearchFilters(
     val query: String? = null,
     val categoryIds: List<String> = emptyList(),
@@ -48,7 +51,9 @@ data class SearchFilters(
     /**
      * Поле сортировки.
      */
-    enum class SortBy(val displayName: String) {
+    enum class SortBy(
+        val displayName: String,
+    ) {
         RATING("Рейтинг"),
         REVIEW_COUNT("Отзывы"),
         DISTANCE("Расстояние"),
@@ -59,7 +64,9 @@ data class SearchFilters(
     /**
      * Порядок сортировки.
      */
-    enum class SortOrder(val displayName: String) {
+    enum class SortOrder(
+        val displayName: String,
+    ) {
         ASC("По возрастанию"),
         DESC("По убыванию"),
     }

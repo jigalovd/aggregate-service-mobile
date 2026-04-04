@@ -1,17 +1,15 @@
 package com.aggregateservice.feature.catalog.data.api
 
-import com.aggregateservice.core.network.AppError
 import com.aggregateservice.core.network.safeApiCall
 import com.aggregateservice.feature.catalog.data.dto.CategoriesResponseDto
 import com.aggregateservice.feature.catalog.data.dto.CategoryDto
-import com.aggregateservice.feature.catalog.data.dto.ProviderDto
 import com.aggregateservice.feature.catalog.data.dto.ServiceDto
-import com.aggregateservice.feature.catalog.data.dto.response.ProviderSearchResponseDto
+import com.aggregateservice.feature.catalog.data.dto.request.ProviderSearchRequestDto
 import com.aggregateservice.feature.catalog.data.dto.response.ProviderDetailsResponseDto
+import com.aggregateservice.feature.catalog.data.dto.response.ProviderSearchResponseDto
 import com.aggregateservice.feature.catalog.data.dto.response.ServiceListResponseDto
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
@@ -32,20 +30,46 @@ import io.ktor.http.contentType
  * @property client HTTP клиент (Ktor)
  */
 class CatalogApiService(
-    private val client: HttpClient
+    private val client: HttpClient,
 ) {
     /**
      * Поиск мастеров по фильтрам.
      *
      * **Endpoint:** POST /api/v1/catalog/providers/search
+     *
+     * Если геолокация недоступна, используем дефолтные координаты Haifa (32.8, 35.0)
+     * согласно iOS stub паттерну — это позволяет получить релевантных провайдеров
      */
     suspend fun searchProviders(filters: SearchFilters): Result<ProviderSearchResponseDto> {
         return safeApiCall<ProviderSearchResponseDto> {
+            // Default to Haifa coordinates when geo not available
+            val lat = filters.latitude ?: HAIFA_LAT
+            val lon = filters.longitude ?: HAIFA_LON
+
+            val requestDto = ProviderSearchRequestDto(
+                lat = lat,
+                lon = lon,
+                radiusKm = filters.radiusKm ?: DEFAULT_RADIUS_KM,
+                categoryId = filters.categoryIds.firstOrNull(),
+                sortBy = when (filters.sortBy) {
+                    com.aggregateservice.feature.catalog.domain.model.SearchFilters.SortBy.DISTANCE -> "distance"
+                    com.aggregateservice.feature.catalog.domain.model.SearchFilters.SortBy.RATING -> "rating"
+                    else -> "rating"
+                },
+                limit = filters.pageSize,
+                offset = filters.offset,
+            )
             client.post("/api/v1/catalog/providers/search") {
                 contentType(ContentType.Application.Json)
-                setBody(filters)
+                setBody(requestDto)
             }
         }
+    }
+
+    private companion object {
+        const val HAIFA_LAT = 32.8
+        const val HAIFA_LON = 35.0
+        const val DEFAULT_RADIUS_KM = 30.0
     }
 
     /**
@@ -95,7 +119,7 @@ class CatalogApiService(
      */
     suspend fun getProviderServices(
         providerId: String,
-        categoryId: String?
+        categoryId: String?,
     ): Result<ServiceListResponseDto> {
         return safeApiCall<ServiceListResponseDto> {
             client.get("/api/v1/catalog/providers/$providerId/services") {
@@ -125,7 +149,7 @@ class CatalogApiService(
      */
     suspend fun searchServices(
         query: String,
-        filters: SearchFilters
+        filters: SearchFilters,
     ): Result<List<ServiceDto>> {
         return safeApiCall<List<ServiceDto>> {
             client.get("/api/v1/catalog/services/search") {

@@ -43,5 +43,11 @@ kotlin {
             // Favorites use cases for checking/managing favorite status on provider detail
             implementation(project(":feature:favorites"))
         }
+
+        maybeCreate("commonTest").dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.mockk)
+            implementation(libs.koin.test)
+        }
     }
 }

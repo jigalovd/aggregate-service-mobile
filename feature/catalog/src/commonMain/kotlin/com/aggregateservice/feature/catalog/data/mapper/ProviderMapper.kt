@@ -34,8 +34,8 @@ object ProviderMapper {
                 Location(
                     latitude = dto.location?.lat ?: 0.0,
                     longitude = dto.location?.lon ?: 0.0,
-                    address = dto.address,
-                    city = dto.city,
+                    address = dto.address ?: "",
+                    city = dto.city ?: "",
                     postalCode = dto.postalCode,
                     country = dto.country,
                 ),

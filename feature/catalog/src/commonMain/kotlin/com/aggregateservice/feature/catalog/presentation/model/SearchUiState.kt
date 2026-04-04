@@ -47,7 +47,8 @@ data class SearchUiState(
      * Проверяет, есть ли активные фильтры.
      */
     val hasActiveFilters: Boolean
-        get() = selectedCategories.isNotEmpty() ||
+        get() =
+            selectedCategories.isNotEmpty() ||
                 filters.minRating != null
 
     /**

@@ -32,5 +32,5 @@ data class CategoryDto(
 @Serializable
 data class CategoriesResponseDto(
     @SerialName("categories") val categories: List<CategoryDto>,
-    @SerialName("total") val total: Int
+    @SerialName("total") val total: Int,
 )

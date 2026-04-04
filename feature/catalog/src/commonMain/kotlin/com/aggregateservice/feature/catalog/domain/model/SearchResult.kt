@@ -31,11 +31,12 @@ data class SearchResult<T>(
         /**
          * Пустой результат.
          */
-        fun <T> empty() = SearchResult<T>(
-            items = emptyList(),
-            totalCount = 0,
-            totalPages = 0,
-            currentPage = 1,
-        )
+        fun <T> empty() =
+            SearchResult<T>(
+                items = emptyList(),
+                totalCount = 0,
+                totalPages = 0,
+                currentPage = 1,
+            )
     }
 }

@@ -45,7 +45,6 @@ class CatalogScreenModel(
     private val getCategoriesUseCase: GetCategoriesUseCase,
     private val locationProvider: LocationProvider,
 ) : ScreenModel {
-
     // UI State
     private val _uiState = MutableStateFlow(CatalogUiState.Initial)
     val uiState: StateFlow<CatalogUiState> = _uiState.asStateFlow()
@@ -65,9 +64,10 @@ class CatalogScreenModel(
             getCategoriesUseCase(parentId = null)
                 .fold(
                     onSuccess = { categories ->
-                        _uiState.value = _uiState.value.copy(
-                            categories = categories,
-                        )
+                        _uiState.value =
+                            _uiState.value.copy(
+                                categories = categories,
+                            )
                     },
                     onFailure = { _ ->
                         // Ошибка загрузки категорий не критична - UI отобразит пустой список
@@ -85,32 +85,36 @@ class CatalogScreenModel(
         val state = _uiState.value
         if (state.isLoading) return
 
-        _uiState.value = state.copy(
-            isLoading = true,
-            error = null,
-        )
+        _uiState.value =
+            state.copy(
+                isLoading = true,
+                error = null,
+            )
 
         screenModelScope.launch {
-            val filters = state.filters.copy(
-                categoryIds = state.selectedCategory?.let { listOf(it.id) } ?: emptyList(),
-                page = 1,
-            )
+            val filters =
+                state.filters.copy(
+                    categoryIds = state.selectedCategory?.let { listOf(it.id) } ?: emptyList(),
+                    page = 1,
+                )
 
             searchProvidersUseCase(filters)
                 .fold(
                     onSuccess = { searchResult ->
-                        _uiState.value = _uiState.value.copy(
-                            isLoading = false,
-                            providers = searchResult.items,
-                            hasMore = searchResult.currentPage < searchResult.totalPages,
-                            currentPage = 1,
-                        )
+                        _uiState.value =
+                            _uiState.value.copy(
+                                isLoading = false,
+                                providers = searchResult.items,
+                                hasMore = searchResult.currentPage < searchResult.totalPages,
+                                currentPage = 1,
+                            )
                     },
                     onFailure = { error ->
-                        _uiState.value = _uiState.value.copy(
-                            isLoading = false,
-                            error = error.toAppError(),
-                        )
+                        _uiState.value =
+                            _uiState.value.copy(
+                                isLoading = false,
+                                error = error.toAppError(),
+                            )
                     },
                 )
         }
@@ -129,26 +133,29 @@ class CatalogScreenModel(
 
         screenModelScope.launch {
             val nextPage = state.currentPage + 1
-            val filters = state.filters.copy(
-                categoryIds = state.selectedCategory?.let { listOf(it.id) } ?: emptyList(),
-                page = nextPage,
-            )
+            val filters =
+                state.filters.copy(
+                    categoryIds = state.selectedCategory?.let { listOf(it.id) } ?: emptyList(),
+                    page = nextPage,
+                )
 
             searchProvidersUseCase(filters)
                 .fold(
                     onSuccess = { searchResult ->
-                        _uiState.value = _uiState.value.copy(
-                            isLoadingMore = false,
-                            providers = state.providers + searchResult.items,
-                            hasMore = searchResult.currentPage < searchResult.totalPages,
-                            currentPage = nextPage,
-                        )
+                        _uiState.value =
+                            _uiState.value.copy(
+                                isLoadingMore = false,
+                                providers = state.providers + searchResult.items,
+                                hasMore = searchResult.currentPage < searchResult.totalPages,
+                                currentPage = nextPage,
+                            )
                     },
                     onFailure = { error ->
-                        _uiState.value = _uiState.value.copy(
-                            isLoadingMore = false,
-                            error = error.toAppError(),
-                        )
+                        _uiState.value =
+                            _uiState.value.copy(
+                                isLoadingMore = false,
+                                error = error.toAppError(),
+                            )
                     },
                 )
         }
@@ -169,9 +176,10 @@ class CatalogScreenModel(
      * **Intent:** Пользователь выбрал категорию из списка
      */
     fun onCategorySelected(category: Category?) {
-        _uiState.value = _uiState.value.copy(
-            selectedCategory = category,
-        )
+        _uiState.value =
+            _uiState.value.copy(
+                selectedCategory = category,
+            )
         searchProviders()
     }
 
@@ -181,9 +189,10 @@ class CatalogScreenModel(
      * **Intent:** Пользователь изменил фильтр рейтинга
      */
     fun onMinRatingChanged(rating: Double?) {
-        _uiState.value = _uiState.value.copy(
-            filters = _uiState.value.filters.copy(minRating = rating),
-        )
+        _uiState.value =
+            _uiState.value.copy(
+                filters = _uiState.value.filters.copy(minRating = rating),
+            )
         searchProviders()
     }
 
@@ -193,9 +202,10 @@ class CatalogScreenModel(
      * **Intent:** Пользователь выбрал поле сортировки
      */
     fun onSortByChanged(sortBy: SortBy) {
-        _uiState.value = _uiState.value.copy(
-            filters = _uiState.value.filters.copy(sortBy = sortBy),
-        )
+        _uiState.value =
+            _uiState.value.copy(
+                filters = _uiState.value.filters.copy(sortBy = sortBy),
+            )
         searchProviders()
     }
 
@@ -205,9 +215,10 @@ class CatalogScreenModel(
      * **Intent:** Пользователь изменил порядок сортировки
      */
     fun onSortOrderChanged(sortOrder: SortOrder) {
-        _uiState.value = _uiState.value.copy(
-            filters = _uiState.value.filters.copy(sortOrder = sortOrder),
-        )
+        _uiState.value =
+            _uiState.value.copy(
+                filters = _uiState.value.filters.copy(sortOrder = sortOrder),
+            )
         searchProviders()
     }
 
@@ -217,11 +228,12 @@ class CatalogScreenModel(
      * **Intent:** Пользователь нажал "Сбросить фильтры"
      */
     fun onClearFilters() {
-        _uiState.value = _uiState.value.copy(
-            selectedCategory = null,
-            searchQuery = "",
-            filters = SearchFilters(),
-        )
+        _uiState.value =
+            _uiState.value.copy(
+                selectedCategory = null,
+                searchQuery = "",
+                filters = SearchFilters(),
+            )
         searchProviders()
     }
 
@@ -249,30 +261,38 @@ class CatalogScreenModel(
      */
     private fun requestLocationAndSearch() {
         screenModelScope.launch {
-            val status = locationProvider.requestPermission()
+            try {
+                val status = locationProvider.requestPermission()
 
-            when (status) {
-                is LocationPermissionStatus.Granted -> {
-                    val locationResult = locationProvider.getCurrentLocation(LocationAccuracy.MEDIUM)
-                    locationResult.fold(
-                        onSuccess = { location ->
-                            _uiState.value = _uiState.value.copy(
-                                filters = _uiState.value.filters.copy(
-                                    latitude = location.latitude,
-                                    longitude = location.longitude,
-                                    radiusKm = DEFAULT_RADIUS_KM,
-                                )
-                            )
-                        },
-                        onFailure = { /* Fall back to non-geo search */ }
-                    )
-                    searchProviders()
+                when (status) {
+                    is LocationPermissionStatus.Granted -> {
+                        val locationResult = locationProvider.getCurrentLocation(LocationAccuracy.MEDIUM)
+                        locationResult.fold(
+                            onSuccess = { location ->
+                                _uiState.value =
+                                    _uiState.value.copy(
+                                        filters =
+                                            _uiState.value.filters.copy(
+                                                latitude = location.latitude,
+                                                longitude = location.longitude,
+                                                radiusKm = DEFAULT_RADIUS_KM,
+                                            ),
+                                    )
+                            },
+                            onFailure = { /* Fall back to non-geo search */ },
+                        )
+                        searchProviders()
+                    }
+                    is LocationPermissionStatus.Denied,
+                    is LocationPermissionStatus.DeniedPermanently,
+                    is LocationPermissionStatus.Unknown,
+                    -> {
+                        searchProviders() // Without geo filters
+                    }
                 }
-                is LocationPermissionStatus.Denied,
-                is LocationPermissionStatus.DeniedPermanently,
-                is LocationPermissionStatus.Unknown -> {
-                    searchProviders()  // Without geo filters
-                }
+            } catch (e: Exception) {
+                // Fallback: if anything fails, just search without geo
+                searchProviders()
             }
         }
     }

@@ -38,7 +38,6 @@ class ProviderDetailScreenModel(
     private val addFavoriteUseCase: AddFavoriteUseCase,
     private val removeFavoriteUseCase: RemoveFavoriteUseCase,
 ) : ScreenModel {
-
     // UI State
     private val _uiState = MutableStateFlow<ProviderDetailUiState>(ProviderDetailUiState.Loading)
     val uiState: StateFlow<ProviderDetailUiState> = _uiState.asStateFlow()
@@ -74,12 +73,13 @@ class ProviderDetailScreenModel(
                 .fold(
                     onSuccess = { provider ->
                         val isFavorite = isFavoriteUseCase(id).getOrElse { false }
-                        _uiState.value = _uiState.value.copy(
-                            provider = provider,
-                            isLoading = false,
-                            error = null,
-                            isFavorite = isFavorite,
-                        )
+                        _uiState.value =
+                            _uiState.value.copy(
+                                provider = provider,
+                                isLoading = false,
+                                error = null,
+                                isFavorite = isFavorite,
+                            )
                     },
                     onFailure = { error ->
                         _uiState.value = ProviderDetailUiState.error(error.toAppError())
@@ -100,16 +100,18 @@ class ProviderDetailScreenModel(
             getProviderServicesUseCase(id, categoryId)
                 .fold(
                     onSuccess = { services ->
-                        _uiState.value = _uiState.value.copy(
-                            services = services,
-                            isLoadingServices = false,
-                        )
+                        _uiState.value =
+                            _uiState.value.copy(
+                                services = services,
+                                isLoadingServices = false,
+                            )
                     },
                     onFailure = { _ ->
                         // Ошибка загрузки услуг не критична - UI отобразит пустой список услуг
-                        _uiState.value = _uiState.value.copy(
-                            isLoadingServices = false,
-                        )
+                        _uiState.value =
+                            _uiState.value.copy(
+                                isLoadingServices = false,
+                            )
                     },
                 )
         }
@@ -141,20 +143,22 @@ class ProviderDetailScreenModel(
         val providerId = currentState.provider?.id ?: return
 
         screenModelScope.launch {
-            val result = if (currentState.isFavorite) {
-                removeFavoriteUseCase(providerId)
-            } else {
-                addFavoriteUseCase(providerId)
-            }
+            val result =
+                if (currentState.isFavorite) {
+                    removeFavoriteUseCase(providerId)
+                } else {
+                    addFavoriteUseCase(providerId)
+                }
 
             result.fold(
                 onSuccess = {
                     _uiState.value = currentState.copy(isFavorite = !currentState.isFavorite)
                 },
                 onFailure = { error ->
-                    _uiState.value = currentState.copy(
-                        error = error.toAppError(),
-                    )
+                    _uiState.value =
+                        currentState.copy(
+                            error = error.toAppError(),
+                        )
                 },
             )
         }

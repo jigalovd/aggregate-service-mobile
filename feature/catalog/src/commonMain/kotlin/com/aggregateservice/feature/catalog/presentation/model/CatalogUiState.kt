@@ -5,8 +5,6 @@ import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
-import com.aggregateservice.feature.catalog.domain.model.SearchFilters.SortBy
-import com.aggregateservice.feature.catalog.domain.model.SearchFilters.SortOrder
 
 /**
  * UI State для Catalog экрана (Presentation слой).
@@ -73,17 +71,18 @@ data class CatalogUiState(
      */
     fun hasActiveFilters(): Boolean =
         selectedCategory != null ||
-        filters.minRating != null ||
-        filters.latitude != null ||
-        filters.categoryIds.isNotEmpty()
+            filters.minRating != null ||
+            filters.latitude != null ||
+            filters.categoryIds.isNotEmpty()
 
     /**
      * Количество активных фильтров.
      */
     val activeFiltersCount: Int
-        get() = listOfNotNull(
-            selectedCategory,
-            filters.minRating,
-            filters.latitude,
-        ).count() + filters.categoryIds.size
+        get() =
+            listOfNotNull(
+                selectedCategory,
+                filters.minRating,
+                filters.latitude,
+            ).count() + filters.categoryIds.size
 }

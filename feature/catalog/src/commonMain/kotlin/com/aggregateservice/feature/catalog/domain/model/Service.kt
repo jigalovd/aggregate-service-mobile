@@ -37,7 +37,7 @@ data class Service(
      * Форматированная длительность (например, "60 min").
      */
     val formattedDuration: String
-        get() = "${durationMinutes} min"
+        get() = "$durationMinutes min"
 
     /**
      * Форматированная цена (делегирует к Price.formatted).

@@ -1,6 +1,5 @@
 package com.aggregateservice.feature.catalog.data.repository
 
-import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.catalog.data.api.CatalogApiService
 import com.aggregateservice.feature.catalog.data.mapper.CategoryMapper
 import com.aggregateservice.feature.catalog.data.mapper.ProviderMapper
@@ -21,9 +20,8 @@ import com.aggregateservice.feature.catalog.domain.repository.CatalogRepository
  * @property apiService API сервис для каталога
  */
 class CatalogRepositoryImpl(
-    private val apiService: CatalogApiService
+    private val apiService: CatalogApiService,
 ) : CatalogRepository {
-
     override suspend fun searchProviders(filters: SearchFilters): Result<SearchResult<Provider>> {
         val result = apiService.searchProviders(filters)
 
@@ -36,12 +34,12 @@ class CatalogRepositoryImpl(
                         totalCount = response.total,
                         totalPages = (response.total + response.limit - 1) / response.limit,
                         currentPage = filters.page,
-                    )
+                    ),
                 )
             },
             onFailure = { error ->
                 Result.failure(error)
-            }
+            },
         )
     }
 
@@ -54,7 +52,7 @@ class CatalogRepositoryImpl(
             },
             onFailure = { error ->
                 Result.failure(error)
-            }
+            },
         )
     }
 
@@ -68,7 +66,7 @@ class CatalogRepositoryImpl(
             },
             onFailure = { error ->
                 Result.failure(error)
-            }
+            },
         )
     }
 
@@ -81,13 +79,13 @@ class CatalogRepositoryImpl(
             },
             onFailure = { error ->
                 Result.failure(error)
-            }
+            },
         )
     }
 
     override suspend fun getProviderServices(
         providerId: String,
-        categoryId: String?
+        categoryId: String?,
     ): Result<List<Service>> {
         val result = apiService.getProviderServices(providerId, categoryId)
 
@@ -98,7 +96,7 @@ class CatalogRepositoryImpl(
             },
             onFailure = { error ->
                 Result.failure(error)
-            }
+            },
         )
     }
 
@@ -111,13 +109,13 @@ class CatalogRepositoryImpl(
             },
             onFailure = { error ->
                 Result.failure(error)
-            }
+            },
         )
     }
 
     override suspend fun searchServices(
         query: String,
-        filters: SearchFilters
+        filters: SearchFilters,
     ): Result<SearchResult<Service>> {
         val result = apiService.searchServices(query, filters)
 
@@ -130,12 +128,12 @@ class CatalogRepositoryImpl(
                         totalCount = domainServices.size,
                         totalPages = 1,
                         currentPage = filters.page,
-                    )
+                    ),
                 )
             },
             onFailure = { error ->
                 Result.failure(error)
-            }
+            },
         )
     }
 }

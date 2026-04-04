@@ -1,6 +1,5 @@
 package com.aggregateservice.feature.catalog.presentation.component
 
-import com.aggregateservice.core.theme.Spacing
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,9 +12,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
+import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.feature.catalog.domain.model.Provider
 import org.koin.compose.koinInject
 
@@ -31,9 +30,10 @@ fun ProviderCard(
 ) {
     Card(
         onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = Spacing.MD, vertical = Spacing.SM),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = Spacing.MD, vertical = Spacing.SM),
     ) {
         Column(
             modifier = Modifier.padding(Spacing.MD),

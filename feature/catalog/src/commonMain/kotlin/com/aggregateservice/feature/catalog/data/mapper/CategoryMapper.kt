@@ -13,12 +13,13 @@ object CategoryMapper {
      * @param dto DTO из API
      * @return Domain model
      */
-    fun toDomain(dto: CategoryDto): Category = Category(
-        id = dto.id,
-        name = dto.name["ru"] ?: dto.name["he"] ?: dto.name["en"] ?: dto.name.values.firstOrNull() ?: "",
-        icon = dto.icon,
-        parentId = dto.parentId,
-        isActive = dto.isActive,
-        sortOrder = dto.sortOrder,
-    )
+    fun toDomain(dto: CategoryDto): Category =
+        Category(
+            id = dto.id,
+            name = dto.name["ru"] ?: dto.name["he"] ?: dto.name["en"] ?: dto.name.values.firstOrNull() ?: "",
+            icon = dto.icon,
+            parentId = dto.parentId,
+            isActive = dto.isActive,
+            sortOrder = dto.sortOrder,
+        )
 }

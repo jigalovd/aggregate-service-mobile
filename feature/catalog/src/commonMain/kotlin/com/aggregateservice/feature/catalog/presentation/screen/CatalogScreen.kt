@@ -35,14 +35,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import com.aggregateservice.core.theme.Spacing
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
+import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.presentation.component.ProviderCard
@@ -73,7 +72,6 @@ import org.koin.compose.koinInject
  * ```
  */
 object CatalogScreen : Screen {
-
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -160,9 +158,10 @@ fun CatalogScreenContent(
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
         ) {
             // Categories horizontal scroll
             if (uiState.categories.isNotEmpty()) {
@@ -237,9 +236,10 @@ fun CategoryChipsRow(
     onCategorySelected: (Category?) -> Unit,
 ) {
     LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = Spacing.MD),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Spacing.MD),
         horizontalArrangement = Arrangement.spacedBy(Spacing.SM),
     ) {
         item(key = "all") {
@@ -356,9 +356,10 @@ fun ProvidersList(
         if (isLoadingMore) {
             item {
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(Spacing.MD),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(Spacing.MD),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator(

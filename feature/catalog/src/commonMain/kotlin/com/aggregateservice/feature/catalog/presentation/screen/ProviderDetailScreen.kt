@@ -11,11 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,7 +26,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,7 +39,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.aggregateservice.core.theme.Spacing
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -54,6 +50,7 @@ import com.aggregateservice.core.navigation.AuthPromptTrigger
 import com.aggregateservice.core.navigation.AuthStateProvider
 import com.aggregateservice.core.navigation.BookingNavigator
 import com.aggregateservice.core.navigation.executeProtectedAction
+import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.feature.auth.domain.repository.AuthRepository
 import com.aggregateservice.feature.auth.presentation.component.AuthPromptDialog
 import com.aggregateservice.feature.catalog.domain.model.Provider
@@ -71,7 +68,6 @@ import org.koin.compose.koinInject
 data class ProviderDetailScreen(
     val providerId: String,
 ) : Screen {
-
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -113,10 +109,11 @@ data class ProviderDetailScreen(
                 onAuthSuccess = { firebaseToken: FirebaseToken ->
                     // Verify Firebase token with backend
                     coroutineScope.launch {
-                        val result = authRepository.verifyFirebaseToken(
-                            authProvider = firebaseToken.authProvider,
-                            firebaseToken = firebaseToken.idToken,
-                        )
+                        val result =
+                            authRepository.verifyFirebaseToken(
+                                authProvider = firebaseToken.authProvider,
+                                firebaseToken = firebaseToken.idToken,
+                            )
                         result.fold(
                             onSuccess = {
                                 showAuthPrompt = false
@@ -124,7 +121,7 @@ data class ProviderDetailScreen(
                             },
                             onFailure = { error ->
                                 // Show error - dialog stays open
-                            }
+                            },
                         )
                     }
                 },
@@ -217,22 +214,24 @@ fun ProviderDetailScreenContent(
     ) { paddingValues ->
         when {
             uiState.isLoading -> ProviderLoadingState()
-            uiState.error != null && uiState.provider == null -> ProviderErrorState(
-                error = uiState.error!!,
-                onRetry = onRetry,
-            )
-            uiState.isLoaded && uiState.provider != null -> ProviderDetailContent(
-                provider = uiState.provider,
-                services = uiState.filteredServices,
-                serviceCategories = uiState.serviceCategories,
-                selectedCategoryId = uiState.selectedCategoryId,
-                isLoadingServices = uiState.isLoadingServices,
-                isOpenNow = uiState.isOpenNow,
-                onCategorySelected = onCategorySelected,
-                onServiceClick = { service -> onServiceClick(service) },
-                i18nProvider = i18nProvider,
-                modifier = Modifier.padding(paddingValues),
-            )
+            uiState.error != null && uiState.provider == null ->
+                ProviderErrorState(
+                    error = uiState.error!!,
+                    onRetry = onRetry,
+                )
+            uiState.isLoaded && uiState.provider != null ->
+                ProviderDetailContent(
+                    provider = uiState.provider,
+                    services = uiState.filteredServices,
+                    serviceCategories = uiState.serviceCategories,
+                    selectedCategoryId = uiState.selectedCategoryId,
+                    isLoadingServices = uiState.isLoadingServices,
+                    isOpenNow = uiState.isOpenNow,
+                    onCategorySelected = onCategorySelected,
+                    onServiceClick = { service -> onServiceClick(service) },
+                    i18nProvider = i18nProvider,
+                    modifier = Modifier.padding(paddingValues),
+                )
         }
     }
 }
@@ -256,11 +255,12 @@ fun ProviderDetailTopAppBar(
                 Text(
                     text = if (isFavorite) "♥" else "♡",
                     style = MaterialTheme.typography.titleLarge,
-                    color = if (isFavorite) {
-                        MaterialTheme.colorScheme.error
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
-                    },
+                    color =
+                        if (isFavorite) {
+                            MaterialTheme.colorScheme.error
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        },
                 )
             }
         },
@@ -375,11 +375,12 @@ fun ProviderHeader(
             Text(
                 text = if (isOpenNow) i18nProvider[StringKey.Provider.OPEN_NOW] else i18nProvider[StringKey.Provider.CLOSED],
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (isOpenNow) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.error
-                },
+                color =
+                    if (isOpenNow) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.error
+                    },
             )
         }
 

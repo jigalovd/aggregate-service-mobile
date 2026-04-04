@@ -1,6 +1,5 @@
 package com.aggregateservice.feature.catalog.domain.repository
 
-import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
