@@ -1,40 +1,35 @@
-# 🎨 Design Documentation
+# ⚠️ DEPRECATED - Design Documentation
 
-UI/UX дизайн и Design System.
+**Эта директория частично устарела. Актуальная документация перенесена в `/docs/design/`.**
 
 ---
 
-## Документы
+## Перенесённые документы
+
+| Документ | Новое расположение |
+|----------|-------------------|
+| DESIGN_SYSTEM.md | [`docs/design/DESIGN_SYSTEM.md`](../../docs/design/DESIGN_SYSTEM.md) |
+| assets/* | [`docs/design/assets/`](../../docs/design/assets/) |
+
+---
+
+## Удалённые документы
+
+- `05_UX_GUIDELINES.md` — удалён (битые ссылки на backend-диаграммы)
+- `features/` — удалён (дублировал documentation/features/)
+
+---
+
+## Оставшиеся документы (не перенесены)
 
 | Документ | Описание |
 |----------|----------|
-| [04_DESIGN_SYSTEM.md](04_DESIGN_SYSTEM.md) | Design System базового уровня |
-| [05_UX_GUIDELINES.md](05_UX_GUIDELINES.md) | UX Guidelines |
-| [02_MAP_PROVIDERS_ANALYSIS.md](02_MAP_PROVIDERS_ANALYSIS.md) | Сравнительный анализ поставщиков карт |
+| `02_MAP_PROVIDERS_ANALYSIS.md` | Сравнительный анализ поставщиков карт |
 
 ---
 
-## Ключевые принципы
+## Актуальная документация
 
-### Material 3 Design
+См. [`docs/design/`](../../docs/design/)
 
-- **Color Scheme**: Light/Dark theme с 77+ цветов
-- **Typography**: 15 стилей типографики
-- **Shapes**: 5 категорий форм компонентов
-- **Spacing**: 8dp grid system
-
-### RTL Support
-
-Поддержка RTL языков (иврит, арабский):
-
-```kotlin
-appTheme(
-    languageCode = "he"  // Автоматический RTL
-) {
-    // Content
-}
-```
-
----
-
-**Назад:** [← Индекс документации](../00_INDEX.md)
+**Last Updated:** 2026-04-03

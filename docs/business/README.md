@@ -1,49 +1,30 @@
-# Business Documentation
+# ⚠️ DEPRECATED - Business Documentation
 
-**Важное:** Эти документы из бэкенд-проекта и содержат примеры на Flutter/Dart. Для Kotlin Multiplatform версий см. [docs/mobile/](../mobile/)
-
----
-
-## Справочные материалы (Reference Only)
-
-| Документ | Описание |
-|----------|----------|
-| [01_USER_STORIES.md](01_USER_STORIES.md) | User stories + API endpoints |
-| [02_USE_CASES.md](02_USE_CASES.md) | Детальные сценарии использования |
-| [03_USER_FLOW.md](03_USER_FLOW.md) | UI/UX потоки (wireframes) |
-| [05_I18N_STRATEGY.md](05_I18N_STRATEGY.md) | i18n стратегия (Flutter examples) |
-| [07_USER_PERSONAS.md](07_USER_PERSONAS.md) | Персоны пользователей |
-| [08_CUSTOMER_JOURNEY.md](08_CUSTOMER_JOURNEY.md) | Customer Journey Maps |
-| [11_MVP_SCOPE.md](11_MVP_SCOPE.md) | MVP scope definition |
+**Эта директория устарела. Актуальная документация перенесена в \`/docs/business/\`.**
 
 ---
 
-## Адаптированные документы (KMP/CMP)
+## Перенесённые документы
 
-| Документ | Расположение | Описание |
-|----------|--------------|----------|
-| I18N_STRATEGY.md | [mobile/I18N_STRATEGY.md](../mobile/I18N_STRATEGY.md) | Адаптировано под KMP/CMP |
-| IMPLEMENTATION_GAP.md | [mobile/IMPLEMENTATION_GAP.md](../mobile/IMPLEMENTATION_GAP.md) | Gap analysis backend vs mobile |
-| USER_FLOW_UX_COMPLIANCE.md | [mobile/USER_FLOW_UX_COMPLIANCE.md](../mobile/USER_FLOW_UX_COMPLIANCE.md) | UX compliance report |
-
----
-
-## API Reference
-
-| Endpoint | Описание |
-|----------|----------|
-| `POST /auth/login` | Авторизация |
-| `POST /auth/register` | Регистрация |
-| `POST /auth/refresh` | Обновление токена |
-| `GET /providers` | Поиск мастеров |
-| `GET /providers/{id}` | Профиль мастера |
-| `GET /providers/{id}/services` | Услуги мастера |
-| `GET /slots` | Доступные слоты |
-| `POST /bookings` | Создание записи |
-| `PATCH /bookings/{id}/cancel` | Отмена записи |
-
-Полный API reference: [BACKEND_API_REFERENCE.md](../BACKEND_API_REFERENCE.md)
+| Документ | Новое расположение |
+|----------|-------------------|
+| USER_PERSONAS.md | [\`docs/business/USER_PERSONAS.md\`](../../docs/business/USER_PERSONAS.md) |
+| CUSTOMER_JOURNEY.md | [\`docs/business/CUSTOMER_JOURNEY.md\`](../../docs/business/CUSTOMER_JOURNEY.md) |
 
 ---
 
-**Last Updated:** 2026-03-21
+## Удалённые документы
+
+- \`01_USER_STORIES.md\` — удалён (содержал битые ссылки и Flutter-контент)
+- \`02_USE_CASES.md\` — удалён (устаревшие wireframes)
+- \`11_MVP_SCOPE.md\` — удалён (backend-специфичный timeline)
+- \`features/\` — удалён (дублировал documentation/features/)
+- \`api/\` — удалён (дублировал documentation/api/)
+
+---
+
+## Актуальная документация
+
+См. [\`docs/business/\`](../../docs/business/) и [\`docs/design/\`](../../docs/design/)
+
+**Last Updated:** 2026-04-03
