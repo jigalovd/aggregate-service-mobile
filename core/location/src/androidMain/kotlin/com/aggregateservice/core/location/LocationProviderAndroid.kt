@@ -2,26 +2,24 @@ package com.aggregateservice.core.location
 
 import android.Manifest
 import android.app.Activity
+import android.content.pm.PackageManager
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import com.aggregateservice.feature.catalog.domain.model.Location
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
 @Suppress("ACTUAL_FUNCTION_WITH_DEFAULT_ARGUMENT")
 actual class LocationProvider actual constructor() {
 
-    private val fusedClient: FusedLocationProviderClient =
-        LocationServices.getFusedLocationProviderClient(
-            (contextProvider.context as Activity)
-        )
-
-    private var contextProvider: ContextProvider = EmptyContextProvider
+    private var fusedClient: FusedLocationProviderClient? = null
+    private var contextProvider: ContextProvider = object : ContextProvider {
+        override val context: Any
+            get() = throw IllegalStateException("Activity not set. Call setActivity() first.")
+    }
     private var permissionLauncher: ActivityResultLauncher<Array<String>>? = null
 
     actual fun setActivity(activity: Any) {
@@ -29,12 +27,14 @@ actual class LocationProvider actual constructor() {
             ?: throw IllegalArgumentException("Activity must be an Activity")
         contextProvider = AndroidContextProvider(act)
 
+        fusedClient = LocationServices.getFusedLocationProviderClient(act)
+
         val componentActivity = act as? ComponentActivity
             ?: throw IllegalArgumentException("Activity must be a ComponentActivity to use Activity Result API")
 
         permissionLauncher = componentActivity.registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
-        ) { permissions ->
+        ) { _ ->
             // Handle result - continuation is resumed in requestPermission
         }
     }
@@ -43,6 +43,12 @@ actual class LocationProvider actual constructor() {
         suspendCancellableCoroutine { continuation ->
             if (!continuation.isActive) return@suspendCancellableCoroutine
 
+            val client = fusedClient
+            if (client == null) {
+                continuation.resume(Result.failure(Exception("Activity not set. Call setActivity() first.")))
+                return@suspendCancellableCoroutine
+            }
+
             val priority = when (accuracy) {
                 LocationAccuracy.HIGH -> Priority.PRIORITY_HIGH_ACCURACY
                 LocationAccuracy.MEDIUM -> Priority.PRIORITY_BALANCED_POWER_ACCURACY
@@ -50,10 +56,9 @@ actual class LocationProvider actual constructor() {
             }
 
             try {
-                val activity = contextProvider.context as Activity
                 val cancellationSignal = android.os.CancellationSignal()
 
-                fusedClient.getCurrentLocation(priority, cancellationSignal)
+                client.getCurrentLocation(priority, null)
                     .addOnSuccessListener { androidLocation ->
                         if (continuation.isActive) {
                             if (androidLocation != null) {
@@ -105,13 +110,11 @@ actual class LocationProvider actual constructor() {
                 )
             )
 
-            // For simplicity, we check the permission status directly
-            // The actual continuation resume happens via the launcher callback
             val fineGranted = activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
             val coarseGranted = activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
 
             val status = when {
-                fineGranted == Activity.PERMISSION_GRANTED || coarseGranted == Activity.PERMISSION_GRANTED ->
+                fineGranted == PackageManager.PERMISSION_GRANTED || coarseGranted == PackageManager.PERMISSION_GRANTED ->
                     LocationPermissionStatus.Granted
                 activity.shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) ->
                     LocationPermissionStatus.Denied
@@ -122,11 +125,6 @@ actual class LocationProvider actual constructor() {
                 continuation.resume(status)
             }
         }
-
-    private class EmptyContextProvider : ContextProvider {
-        override val context: Any
-            get() = throw IllegalStateException("Activity not set. Call setActivity() first.")
-    }
 }
 
 actual object LocationProviderFactory {

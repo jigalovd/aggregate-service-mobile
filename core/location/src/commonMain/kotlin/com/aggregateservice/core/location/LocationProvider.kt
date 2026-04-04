@@ -1,7 +1,5 @@
 package com.aggregateservice.core.location
 
-import com.aggregateservice.feature.catalog.domain.model.Location
-
 /**
  * KMP expect class for device geolocation.
  *

@@ -1,7 +1,5 @@
 package com.aggregateservice.core.location
 
-import com.aggregateservice.feature.catalog.domain.model.Location
-
 /**
  * iOS stub implementation per D-03.
  *
