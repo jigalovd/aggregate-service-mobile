@@ -127,15 +127,16 @@ class SearchScreenModel(
             searchProvidersUseCase(filters)
                 .fold(
                     onSuccess = { result ->
+                        val newProviders = result.items.map { ProviderWithDistance.from(it, null) }
                         _uiState.value =
                             _uiState.value.copy(
                                 isLoading = false,
                                 isLoadingMore = false,
                                 providers =
                                     if (page == 1) {
-                                        result.items
+                                        newProviders
                                     } else {
-                                        _uiState.value.providers + result.items
+                                        _uiState.value.providers + newProviders
                                     },
                                 currentPage = page,
                                 hasMore = page < result.totalPages,

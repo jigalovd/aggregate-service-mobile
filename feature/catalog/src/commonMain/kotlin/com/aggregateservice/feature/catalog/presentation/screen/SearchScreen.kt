@@ -49,6 +49,7 @@ import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.presentation.component.ProviderCard
 import com.aggregateservice.feature.catalog.presentation.model.SearchUiState
+import com.aggregateservice.feature.catalog.presentation.screenmodel.ProviderWithDistance
 import com.aggregateservice.feature.catalog.presentation.screenmodel.SearchScreenModel
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -354,10 +355,11 @@ fun RecentSearchesSection(
 
 @Composable
 fun SearchResultsList(
-    providers: List<Provider>,
+    providers: List<ProviderWithDistance>,
     isLoadingMore: Boolean,
     listState: LazyListState,
     onProviderClick: (Provider) -> Unit,
+    i18nProvider: I18nProvider = koinInject(),
 ) {
     LazyColumn(
         state = listState,
@@ -365,11 +367,12 @@ fun SearchResultsList(
     ) {
         items(
             items = providers,
-            key = { it.id },
-        ) { provider ->
+            key = { it.provider.id },
+        ) { providerWithDistance ->
             ProviderCard(
-                provider = provider,
-                onClick = { onProviderClick(provider) },
+                providerWithDistance = providerWithDistance,
+                onClick = { onProviderClick(providerWithDistance.provider) },
+                i18nProvider = i18nProvider,
             )
         }
 

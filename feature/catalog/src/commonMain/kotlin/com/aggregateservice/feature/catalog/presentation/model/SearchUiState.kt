@@ -5,6 +5,7 @@ import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
+import com.aggregateservice.feature.catalog.presentation.screenmodel.ProviderWithDistance
 
 /**
  * UI State для экрана поиска (Presentation слой).
@@ -25,7 +26,7 @@ import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 @Stable
 data class SearchUiState(
     val searchQuery: String = "",
-    val providers: List<Provider> = emptyList(),
+    val providers: List<ProviderWithDistance> = emptyList(),
     val categories: List<Category> = emptyList(),
     val selectedCategories: Set<String> = emptySet(),
     val filters: SearchFilters = SearchFilters(),

@@ -8,6 +8,7 @@ import com.aggregateservice.core.location.LocationPermissionStatus
 import com.aggregateservice.core.location.LocationProvider
 import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.catalog.domain.model.Category
+import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters.SortBy
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters.SortOrder
