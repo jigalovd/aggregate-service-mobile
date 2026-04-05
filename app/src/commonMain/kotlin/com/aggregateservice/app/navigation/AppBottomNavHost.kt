@@ -109,61 +109,51 @@ fun AppBottomNavHost(
         Scaffold(
             // No topBar - removed per UI-01 requirement (no "Aggregate Service" title)
             bottomBar = {
-                Column {
-                    // Search button above bottom nav (per UI-02: triggers modal bottom sheet)
-                    // Round light blue button - NOT part of NavigationBar
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(androidx.compose.ui.graphics.Color.Transparent)
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        contentAlignment = Alignment.CenterEnd,
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(48.dp)
-                                .background(androidx.compose.ui.graphics.Color(0xFFADD8E6), CircleShape),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            IconButton(
-                                onClick = { showSearchSheet = true },
-                                modifier = Modifier.fillMaxSize(),
-                            ) {
-                                Icon(
-                                    Icons.Default.Search,
-                                    contentDescription = "Search",
-                                    tint = androidx.compose.ui.graphics.Color(0xFF333333),
-                                )
-                            }
-                        }
-                    }
-
-                    // Bottom navigation - 4 items per UI-03
-                    NavigationBar {
-                        bottomNavItems.forEachIndexed { index, item ->
-                            NavigationBarItem(
-                                icon = { Text(item.icon) },
-                                label = { Text(item.title) },
-                                selected = selectedIndex == index,
-                                onClick = {
-                                    if (selectedIndex != index) {
-                                        selectedIndex = index
-                                        navigator.replace(item.screen)
-                                    }
-                                },
-                            )
-                        }
+                // Bottom navigation - 4 items per UI-03
+                NavigationBar(
+                    containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                ) {
+                    bottomNavItems.forEachIndexed { index, item ->
+                        NavigationBarItem(
+                            icon = { Text(item.icon) },
+                            label = { Text(item.title) },
+                            selected = selectedIndex == index,
+                            onClick = {
+                                if (selectedIndex != index) {
+                                    selectedIndex = index
+                                    navigator.replace(item.screen)
+                                }
+                            },
+                        )
                     }
                 }
             },
         ) { paddingValues ->
-            // Content fills the space above the bottom navigation
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-            ) {
+            // Content with search button overlaid at bottom
+            Box(modifier = Modifier.fillMaxSize()) {
                 currentScreen.Content()
+
+                // Search button above bottom nav (per UI-02: triggers modal bottom sheet)
+                // Round light blue button - positioned at bottom end
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 16.dp, bottom = 80.dp) // above nav bar
+                        .size(48.dp)
+                        .background(androidx.compose.ui.graphics.Color(0xFFADD8E6), CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    IconButton(
+                        onClick = { showSearchSheet = true },
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        Icon(
+                            Icons.Default.Search,
+                            contentDescription = "Search",
+                            tint = androidx.compose.ui.graphics.Color(0xFF333333),
+                        )
+                    }
+                }
             }
         }
 
