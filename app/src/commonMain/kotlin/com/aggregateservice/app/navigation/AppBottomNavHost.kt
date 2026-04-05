@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconButton
 import androidx.activity.compose.BackHandler
 import androidx.compose.material3.MaterialTheme
@@ -116,6 +117,9 @@ fun AppBottomNavHost(
                     ) {
                         IconButton(
                             onClick = { showSearchSheet = true },
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                            ),
                         ) {
                             Icon(
                                 Icons.Default.Search,
