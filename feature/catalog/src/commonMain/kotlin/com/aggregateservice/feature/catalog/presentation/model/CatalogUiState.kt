@@ -1,10 +1,12 @@
 package com.aggregateservice.feature.catalog.presentation.model
 
 import androidx.compose.runtime.Stable
+import com.aggregateservice.core.common.model.Location
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
+import com.aggregateservice.feature.catalog.presentation.screenmodel.ProviderWithDistance
 
 /**
  * UI State для Catalog экрана (Presentation слой).
@@ -32,7 +34,7 @@ import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 data class CatalogUiState(
     val isLoading: Boolean = false,
     val isLoadingMore: Boolean = false,
-    val providers: List<Provider> = emptyList(),
+    val providers: List<ProviderWithDistance> = emptyList(),
     val categories: List<Category> = emptyList(),
     val searchQuery: String = "",
     val selectedCategory: Category? = null,
@@ -40,6 +42,7 @@ data class CatalogUiState(
     val error: AppError? = null,
     val hasMore: Boolean = false,
     val currentPage: Int = 1,
+    val userLocation: Location? = null,
 ) {
     companion object {
         val Initial = CatalogUiState()

@@ -2,6 +2,7 @@ package com.aggregateservice.feature.catalog.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.aggregateservice.core.common.model.Location
 import com.aggregateservice.core.location.LocationAccuracy
 import com.aggregateservice.core.location.LocationPermissionStatus
 import com.aggregateservice.core.location.LocationProvider
@@ -17,6 +18,32 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
+/**
+ * Wrapper for Provider with pre-computed distance.
+ * Prevents recalculation on every recomposition.
+ */
+data class ProviderWithDistance(
+    val provider: Provider,
+    val distanceKm: Double?,
+    val formattedDistance: String,
+) {
+    companion object {
+        fun from(provider: Provider, userLocation: Location?): ProviderWithDistance {
+            val distance = userLocation?.let { provider.location.distanceTo(it) }
+            val formatted = when {
+                distance == null -> ""
+                distance < 1.0 -> "${(distance * 1000).toInt()} m"
+                else -> "%.1f km".format(distance)
+            }
+            return ProviderWithDistance(
+                provider = provider,
+                distanceKm = distance,
+                formattedDistance = formatted,
+            )
+        }
+    }
+}
 
 /**
  * ScreenModel для экрана каталога мастеров (Presentation слой).
@@ -101,10 +128,14 @@ class CatalogScreenModel(
             searchProvidersUseCase(filters)
                 .fold(
                     onSuccess = { searchResult ->
+                        val userLoc = _uiState.value.userLocation
+                        val providersWithDistance = searchResult.items.map {
+                            ProviderWithDistance.from(it, userLoc)
+                        }
                         _uiState.value =
                             _uiState.value.copy(
                                 isLoading = false,
-                                providers = searchResult.items,
+                                providers = providersWithDistance,
                                 hasMore = searchResult.currentPage < searchResult.totalPages,
                                 currentPage = 1,
                             )
@@ -142,10 +173,13 @@ class CatalogScreenModel(
             searchProvidersUseCase(filters)
                 .fold(
                     onSuccess = { searchResult ->
+                        val providersWithDistance = searchResult.items.map {
+                            ProviderWithDistance.from(it, state.userLocation)
+                        }
                         _uiState.value =
                             _uiState.value.copy(
                                 isLoadingMore = false,
-                                providers = state.providers + searchResult.items,
+                                providers = state.providers + providersWithDistance,
                                 hasMore = searchResult.currentPage < searchResult.totalPages,
                                 currentPage = nextPage,
                             )
@@ -271,6 +305,7 @@ class CatalogScreenModel(
                             onSuccess = { location ->
                                 _uiState.value =
                                     _uiState.value.copy(
+                                        userLocation = location,
                                         filters =
                                             _uiState.value.filters.copy(
                                                 latitude = location.latitude,
