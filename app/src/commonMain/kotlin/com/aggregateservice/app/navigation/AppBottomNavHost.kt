@@ -20,8 +20,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconButton
 import androidx.activity.compose.BackHandler
 import androidx.compose.material3.MaterialTheme
@@ -117,24 +115,24 @@ fun AppBottomNavHost(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                            .background(androidx.compose.ui.graphics.Color.Transparent),
+                            .background(androidx.compose.ui.graphics.Color.Transparent)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
                         contentAlignment = Alignment.CenterEnd,
                     ) {
-                        Surface(
-                            onClick = { showSearchSheet = true },
-                            shape = CircleShape,
-                            color = androidx.compose.ui.graphics.Color(0xFFADD8E6), // Light blue
-                            shadowElevation = 2.dp,
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .background(androidx.compose.ui.graphics.Color(0xFFADD8E6), CircleShape),
+                            contentAlignment = Alignment.Center,
                         ) {
-                            Box(
-                                modifier = Modifier.size(40.dp),
-                                contentAlignment = Alignment.Center,
+                            IconButton(
+                                onClick = { showSearchSheet = true },
+                                modifier = Modifier.fillMaxSize(),
                             ) {
                                 Icon(
                                     Icons.Default.Search,
                                     contentDescription = "Search",
-                                    tint = androidx.compose.ui.graphics.Color(0xFF333333), // Dark gray icon
+                                    tint = androidx.compose.ui.graphics.Color(0xFF333333),
                                 )
                             }
                         }
