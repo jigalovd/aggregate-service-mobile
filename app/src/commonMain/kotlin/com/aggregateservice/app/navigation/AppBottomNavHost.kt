@@ -111,7 +111,7 @@ fun AppBottomNavHost(
             bottomBar = {
                 // Bottom navigation - 4 items per UI-03
                 NavigationBar(
-                    containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                    containerColor = androidx.compose.ui.graphics.Color(0xFFADD8E6),
                 ) {
                     bottomNavItems.forEachIndexed { index, item ->
                         NavigationBarItem(
