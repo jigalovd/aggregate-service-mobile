@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.core.theme.Spacing
-import com.aggregateservice.feature.catalog.domain.model.Provider
+import com.aggregateservice.feature.catalog.presentation.screenmodel.ProviderWithDistance
 import org.koin.compose.koinInject
 
 /**
@@ -23,11 +23,13 @@ import org.koin.compose.koinInject
  */
 @Composable
 fun ProviderCard(
-    provider: Provider,
+    providerWithDistance: ProviderWithDistance,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     i18nProvider: I18nProvider = koinInject(),
 ) {
+    val provider = providerWithDistance.provider
+    val distanceText = providerWithDistance.formattedDistance
     Card(
         onClick = onClick,
         modifier =
@@ -64,10 +66,19 @@ fun ProviderCard(
                 )
             }
             Spacer(modifier = Modifier.height(Spacing.XS))
-            Text(
-                text = provider.location.city,
-                style = MaterialTheme.typography.bodySmall,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = provider.location.city,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                if (distanceText.isNotEmpty()) {
+                    Text(
+                        text = " • $distanceText",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
         }
     }
 }

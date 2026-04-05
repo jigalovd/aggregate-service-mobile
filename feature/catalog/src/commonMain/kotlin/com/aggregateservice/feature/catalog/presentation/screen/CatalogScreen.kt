@@ -47,6 +47,7 @@ import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.presentation.component.ProviderCard
 import com.aggregateservice.feature.catalog.presentation.model.CatalogUiState
 import com.aggregateservice.feature.catalog.presentation.screenmodel.CatalogScreenModel
+import com.aggregateservice.feature.catalog.presentation.screenmodel.ProviderWithDistance
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
@@ -331,7 +332,7 @@ fun EmptyState(
  */
 @Composable
 fun ProvidersList(
-    providers: List<Provider>,
+    providers: List<ProviderWithDistance>,
     isLoadingMore: Boolean,
     listState: LazyListState,
     onProviderClick: (Provider) -> Unit,
@@ -343,11 +344,11 @@ fun ProvidersList(
     ) {
         items(
             items = providers,
-            key = { it.id },
-        ) { provider ->
+            key = { it.provider.id },
+        ) { providerWithDistance ->
             ProviderCard(
-                provider = provider,
-                onClick = { onProviderClick(provider) },
+                providerWithDistance = providerWithDistance,
+                onClick = { onProviderClick(providerWithDistance.provider) },
                 i18nProvider = i18nProvider,
             )
         }
