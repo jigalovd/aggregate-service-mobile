@@ -1,5 +1,6 @@
 package com.aggregateservice.app.navigation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -116,7 +117,8 @@ fun AppBottomNavHost(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .background(androidx.compose.ui.graphics.Color.Transparent),
                         contentAlignment = Alignment.CenterEnd,
                     ) {
                         Surface(
