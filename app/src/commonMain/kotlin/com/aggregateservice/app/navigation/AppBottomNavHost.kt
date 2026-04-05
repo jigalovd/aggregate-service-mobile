@@ -9,8 +9,6 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -77,26 +75,7 @@ fun AppBottomNavHost(
         }.coerceAtLeast(0)
 
         Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("Aggregate Service") },
-                    actions = {
-                        // Auth state indicator - show user avatar when authenticated
-                        if (isAuthenticated) {
-                            Row(
-                                modifier = Modifier.padding(end = 8.dp)
-                            ) {
-                                Text(
-                                    text = currentUserId?.take(8) ?: "User",
-                                    modifier = Modifier.padding(top = 12.dp, end = 4.dp),
-                                )
-                                Text(text = "👤")
-                            }
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(),
-                )
-            },
+            // No topBar - removed per UI-01 requirement (no "Aggregate Service" title)
             bottomBar = {
                 NavigationBar {
                     bottomNavItems.forEachIndexed { index, item ->
