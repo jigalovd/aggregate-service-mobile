@@ -1,8 +1,8 @@
 package com.aggregateservice.app.navigation
 
 import cafe.adriel.voyager.core.screen.Screen
+import com.aggregateservice.feature.booking.presentation.screen.BookingHistoryScreen
 import com.aggregateservice.feature.catalog.presentation.screen.CatalogScreen
-import com.aggregateservice.feature.catalog.presentation.screen.SearchScreen
 import com.aggregateservice.feature.favorites.presentation.screen.FavoritesScreen
 import com.aggregateservice.feature.profile.presentation.screen.ProfileScreen
 
@@ -23,10 +23,13 @@ sealed class BottomNavItem(
         screen = CatalogScreen,
     )
 
-    data object Search : BottomNavItem(
-        title = "Search",
-        icon = "search",
-        screen = SearchScreen,
+    // Search removed from bottom nav per UI-03 (becomes modal bottom sheet trigger)
+    // TODO: Search icon in nav bar will trigger showSearchSheet instead of navigating
+
+    data object Bookings : BottomNavItem(
+        title = "Bookings",
+        icon = "calendar",
+        screen = BookingHistoryScreen,
     )
 
     data object Favorites : BottomNavItem(
