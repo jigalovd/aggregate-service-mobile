@@ -47,10 +47,10 @@ class CatalogRepositoryImpl(
         val result = apiService.getProviderById(providerId)
 
         return result.fold(
-            onSuccess = { response ->
-                Result.success(ProviderMapper.toDomain(response.data))
+            onSuccess = { providerDto ->
+                Result.success(ProviderMapper.toDomain(providerDto))
             },
-            onFailure = { error ->
+            onFailure = { error: Throwable ->
                 Result.failure(error)
             },
         )

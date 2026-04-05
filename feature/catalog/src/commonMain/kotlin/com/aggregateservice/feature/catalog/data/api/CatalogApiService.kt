@@ -1,6 +1,7 @@
 package com.aggregateservice.feature.catalog.data.api
 
 import com.aggregateservice.core.network.safeApiCall
+import com.aggregateservice.feature.catalog.data.dto.ProviderDto
 import com.aggregateservice.feature.catalog.data.dto.CategoriesResponseDto
 import com.aggregateservice.feature.catalog.data.dto.CategoryDto
 import com.aggregateservice.feature.catalog.data.dto.ServiceDto
@@ -77,8 +78,8 @@ class CatalogApiService(
      *
      * **Endpoint:** GET /api/v1/catalog/providers/{id}
      */
-    suspend fun getProviderById(providerId: String): Result<ProviderDetailsResponseDto> {
-        return safeApiCall<ProviderDetailsResponseDto> {
+    suspend fun getProviderById(providerId: String): Result<ProviderDto> {
+        return safeApiCall<ProviderDto> {
             client.get("/api/v1/catalog/providers/$providerId") {
                 contentType(ContentType.Application.Json)
             }
