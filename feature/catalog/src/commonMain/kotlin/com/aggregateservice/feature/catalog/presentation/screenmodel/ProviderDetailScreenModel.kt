@@ -45,6 +45,9 @@ class ProviderDetailScreenModel(
     // Provider ID для загрузки
     private var providerId: String? = null
 
+    // Loading ID guard для предотвращения race conditions
+    private var loadingId: String? = null
+
     /**
      * Инициализирует ScreenModel с ID мастера.
      *
@@ -54,7 +57,9 @@ class ProviderDetailScreenModel(
      */
     fun initialize(id: String) {
         if (providerId == id) return // Already loaded
+        if (loadingId == id) return  // Loading already in progress for this id
 
+        loadingId = id
         providerId = id
         loadProviderDetails(id)
         loadProviderServices(id)
@@ -72,6 +77,9 @@ class ProviderDetailScreenModel(
             getProviderDetailsUseCase(id)
                 .fold(
                     onSuccess = { provider ->
+                        // Check that we're still loading the same provider (race condition guard)
+                        if (loadingId != id) return@launch
+
                         val isFavorite = isFavoriteUseCase(id).getOrElse { false }
                         _uiState.value =
                             _uiState.value.copy(
@@ -82,6 +90,7 @@ class ProviderDetailScreenModel(
                             )
                     },
                     onFailure = { error ->
+                        if (loadingId != id) return@launch
                         _uiState.value = ProviderDetailUiState.error(error.toAppError())
                     },
                 )
@@ -192,6 +201,7 @@ class ProviderDetailScreenModel(
      */
     fun retry() {
         providerId?.let { id ->
+            loadingId = null  // Reset so retry works
             loadProviderDetails(id)
             loadProviderServices(id)
         }
