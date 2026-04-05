@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -17,6 +19,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconButton
 import androidx.activity.compose.BackHandler
@@ -109,23 +112,29 @@ fun AppBottomNavHost(
             bottomBar = {
                 Column {
                     // Search button above bottom nav (per UI-02: triggers modal bottom sheet)
+                    // Round light blue button - NOT part of NavigationBar
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
                         contentAlignment = Alignment.CenterEnd,
                     ) {
-                        IconButton(
+                        Surface(
                             onClick = { showSearchSheet = true },
-                            colors = IconButtonDefaults.iconButtonColors(
-                                containerColor = androidx.compose.ui.graphics.Color.Transparent,
-                            ),
+                            shape = CircleShape,
+                            color = androidx.compose.ui.graphics.Color(0xFFADD8E6), // Light blue
+                            shadowElevation = 2.dp,
                         ) {
-                            Icon(
-                                Icons.Default.Search,
-                                contentDescription = "Search",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
+                            Box(
+                                modifier = Modifier.size(40.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Icon(
+                                    Icons.Default.Search,
+                                    contentDescription = "Search",
+                                    tint = androidx.compose.ui.graphics.Color(0xFF333333), // Dark gray icon
+                                )
+                            }
                         }
                     }
 
