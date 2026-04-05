@@ -106,29 +106,41 @@ fun AppBottomNavHost(
         Scaffold(
             // No topBar - removed per UI-01 requirement (no "Aggregate Service" title)
             bottomBar = {
-                NavigationBar {
-                    bottomNavItems.forEachIndexed { index, item ->
-                        NavigationBarItem(
-                            icon = { Text(item.icon) },
-                            label = { Text(item.title) },
-                            selected = selectedIndex == index,
-                            onClick = {
-                                if (selectedIndex != index) {
-                                    selectedIndex = index
-                                    navigator.replace(item.screen)
-                                }
-                            },
-                        )
+                Column {
+                    // Search button above bottom nav (per UI-02: triggers modal bottom sheet)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        contentAlignment = Alignment.CenterEnd,
+                    ) {
+                        IconButton(
+                            onClick = { showSearchSheet = true },
+                        ) {
+                            Icon(
+                                Icons.Default.Search,
+                                contentDescription = "Search",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
-                    // Add Search as extra item in nav bar (triggers bottom sheet)
-                    NavigationBarItem(
-                        icon = { Text("🔍") },
-                        label = { Text("Search") },
-                        selected = false,
-                        onClick = {
-                            showSearchSheet = true
-                        },
-                    )
+
+                    // Bottom navigation - 4 items per UI-03
+                    NavigationBar {
+                        bottomNavItems.forEachIndexed { index, item ->
+                            NavigationBarItem(
+                                icon = { Text(item.icon) },
+                                label = { Text(item.title) },
+                                selected = selectedIndex == index,
+                                onClick = {
+                                    if (selectedIndex != index) {
+                                        selectedIndex = index
+                                        navigator.replace(item.screen)
+                                    }
+                                },
+                            )
+                        }
+                    }
                 }
             },
         ) { paddingValues ->
