@@ -149,13 +149,6 @@ fun CatalogScreenContent(
     }
 
     Scaffold(
-        topBar = {
-            CatalogTopAppBar(
-                i18nProvider = i18nProvider,
-                filtersCount = uiState.activeFiltersCount,
-                onFilterClick = { /* TODO: Open filters bottom sheet */ },
-            )
-        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { paddingValues ->
         Column(

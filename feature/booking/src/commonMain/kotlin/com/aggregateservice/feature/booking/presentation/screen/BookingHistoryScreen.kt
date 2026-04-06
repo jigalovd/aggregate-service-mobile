@@ -70,11 +70,6 @@ fun BookingHistoryScreenContent(
     onCancelBooking: (String, String?) -> Unit,
 ) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(i18nProvider[StringKey.Booking.MY_BOOKINGS]) },
-            )
-        },
     ) { paddingValues ->
         when {
             uiState.isLoading -> {

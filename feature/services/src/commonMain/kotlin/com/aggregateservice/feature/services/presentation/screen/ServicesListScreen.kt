@@ -89,11 +89,6 @@ fun ServicesListScreenContent(
     onErrorDismiss: () -> Unit,
 ) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(i18nProvider[StringKey.Services.MY_SERVICES]) },
-            )
-        },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddService) {
                 Text("+", style = MaterialTheme.typography.titleLarge)

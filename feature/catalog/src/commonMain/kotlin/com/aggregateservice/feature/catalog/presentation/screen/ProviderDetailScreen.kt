@@ -198,13 +198,6 @@ fun ProviderDetailScreenContent(
     }
 
     Scaffold(
-        topBar = {
-            ProviderDetailTopAppBar(
-                isFavorite = uiState.isFavorite,
-                onBackClick = onBackClick,
-                onFavoriteToggle = onFavoriteToggle,
-            )
-        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             if (uiState.isLoaded) {

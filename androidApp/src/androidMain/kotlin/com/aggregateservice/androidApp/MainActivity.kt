@@ -13,6 +13,7 @@ import com.aggregateservice.app.navigation.AppBottomNavHost
 import com.aggregateservice.core.theme.appTheme
 import com.aggregateservice.feature.catalog.presentation.screen.CatalogScreen
 import org.koin.java.KoinJavaComponent.inject
+import androidx.activity.enableEdgeToEdge
 
 /**
  * Главная Activity для Android приложения.
@@ -35,6 +36,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        enableEdgeToEdge()
 
         // Inject Activity into FirebaseAuthApi for Google Sign-In
         firebaseAuthApi.setActivity(this)

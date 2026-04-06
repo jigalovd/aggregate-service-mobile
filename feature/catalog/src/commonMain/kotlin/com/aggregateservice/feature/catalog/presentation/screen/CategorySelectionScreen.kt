@@ -77,16 +77,6 @@ fun CategorySelectionScreenContent(
     onBackClick: () -> Unit,
 ) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(i18nProvider[StringKey.Category.SELECT_CATEGORY]) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Text("←")
-                    }
-                },
-            )
-        },
     ) { paddingValues ->
         if (isLoading) {
             CategoryLoadingState()

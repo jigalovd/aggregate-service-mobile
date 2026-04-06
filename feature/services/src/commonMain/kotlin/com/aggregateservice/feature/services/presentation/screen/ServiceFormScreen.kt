@@ -101,16 +101,6 @@ fun ServiceFormScreenContent(
     onBack: () -> Unit,
 ) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(if (isEditMode) i18nProvider[StringKey.Services.EDIT] else i18nProvider[StringKey.Services.ADD_SERVICE]) },
-                navigationIcon = {
-                    TextButton(onClick = onBack) {
-                        Text(i18nProvider[StringKey.CANCEL])
-                    }
-                },
-            )
-        },
     ) { paddingValues ->
         when {
             uiState.isLoading -> {

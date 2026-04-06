@@ -134,11 +134,6 @@ fun ProfileScreenContent(
     navigator: cafe.adriel.voyager.navigator.Navigator,
 ) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(i18nProvider[StringKey.Profile.TITLE]) },
-            )
-        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { paddingValues ->
         when {

@@ -101,11 +101,42 @@ class AuthRepositoryImpl(
                         userEmail = user.email,
                     )
                 },
-                onFailure = {
+                onFailure = { error ->
                     // Токен может быть невалидным/просроченным
-                    // Очищаем и оставляем Guest
-                    tokenStorage.clearTokens()
-                    _authState.value = AuthState.Guest
+                    // Пробуем обновить токен через refresh token
+                    val refreshResult = refreshToken()
+
+                    refreshResult.fold(
+                        onSuccess = { newToken ->
+                            // Refresh успешен - пробуем получить информацию о пользователе снова
+                            val retryResponse = safeApiCall<UserResponseDto> {
+                                httpClient.get("/api/v1/auth/me") {
+                                    contentType(ContentType.Application.Json)
+                                    withAuth(tokenStorage)
+                                }
+                            }
+
+                            retryResponse.fold(
+                                onSuccess = { user ->
+                                    _authState.value = AuthState.Authenticated(
+                                        accessToken = newToken,
+                                        userId = user.id,
+                                        userEmail = user.email,
+                                    )
+                                },
+                                onFailure = {
+                                    // Refresh токен тоже не работает
+                                    tokenStorage.clearTokens()
+                                    _authState.value = AuthState.Guest
+                                }
+                            )
+                        },
+                        onFailure = {
+                            // Refresh не удался - очищаем и Guest
+                            tokenStorage.clearTokens()
+                            _authState.value = AuthState.Guest
+                        }
+                    )
                 }
             )
         }

@@ -113,16 +113,6 @@ fun SelectDateTimeScreenContent(
     onBack: () -> Unit,
 ) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(i18nProvider[StringKey.Booking.SELECT_DATE_TIME]) },
-                navigationIcon = {
-                    androidx.compose.material3.IconButton(onClick = onBack) {
-                        Text("←")
-                    }
-                },
-            )
-        },
         bottomBar = {
             if (uiState.hasSelection) {
                 Card(modifier = Modifier.fillMaxWidth()) {

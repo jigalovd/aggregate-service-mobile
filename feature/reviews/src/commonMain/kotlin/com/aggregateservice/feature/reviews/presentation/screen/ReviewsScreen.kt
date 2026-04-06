@@ -148,25 +148,6 @@ private fun ReviewsScreenContent(
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = if (providerName.isNotBlank()) "${i18nProvider[StringKey.Reviews.TITLE]}: $providerName" else i18nProvider[StringKey.Reviews.TITLE],
-                    )
-                },
-                navigationIcon = {
-                    TextButton(onClick = onBackClick) {
-                        Text(i18nProvider[StringKey.Reviews.BACK])
-                    }
-                },
-                actions = {
-                    TextButton(onClick = onWriteReviewClick) {
-                        Text(i18nProvider[StringKey.Reviews.WRITE_REVIEW])
-                    }
-                },
-            )
-        },
     ) { paddingValues ->
         PullToRefreshBox(
             state = pullToRefreshState,

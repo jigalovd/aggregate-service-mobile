@@ -110,18 +110,6 @@ fun BookingConfirmationScreenContent(
     onDone: () -> Unit,
 ) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(i18nProvider[StringKey.Booking.CONFIRM_BOOKING]) },
-                navigationIcon = {
-                    if (!uiState.isBooked) {
-                        androidx.compose.material3.IconButton(onClick = onBack) {
-                            Text("←")
-                        }
-                    }
-                },
-            )
-        },
     ) { paddingValues ->
         when {
             uiState.isBooked -> {

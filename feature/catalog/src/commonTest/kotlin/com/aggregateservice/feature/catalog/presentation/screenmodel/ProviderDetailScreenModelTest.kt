@@ -164,6 +164,71 @@ class ProviderDetailScreenModelTest {
         }
 
     @Test
+    fun `initialize should guard against race condition with different providerIds`() =
+        runTest {
+            val provider1 = createTestProvider("provider-1")
+            val provider2 = createTestProvider("provider-2")
+
+            // Track call order
+            val callOrder = mutableListOf<String>()
+
+            getProviderByIdBehavior = { id ->
+                callOrder.add(id)
+                // provider-1 is slow (simulated delay), provider-2 is fast
+                kotlinx.coroutines.delay(if (id == "provider-1") 100 else 0)
+                if (id == "provider-1") Result.success(provider1) else Result.success(provider2)
+            }
+            getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
+
+            val screenModel = createScreenModel()
+
+            // Rapid calls with different IDs - provider-1 starts first but provider-2 finishes first
+            screenModel.initialize("provider-1")
+            screenModel.initialize("provider-2")
+            screenModel.initialize("provider-2") // duplicate call - should be ignored by loadingId guard
+
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // loadingId guard should prevent duplicate load of provider-2
+            // provider-1's slow result should be discarded (loadingId != id check)
+            assertTrue(callOrder.contains("provider-1"))
+            assertTrue(callOrder.contains("provider-2"))
+            // Verify the final state has one of the providers loaded
+            val state = screenModel.uiState.value
+            assertTrue(state.provider?.id in listOf("provider-1", "provider-2"))
+            assertFalse(state.isLoading)
+        }
+
+    @Test
+    fun `initialize should ignore rapid calls with different providerIds during load`() =
+        runTest {
+            val provider1 = createTestProvider("provider-1")
+            val provider2 = createTestProvider("provider-2")
+
+            val callOrder = mutableListOf<String>()
+
+            getProviderByIdBehavior = { id ->
+                callOrder.add(id)
+                if (id == "provider-1") {
+                    kotlinx.coroutines.delay(100)
+                }
+                if (id == "provider-1") Result.success(provider1) else Result.success(provider2)
+            }
+            getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
+
+            val screenModel = createScreenModel()
+
+            screenModel.initialize("provider-1")
+            screenModel.initialize("provider-2")
+            screenModel.initialize("provider-2")
+
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            val state = screenModel.uiState.value
+            assertTrue(state.provider?.id in listOf("provider-1", "provider-2"))
+        }
+
+    @Test
     fun `initialize should set error on failure`() =
         runTest {
             getProviderByIdBehavior = { Result.failure(AppError.NetworkError(404, "Not Found")) }

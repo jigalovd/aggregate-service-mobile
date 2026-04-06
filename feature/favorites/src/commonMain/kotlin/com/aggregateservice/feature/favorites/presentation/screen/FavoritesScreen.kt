@@ -111,11 +111,6 @@ private fun FavoritesScreenContent(
     val pullToRefreshState = rememberPullToRefreshState()
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(i18nProvider[StringKey.Navigation.FAVORITES]) },
-            )
-        },
     ) { paddingValues ->
         PullToRefreshBox(
             state = pullToRefreshState,

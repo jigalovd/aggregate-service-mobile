@@ -130,13 +130,6 @@ fun SearchScreenContent(
     }
 
     Scaffold(
-        topBar = {
-            SearchTopAppBar(
-                filtersCount = uiState.activeFiltersCount,
-                onFilterClick = onFilterToggle,
-                i18nProvider = i18nProvider,
-            )
-        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { paddingValues ->
         Column(
