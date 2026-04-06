@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
  * @property id Уникальный идентификатор услуги
  * @property providerId ID мастера
  * @property categoryId ID категории
- * @property categoryName Название категории
+ * @property categoryNameMap Название категории (i18n map from backend I18nStringSchema)
  * @property titleMap Название услуги (i18n map from backend I18nStringSchema)
  * @property descriptionMap Описание услуги (i18n map from backend I18nStringSchema)
  * @property priceInCents Цена услуги в центах (backend returns cents)
@@ -26,7 +26,7 @@ data class ServiceDto(
     val id: String,
     val providerId: String? = null,
     @SerialName("category_id") val categoryId: String,
-    @SerialName("category_name") val categoryName: String? = null,
+    @SerialName("category_name") val categoryNameMap: Map<String, String>,
     @SerialName("title") val titleMap: Map<String, String>,
     @SerialName("description") val descriptionMap: Map<String, String>? = null,
     @SerialName("base_price") val priceInCents: Int,

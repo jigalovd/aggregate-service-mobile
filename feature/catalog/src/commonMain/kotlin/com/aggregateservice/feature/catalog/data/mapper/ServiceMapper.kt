@@ -19,7 +19,7 @@ object ServiceMapper {
             id = dto.id,
             providerId = dto.providerId ?: "",
             categoryId = dto.categoryId,
-            categoryName = dto.categoryName ?: "",
+            categoryName = dto.categoryNameMap["ru"] ?: dto.categoryNameMap["he"] ?: dto.categoryNameMap["en"] ?: "",
             name = dto.name,
             description = dto.description,
             price =
