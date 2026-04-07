@@ -1,5 +1,6 @@
 package com.aggregateservice.feature.auth.di
 
+import com.aggregateservice.core.storage.TokenHolder
 import com.aggregateservice.core.firebase.FirebaseAuthApi
 import com.aggregateservice.core.firebase.FirebaseAuthApiFactory
 import com.aggregateservice.core.navigation.AuthStateProvider
@@ -30,8 +31,8 @@ val authModule = module {
     single<AuthRepository> {
         AuthRepositoryImpl(
             httpClient = get(),
-            tokenStorage = get(),
-            authManager = get(),
+            tokenHolder = get(),
+            authEventBus = get(),
         )
     }
 

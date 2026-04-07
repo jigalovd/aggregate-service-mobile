@@ -1,10 +1,11 @@
 package com.aggregateservice.feature.auth.data.repository
 
 import com.aggregateservice.core.network.AppError
-import com.aggregateservice.core.network.AuthManager
+import com.aggregateservice.core.network.AuthEvent
+import com.aggregateservice.core.network.AuthEventBus
 import com.aggregateservice.core.network.httpCodeToAppError
 import com.aggregateservice.core.network.safeApiCall
-import com.aggregateservice.core.storage.TokenStorage
+import com.aggregateservice.core.storage.TokenHolder
 import com.aggregateservice.feature.auth.data.dto.AuthResponse
 import com.aggregateservice.feature.auth.data.dto.FirebaseAlreadyLinkedResponse
 import com.aggregateservice.feature.auth.data.dto.FirebaseLinkRequest
@@ -36,7 +37,7 @@ import kotlinx.coroutines.launch
  * **Responsibilities:**
  * - Вызов network API (Ktor)
  * - Маппинг DTO → Domain модели
- * - Управление токенами (через TokenStorage)
+ * - Управление токенами (через TokenHolder)
  * - Предоставление Flow для AuthState
  *
  * **Architecture:**
@@ -45,12 +46,13 @@ import kotlinx.coroutines.launch
  * - Нет прямого доступа к Ktor из Domain или Presentation
  *
  * @property httpClient HTTP клиент для API запросов
- * @property tokenStorage Хранилище токенов
+ * @property tokenHolder Single source of truth for access token
+ * @property authEventBus Event bus for logout propagation
  */
 class AuthRepositoryImpl(
     private val httpClient: HttpClient,
-    private val tokenStorage: TokenStorage,
-    private val authManager: AuthManager,
+    private val tokenHolder: TokenHolder,
+    private val authEventBus: AuthEventBus,
 ) : AuthRepository {
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
@@ -64,14 +66,16 @@ class AuthRepositoryImpl(
 
     init {
         scope.launch {
-            authManager.logoutEvents.collect {
-                _authState.value = AuthState.Guest
+            authEventBus.events.collect { event ->
+                when (event) {
+                    is AuthEvent.Logout -> _authState.value = AuthState.Guest
+                }
             }
         }
     }
 
     /**
-     * Инициализирует репозиторий, загружая сохраненный токен из TokenStorage.
+     * Инициализирует репозиторий, загружая сохраненный токен из TokenHolder.
      *
      * **IMPORTANT:** Этот метод должен быть вызван при старте приложения
      * (например, в Application.onCreate для Android или AppDelegate для iOS).
@@ -94,71 +98,43 @@ class AuthRepositoryImpl(
             return // Already initialized
         }
 
-        // Загружаем сохраненный токен
-        val savedToken = tokenStorage.getAccessTokenSync()
-        if (!savedToken.isNullOrBlank()) {
-            // Токен есть - запрашиваем информацию о пользователе
-            // Ktor Auth Plugin automatically adds Authorization header via loadTokens callback
-            val userResponse = safeApiCall<UserResponseDto> {
-                httpClient.get("/api/v1/auth/me") {
-                    contentType(ContentType.Application.Json)
-                }
-            }
+        // Initialize TokenHolder from persistent storage
+        tokenHolder.initFromStorage()
+        val token = tokenHolder.get()
 
-            userResponse.fold(
-                onSuccess = { user ->
-                    _authState.value = AuthState.Authenticated(
-                        accessToken = savedToken,
-                        userId = user.id,
-                        userEmail = user.email,
-                    )
-                },
-                onFailure = { error ->
-                    // Токен может быть невалидным/просроченным
-                    // Пробуем обновить токен через refresh token
-                    val refreshResult = refreshToken()
-
-                    refreshResult.fold(
-                        onSuccess = { newToken ->
-                            // Refresh успешен - пробуем получить информацию о пользователе снова
-                            // Ktor Auth Plugin handles auth automatically now
-                            val retryResponse = safeApiCall<UserResponseDto> {
-                                httpClient.get("/api/v1/auth/me") {
-                                    contentType(ContentType.Application.Json)
-                                }
-                            }
-
-                            retryResponse.fold(
-                                onSuccess = { user ->
-                                    _authState.value = AuthState.Authenticated(
-                                        accessToken = newToken,
-                                        userId = user.id,
-                                        userEmail = user.email,
-                                    )
-                                },
-                                onFailure = {
-                                    // Refresh токен тоже не работает
-                                    tokenStorage.clearTokens()
-                                    _authState.value = AuthState.Guest
-                                }
-                            )
-                        },
-                        onFailure = {
-                            // Refresh не удался - очищаем и Guest
-                            tokenStorage.clearTokens()
-                            _authState.value = AuthState.Guest
-                        }
-                    )
-                }
-            )
+        if (token == null) {
+            _authState.value = AuthState.Guest
+            isInitialized = true
+            return
         }
+
+        // GET /me - BearerTokenPlugin handles 401 with auto-refresh
+        val userResponse = safeApiCall<UserResponseDto> {
+            httpClient.get("/api/v1/auth/me")
+        }
+
+        userResponse.fold(
+            onSuccess = { user ->
+                _authState.value = AuthState.Authenticated(
+                    accessToken = token,
+                    userId = user.id,
+                    userEmail = user.email,
+                )
+            },
+            onFailure = { error ->
+                // If 401, BearerTokenPlugin would have already tried refresh.
+                // If we get here, both tokens are invalid.
+                tokenHolder.clear()
+                _authState.value = AuthState.Guest
+            }
+        )
+        isInitialized = true
     }
 
     override suspend fun logout() {
-        // Call backend logout endpoint. Errors are ignored — client-side
-        // logout proceeds regardless (session expires on server naturally).
+        // POST /auth/logout - BearerTokenPlugin adds Authorization header (not excluded)
         safeApiCall<Unit> { httpClient.post("/api/v1/auth/logout") }
-        tokenStorage.clearTokens()
+        tokenHolder.clear()
         _authState.value = AuthState.Guest
     }
 
@@ -175,8 +151,8 @@ class AuthRepositoryImpl(
             onSuccess = { refreshResponse ->
                 val newToken = refreshResponse.accessToken
 
-                // Сохраняем новый токен
-                tokenStorage.saveAccessToken(newToken)
+                // Store new token via TokenHolder (persists to DataStore)
+                tokenHolder.set(newToken)
 
                 Result.success(newToken)
             },
@@ -218,8 +194,8 @@ class AuthRepositoryImpl(
                         // Firebase аккаунт уже связан - получаем access token
                         val newToken = firebaseResponse.accessToken
 
-                        // 4. Сохраняем токен
-                        tokenStorage.saveAccessToken(newToken)
+                        // 4. Сохраняем токен via TokenHolder
+                        tokenHolder.set(newToken)
 
                         // 5. Маппим в AuthState.Authenticated
                         val newState = AuthState.Authenticated(
@@ -278,8 +254,8 @@ class AuthRepositoryImpl(
             onSuccess = { authResponse ->
                 val newToken = authResponse.accessToken
 
-                // 4. Сохраняем токен
-                tokenStorage.saveAccessToken(newToken)
+                // 4. Сохраняем токен via TokenHolder
+                tokenHolder.set(newToken)
 
                 // 5. Маппим в AuthState
                 val newState = AuthState.Authenticated(
