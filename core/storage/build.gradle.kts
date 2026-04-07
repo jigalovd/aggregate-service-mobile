@@ -17,5 +17,10 @@ kotlin {
             implementation(libs.androidx.datastore.preferences.android)
             implementation(libs.koin.android) // Для androidContext()
         }
+
+        maybeCreate("commonTest").dependencies {
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.mockk)
+        }
     }
 }
