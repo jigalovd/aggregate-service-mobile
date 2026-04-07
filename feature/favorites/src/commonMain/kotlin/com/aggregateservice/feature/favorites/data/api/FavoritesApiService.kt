@@ -1,8 +1,6 @@
 package com.aggregateservice.feature.favorites.data.api
 
 import com.aggregateservice.core.network.safeApiCall
-import com.aggregateservice.core.network.withAuth
-import com.aggregateservice.core.storage.TokenStorage
 import com.aggregateservice.feature.favorites.data.dto.FavoriteDto
 import com.aggregateservice.feature.favorites.data.dto.FavoritesListResponseDto
 import io.ktor.client.HttpClient
@@ -22,12 +20,12 @@ import io.ktor.http.contentType
  * - DELETE /api/v1/catalog/favorites/{providerId}     - Remove from favorites (auth)
  * - GET    /api/v1/catalog/favorites/{providerId}/check - Check if favorite (auth)
  *
+ * **Auth:** Ktor Auth Plugin handles Authorization header automatically
+ *
  * @property client HTTP client (Ktor)
- * @property tokenStorage Token storage for auth header injection
  */
 class FavoritesApiService(
     private val client: HttpClient,
-    private val tokenStorage: TokenStorage,
 ) {
     /**
      * Retrieves all favorites for the authenticated user.
@@ -38,7 +36,6 @@ class FavoritesApiService(
         return safeApiCall<FavoritesListResponseDto> {
             client.get("/api/v1/catalog/favorites") {
                 contentType(ContentType.Application.Json)
-                withAuth(tokenStorage)
             }
         }
     }
@@ -52,7 +49,6 @@ class FavoritesApiService(
         return safeApiCall<Unit> {
             client.post("/api/v1/catalog/favorites") {
                 contentType(ContentType.Application.Json)
-                withAuth(tokenStorage)
                 setBody(mapOf("provider_id" to providerId))
             }
         }
@@ -67,7 +63,6 @@ class FavoritesApiService(
         return safeApiCall<Unit> {
             client.delete("/api/v1/catalog/favorites/$providerId") {
                 contentType(ContentType.Application.Json)
-                withAuth(tokenStorage)
             }
         }
     }
@@ -81,7 +76,6 @@ class FavoritesApiService(
         return safeApiCall<Boolean> {
             client.get("/api/v1/catalog/favorites/$providerId/check") {
                 contentType(ContentType.Application.Json)
-                withAuth(tokenStorage)
             }
         }
     }

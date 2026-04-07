@@ -11,60 +11,25 @@ import androidx.compose.runtime.Stable
  * - ScreenModel обрабатывает intents и обновляет state
  *
  * **Compose Optimization:**
- * - @Stable аннотация позволяет Comose compiler оптимизировать рекомпозицию
+ * - @Stable аннотация позволяет Compose compiler оптимизировать рекомпозицию
  * - Все параметры immutable (val), что гарантирует стабильность
  *
- * @property email Текущий email
- * @property password Текущий пароль
- * @property emailError Ошибка валидации email (если есть)
- * @property passwordError Ошибка валидации пароля (если есть)
  * @property isLoading Флаг загрузки
  * @property errorMessage Сообщение об ошибке (если есть)
  * @property isLoginSuccess Флаг успешного входа
+ * @property linkAccount Состояние linking диалога
+ * @property isFirebaseLoading Флаг загрузки Firebase
+ * @property phoneAuth Состояние phone аутентификации
  */
 @Stable
 data class LoginUiState(
-    val email: String = "",
-    val password: String = "",
-    val emailError: String? = null,
-    val passwordError: String? = null,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val isLoginSuccess: Boolean = false,
-
-    // Firebase Auth
     val linkAccount: LinkAccountState = LinkAccountState(),
     val isFirebaseLoading: Boolean = false,
-
-    // Phone Auth
     val phoneAuth: PhoneAuthState = PhoneAuthState(),
-
-    // Platform-specific flags
-    val showEmailLogin: Boolean = false,
-    val isIOS: Boolean = false,
-) {
-    /**
-     * Проверяет, можно ли выполнить вход.
-     *
-     * **Условия:**
-     * - Email не пустой
-     * - Пароль не пустой
-     * - Нет ошибок валидации
-     * - Не идет загрузка
-     */
-    fun canLogin(): Boolean =
-        email.isNotBlank() &&
-        password.isNotBlank() &&
-        emailError == null &&
-        passwordError == null &&
-        !isLoading
-
-    /**
-     * Проверяет, есть ли ошибки валидации.
-     */
-    fun hasValidationErrors(): Boolean =
-        emailError != null || passwordError != null
-}
+)
 
 /**
  * Phone authentication state.

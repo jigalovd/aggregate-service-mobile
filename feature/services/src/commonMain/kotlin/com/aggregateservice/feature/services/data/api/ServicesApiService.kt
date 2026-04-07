@@ -1,8 +1,6 @@
 package com.aggregateservice.feature.services.data.api
 
 import com.aggregateservice.core.network.safeApiCall
-import com.aggregateservice.core.network.withAuth
-import com.aggregateservice.core.storage.TokenStorage
 import com.aggregateservice.feature.services.data.dto.CreateServiceRequestDto
 import com.aggregateservice.feature.services.data.dto.ServiceDto
 import com.aggregateservice.feature.services.data.dto.UpdateServiceRequestDto
@@ -25,12 +23,12 @@ import io.ktor.http.contentType
  * - PATCH  /api/v1/providers/services/{id}     - Update service (auth)
  * - DELETE /api/v1/providers/services/{id}     - Delete service (auth)
  *
+ * **Auth:** Ktor Auth Plugin handles Authorization header automatically
+ *
  * @property client HTTP client (Ktor)
- * @property tokenStorage Token storage for auth header injection
  */
 class ServicesApiService(
     private val client: HttpClient,
-    private val tokenStorage: TokenStorage,
 ) {
     /**
      * Retrieves all services for the authenticated provider.
@@ -41,7 +39,6 @@ class ServicesApiService(
         return safeApiCall<List<ServiceDto>> {
             client.get("/api/v1/providers/services") {
                 contentType(ContentType.Application.Json)
-                withAuth(tokenStorage)
             }
         }
     }
@@ -55,7 +52,6 @@ class ServicesApiService(
         return safeApiCall<ServiceDto> {
             client.get("/api/v1/providers/services/$id") {
                 contentType(ContentType.Application.Json)
-                withAuth(tokenStorage)
             }
         }
     }
@@ -69,7 +65,6 @@ class ServicesApiService(
         return safeApiCall<ServiceDto> {
             client.post("/api/v1/providers/services") {
                 contentType(ContentType.Application.Json)
-                withAuth(tokenStorage)
                 setBody(request)
             }
         }
@@ -84,7 +79,6 @@ class ServicesApiService(
         return safeApiCall<ServiceDto> {
             client.patch("/api/v1/providers/services/$id") {
                 contentType(ContentType.Application.Json)
-                withAuth(tokenStorage)
                 setBody(request)
             }
         }
@@ -99,7 +93,6 @@ class ServicesApiService(
         return safeApiCall<Unit> {
             client.delete("/api/v1/providers/services/$id") {
                 contentType(ContentType.Application.Json)
-                withAuth(tokenStorage)
             }
         }
     }

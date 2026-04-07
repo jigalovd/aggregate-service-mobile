@@ -20,8 +20,8 @@ import org.koin.dsl.module
  * - ScreenModels (presentation layer)
  */
 val favoritesModule = module {
-    // API Service
-    single { FavoritesApiService(get(), get()) }
+    // API Service (Ktor Auth Plugin handles auth automatically)
+    single { FavoritesApiService(get()) }
 
     // Repository
     single<FavoritesRepository> {

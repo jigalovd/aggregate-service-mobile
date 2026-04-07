@@ -14,20 +14,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.auth.domain.usecase.SignInWithFirebaseUseCase
+import com.aggregateservice.feature.auth.presentation.model.GoogleLoginScreenModel
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
@@ -46,11 +46,16 @@ class GoogleLoginScreen : Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val i18nProvider: I18nProvider = koinInject()
-        val signInWithFirebaseUseCase: SignInWithFirebaseUseCase = koinInject()
+        val signInUseCase: SignInWithFirebaseUseCase = koinInject()
+        val i18n: I18nProvider = koinInject()
+        val screenModel = rememberScreenModel { GoogleLoginScreenModel(signInUseCase, i18n) }
+        val uiState by screenModel.uiState.collectAsState()
         val coroutineScope = rememberCoroutineScope()
 
-        var isLoading by remember { mutableStateOf(false) }
-        var errorMessage by remember { mutableStateOf<String?>(null) }
+        // Navigate back on successful login
+        if (uiState.isLoginSuccess) {
+            navigator.pop()
+        }
 
         Scaffold { paddingValues ->
             Box(
@@ -79,37 +84,23 @@ class GoogleLoginScreen : Screen {
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    if (isLoading) {
+                    if (uiState.isLoading) {
                         CircularProgressIndicator()
                     } else {
                         Button(
                             onClick = {
                                 coroutineScope.launch {
-                                    isLoading = true
-                                    errorMessage = null
-
-                                    signInWithFirebaseUseCase().fold(
-                                        onSuccess = { authState ->
-                                            // Auth successful, navigate back
-                                            navigator.pop()
-                                        },
-                                        onFailure = { error ->
-                                            errorMessage = error.message
-                                                ?: i18nProvider[StringKey.ERROR]
-                                        }
-                                    )
-
-                                    isLoading = false
+                                    screenModel.signIn()
                                 }
                             },
                             modifier = Modifier.fillMaxWidth(),
-                            enabled = !isLoading
+                            enabled = !uiState.isLoading
                         ) {
                             Text(i18nProvider[StringKey.Auth.SIGN_IN_WITH_GOOGLE])
                         }
                     }
 
-                    errorMessage?.let { error ->
+                    uiState.errorMessage?.let { error ->
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
                             text = error,

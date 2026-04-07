@@ -19,8 +19,8 @@ import org.koin.dsl.module
  * - ScreenModels (presentation layer)
  */
 val profileModule = module {
-    // API Service (with TokenStorage for authenticated calls)
-    single { ProfileApiService(get(), get()) }
+    // API Service (Ktor Auth Plugin handles auth automatically)
+    single { ProfileApiService(get()) }
 
     // Repository
     single<ProfileRepository> {

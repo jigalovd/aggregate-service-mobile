@@ -58,9 +58,13 @@ suspend inline fun <reified T : Any> safeApiCall(
 
                 // No Content (204)
                 HttpStatusCode.NoContent -> {
-                    // Для 204 ожидаем null response
                     @Suppress("UNCHECKED_CAST")
-                    Result.success(null as T)
+                    val result = if (null is T) {
+                        Result.success(null as T)
+                    } else {
+                        Result.success(Unit as T)
+                    }
+                    result
                 }
 
                 // Rate Limit Exceeded (429)
@@ -120,7 +124,6 @@ suspend inline fun <reified T : Any> safeApiCall(
                 // Validation Error (422)
                 HttpStatusCode.UnprocessableEntity -> {
                     val errorBody = response.body<ErrorResponse>()
-                    // Пытаемся распарсить детальную ошибку валидации
                     val validationError = parseValidationError(errorBody)
                     Result.failure(validationError)
                 }
@@ -157,7 +160,6 @@ suspend inline fun <reified T : Any> safeApiCall(
             if (e is kotlinx.coroutines.CancellationException) throw e
             lastException = e
             if (e is kotlinx.serialization.SerializationException) {
-                // Ошибка парсинга - не retry
                 return Result.failure(
                     AppError.UnknownError(
                         throwable = e,
@@ -235,7 +237,7 @@ data class ValidationErrorItem(
  * @param response HTTP response
  * @return Количество секунд до следующей попытки (дефолт 60)
  */
-suspend fun parseRetryAfter(response: HttpResponse): Int {
+fun parseRetryAfter(response: HttpResponse): Int {
     val retryAfter = response.headers["Retry-After"]
     return retryAfter?.toIntOrNull() ?: NetworkConstants.DEFAULT_RETRY_AFTER_SECONDS
 }
@@ -247,11 +249,8 @@ suspend fun parseRetryAfter(response: HttpResponse): Int {
  * @return ValidationError с детальной информацией
  */
 fun parseValidationError(errorBody: ErrorResponse): AppError {
-    // Получаем errors из details.errors
     return try {
         val validationErrors = errorBody.details?.errors
-
-        // Берем первую ошибку
         val firstError = validationErrors?.firstOrNull()
         if (firstError != null) {
             AppError.ValidationError(
@@ -265,7 +264,6 @@ fun parseValidationError(errorBody: ErrorResponse): AppError {
             )
         }
     } catch (e: Exception) {
-        // Если не удалось распарсить, возвращаем простую ошибку
         AppError.ValidationError(
             field = "unknown",
             message = errorBody.message ?: "Validation error",

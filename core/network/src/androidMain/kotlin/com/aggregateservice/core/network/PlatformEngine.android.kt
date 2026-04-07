@@ -17,15 +17,9 @@ actual val httpClientEngine: HttpClientEngine
     get() =
         OkHttp.create {
             config {
-                retryOnConnectionFailure(true)
-                connectTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                readTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                writeTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
-
-                certificatePinner(
-                    CertificatePinner.Builder()
-                        .add("*.aggregateservice.com", *CertificatePins.pins.toTypedArray())
-                        .build()
-                )
+                retryOnConnectionFailure(false)
+                connectTimeout(10, TimeUnit.SECONDS)
+                readTimeout(10, TimeUnit.SECONDS)
+                writeTimeout(10, TimeUnit.SECONDS)
             }
         }

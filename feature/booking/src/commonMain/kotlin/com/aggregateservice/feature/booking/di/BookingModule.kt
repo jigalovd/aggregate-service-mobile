@@ -32,8 +32,8 @@ val bookingModule = module {
     // Navigator for cross-feature navigation
     single<BookingNavigator> { BookingNavigatorImpl() }
 
-    // API Service (with TokenStorage for authenticated calls)
-    single { BookingApiService(get(), get()) }
+    // API Service (Ktor Auth Plugin handles auth automatically)
+    single { BookingApiService(get()) }
 
     // Repository
     single<BookingRepository> {

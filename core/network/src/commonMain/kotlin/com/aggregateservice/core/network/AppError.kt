@@ -165,6 +165,7 @@ fun httpCodeToAppError(
     message: String = "",
 ): AppError =
     when (code) {
+        400 -> AppError.NetworkError(code, message)
         401 -> AppError.Unauthorized
         403 -> AppError.Forbidden(message)
         404 -> AppError.NotFound

@@ -1,10 +1,9 @@
 package com.aggregateservice.feature.auth.data.repository
 
 import com.aggregateservice.core.network.AppError
-import com.aggregateservice.core.network.executeWithRefresh
+import com.aggregateservice.core.network.AuthManager
 import com.aggregateservice.core.network.httpCodeToAppError
 import com.aggregateservice.core.network.safeApiCall
-import com.aggregateservice.core.network.withAuth
 import com.aggregateservice.core.storage.TokenStorage
 import com.aggregateservice.feature.auth.data.dto.AuthResponse
 import com.aggregateservice.feature.auth.data.dto.FirebaseAlreadyLinkedResponse
@@ -23,9 +22,13 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 /**
  * Реализация репозитория аутентификации (Data слой).
@@ -47,15 +50,25 @@ import kotlinx.coroutines.flow.asStateFlow
 class AuthRepositoryImpl(
     private val httpClient: HttpClient,
     private val tokenStorage: TokenStorage,
+    private val authManager: AuthManager,
 ) : AuthRepository {
 
-    // Internal mutable state for testing and observation
-    internal val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
+    private val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
 
-    // Flag to track if initialization has been done
-    // Note: Simple boolean is sufficient for single-threaded initialization on app startup
+    @Volatile
     var isInitialized: Boolean = false
         private set
+
+    // Scope for listening to logout events
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+
+    init {
+        scope.launch {
+            authManager.logoutEvents.collect {
+                _authState.value = AuthState.Guest
+            }
+        }
+    }
 
     /**
      * Инициализирует репозиторий, загружая сохраненный токен из TokenStorage.
@@ -85,11 +98,10 @@ class AuthRepositoryImpl(
         val savedToken = tokenStorage.getAccessTokenSync()
         if (!savedToken.isNullOrBlank()) {
             // Токен есть - запрашиваем информацию о пользователе
-            // Use withAuth to send the saved token for validation
+            // Ktor Auth Plugin automatically adds Authorization header via loadTokens callback
             val userResponse = safeApiCall<UserResponseDto> {
                 httpClient.get("/api/v1/auth/me") {
                     contentType(ContentType.Application.Json)
-                    withAuth(tokenStorage)
                 }
             }
 
@@ -109,10 +121,10 @@ class AuthRepositoryImpl(
                     refreshResult.fold(
                         onSuccess = { newToken ->
                             // Refresh успешен - пробуем получить информацию о пользователе снова
+                            // Ktor Auth Plugin handles auth automatically now
                             val retryResponse = safeApiCall<UserResponseDto> {
                                 httpClient.get("/api/v1/auth/me") {
                                     contentType(ContentType.Application.Json)
-                                    withAuth(tokenStorage)
                                 }
                             }
 
@@ -187,14 +199,10 @@ class AuthRepositoryImpl(
         authProvider: String,
         firebaseToken: String,
     ): Result<AuthState> {
-        // 1. Маппим Domain модель → DTO
-        // Note: authProvider not sent to backend - backend extracts provider from Firebase token
         val verifyRequest = FirebaseVerifyRequest(
             firebaseToken = firebaseToken,
         )
 
-        // 2. Проверяем какой тип ответа пришел - FirebaseAlreadyLinkedResponse или FirebaseLinkRequiredResponse
-        // Используем generic safeApiCall с десериализацией в Union тип
         val response = safeApiCall<FirebaseVerifyResponse> {
             httpClient.post("/api/v1/auth/provider/verify") {
                 contentType(ContentType.Application.Json)
@@ -220,15 +228,12 @@ class AuthRepositoryImpl(
                             userEmail = firebaseResponse.user.email,
                         )
 
-                        // 6. Обновляем состояние
                         _authState.value = newState
 
                         Result.success(newState)
                     }
 
                     is FirebaseLinkRequiredResponse -> {
-                        // Требуется связывание аккаунта
-                        // Возвращаем ошибку с firebaseToken, email и firebaseUid для UI
                         Result.failure(
                             AppError.FirebaseLinkRequired(
                                 firebaseToken = firebaseToken,

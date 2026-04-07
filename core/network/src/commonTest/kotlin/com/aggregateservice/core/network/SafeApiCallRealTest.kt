@@ -77,7 +77,7 @@ class SafeApiCallRealTest {
                     respond(
                         content = json.encodeToString(
                             ErrorResponse.serializer(),
-                            ErrorResponse(detail = "Internal server error")
+                            ErrorResponse(message = "Internal server error")
                         ),
                         status = HttpStatusCode.InternalServerError
                     )
@@ -119,7 +119,7 @@ class SafeApiCallRealTest {
             respond(
                 content = json.encodeToString(
                     ErrorResponse.serializer(),
-                    ErrorResponse(detail = "Rate limit exceeded")
+                    ErrorResponse(message = "Rate limit exceeded")
                 ),
                 status = HttpStatusCode.TooManyRequests,
                 headers = headersOf("Retry-After", listOf(retryAfter.toString()))
@@ -153,7 +153,7 @@ class SafeApiCallRealTest {
             respond(
                 content = json.encodeToString(
                     ErrorResponse.serializer(),
-                    ErrorResponse(detail = "Invalid or missing token")
+                    ErrorResponse(message = "Invalid or missing token")
                 ),
                 status = HttpStatusCode.Unauthorized
             )
@@ -183,8 +183,8 @@ class SafeApiCallRealTest {
         // Arrange
         val validationErrors = listOf(
             ValidationErrorItem(
-                loc = listOf("body", "email"),
-                msg = "field required",
+                field = "body.email",
+                message = "field required",
                 type = "value_error.missing"
             )
         )
@@ -196,7 +196,10 @@ class SafeApiCallRealTest {
             respond(
                 content = json.encodeToString(
                     ErrorResponse.serializer(),
-                    ErrorResponse(detail = detail)
+                    ErrorResponse(
+                        message = "Validation error",
+                        details = ErrorDetails(errors = validationErrors)
+                    )
                 ),
                 status = HttpStatusCode.UnprocessableEntity
             )
@@ -231,7 +234,7 @@ class SafeApiCallRealTest {
             respond(
                 content = json.encodeToString(
                     ErrorResponse.serializer(),
-                    ErrorResponse(detail = "Resource not found")
+                    ErrorResponse(message = "Resource not found")
                 ),
                 status = HttpStatusCode.NotFound
             )
@@ -264,7 +267,7 @@ class SafeApiCallRealTest {
             respond(
                 content = json.encodeToString(
                     ErrorResponse.serializer(),
-                    ErrorResponse(detail = lockUntil)
+                    ErrorResponse(message = lockUntil)
                 ),
                 status = HttpStatusCode.Locked
             )

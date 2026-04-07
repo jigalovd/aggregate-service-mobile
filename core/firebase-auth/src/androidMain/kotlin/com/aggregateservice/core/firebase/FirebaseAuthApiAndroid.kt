@@ -44,27 +44,39 @@ actual class FirebaseAuthApi actual constructor() {
     }
 
     private fun handleSignInResult(resultCode: Int, data: Intent?) {
+        println("FirebaseAuthApi: handleSignInResult called. resultCode: $resultCode, data: ${data != null}")
         val continuation = pendingContinuation
-        if (continuation == null) return
+        if (continuation == null) {
+            println("FirebaseAuthApi: continuation is null at handleSignInResult!")
+            return
+        }
+        println("FirebaseAuthApi: continuation isActive: ${continuation.isActive}")
 
         if (resultCode == Activity.RESULT_OK && data != null) {
             try {
                 val task = GoogleSignIn.getSignedInAccountFromIntent(data)
                 val account = task.getResult(ApiException::class.java)
                 val idToken = account.idToken
+                println("FirebaseAuthApi: Got Google idToken: ${idToken != null}")
                 if (idToken != null) {
                     signInWithFirebaseCredential(idToken)
                 } else {
+                    println("FirebaseAuthApi: Google idToken is null")
+                    pendingContinuation = null
                     if (continuation.isActive) {
                         continuation.resume(Result.failure(Exception("Google ID token is null")))
                     }
                 }
             } catch (e: ApiException) {
+                println("FirebaseAuthApi: ApiException: ${e.statusCode}")
+                pendingContinuation = null
                 if (continuation.isActive) {
                     continuation.resume(Result.failure(e))
                 }
             }
         } else {
+            println("FirebaseAuthApi: Sign-in cancelled or failed (resultCode: $resultCode)")
+            pendingContinuation = null
             if (continuation.isActive) {
                 continuation.resume(Result.failure(Exception("Google Sign-In was cancelled or failed")))
             }
@@ -72,15 +84,22 @@ actual class FirebaseAuthApi actual constructor() {
     }
 
     private fun signInWithFirebaseCredential(idToken: String) {
-        val continuation = pendingContinuation ?: return
+        val continuation = pendingContinuation ?: run {
+            println("FirebaseAuthApi: pendingContinuation is null!")
+            return
+        }
+        println("FirebaseAuthApi: signInWithFirebaseCredential started. user: ${firebaseAuth.currentUser?.uid}")
 
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         firebaseAuth.signInWithCredential(credential)
             .addOnSuccessListener { authResult ->
+                println("FirebaseAuthApi: signInWithCredential success. user: ${authResult.user?.uid}")
                 authResult.user?.getIdToken(true)
                     ?.addOnSuccessListener { idTokenResult ->
                         val token = idTokenResult.token
+                        println("FirebaseAuthApi: getIdToken success. token: ${token != null}")
                         if (continuation.isActive && token != null) {
+                            pendingContinuation = null
                             continuation.resume(
                                 Result.success(
                                     FirebaseToken(
@@ -89,18 +108,27 @@ actual class FirebaseAuthApi actual constructor() {
                                     )
                                 )
                             )
+                            println("FirebaseAuthApi: continuation resumed successfully")
                         } else if (continuation.isActive) {
+                            pendingContinuation = null
                             continuation.resume(Result.failure(Exception("Failed to get Firebase ID token")))
+                            println("FirebaseAuthApi: token was null, resuming with failure")
+                        } else {
+                            println("FirebaseAuthApi: continuation not active")
                         }
                     }
                     ?.addOnFailureListener { e ->
+                        println("FirebaseAuthApi: getIdToken failed: ${e.message}")
                         if (continuation.isActive) {
+                            pendingContinuation = null
                             continuation.resume(Result.failure(e))
                         }
                     }
             }
             .addOnFailureListener { e ->
+                println("FirebaseAuthApi: signInWithCredential failed: ${e.message}")
                 if (continuation.isActive) {
+                    pendingContinuation = null
                     continuation.resume(Result.failure(e))
                 }
             }
@@ -110,9 +138,19 @@ actual class FirebaseAuthApi actual constructor() {
         val act = activity
         val launcher = signInLauncher
 
+        println("FirebaseAuthApi: signInWithGoogle() called. Activity: ${act != null}, Launcher: ${launcher != null}")
+
         if (act == null || launcher == null) {
+            // Log error for debugging
+            println("FirebaseAuthApi: signInWithGoogle() called with null activity or launcher. Activity: $act, Launcher: $launcher")
             continuation.resume(Result.failure(Exception("Activity not set. Call setActivity() before signInWithGoogle().")))
             return@suspendCancellableCoroutine
+        }
+
+        if (pendingContinuation != null) {
+            // Clear any stale continuation
+            println("FirebaseAuthApi: Clearing stale pendingContinuation")
+            pendingContinuation = null
         }
 
         pendingContinuation = continuation
@@ -134,6 +172,7 @@ actual class FirebaseAuthApi actual constructor() {
             ).intentSender
         ).build()
         launcher.launch(intentSenderRequest)
+        println("FirebaseAuthApi: Google Sign-In intent launched")
     }
 
     actual suspend fun signInWithApple(): Result<FirebaseToken> = withContext(Dispatchers.Main) {

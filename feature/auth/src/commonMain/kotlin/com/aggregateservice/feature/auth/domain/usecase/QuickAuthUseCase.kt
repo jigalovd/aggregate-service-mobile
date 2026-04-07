@@ -5,24 +5,23 @@ import com.aggregateservice.feature.auth.domain.model.AuthState
 import com.aggregateservice.feature.auth.domain.repository.AuthRepository
 
 /**
- * UseCase для входа через Firebase (Domain слой).
+ * UseCase для быстрой аутентификации из диалогов (Domain слой).
  *
- * **Responsibilities:**
- * - Делегирует sign-in в FirebaseAuthApi
- * - Проверяет Firebase токен через AuthRepository
- * - Возвращает AuthState или ошибку
+ * Объединяет получение Firebase токена и верификацию на бэкенде в один вызов.
+ * Используется в [AuthPromptDialog] и других местах, где нужна быстрая
+ * аутентификация без перехода на отдельный экран.
  *
  * @property firebaseAuthApi Firebase Authentication API
  * @property repository Репозиторий аутентификации
  */
-class SignInWithFirebaseUseCase(
+class QuickAuthUseCase(
     private val firebaseAuthApi: FirebaseAuthApi,
     private val repository: AuthRepository,
 ) {
     /**
-     * Выполняет вход через Firebase.
+     * Выполняет быструю аутентификацию через Google/Firebase.
      *
-     * @return Result с AuthState при успехе, или AppError при ошибке
+     * @return Result с AuthState при успехе, или ошибкой при неудаче
      */
     suspend operator fun invoke(): Result<AuthState> {
         val tokenResult = firebaseAuthApi.signInWithGoogle()

@@ -22,8 +22,8 @@ import org.koin.dsl.module
  * - ScreenModels (presentation layer)
  */
 val servicesModule = module {
-    // API Service
-    single { ServicesApiService(get(), get()) }
+    // API Service (Ktor Auth Plugin handles auth automatically)
+    single { ServicesApiService(get()) }
 
     // Repository
     single<ServicesRepository> {

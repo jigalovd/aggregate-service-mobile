@@ -11,6 +11,7 @@ import com.aggregateservice.feature.auth.domain.repository.AuthRepository
 import com.aggregateservice.feature.auth.domain.usecase.InitializeAuthUseCase
 import com.aggregateservice.feature.auth.domain.usecase.LogoutUseCase
 import com.aggregateservice.feature.auth.domain.usecase.ObserveAuthStateUseCase
+import com.aggregateservice.feature.auth.domain.usecase.QuickAuthUseCase
 import com.aggregateservice.feature.auth.domain.usecase.SignInWithFirebaseUseCase
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -30,6 +31,7 @@ val authModule = module {
         AuthRepositoryImpl(
             httpClient = get(),
             tokenStorage = get(),
+            authManager = get(),
         )
     }
 
@@ -40,6 +42,7 @@ val authModule = module {
     singleOf(::InitializeAuthUseCase)
     singleOf(::LogoutUseCase)
     singleOf(::SignInWithFirebaseUseCase)
+    singleOf(::QuickAuthUseCase)
     singleOf(::ObserveAuthStateUseCase)
 
     // AuthStateProvider - abstraction for cross-feature auth access

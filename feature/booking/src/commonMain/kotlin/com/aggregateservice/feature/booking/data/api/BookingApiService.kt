@@ -1,8 +1,6 @@
 package com.aggregateservice.feature.booking.data.api
 
 import com.aggregateservice.core.network.safeApiCall
-import com.aggregateservice.core.network.withAuth
-import com.aggregateservice.core.storage.TokenStorage
 import com.aggregateservice.feature.booking.data.dto.BookingDto
 import com.aggregateservice.feature.booking.data.dto.CancelRequest
 import com.aggregateservice.feature.booking.data.dto.CreateBookingRequest
@@ -36,12 +34,12 @@ import kotlinx.datetime.LocalDate
  * - PATCH  /bookings/{id}/reschedule    - Перенести (auth)
  * - GET    /bookings/slots              - Доступные слоты (auth)
  *
+ * **Auth:** Ktor Auth Plugin handles Authorization header automatically
+ *
  * @property client HTTP клиент (Ktor)
- * @property tokenStorage Token storage for auth header injection
  */
 class BookingApiService(
     private val client: HttpClient,
-    private val tokenStorage: TokenStorage,
 ) {
     /**
      * Создаёт новое бронирование.
@@ -52,7 +50,6 @@ class BookingApiService(
         return safeApiCall<BookingDto> {
             client.post("/api/v1/bookings") {
                 contentType(ContentType.Application.Json)
-                withAuth(tokenStorage)
                 setBody(request)
             }
         }
@@ -67,7 +64,6 @@ class BookingApiService(
         return safeApiCall<BookingDto> {
             client.get("/api/v1/bookings/$bookingId") {
                 contentType(ContentType.Application.Json)
-                withAuth(tokenStorage)
             }
         }
     }
@@ -85,7 +81,6 @@ class BookingApiService(
         return safeApiCall<List<BookingDto>> {
             client.get("/api/v1/bookings/client/me") {
                 contentType(ContentType.Application.Json)
-                withAuth(tokenStorage)
                 status?.let { parameter("status", it) }
                 parameter("page", page)
                 parameter("pageSize", pageSize)
@@ -102,7 +97,6 @@ class BookingApiService(
         return safeApiCall<BookingDto> {
             client.patch("/api/v1/bookings/$bookingId/confirm") {
                 contentType(ContentType.Application.Json)
-                withAuth(tokenStorage)
             }
         }
     }
@@ -116,7 +110,6 @@ class BookingApiService(
         return safeApiCall<BookingDto> {
             client.patch("/api/v1/bookings/$bookingId/cancel") {
                 contentType(ContentType.Application.Json)
-                withAuth(tokenStorage)
                 setBody(request)
             }
         }
@@ -131,7 +124,6 @@ class BookingApiService(
         return safeApiCall<BookingDto> {
             client.patch("/api/v1/bookings/$bookingId/reschedule") {
                 contentType(ContentType.Application.Json)
-                withAuth(tokenStorage)
                 setBody(request)
             }
         }
@@ -150,7 +142,6 @@ class BookingApiService(
         return safeApiCall<List<TimeSlotDto>> {
             client.get("/api/v1/bookings/slots") {
                 contentType(ContentType.Application.Json)
-                withAuth(tokenStorage)
                 parameter("providerId", providerId)
                 parameter("date", date.toString())
                 serviceIds.forEach { parameter("serviceIds", it) }
@@ -170,7 +161,6 @@ class BookingApiService(
         return safeApiCall<List<ServiceDto>> {
             client.get("/api/v1/catalog/providers/$providerId/services") {
                 contentType(ContentType.Application.Json)
-                withAuth(tokenStorage)
             }
         }
     }
