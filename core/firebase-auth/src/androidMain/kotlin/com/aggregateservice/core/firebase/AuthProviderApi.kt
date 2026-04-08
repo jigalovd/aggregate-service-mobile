@@ -54,11 +54,22 @@ actual class AuthProviderApi actual constructor() {
     private suspend fun exchangeGoogleTokenForFirebase(googleIdToken: String): Result<AuthProviderResult> =
         suspendCancellableCoroutine { continuation ->
             val credential = GoogleAuthProvider.getCredential(googleIdToken, null)
+            var resumed = false
+
+            continuation.invokeOnCancellation {
+                // Firebase does not support cancelling signInWithCredential.
+                // Mark as resumed to prevent the callback from crashing.
+                resumed = true
+            }
+
             firebaseAuth.signInWithCredential(credential)
                 .addOnSuccessListener { authResult ->
+                    if (resumed) return@addOnSuccessListener
                     authResult.user?.getIdToken(true)?.addOnSuccessListener { tokenResult ->
+                        if (resumed) return@addOnSuccessListener
                         val firebaseIdToken = tokenResult.token
                         if (firebaseIdToken != null) {
+                            resumed = true
                             continuation.resume(Result.success(
                                 AuthProviderResult(
                                     idToken = firebaseIdToken,
@@ -66,13 +77,18 @@ actual class AuthProviderApi actual constructor() {
                                 )
                             ))
                         } else {
+                            resumed = true
                             continuation.resume(Result.failure(Exception("Firebase ID token is null")))
                         }
                     }?.addOnFailureListener { e ->
+                        if (resumed) return@addOnFailureListener
+                        resumed = true
                         continuation.resume(Result.failure(e))
                     }
                 }
                 .addOnFailureListener { e ->
+                    if (resumed) return@addOnFailureListener
+                    resumed = true
                     continuation.resume(Result.failure(e))
                 }
         }
