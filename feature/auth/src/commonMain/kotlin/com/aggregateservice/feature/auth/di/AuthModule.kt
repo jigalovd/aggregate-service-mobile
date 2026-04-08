@@ -1,54 +1,91 @@
 package com.aggregateservice.feature.auth.di
 
-import com.aggregateservice.core.storage.TokenHolder
-import com.aggregateservice.core.firebase.FirebaseAuthApi
-import com.aggregateservice.core.firebase.FirebaseAuthApiFactory
-import com.aggregateservice.core.navigation.AuthStateProvider
-import com.aggregateservice.core.navigation.AuthNavigator
-import com.aggregateservice.feature.auth.AuthStateProviderImpl
+import com.aggregateservice.core.auth.contract.AuthNavigator
+import com.aggregateservice.core.auth.contract.AuthStateProvider
+import com.aggregateservice.core.auth.contract.InitializeAuthUseCase
+import com.aggregateservice.core.auth.contract.LogoutUseCase
+import com.aggregateservice.core.auth.contract.ObserveAuthStateUseCase
+import com.aggregateservice.core.auth.contract.RefreshTokenUseCase
+import com.aggregateservice.core.auth.contract.SignInUseCase
+import com.aggregateservice.core.auth.impl.AuthStateProviderImpl
+import com.aggregateservice.core.auth.impl.network.createAuthLambdas
+import com.aggregateservice.core.auth.impl.repository.AuthRepository
+import com.aggregateservice.core.auth.impl.repository.AuthRepositoryImpl
+import com.aggregateservice.core.auth.impl.state.AuthStateMachine
+import com.aggregateservice.core.auth.impl.token.TokenManager
+import com.aggregateservice.core.auth.impl.token.TokenManagerImpl
+import com.aggregateservice.core.auth.impl.usecase.InitializeAuthUseCaseImpl
+import com.aggregateservice.core.auth.impl.usecase.LogoutUseCaseImpl
+import com.aggregateservice.core.auth.impl.usecase.ObserveAuthStateUseCaseImpl
+import com.aggregateservice.core.auth.impl.usecase.RefreshTokenUseCaseImpl
+import com.aggregateservice.core.auth.impl.usecase.SignInUseCaseImpl
+import com.aggregateservice.core.config.AppConfig
+import com.aggregateservice.core.firebase.AuthProviderApi
+import com.aggregateservice.core.network.createHttpClient
+import com.aggregateservice.core.storage.TokenStorage
 import com.aggregateservice.feature.auth.AuthNavigatorImpl
-import com.aggregateservice.feature.auth.data.repository.AuthRepositoryImpl
-import com.aggregateservice.feature.auth.domain.repository.AuthRepository
-import com.aggregateservice.feature.auth.domain.usecase.InitializeAuthUseCase
-import com.aggregateservice.feature.auth.domain.usecase.LogoutUseCase
-import com.aggregateservice.feature.auth.domain.usecase.ObserveAuthStateUseCase
-import com.aggregateservice.feature.auth.domain.usecase.QuickAuthUseCase
-import com.aggregateservice.feature.auth.domain.usecase.SignInWithFirebaseUseCase
+import com.aggregateservice.feature.auth.LegacyAuthStateBridge
+import io.ktor.client.HttpClient
 import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
-/**
- * Auth feature DI модуль.
- *
- * Предоставляет зависимости для feature:auth:
- * - Repository (implementation)
- * - UseCases
- * - ScreenModels
- * - AuthStateProvider (for cross-feature access via core:navigation)
- */
 val authModule = module {
-    // Repository
-    single<AuthRepository> {
-        AuthRepositoryImpl(
-            httpClient = get(),
-            tokenHolder = get(),
-            authEventBus = get(),
+    // Core:auth-impl components
+    single<TokenManager> { TokenManagerImpl(get<TokenStorage>()) }
+    single<AuthRepository> { AuthRepositoryImpl(get<HttpClient>()) }
+    single { AuthStateMachine(get(), get()) }
+
+    // HttpClient with auth lambdas (replaces CoreModule's HttpClient)
+    single<HttpClient> {
+        val config = get<AppConfig>()
+        val tokenManager = get<TokenManagerImpl>()
+        val refreshTokenUseCase = get<RefreshTokenUseCase>()
+        val authLambdas = createAuthLambdas(tokenManager, refreshTokenUseCase)
+        createHttpClient(
+            engine = get(),
+            apiBaseUrl = config.apiBaseUrl,
+            apiVersion = config.apiVersion,
+            enableLogging = config.enableLogging,
+            loadTokens = authLambdas.loadTokens,
+            refreshTokens = authLambdas.refreshTokens,
         )
     }
 
-    // Firebase Auth API (platform-specific implementation)
-    single<FirebaseAuthApi> { FirebaseAuthApiFactory.create() }
-
     // UseCases
-    singleOf(::InitializeAuthUseCase)
-    singleOf(::LogoutUseCase)
-    singleOf(::SignInWithFirebaseUseCase)
-    singleOf(::QuickAuthUseCase)
-    singleOf(::ObserveAuthStateUseCase)
+    singleOf(::InitializeAuthUseCaseImpl) bind InitializeAuthUseCase::class
+    single<LogoutUseCase> {
+        LogoutUseCaseImpl(
+            authStateMachine = get(),
+            platformSignOut = { get<AuthProviderApi>().signOut() },
+            repository = get(),
+        )
+    }
+    singleOf(::ObserveAuthStateUseCaseImpl) bind ObserveAuthStateUseCase::class
+    singleOf(::SignInUseCaseImpl) bind SignInUseCase::class
+    singleOf(::RefreshTokenUseCaseImpl) bind RefreshTokenUseCase::class
 
-    // AuthStateProvider - abstraction for cross-feature auth access
-    single<AuthStateProvider> { AuthStateProviderImpl(get()) }
+    // AuthStateProvider
+    singleOf(::AuthStateProviderImpl) bind AuthStateProvider::class
 
-    // AuthNavigator - abstraction for cross-feature auth navigation
-    single<AuthNavigator> { AuthNavigatorImpl() }
+    // Legacy bridge for features still using core.navigation.AuthStateProvider (removed in Task 19)
+    single<com.aggregateservice.core.navigation.AuthStateProvider> {
+        LegacyAuthStateBridge(get())
+    }
+
+    // Firebase Auth
+    single { AuthProviderApi() }
+
+    // AuthNavigator (presentation)
+    singleOf(::AuthNavigatorImpl) bind AuthNavigator::class
+
+    // Legacy AuthNavigator for features still using core.navigation.AuthNavigator (removed in Task 19)
+    single<com.aggregateservice.core.navigation.AuthNavigator> {
+        object : com.aggregateservice.core.navigation.AuthNavigator {
+            override fun createLoginScreen(): cafe.adriel.voyager.core.screen.Screen =
+                get<AuthNavigatorImpl>().createLoginScreen()
+            override fun createRegisterScreen(): cafe.adriel.voyager.core.screen.Screen? =
+                get<AuthNavigatorImpl>().createRegisterScreen()
+        }
+    }
 }

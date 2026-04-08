@@ -2,7 +2,7 @@ package com.aggregateservice.feature.profile.presentation.screenmodel
 
 import cafe.adriel.voyager.navigator.Navigator
 import com.aggregateservice.core.navigation.CatalogNavigator
-import com.aggregateservice.feature.auth.domain.usecase.LogoutUseCase
+import com.aggregateservice.core.auth.contract.LogoutUseCase
 import com.aggregateservice.feature.profile.domain.model.Profile
 import com.aggregateservice.feature.profile.domain.model.UpdateProfileRequest
 import com.aggregateservice.feature.profile.domain.repository.ProfileRepository

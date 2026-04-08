@@ -5,7 +5,7 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import cafe.adriel.voyager.navigator.Navigator
 import com.aggregateservice.core.navigation.CatalogNavigator
 import com.aggregateservice.core.network.toAppError
-import com.aggregateservice.feature.auth.domain.usecase.LogoutUseCase
+import com.aggregateservice.core.auth.contract.LogoutUseCase
 import com.aggregateservice.feature.profile.domain.model.UpdateProfileRequest
 import com.aggregateservice.feature.profile.domain.usecase.GetProfileUseCase
 import com.aggregateservice.feature.profile.domain.usecase.UpdateProfileUseCase

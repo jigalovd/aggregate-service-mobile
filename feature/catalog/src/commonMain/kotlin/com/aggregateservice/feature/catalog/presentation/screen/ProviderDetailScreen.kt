@@ -90,15 +90,11 @@ data class ProviderDetailScreen(
             screenModel.initialize(providerId)
         }
 
-        if (showAuthPrompt && authTrigger != null) {
+        if (showAuthPrompt) {
             AuthPromptDialog(
-                i18nProvider = i18nProvider,
-                trigger = authTrigger!!,
+                email = "",
+                authProvider = "",
                 onDismiss = {
-                    showAuthPrompt = false
-                    authTrigger = null
-                },
-                onAuthSuccess = {
                     showAuthPrompt = false
                     authTrigger = null
                 },

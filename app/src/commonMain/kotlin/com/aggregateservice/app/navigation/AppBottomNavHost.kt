@@ -45,8 +45,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.Navigator
-import com.aggregateservice.core.navigation.AuthStateProvider
-import com.aggregateservice.feature.auth.domain.usecase.InitializeAuthUseCase
+import com.aggregateservice.core.auth.contract.AuthStateProvider
+import com.aggregateservice.core.auth.contract.InitializeAuthUseCase
+import com.aggregateservice.core.auth.state.AuthState
 import com.aggregateservice.feature.catalog.presentation.screenmodel.SearchScreenModel
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -69,8 +70,9 @@ fun AppBottomNavHost(
 ) {
     val authStateProvider: AuthStateProvider = koinInject()
     val initializeAuthUseCase: InitializeAuthUseCase = koinInject()
-    val isAuthenticated by authStateProvider.isAuthenticatedFlow.collectAsState(initial = false)
-    val currentUserId by authStateProvider.currentUserIdFlow.collectAsState(initial = null)
+    val authState by authStateProvider.authState.collectAsState()
+    val isAuthenticated = authState is AuthState.Authenticated
+    val currentUserId = (authState as? AuthState.Authenticated)?.userId
     val coroutineScope = rememberCoroutineScope()
 
     // Initialize auth state on first composition (silent re-login)

@@ -9,14 +9,19 @@ android {
 kotlin {
     sourceSets {
         maybeCreate("commonMain").dependencies {
-            // Core modules
-            implementation(project(":core:navigation"))
-            implementation(project(":core:i18n"))
+            // Core modules - NOW DEPENDS ON core:auth-api and core:auth-impl
+            implementation(project(":core:auth-api"))
+            implementation(project(":core:auth-impl"))
             implementation(project(":core:firebase-auth"))
+            implementation(project(":core:i18n"))
+            implementation(project(":core:config"))
+            implementation(project(":core:storage"))
+            implementation(project(":core:network"))
 
-            // Network (для Repository)
+            // Network
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.auth)
             implementation(libs.ktor.serialization.kotlinx.json)
 
             // DI

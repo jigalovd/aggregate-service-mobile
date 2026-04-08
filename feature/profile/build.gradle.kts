@@ -21,6 +21,9 @@ kotlin {
             // i18n for localized strings
             implementation(project(":core:i18n"))
 
+            // Auth contracts (LogoutUseCase, etc.)
+            implementation(project(":core:auth-api"))
+
             // Auth state access via core:navigation abstraction
             // AuthStateProvider is implemented by feature:auth and injected via Koin
             implementation(project(":core:navigation"))
