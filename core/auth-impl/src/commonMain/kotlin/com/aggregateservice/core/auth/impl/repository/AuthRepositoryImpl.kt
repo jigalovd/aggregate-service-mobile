@@ -41,8 +41,12 @@ class AuthRepositoryImpl(
         }
     }
 
-    override suspend fun logout(): Result<Unit> = safeApiCall {
-        httpClient.post("/api/v1/auth/logout")
+    override suspend fun logout() {
+        runCatching {
+            safeApiCall<Unit> {
+                httpClient.post("/api/v1/auth/logout")
+            }
+        }
     }
 
     override suspend fun getCurrentUser(): Result<UserResponse> = safeApiCall {
