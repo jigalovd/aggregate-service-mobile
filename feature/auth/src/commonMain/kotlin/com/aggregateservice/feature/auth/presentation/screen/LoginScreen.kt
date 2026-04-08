@@ -42,9 +42,10 @@ class LoginScreen : Screen {
         val signInUseCase: SignInUseCase = koinInject()
         val authStateProvider: AuthStateProvider = koinInject()
         val authProviderApi: AuthProviderApi = koinInject()
-        val screenModel = rememberScreenModel {
-            LoginScreenModel(signInUseCase, authStateProvider, authProviderApi)
-        }
+        val screenModel =
+            rememberScreenModel {
+                LoginScreenModel(signInUseCase, authStateProvider, authProviderApi)
+            }
         val uiState by screenModel.uiState.collectAsState()
         val context = LocalContext.current
 
@@ -56,9 +57,10 @@ class LoginScreen : Screen {
 
         Scaffold { paddingValues ->
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
                 contentAlignment = Alignment.Center,
             ) {
                 Column(
@@ -91,7 +93,7 @@ class LoginScreen : Screen {
                                     screenModel.signIn(platformContext)
                                 } else {
                                     screenModel.setError(
-                                        "Unable to obtain platform context for sign-in"
+                                        "Unable to obtain platform context for sign-in",
                                     )
                                 }
                             },

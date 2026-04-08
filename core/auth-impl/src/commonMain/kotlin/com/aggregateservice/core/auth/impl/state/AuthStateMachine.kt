@@ -27,38 +27,41 @@ class AuthStateMachine(
         val userResult = repository.getCurrentUser()
         userResult.fold(
             onSuccess = { user ->
-                _state.value = AuthState.Authenticated(
-                    userId = user.id,
-                    email = user.email,
-                    roles = user.roles.toSet(),
-                    currentRole = user.currentRole,
-                )
+                _state.value =
+                    AuthState.Authenticated(
+                        userId = user.id,
+                        email = user.email,
+                        roles = user.roles.toSet(),
+                        currentRole = user.currentRole,
+                    )
             },
             onFailure = {
                 // Access token expired — attempt refresh before giving up.
                 // Timeout prevents slow refresh from blocking startup.
-                val refreshed = withTimeoutOrNull(REFRESH_TIMEOUT_MS) {
-                    val refreshResult = refreshTokenUseCase()
-                    if (refreshResult.isSuccess) {
-                        // Retry with new token
-                        val retryResult = repository.getCurrentUser()
-                        retryResult.fold(
-                            onSuccess = { user ->
-                                _state.value = AuthState.Authenticated(
-                                    userId = user.id,
-                                    email = user.email,
-                                    roles = user.roles.toSet(),
-                                    currentRole = user.currentRole,
-                                )
-                            },
-                            onFailure = {
-                                emitGuest()
-                            },
-                        )
-                    } else {
-                        emitGuest()
+                val refreshed =
+                    withTimeoutOrNull(REFRESH_TIMEOUT_MS) {
+                        val refreshResult = refreshTokenUseCase()
+                        if (refreshResult.isSuccess) {
+                            // Retry with new token
+                            val retryResult = repository.getCurrentUser()
+                            retryResult.fold(
+                                onSuccess = { user ->
+                                    _state.value =
+                                        AuthState.Authenticated(
+                                            userId = user.id,
+                                            email = user.email,
+                                            roles = user.roles.toSet(),
+                                            currentRole = user.currentRole,
+                                        )
+                                },
+                                onFailure = {
+                                    emitGuest()
+                                },
+                            )
+                        } else {
+                            emitGuest()
+                        }
                     }
-                }
                 // withTimeoutOrNull returns null on timeout — fall back to Guest
                 if (refreshed == null) {
                     emitGuest()
@@ -75,12 +78,13 @@ class AuthStateMachine(
         currentRole: String?,
     ) {
         tokenManager.setTokens(accessToken)
-        _state.value = AuthState.Authenticated(
-            userId = userId,
-            email = email,
-            roles = roles,
-            currentRole = currentRole,
-        )
+        _state.value =
+            AuthState.Authenticated(
+                userId = userId,
+                email = email,
+                roles = roles,
+                currentRole = currentRole,
+            )
     }
 
     suspend fun emitGuest() {

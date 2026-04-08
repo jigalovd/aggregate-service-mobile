@@ -42,12 +42,12 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.aggregateservice.core.auth.contract.AuthNavigator
+import com.aggregateservice.core.auth.contract.AuthPromptTrigger
+import com.aggregateservice.core.auth.contract.AuthStateProvider
+import com.aggregateservice.core.auth.state.AuthState
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
-import com.aggregateservice.core.auth.contract.AuthNavigator
-import com.aggregateservice.core.auth.contract.AuthStateProvider
-import com.aggregateservice.core.auth.contract.AuthPromptTrigger
-import com.aggregateservice.core.auth.state.AuthState
 import com.aggregateservice.core.navigation.BookingNavigator
 import com.aggregateservice.core.navigation.executeProtectedAction
 import com.aggregateservice.core.theme.Spacing

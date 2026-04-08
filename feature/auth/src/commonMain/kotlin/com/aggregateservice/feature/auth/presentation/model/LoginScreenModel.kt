@@ -18,7 +18,6 @@ class LoginScreenModel(
     private val authStateProvider: AuthStateProvider,
     private val authProviderApi: AuthProviderApi,
 ) : ScreenModel {
-
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
@@ -34,10 +33,11 @@ class LoginScreenModel(
     }
 
     fun setError(message: String) {
-        _uiState.value = _uiState.value.copy(
-            isLoading = false,
-            errorMessage = message,
-        )
+        _uiState.value =
+            _uiState.value.copy(
+                isLoading = false,
+                errorMessage = message,
+            )
     }
 
     fun signIn(context: PlatformAuthContext) {
@@ -53,18 +53,20 @@ class LoginScreenModel(
                             _uiState.value = _uiState.value.copy(isLoading = false)
                         },
                         onFailure = {
-                            _uiState.value = _uiState.value.copy(
-                                isLoading = false,
-                                errorMessage = it.message,
-                            )
+                            _uiState.value =
+                                _uiState.value.copy(
+                                    isLoading = false,
+                                    errorMessage = it.message,
+                                )
                         },
                     )
                 },
                 onFailure = {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = it.message,
-                    )
+                    _uiState.value =
+                        _uiState.value.copy(
+                            isLoading = false,
+                            errorMessage = it.message,
+                        )
                 },
             )
         }

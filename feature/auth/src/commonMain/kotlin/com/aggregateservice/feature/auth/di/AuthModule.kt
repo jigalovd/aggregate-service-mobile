@@ -28,63 +28,66 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
-val authModule = module {
-    // Core:auth-impl components
-    single<TokenManager> { TokenManagerImpl(get<TokenStorage>()) }
-    single<AuthRepository> { AuthRepositoryImpl(get<HttpClient>()) }
-    single { AuthStateMachine(get(), get(), get()) }
+val authModule =
+    module {
+        // Core:auth-impl components
+        single<TokenManager> { TokenManagerImpl(get<TokenStorage>()) }
+        single<AuthRepository> { AuthRepositoryImpl(get<HttpClient>()) }
+        single { AuthStateMachine(get(), get(), get()) }
 
-    // HttpClient with auth lambdas (replaces CoreModule's HttpClient)
-    // NOTE: refreshTokens lambda resolves RefreshTokenUseCase lazily to break
-    // circular dependency: HttpClient → RefreshTokenUseCase → AuthRepository → HttpClient
-    single<HttpClient> {
-        val koin = getKoin()
-        val config = get<AppConfig>()
-        val tokenManager = get<TokenManager>()
-        createHttpClient(
-            engine = get(),
-            apiBaseUrl = config.apiBaseUrl,
-            apiVersion = config.apiVersion,
-            enableLogging = config.enableLogging,
-            loadTokens = {
-                tokenManager.getAccessToken()?.let {
-                    io.ktor.client.plugins.auth.providers.BearerTokens(accessToken = it, refreshToken = "")
-                }
-            },
-            refreshTokens = {
-                val useCase: RefreshTokenUseCase = koin.get()
-                useCase().getOrNull()?.let {
-                    io.ktor.client.plugins.auth.providers.BearerTokens(accessToken = it, refreshToken = "")
-                }
-            },
-        )
+        // HttpClient with auth lambdas (replaces CoreModule's HttpClient)
+        // NOTE: refreshTokens lambda resolves RefreshTokenUseCase lazily to break
+        // circular dependency: HttpClient → RefreshTokenUseCase → AuthRepository → HttpClient
+        single<HttpClient> {
+            val koin = getKoin()
+            val config = get<AppConfig>()
+            val tokenManager = get<TokenManager>()
+            createHttpClient(
+                engine = get(),
+                apiBaseUrl = config.apiBaseUrl,
+                apiVersion = config.apiVersion,
+                enableLogging = config.enableLogging,
+                loadTokens = {
+                    tokenManager.getAccessToken()?.let {
+                        io.ktor.client.plugins.auth.providers
+                            .BearerTokens(accessToken = it, refreshToken = "")
+                    }
+                },
+                refreshTokens = {
+                    val useCase: RefreshTokenUseCase = koin.get()
+                    useCase().getOrNull()?.let {
+                        io.ktor.client.plugins.auth.providers
+                            .BearerTokens(accessToken = it, refreshToken = "")
+                    }
+                },
+            )
+        }
+
+        // UseCases
+        singleOf(::InitializeAuthUseCaseImpl) bind InitializeAuthUseCase::class
+        single<LogoutUseCase> {
+            LogoutUseCaseImpl(
+                authStateMachine = get(),
+                platformSignOut = { get<AuthProviderApi>().signOut() },
+                repository = get(),
+            )
+        }
+        singleOf(::ObserveAuthStateUseCaseImpl) bind ObserveAuthStateUseCase::class
+        singleOf(::SignInUseCaseImpl) bind SignInUseCase::class
+        single<RefreshTokenUseCase> {
+            RefreshTokenUseCaseImpl(
+                tokenManager = get(),
+                repository = get(),
+                onRefreshFailed = { get<AuthStateMachine>().emitGuest() },
+            )
+        }
+
+        // AuthStateProvider
+        singleOf(::AuthStateProviderImpl) bind AuthStateProvider::class
+
+        // Firebase Auth
+        single { AuthProviderApi() }
+
+        // AuthNavigator (presentation)
+        singleOf(::AuthNavigatorImpl) bind AuthNavigator::class
     }
-
-    // UseCases
-    singleOf(::InitializeAuthUseCaseImpl) bind InitializeAuthUseCase::class
-    single<LogoutUseCase> {
-        LogoutUseCaseImpl(
-            authStateMachine = get(),
-            platformSignOut = { get<AuthProviderApi>().signOut() },
-            repository = get(),
-        )
-    }
-    singleOf(::ObserveAuthStateUseCaseImpl) bind ObserveAuthStateUseCase::class
-    singleOf(::SignInUseCaseImpl) bind SignInUseCase::class
-    single<RefreshTokenUseCase> {
-        RefreshTokenUseCaseImpl(
-            tokenManager = get(),
-            repository = get(),
-            onRefreshFailed = { get<AuthStateMachine>().emitGuest() },
-        )
-    }
-
-    // AuthStateProvider
-    singleOf(::AuthStateProviderImpl) bind AuthStateProvider::class
-
-    // Firebase Auth
-    single { AuthProviderApi() }
-
-    // AuthNavigator (presentation)
-    singleOf(::AuthNavigatorImpl) bind AuthNavigator::class
-}

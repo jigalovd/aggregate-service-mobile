@@ -21,17 +21,18 @@ class RefreshTokenUseCaseImpl(
 ) : RefreshTokenUseCase {
     private val refreshMutex = Mutex()
 
-    override suspend fun invoke(): Result<String> = refreshMutex.withLock {
-        val result = repository.refreshToken()
-        result.fold(
-            onSuccess = { response ->
-                tokenManager.setTokens(response.accessToken)
-                Result.success(response.accessToken)
-            },
-            onFailure = {
-                onRefreshFailed()
-                Result.failure(it)
-            },
-        )
-    }
+    override suspend fun invoke(): Result<String> =
+        refreshMutex.withLock {
+            val result = repository.refreshToken()
+            result.fold(
+                onSuccess = { response ->
+                    tokenManager.setTokens(response.accessToken)
+                    Result.success(response.accessToken)
+                },
+                onFailure = {
+                    onRefreshFailed()
+                    Result.failure(it)
+                },
+            )
+        }
 }

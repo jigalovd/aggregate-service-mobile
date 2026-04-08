@@ -28,19 +28,24 @@ actual class AuthProviderApi actual constructor() {
             try {
                 val cm = getCredentialManager(context)
 
-                val googleIdOption = GetGoogleIdOption.Builder()
-                    .setFilterByAuthorizedAccounts(false)
-                    .setServerClientId(BuildConfig.GOOGLE_SERVER_CLIENT_ID)
-                    .build()
+                val googleIdOption =
+                    GetGoogleIdOption
+                        .Builder()
+                        .setFilterByAuthorizedAccounts(false)
+                        .setServerClientId(BuildConfig.GOOGLE_SERVER_CLIENT_ID)
+                        .build()
 
-                val request = GetCredentialRequest.Builder()
-                    .addCredentialOption(googleIdOption)
-                    .build()
+                val request =
+                    GetCredentialRequest
+                        .Builder()
+                        .addCredentialOption(googleIdOption)
+                        .build()
 
-                val result = cm.getCredential(
-                    request = request,
-                    context = context,
-                )
+                val result =
+                    cm.getCredential(
+                        request = request,
+                        context = context,
+                    )
 
                 val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(result.credential.data)
                 val googleIdToken = googleIdTokenCredential.idToken
@@ -62,31 +67,35 @@ actual class AuthProviderApi actual constructor() {
                 resumed = true
             }
 
-            firebaseAuth.signInWithCredential(credential)
+            firebaseAuth
+                .signInWithCredential(credential)
                 .addOnSuccessListener { authResult ->
                     if (resumed) return@addOnSuccessListener
-                    authResult.user?.getIdToken(true)?.addOnSuccessListener { tokenResult ->
-                        if (resumed) return@addOnSuccessListener
-                        val firebaseIdToken = tokenResult.token
-                        if (firebaseIdToken != null) {
-                            resumed = true
-                            continuation.resume(Result.success(
-                                AuthProviderResult(
-                                    idToken = firebaseIdToken,
-                                    provider = AuthProvider.GOOGLE,
+                    authResult.user
+                        ?.getIdToken(true)
+                        ?.addOnSuccessListener { tokenResult ->
+                            if (resumed) return@addOnSuccessListener
+                            val firebaseIdToken = tokenResult.token
+                            if (firebaseIdToken != null) {
+                                resumed = true
+                                continuation.resume(
+                                    Result.success(
+                                        AuthProviderResult(
+                                            idToken = firebaseIdToken,
+                                            provider = AuthProvider.GOOGLE,
+                                        ),
+                                    ),
                                 )
-                            ))
-                        } else {
+                            } else {
+                                resumed = true
+                                continuation.resume(Result.failure(Exception("Firebase ID token is null")))
+                            }
+                        }?.addOnFailureListener { e ->
+                            if (resumed) return@addOnFailureListener
                             resumed = true
-                            continuation.resume(Result.failure(Exception("Firebase ID token is null")))
+                            continuation.resume(Result.failure(e))
                         }
-                    }?.addOnFailureListener { e ->
-                        if (resumed) return@addOnFailureListener
-                        resumed = true
-                        continuation.resume(Result.failure(e))
-                    }
-                }
-                .addOnFailureListener { e ->
+                }.addOnFailureListener { e ->
                     if (resumed) return@addOnFailureListener
                     resumed = true
                     continuation.resume(Result.failure(e))

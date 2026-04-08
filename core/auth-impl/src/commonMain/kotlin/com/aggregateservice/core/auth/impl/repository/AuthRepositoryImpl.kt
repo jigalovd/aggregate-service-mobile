@@ -16,30 +16,31 @@ import kotlinx.serialization.Serializable
 class AuthRepositoryImpl(
     private val httpClient: HttpClient,
 ) : AuthRepository {
-
     override suspend fun verifyFirebaseToken(
         provider: String,
         token: String,
-    ): Result<VerifyResult> = safeApiCall<AuthResponse> {
-        httpClient.post("/api/v1/auth/provider/verify") {
-            contentType(ContentType.Application.Json)
-            setBody(FirebaseVerifyRequest(firebaseToken = token, provider = provider))
+    ): Result<VerifyResult> =
+        safeApiCall<AuthResponse> {
+            httpClient.post("/api/v1/auth/provider/verify") {
+                contentType(ContentType.Application.Json)
+                setBody(FirebaseVerifyRequest(firebaseToken = token, provider = provider))
+            }
+        }.map { response: AuthResponse ->
+            VerifyResult.Authenticated(
+                accessToken = response.accessToken,
+                userId = response.user.id,
+                email = response.user.email,
+                roles = response.user.roles.toSet(),
+                currentRole = response.user.currentRole,
+            )
         }
-    }.map { response: AuthResponse ->
-        VerifyResult.Authenticated(
-            accessToken = response.accessToken,
-            userId = response.user.id,
-            email = response.user.email,
-            roles = response.user.roles.toSet(),
-            currentRole = response.user.currentRole,
-        )
-    }
 
-    override suspend fun refreshToken(): Result<RefreshTokenResponse> = safeApiCall {
-        httpClient.post("/api/v1/auth/refresh") {
-            contentType(ContentType.Application.Json)
+    override suspend fun refreshToken(): Result<RefreshTokenResponse> =
+        safeApiCall {
+            httpClient.post("/api/v1/auth/refresh") {
+                contentType(ContentType.Application.Json)
+            }
         }
-    }
 
     override suspend fun logout() {
         runCatching {
@@ -49,9 +50,10 @@ class AuthRepositoryImpl(
         }
     }
 
-    override suspend fun getCurrentUser(): Result<UserResponse> = safeApiCall {
-        httpClient.get("/api/v1/auth/me")
-    }
+    override suspend fun getCurrentUser(): Result<UserResponse> =
+        safeApiCall {
+            httpClient.get("/api/v1/auth/me")
+        }
 }
 
 @Serializable
