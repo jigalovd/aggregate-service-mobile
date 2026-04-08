@@ -19,6 +19,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
@@ -27,6 +28,9 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.aggregateservice.core.auth.contract.AuthStateProvider
 import com.aggregateservice.core.auth.contract.SignInUseCase
 import com.aggregateservice.core.firebase.AuthProviderApi
+import com.aggregateservice.core.firebase.PlatformAuthContext
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.feature.auth.presentation.model.LoginScreenModel
 import org.koin.compose.koinInject
 
@@ -34,6 +38,7 @@ class LoginScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val i18nProvider: I18nProvider = koinInject()
         val signInUseCase: SignInUseCase = koinInject()
         val authStateProvider: AuthStateProvider = koinInject()
         val authProviderApi: AuthProviderApi = koinInject()
@@ -41,6 +46,7 @@ class LoginScreen : Screen {
             LoginScreenModel(signInUseCase, authStateProvider, authProviderApi)
         }
         val uiState by screenModel.uiState.collectAsState()
+        val context = LocalContext.current
 
         LaunchedEffect(uiState.isLoginSuccess) {
             if (uiState.isLoginSuccess) {
@@ -61,14 +67,14 @@ class LoginScreen : Screen {
                     modifier = Modifier.padding(32.dp),
                 ) {
                     Text(
-                        text = "Sign In",
+                        text = i18nProvider[StringKey.Auth.SIGN_IN_TITLE],
                         style = MaterialTheme.typography.headlineMedium,
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        text = "Book beauty and fitness services near you",
+                        text = i18nProvider[StringKey.Auth.SIGN_IN_SUBTITLE],
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -80,15 +86,19 @@ class LoginScreen : Screen {
                     } else {
                         Button(
                             onClick = {
-                                // TODO: Pass PlatformAuthContext from platform entry point.
-                                // On Android, this should be the Activity context.
-                                // On iOS, a different approach is needed.
-                                // For now, this requires platform-specific wiring.
+                                val platformContext = context as? PlatformAuthContext
+                                if (platformContext != null) {
+                                    screenModel.signIn(platformContext)
+                                } else {
+                                    screenModel.setError(
+                                        "Unable to obtain platform context for sign-in"
+                                    )
+                                }
                             },
                             modifier = Modifier.fillMaxWidth(),
                             enabled = !uiState.isLoading,
                         ) {
-                            Text("Sign in with Google")
+                            Text(i18nProvider[StringKey.Auth.SIGN_IN_WITH_GOOGLE])
                         }
                     }
 

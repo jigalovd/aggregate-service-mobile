@@ -33,6 +33,13 @@ class LoginScreenModel(
         }
     }
 
+    fun setError(message: String) {
+        _uiState.value = _uiState.value.copy(
+            isLoading = false,
+            errorMessage = message,
+        )
+    }
+
     fun signIn(context: PlatformAuthContext) {
         screenModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
