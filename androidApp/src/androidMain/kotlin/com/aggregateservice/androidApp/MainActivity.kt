@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.aggregateservice.core.firebase.FirebaseAuthApi
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.location.LocationProvider
 import com.aggregateservice.app.navigation.AppBottomNavHost
@@ -31,16 +30,12 @@ import androidx.activity.enableEdgeToEdge
 class MainActivity : ComponentActivity() {
 
     private val i18nProvider: I18nProvider by inject(I18nProvider::class.java)
-    private val firebaseAuthApi: FirebaseAuthApi by inject(FirebaseAuthApi::class.java)
     private val locationProvider: LocationProvider by inject(LocationProvider::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
-
-        // Inject Activity into FirebaseAuthApi for Google Sign-In
-        firebaseAuthApi.setActivity(this)
 
         // Set Activity for LocationProvider per D-07
         locationProvider.setActivity(this)
