@@ -38,9 +38,6 @@ kotlin {
 
             // Favorites use cases for checking/managing favorite status on provider detail
             implementation(project(":feature:favorites"))
-
-            // AuthPromptDialog for auth flow (ProviderDetailScreen triggers auth prompt)
-            implementation(project(":feature:auth"))
         }
 
         maybeCreate("commonTest").dependencies {

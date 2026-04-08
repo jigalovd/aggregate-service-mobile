@@ -31,7 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -45,13 +44,13 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
+import com.aggregateservice.core.auth.contract.AuthNavigator
 import com.aggregateservice.core.auth.contract.AuthStateProvider
+import com.aggregateservice.core.auth.contract.AuthPromptTrigger
 import com.aggregateservice.core.auth.state.AuthState
-import com.aggregateservice.core.navigation.AuthPromptTrigger
 import com.aggregateservice.core.navigation.BookingNavigator
 import com.aggregateservice.core.navigation.executeProtectedAction
 import com.aggregateservice.core.theme.Spacing
-import com.aggregateservice.feature.auth.presentation.component.AuthPromptDialog
 import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.domain.model.Service
 import com.aggregateservice.feature.catalog.presentation.model.ProviderDetailUiState
@@ -81,25 +80,14 @@ data class ProviderDetailScreen(
         // Booking navigator for cross-feature navigation
         val bookingNavigator: BookingNavigator = koinInject()
 
+        // Auth navigator for login screen (replaces AuthPromptDialog)
+        val authNavigator: AuthNavigator = koinInject()
+
         // i18n provider for localized strings
         val i18nProvider: I18nProvider = koinInject()
 
-        var showAuthPrompt by remember { mutableStateOf(false) }
-        var authTrigger by remember { mutableStateOf<AuthPromptTrigger?>(null) }
-
         LaunchedEffect(providerId) {
             screenModel.initialize(providerId)
-        }
-
-        if (showAuthPrompt) {
-            AuthPromptDialog(
-                email = "",
-                authProvider = "",
-                onDismiss = {
-                    showAuthPrompt = false
-                    authTrigger = null
-                },
-            )
         }
 
         ProviderDetailScreenContent(
@@ -109,10 +97,9 @@ data class ProviderDetailScreen(
             onFavoriteToggle = {
                 executeProtectedAction(
                     isAuthenticated = isAuthenticated,
-                    trigger = AuthPromptTrigger.Favorites,
-                    onShowPrompt = { trigger ->
-                        authTrigger = trigger
-                        showAuthPrompt = true
+                    trigger = AuthPromptTrigger.FAVORITES,
+                    onShowPrompt = { _ ->
+                        navigator.push(authNavigator.createLoginScreen())
                     },
                     action = screenModel::onFavoriteToggle,
                 )
@@ -124,10 +111,9 @@ data class ProviderDetailScreen(
             onBookClick = {
                 executeProtectedAction(
                     isAuthenticated = isAuthenticated,
-                    trigger = AuthPromptTrigger.Booking,
-                    onShowPrompt = { trigger ->
-                        authTrigger = trigger
-                        showAuthPrompt = true
+                    trigger = AuthPromptTrigger.BOOKING,
+                    onShowPrompt = { _ ->
+                        navigator.push(authNavigator.createLoginScreen())
                     },
                 ) {
                     uiState.provider?.let { provider ->
