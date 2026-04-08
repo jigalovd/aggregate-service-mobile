@@ -13,6 +13,7 @@ kotlin {
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.transitions)
             implementation(libs.voyager.screenModel)
+            implementation(project(":core:auth-api"))
             // ❌ НЕ добавляем зависимость на feature:auth
             // Это вызовет циклическую зависимость:
             // core:di → core:navigation → feature:auth → core:di

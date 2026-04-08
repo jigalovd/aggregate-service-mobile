@@ -1,27 +1,7 @@
 package com.aggregateservice.core.navigation
 
 import androidx.compose.runtime.Composable
-
-/**
- * Triggers for authentication prompts.
- * Used to identify which action requires authentication.
- */
-enum class AuthPromptTrigger {
-    /**
-     * User attempted to book a service.
-     */
-    Booking,
-
-    /**
-     * User attempted to leave a review.
-     */
-    Review,
-
-    /**
-     * User attempted to add to favorites.
-     */
-    Favorites,
-}
+import com.aggregateservice.core.auth.contract.AuthPromptTrigger
 
 /**
  * Guard component that requires authentication for protected actions.
@@ -30,7 +10,7 @@ enum class AuthPromptTrigger {
  * ```kotlin
  * AuthGuard(
  *     isAuthenticated = authState.isAuthenticated,
- *     trigger = AuthPromptTrigger.Booking,
+ *     trigger = AuthPromptTrigger.BOOKING,
  *     onShowPrompt = { trigger -> showAuthPrompt(trigger) },
  *     content = { BookingButton() }
  * )
@@ -68,7 +48,7 @@ fun AuthGuard(
  *
  * **Usage:**
  * ```kotlin
- * onProtectedAction(AuthPromptTrigger.Booking) {
+ * onProtectedAction(AuthPromptTrigger.BOOKING) {
  *     // This only runs if user is authenticated
  *     navigator.push(BookingScreen(providerId))
  * }
