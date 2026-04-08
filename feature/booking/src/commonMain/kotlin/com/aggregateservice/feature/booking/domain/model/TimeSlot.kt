@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.time.ExperimentalTime::class)
+
 package com.aggregateservice.feature.booking.domain.model
 
 import kotlinx.datetime.Instant

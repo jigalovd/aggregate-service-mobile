@@ -24,7 +24,6 @@ import com.aggregateservice.core.firebase.AuthProviderApi
 import com.aggregateservice.core.network.createHttpClient
 import com.aggregateservice.core.storage.TokenStorage
 import com.aggregateservice.feature.auth.AuthNavigatorImpl
-import com.aggregateservice.feature.auth.LegacyAuthStateBridge
 import io.ktor.client.HttpClient
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
@@ -68,24 +67,9 @@ val authModule = module {
     // AuthStateProvider
     singleOf(::AuthStateProviderImpl) bind AuthStateProvider::class
 
-    // Legacy bridge for features still using core.navigation.AuthStateProvider (removed in Task 19)
-    single<com.aggregateservice.core.navigation.AuthStateProvider> {
-        LegacyAuthStateBridge(get())
-    }
-
     // Firebase Auth
     single { AuthProviderApi() }
 
     // AuthNavigator (presentation)
     singleOf(::AuthNavigatorImpl) bind AuthNavigator::class
-
-    // Legacy AuthNavigator for features still using core.navigation.AuthNavigator (removed in Task 19)
-    single<com.aggregateservice.core.navigation.AuthNavigator> {
-        object : com.aggregateservice.core.navigation.AuthNavigator {
-            override fun createLoginScreen(): cafe.adriel.voyager.core.screen.Screen =
-                get<AuthNavigatorImpl>().createLoginScreen()
-            override fun createRegisterScreen(): cafe.adriel.voyager.core.screen.Screen? =
-                get<AuthNavigatorImpl>().createRegisterScreen()
-        }
-    }
 }

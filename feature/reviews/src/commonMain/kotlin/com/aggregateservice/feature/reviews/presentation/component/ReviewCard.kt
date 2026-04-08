@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.time.ExperimentalTime::class)
+
 package com.aggregateservice.feature.reviews.presentation.component
 
 import com.aggregateservice.core.theme.Spacing
@@ -20,11 +22,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.aggregateservice.feature.reviews.domain.model.ProviderReply
 import com.aggregateservice.feature.reviews.domain.model.Review
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.math.abs
+import kotlin.time.Clock
 
 /**
  * Card component for displaying a review.

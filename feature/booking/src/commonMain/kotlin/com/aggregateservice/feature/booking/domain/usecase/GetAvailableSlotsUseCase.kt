@@ -1,12 +1,14 @@
+@file:OptIn(kotlin.time.ExperimentalTime::class)
+
 package com.aggregateservice.feature.booking.domain.usecase
 
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.booking.domain.model.TimeSlot
 import com.aggregateservice.feature.booking.domain.repository.BookingRepository
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import kotlin.time.Clock
 
 /**
  * UseCase для получения доступных временных слотов.

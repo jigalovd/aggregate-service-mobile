@@ -7,6 +7,10 @@ android {
 }
 
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-opt-in=kotlin.time.ExperimentalTime")
+    }
+
     sourceSets {
         maybeCreate("commonMain").dependencies {
             implementation(libs.ktor.client.core)
@@ -23,11 +27,8 @@ kotlin {
             // i18n for localized strings
             implementation(project(":core:i18n"))
 
-            // Auth state access via core:navigation abstraction
-            // AuthStateProvider is implemented by feature:auth and injected via Koin
-
-            // Firebase Auth API types (FirebaseToken) for auth callback
-            implementation(project(":core:firebase-auth"))
+            // Auth state access via core:auth-api contracts
+            implementation(project(":core:auth-api"))
 
             // LocationProvider for geo-based provider search
             implementation(project(":core:location"))
@@ -35,13 +36,11 @@ kotlin {
             // Shared Location type
             implementation(project(":core:common"))
 
-            // AuthRepository for verifyFirebaseToken after Firebase Auth completes
-            // This is needed because ProviderDetailScreen triggers auth flow via AuthPromptDialog
-            // and needs to complete the backend verification
-            implementation(project(":feature:auth"))
-
             // Favorites use cases for checking/managing favorite status on provider detail
             implementation(project(":feature:favorites"))
+
+            // AuthPromptDialog for auth flow (ProviderDetailScreen triggers auth prompt)
+            implementation(project(":feature:auth"))
         }
 
         maybeCreate("commonTest").dependencies {

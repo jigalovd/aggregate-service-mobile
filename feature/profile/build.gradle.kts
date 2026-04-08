@@ -21,18 +21,8 @@ kotlin {
             // i18n for localized strings
             implementation(project(":core:i18n"))
 
-            // Auth contracts (LogoutUseCase, etc.)
+            // Auth contracts (AuthStateProvider, AuthNavigator, LogoutUseCase)
             implementation(project(":core:auth-api"))
-
-            // Auth state access via core:navigation abstraction
-            // AuthStateProvider is implemented by feature:auth and injected via Koin
-            implementation(project(":core:navigation"))
-
-            // Firebase Auth API types (FirebaseToken) for auth callback
-            implementation(project(":core:firebase-auth"))
-
-            // AuthRepository and AuthPromptDialog for auth flow
-            implementation(project(":feature:auth"))
         }
 
         maybeCreate("androidMain").dependencies {

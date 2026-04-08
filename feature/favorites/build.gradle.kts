@@ -7,6 +7,10 @@ android {
 }
 
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-opt-in=kotlin.time.ExperimentalTime")
+    }
+
     sourceSets {
         maybeCreate("commonMain").dependencies {
             implementation(libs.ktor.client.core)
@@ -25,11 +29,8 @@ kotlin {
             // CatalogNavigator interface (implementation in feature:catalog)
             implementation(project(":core:navigation"))
 
-            // Firebase Auth API types (FirebaseToken) for auth callback
-            implementation(project(":core:firebase-auth"))
-
-            // AuthRepository and AuthPromptDialog for auth flow
-            implementation(project(":feature:auth"))
+            // Auth contracts (AuthStateProvider, AuthNavigator)
+            implementation(project(":core:auth-api"))
         }
 
         maybeCreate("androidMain").dependencies {

@@ -41,8 +41,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.aggregateservice.core.theme.Spacing
-import com.aggregateservice.core.navigation.AuthNavigator
-import com.aggregateservice.core.navigation.AuthStateProvider
+import com.aggregateservice.core.auth.contract.AuthNavigator
+import com.aggregateservice.core.auth.contract.AuthStateProvider
+import com.aggregateservice.core.auth.state.AuthState
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -70,8 +71,8 @@ object ProfileScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
 
         // Observe auth state reactively
-        val isAuthenticated by authStateProvider.isAuthenticatedFlow.collectAsState(initial = false)
-        val currentUserId by authStateProvider.currentUserIdFlow.collectAsState(initial = null)
+        val authState by authStateProvider.authState.collectAsState()
+        val isAuthenticated = authState is AuthState.Authenticated
 
         // Navigate to login screen when not authenticated
         LaunchedEffect(isAuthenticated) {

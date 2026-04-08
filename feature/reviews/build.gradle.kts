@@ -7,6 +7,10 @@ android {
 }
 
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-opt-in=kotlin.time.ExperimentalTime")
+    }
+
     sourceSets {
         maybeCreate("commonMain").dependencies {
             implementation(libs.ktor.client.core)

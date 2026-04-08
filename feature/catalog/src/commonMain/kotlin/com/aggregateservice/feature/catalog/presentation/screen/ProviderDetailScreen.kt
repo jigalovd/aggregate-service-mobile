@@ -45,8 +45,9 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
+import com.aggregateservice.core.auth.contract.AuthStateProvider
+import com.aggregateservice.core.auth.state.AuthState
 import com.aggregateservice.core.navigation.AuthPromptTrigger
-import com.aggregateservice.core.navigation.AuthStateProvider
 import com.aggregateservice.core.navigation.BookingNavigator
 import com.aggregateservice.core.navigation.executeProtectedAction
 import com.aggregateservice.core.theme.Spacing
@@ -72,10 +73,10 @@ data class ProviderDetailScreen(
         val screenModel = koinScreenModel<ProviderDetailScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
 
-        // Auth state for AuthGuard (via core:navigation abstraction)
-        // Using koinInject for Compose-friendly DI without KoinComponent
+        // Auth state for AuthGuard (via core:auth-api contracts)
         val authProvider: AuthStateProvider = koinInject()
-        val isAuthenticated by authProvider.isAuthenticatedFlow.collectAsState()
+        val authState by authProvider.authState.collectAsState()
+        val isAuthenticated = authState is AuthState.Authenticated
 
         // Booking navigator for cross-feature navigation
         val bookingNavigator: BookingNavigator = koinInject()

@@ -18,6 +18,7 @@ ij_kotlin_allow_trailing_comma_on_call_site = true
 ktlint_standard_function-signature = disabled
 ktlint_standard_class-naming = disabled
 ktlint_standard_function-expression-body = disabled
+ktlint_standard_function-naming = disabled
 
 [*.{xml,json,yaml,yml,gradle}]
 charset = utf-8

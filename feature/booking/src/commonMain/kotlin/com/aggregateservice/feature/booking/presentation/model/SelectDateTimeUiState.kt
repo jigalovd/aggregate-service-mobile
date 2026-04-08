@@ -1,13 +1,15 @@
+@file:OptIn(kotlin.time.ExperimentalTime::class)
+
 package com.aggregateservice.feature.booking.presentation.model
 
 import androidx.compose.runtime.Stable
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.booking.domain.model.TimeSlot
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
+import kotlin.time.Clock
 
 /**
  * UI State для экрана выбора даты и времени.

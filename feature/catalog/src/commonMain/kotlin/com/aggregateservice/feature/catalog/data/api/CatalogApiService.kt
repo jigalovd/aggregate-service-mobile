@@ -12,7 +12,6 @@ import com.aggregateservice.feature.catalog.data.dto.response.ServiceListRespons
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
-import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -95,7 +94,9 @@ class CatalogApiService(
         return safeApiCall<CategoriesResponseDto> {
             client.get("/api/v1/catalog/categories") {
                 contentType(ContentType.Application.Json)
-                parentId?.let { parameter("parentId", it) }
+                parentId?.let {
+                    url { parameters.append("parentId", it.toString()) }
+                }
             }
         }
     }
@@ -125,7 +126,9 @@ class CatalogApiService(
         return safeApiCall<ServiceListResponseDto> {
             client.get("/api/v1/catalog/providers/$providerId/services") {
                 contentType(ContentType.Application.Json)
-                categoryId?.let { parameter("categoryId", it) }
+                categoryId?.let {
+                    url { parameters.append("categoryId", it.toString()) }
+                }
             }
         }
     }
@@ -155,10 +158,12 @@ class CatalogApiService(
         return safeApiCall<List<ServiceDto>> {
             client.get("/api/v1/catalog/services/search") {
                 contentType(ContentType.Application.Json)
-                parameter("q", query)
-                filters.categoryIds.forEach { parameter("categoryIds", it) }
-                parameter("page", filters.page)
-                parameter("pageSize", filters.pageSize)
+                url {
+                    parameters.append("q", query)
+                    filters.categoryIds.forEach { parameters.append("categoryIds", it) }
+                    parameters.append("page", filters.page.toString())
+                    parameters.append("pageSize", filters.pageSize.toString())
+                }
             }
         }
     }

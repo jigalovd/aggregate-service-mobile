@@ -43,8 +43,9 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
-import com.aggregateservice.core.navigation.AuthNavigator
-import com.aggregateservice.core.navigation.AuthStateProvider
+import com.aggregateservice.core.auth.contract.AuthNavigator
+import com.aggregateservice.core.auth.contract.AuthStateProvider
+import com.aggregateservice.core.auth.state.AuthState
 import com.aggregateservice.core.navigation.CatalogNavigator
 import com.aggregateservice.feature.favorites.domain.model.Favorite
 import com.aggregateservice.feature.favorites.presentation.model.FavoritesUiState
@@ -65,7 +66,8 @@ object FavoritesScreen : Screen {
         val catalogNavigator: CatalogNavigator = koinInject()
         val authNavigator: AuthNavigator = koinInject()
         val authStateProvider: AuthStateProvider = koinInject()
-        val isAuthenticated by authStateProvider.isAuthenticatedFlow.collectAsState(initial = false)
+        val authState by authStateProvider.authState.collectAsState()
+        val isAuthenticated = authState is AuthState.Authenticated
 
         // Navigate to login screen when not authenticated
         LaunchedEffect(isAuthenticated) {

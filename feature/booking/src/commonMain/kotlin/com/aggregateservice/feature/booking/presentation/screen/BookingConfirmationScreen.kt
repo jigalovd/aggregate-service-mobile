@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.time.ExperimentalTime::class)
+
 package com.aggregateservice.feature.booking.presentation.screen
 
 import androidx.compose.foundation.layout.Arrangement

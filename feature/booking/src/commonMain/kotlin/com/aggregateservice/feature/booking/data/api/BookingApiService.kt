@@ -9,7 +9,6 @@ import com.aggregateservice.feature.booking.data.dto.ServiceDto
 import com.aggregateservice.feature.booking.data.dto.TimeSlotDto
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
-import io.ktor.client.request.parameter
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -81,9 +80,11 @@ class BookingApiService(
         return safeApiCall<List<BookingDto>> {
             client.get("/api/v1/bookings/client/me") {
                 contentType(ContentType.Application.Json)
-                status?.let { parameter("status", it) }
-                parameter("page", page)
-                parameter("pageSize", pageSize)
+                url {
+                    status?.let { parameters.append("status", it) }
+                    parameters.append("page", page.toString())
+                    parameters.append("pageSize", pageSize.toString())
+                }
             }
         }
     }
@@ -142,9 +143,11 @@ class BookingApiService(
         return safeApiCall<List<TimeSlotDto>> {
             client.get("/api/v1/bookings/slots") {
                 contentType(ContentType.Application.Json)
-                parameter("providerId", providerId)
-                parameter("date", date.toString())
-                serviceIds.forEach { parameter("serviceIds", it) }
+                url {
+                    parameters.append("providerId", providerId)
+                    parameters.append("date", date.toString())
+                    serviceIds.forEach { parameters.append("serviceIds", it) }
+                }
             }
         }
     }
