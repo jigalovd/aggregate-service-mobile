@@ -1,5 +1,6 @@
 package com.aggregateservice.core.auth.impl.state
 
+import com.aggregateservice.core.auth.contract.RefreshTokenUseCase
 import com.aggregateservice.core.auth.impl.repository.AuthRepository
 import com.aggregateservice.core.auth.impl.repository.dto.UserResponse
 import com.aggregateservice.core.auth.impl.token.TokenManager
@@ -16,13 +17,15 @@ import kotlin.test.assertIs
 class AuthStateMachineTest {
     private lateinit var tokenManager: TokenManager
     private lateinit var repository: AuthRepository
+    private lateinit var refreshTokenUseCase: RefreshTokenUseCase
     private lateinit var stateMachine: AuthStateMachine
 
     @BeforeTest
     fun setup() {
         tokenManager = mockk(relaxed = true)
         repository = mockk(relaxed = true)
-        stateMachine = AuthStateMachine(tokenManager, repository)
+        refreshTokenUseCase = mockk(relaxed = true)
+        stateMachine = AuthStateMachine(tokenManager, repository, refreshTokenUseCase)
     }
 
     @Test
@@ -50,12 +53,34 @@ class AuthStateMachineTest {
     }
 
     @Test
-    fun `initialize with expired token emits Guest and clears tokens`() = runTest {
+    fun `initialize with expired token attempts refresh and retries`() = runTest {
         coEvery { tokenManager.getAccessToken() } returns "expired-token"
         coEvery { repository.getCurrentUser() } returns Result.failure(Exception("Unauthorized"))
+        coEvery { refreshTokenUseCase() } returns Result.success("new-token")
+        // Second call to getCurrentUser succeeds with new token
+        coEvery {
+            repository.getCurrentUser()
+        } returns Result.failure(Exception("Unauthorized")) andThen Result.success(
+            UserResponse(id = "user-1", email = "refreshed@example.com"),
+        )
+
+        stateMachine.initialize()
+        val state = stateMachine.state.value
+        assertIs<AuthState.Authenticated>(state)
+        assertEquals("user-1", state.userId)
+        assertEquals("refreshed@example.com", state.email)
+        coVerify { refreshTokenUseCase() }
+    }
+
+    @Test
+    fun `initialize with expired token emits Guest when refresh also fails`() = runTest {
+        coEvery { tokenManager.getAccessToken() } returns "expired-token"
+        coEvery { repository.getCurrentUser() } returns Result.failure(Exception("Unauthorized"))
+        coEvery { refreshTokenUseCase() } returns Result.failure(Exception("Refresh failed"))
+
         stateMachine.initialize()
         assertIs<AuthState.Guest>(stateMachine.state.value)
-        coVerify { tokenManager.clearTokens() }
+        coVerify(exactly = 1) { tokenManager.clearTokens() }
     }
 
     @Test

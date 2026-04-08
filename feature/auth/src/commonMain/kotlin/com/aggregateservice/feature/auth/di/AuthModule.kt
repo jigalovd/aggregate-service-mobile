@@ -32,7 +32,7 @@ val authModule = module {
     // Core:auth-impl components
     single<TokenManager> { TokenManagerImpl(get<TokenStorage>()) }
     single<AuthRepository> { AuthRepositoryImpl(get<HttpClient>()) }
-    single { AuthStateMachine(get(), get()) }
+    single { AuthStateMachine(get(), get(), get()) }
 
     // HttpClient with auth lambdas (replaces CoreModule's HttpClient)
     // NOTE: refreshTokens lambda resolves RefreshTokenUseCase lazily to break
@@ -71,7 +71,13 @@ val authModule = module {
     }
     singleOf(::ObserveAuthStateUseCaseImpl) bind ObserveAuthStateUseCase::class
     singleOf(::SignInUseCaseImpl) bind SignInUseCase::class
-    singleOf(::RefreshTokenUseCaseImpl) bind RefreshTokenUseCase::class
+    single<RefreshTokenUseCase> {
+        RefreshTokenUseCaseImpl(
+            tokenManager = get(),
+            repository = get(),
+            onRefreshFailed = { get<AuthStateMachine>().emitGuest() },
+        )
+    }
 
     // AuthStateProvider
     singleOf(::AuthStateProviderImpl) bind AuthStateProvider::class
