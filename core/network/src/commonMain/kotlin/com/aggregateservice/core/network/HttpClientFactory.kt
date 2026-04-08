@@ -3,6 +3,9 @@ package com.aggregateservice.core.network
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.plugins.defaultRequest
@@ -44,27 +47,14 @@ private object SensitiveDataLogger : io.ktor.client.plugins.logging.Logger {
     }
 }
 
-/**
- * Creates configured HttpClient with all necessary plugins.
- *
- * @param engine Platform-specific HTTP engine
- * @param apiBaseUrl API base URL (with optional protocol, e.g. "https://api.example.com" or "http://localhost:8080")
- * @param apiVersion API version (default: v1)
- * @param enableLogging Enable HTTP logging for debugging
- * @param networkTimeoutMs Timeout in milliseconds (default: 30_000)
- * @param tokenHolder TokenHolder for access token storage (optional, for BearerTokenPlugin)
- * @param authRefresher AuthRefresher for token refresh on 401 (optional, for BearerTokenPlugin)
- * @param authEventBus AuthEventBus for logout propagation (optional, for BearerTokenPlugin)
- */
 fun createHttpClient(
     engine: HttpClientEngine,
     apiBaseUrl: String,
     apiVersion: String = "v1",
     enableLogging: Boolean = false,
     networkTimeoutMs: Long = NetworkConstants.TIMEOUT_MS,
-    tokenHolder: TokenHolder? = null,
-    authRefresher: AuthRefresher? = null,
-    authEventBus: AuthEventBus? = null,
+    loadTokens: (suspend () -> BearerTokens?)? = null,
+    refreshTokens: (suspend () -> BearerTokens?)? = null,
 ): HttpClient =
     HttpClient(engine) {
         install(ContentNegotiation) {
@@ -73,7 +63,7 @@ fun createHttpClient(
                     ignoreUnknownKeys = true
                     isLenient = true
                     prettyPrint = false
-                    encodeDefaults = true // Include default values in serialization
+                    encodeDefaults = true
                 },
             )
         }
@@ -84,10 +74,7 @@ fun createHttpClient(
             socketTimeoutMillis = networkTimeoutMs
         }
 
-        // Cookie handling for refresh token (HTTP-only cookie from backend)
-        install(HttpCookies) {
-            // Use default engine storage for cookies
-        }
+        install(HttpCookies) {}
 
         if (enableLogging) {
             install(Logging) {
@@ -96,19 +83,12 @@ fun createHttpClient(
             }
         }
 
-        // Install BearerTokenPlugin for custom token handling with refresh on 401
-        if (tokenHolder != null && authRefresher != null && authEventBus != null) {
-            install(BearerTokenPlugin) {
-                BearerTokenConfig(
-                    tokenHolder = tokenHolder,
-                    authRefresher = authRefresher,
-                    authEventBus = authEventBus,
-                    excludedPaths =
-                        listOf(
-                            "api/v1/auth/provider", // login flows
-                            "api/v1/auth/refresh", // refresh endpoint (cookie sent automatically)
-                        ),
-                )
+        loadTokens?.let { loadFn ->
+            install(Auth) {
+                bearer {
+                    loadTokens { loadFn() }
+                    refreshTokens { refreshTokens?.invoke() }
+                }
             }
         }
 
