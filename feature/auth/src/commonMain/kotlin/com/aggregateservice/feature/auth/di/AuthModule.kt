@@ -8,7 +8,6 @@ import com.aggregateservice.core.auth.contract.ObserveAuthStateUseCase
 import com.aggregateservice.core.auth.contract.RefreshTokenUseCase
 import com.aggregateservice.core.auth.contract.SignInUseCase
 import com.aggregateservice.core.auth.impl.AuthStateProviderImpl
-import com.aggregateservice.core.auth.impl.network.createAuthLambdas
 import com.aggregateservice.core.auth.impl.repository.AuthRepository
 import com.aggregateservice.core.auth.impl.repository.AuthRepositoryImpl
 import com.aggregateservice.core.auth.impl.state.AuthStateMachine
@@ -36,18 +35,28 @@ val authModule = module {
     single { AuthStateMachine(get(), get()) }
 
     // HttpClient with auth lambdas (replaces CoreModule's HttpClient)
+    // NOTE: refreshTokens lambda resolves RefreshTokenUseCase lazily to break
+    // circular dependency: HttpClient → RefreshTokenUseCase → AuthRepository → HttpClient
     single<HttpClient> {
+        val koin = getKoin()
         val config = get<AppConfig>()
-        val tokenManager = get<TokenManagerImpl>()
-        val refreshTokenUseCase = get<RefreshTokenUseCase>()
-        val authLambdas = createAuthLambdas(tokenManager, refreshTokenUseCase)
+        val tokenManager = get<TokenManager>()
         createHttpClient(
             engine = get(),
             apiBaseUrl = config.apiBaseUrl,
             apiVersion = config.apiVersion,
             enableLogging = config.enableLogging,
-            loadTokens = authLambdas.loadTokens,
-            refreshTokens = authLambdas.refreshTokens,
+            loadTokens = {
+                tokenManager.getAccessToken()?.let {
+                    io.ktor.client.plugins.auth.providers.BearerTokens(accessToken = it, refreshToken = "")
+                }
+            },
+            refreshTokens = {
+                val useCase: RefreshTokenUseCase = koin.get()
+                useCase().getOrNull()?.let {
+                    io.ktor.client.plugins.auth.providers.BearerTokens(accessToken = it, refreshToken = "")
+                }
+            },
         )
     }
 
