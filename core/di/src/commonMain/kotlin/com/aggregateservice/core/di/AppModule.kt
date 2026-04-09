@@ -15,16 +15,17 @@ import org.koin.dsl.module
  * - core:di НЕ должен зависеть от feature:*
  * - feature:* МОЖЕТ зависеть от core:di
  */
-val appModule = module {
-    // Только core модули
-    includes(
-        coreModule,
-        // ❌ НЕ добавлять feature модули сюда! Вызывает циклическую зависимость
-        // authModule,
-        // catalogModule,
-        // etc.
-    )
-}
+val appModule =
+    module {
+        // Только core модули
+        includes(
+            coreModule,
+            // ❌ НЕ добавлять feature модули сюда! Вызывает циклическую зависимость
+            // authModule,
+            // catalogModule,
+            // etc.
+        )
+    }
 
 /**
  * Инициализация Koin DI.
@@ -51,7 +52,8 @@ val appModule = module {
  * }
  * ```
  */
-fun initializeKoin(appDeclaration: KoinAppDeclaration = {}) = startKoin {
-    appDeclaration()
-    modules(appModule)
-}
+fun initializeKoin(appDeclaration: KoinAppDeclaration = {}) =
+    startKoin {
+        appDeclaration()
+        modules(appModule)
+    }
