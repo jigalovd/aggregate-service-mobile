@@ -1,6 +1,7 @@
 package com.aggregateservice.feature.catalog.domain.usecase
 
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.utils.ValidationRule
 import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.model.SearchResult
@@ -35,21 +36,20 @@ class SearchProvidersUseCase(
         filters.page.let { page ->
             if (page < 1) {
                 return Result.failure(
-                    AppError.ValidationError(
-                        field = "page",
-                        message = "Page must be >= 1",
-                    ),
+                    AppError.FormValidation("page", ValidationRule.TooLow, mapOf("min" to 1)),
                 )
             }
         }
 
         filters.pageSize.let { pageSize ->
-            if (pageSize < 1 || pageSize > 100) {
+            if (pageSize < 1) {
                 return Result.failure(
-                    AppError.ValidationError(
-                        field = "pageSize",
-                        message = "PageSize must be between 1 and 100",
-                    ),
+                    AppError.FormValidation("pageSize", ValidationRule.TooLow, mapOf("min" to 1)),
+                )
+            }
+            if (pageSize > 100) {
+                return Result.failure(
+                    AppError.FormValidation("pageSize", ValidationRule.TooHigh, mapOf("max" to 100)),
                 )
             }
         }
@@ -58,10 +58,7 @@ class SearchProvidersUseCase(
         if (filters.isGeoSearch) {
             if (filters.radiusKm != null && filters.radiusKm <= 0) {
                 return Result.failure(
-                    AppError.ValidationError(
-                        field = "radiusKm",
-                        message = "Radius must be positive",
-                    ),
+                    AppError.FormValidation("radiusKm", ValidationRule.TooLow, mapOf("min" to 0)),
                 )
             }
         }
