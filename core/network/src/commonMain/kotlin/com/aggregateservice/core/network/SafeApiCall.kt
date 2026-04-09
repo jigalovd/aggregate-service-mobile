@@ -2,35 +2,13 @@ package com.aggregateservice.core.network
 
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.delay
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
-/**
- * Safe API call wrapper с автоматической обработкой ошибок и retry логикой.
- *
- * **Функции:**
- * - Обработка всех HTTP кодов (200, 201, 204, 400, 401, 403, 404, 409, 422, 423, 429, 500)
- * - Автоматический retry при 500 (max 3 попытки)
- * - Rate limiting обработка (X-RateLimit-* headers)
- * - Парсинг ошибок из response body
- *
- * **Использование:**
- * ```kotlin
- * val result = safeApiCall {
- *     httpClient.post("auth/login") {
- *         setBody(LoginRequest(email, password))
- *     }
- * }
- * when (result) {
- *     is Result.Success -> println(result.data)
- *     is Result.Error -> handleError(result.error)
- * }
- * ```
- *
- * @see BACKEND_API_REFERENCE.md секция 6 "Статусы и коды ответов"
- * @see AppError
- */
 suspend inline fun <reified T : Any> safeApiCall(
     maxRetries: Int = NetworkConstants.MAX_RETRIES,
     retryDelayMs: Long = NetworkConstants.RETRY_DELAY_MS,
@@ -38,14 +16,11 @@ suspend inline fun <reified T : Any> safeApiCall(
 ): Result<T> {
     var lastException: Throwable? = null
 
-    // Retry loop для 500 ошибок
     repeat(maxRetries) { attempt ->
         try {
             val response = apiCall()
 
-            // Проверяем HTTP статус
             return when (response.status) {
-                // Success responses
                 HttpStatusCode.OK,
                 HttpStatusCode.Created,
                 HttpStatusCode.Accepted,
@@ -54,7 +29,6 @@ suspend inline fun <reified T : Any> safeApiCall(
                     Result.success(data)
                 }
 
-                // No Content (204)
                 HttpStatusCode.NoContent -> {
                     @Suppress("UNCHECKED_CAST")
                     val result =
@@ -66,7 +40,6 @@ suspend inline fun <reified T : Any> safeApiCall(
                     result
                 }
 
-                // Rate Limit Exceeded (429)
                 HttpStatusCode.TooManyRequests -> {
                     val retryAfter = parseRetryAfter(response)
                     Result.failure(
@@ -76,14 +49,10 @@ suspend inline fun <reified T : Any> safeApiCall(
                     )
                 }
 
-                // Unauthorized (401)
                 HttpStatusCode.Unauthorized -> {
-                    Result.failure(
-                        AppError.Unauthorized,
-                    )
+                    Result.failure(AppError.Unauthorized)
                 }
 
-                // Forbidden (403)
                 HttpStatusCode.Forbidden -> {
                     val errorBody = response.body<ErrorResponse>()
                     Result.failure(
@@ -93,46 +62,84 @@ suspend inline fun <reified T : Any> safeApiCall(
                     )
                 }
 
-                // Not Found (404)
                 HttpStatusCode.NotFound -> {
-                    Result.failure(
-                        AppError.NotFound,
-                    )
+                    Result.failure(AppError.NotFound)
                 }
 
-                // Conflict (409)
                 HttpStatusCode.Conflict -> {
-                    val errorBody = response.body<ErrorResponse>()
-                    Result.failure(
-                        AppError.Conflict(
-                            message = errorBody.message ?: "Conflict",
-                        ),
-                    )
+                    val body = response.bodyAsText()
+                    val appError = try {
+                        val errorResponse = Json.decodeFromString<ErrorResponse>(body)
+                        if (errorResponse.error == "FIREBASE_LINK_REQUIRED") {
+                            AppError.FirebaseLinkRequired(
+                                firebaseToken = errorResponse.details?.errors?.firstOrNull()?.message ?: "",
+                                email = errorResponse.message ?: "",
+                                firebaseUid = "",
+                                provider = "",
+                                message = errorResponse.message ?: "Firebase link required",
+                            )
+                        } else {
+                            AppError.Conflict(
+                                message = errorResponse.message ?: "Conflict",
+                                errorId = errorResponse.errorId,
+                            )
+                        }
+                    } catch (_: Exception) {
+                        try {
+                            val detailResponse = Json.decodeFromString<DetailErrorResponse>(body)
+                            AppError.Conflict(message = detailResponse.detail, errorId = null)
+                        } catch (_: Exception) {
+                            AppError.Conflict(message = body, errorId = null)
+                        }
+                    }
+                    Result.failure(appError)
                 }
 
-                // Locked (423)
                 HttpStatusCode.Locked -> {
                     val errorBody = response.body<ErrorResponse>()
-                    Result.failure(
-                        AppError.AccountLocked(
-                            until = errorBody.message ?: "unknown",
-                        ),
-                    )
+                    val lockUntil = errorBody.details?.errors?.firstOrNull()?.message
+                        ?: errorBody.message ?: "unknown"
+                    Result.failure(AppError.AccountLocked(until = lockUntil))
                 }
 
-                // Validation Error (422)
                 HttpStatusCode.UnprocessableEntity -> {
-                    val errorBody = response.body<ErrorResponse>()
-                    val validationError = parseValidationError(errorBody)
-                    Result.failure(validationError)
+                    val body = response.bodyAsText()
+                    val errorResponse = try {
+                        Json.decodeFromString<ErrorResponse>(body)
+                    } catch (_: Exception) {
+                        return Result.failure(
+                            AppError.ApiValidationError(
+                                field = "unknown",
+                                message = body,
+                            ),
+                        )
+                    }
+
+                    if (errorResponse.error != null) {
+                        Result.failure(
+                            AppError.DomainError(
+                                code = errorResponse.error,
+                                message = errorResponse.message ?: "Error",
+                                details = errorResponse.details?.toFlatMap() ?: emptyMap(),
+                            ),
+                        )
+                    } else if (errorResponse.details?.errors?.isNotEmpty() == true) {
+                        Result.failure(parseValidationError(errorResponse))
+                    } else {
+                        Result.failure(
+                            AppError.ApiValidationError(
+                                field = "unknown",
+                                message = errorResponse.message ?: "Validation error",
+                            ),
+                        )
+                    }
                 }
 
-                // Server Error (500) - retry
                 HttpStatusCode.InternalServerError -> {
                     if (attempt < maxRetries - 1) {
                         lastException = Exception("Server error, retrying...")
                         delay(retryDelayMs)
-                        return@repeat // продолжаем retry
+                        return@repeat
                     } else {
                         val errorBody = response.body<ErrorResponse>()
                         Result.failure(
@@ -144,7 +151,6 @@ suspend inline fun <reified T : Any> safeApiCall(
                     }
                 }
 
-                // Other codes
                 else -> {
                     val errorBody = response.body<ErrorResponse>()
                     Result.failure(
@@ -166,7 +172,6 @@ suspend inline fun <reified T : Any> safeApiCall(
                     ),
                 )
             }
-            // Другие ошибки - retry если это последняя попытка
             if (attempt == maxRetries - 1) {
                 return Result.failure(
                     AppError.UnknownError(
@@ -179,7 +184,6 @@ suspend inline fun <reified T : Any> safeApiCall(
         }
     }
 
-    // Если мы здесь, значит все retry были неудачными
     return Result.failure(
         AppError.UnknownError(
             throwable = lastException,
@@ -188,41 +192,23 @@ suspend inline fun <reified T : Any> safeApiCall(
     )
 }
 
-/**
- * ErrorResponse DTO для парсинга ошибок от бэкенда.
- *
- * Бэкенд возвращает ошибки в формате:
- * ```json
- * {
- *   "error": "VALIDATION_ERROR",
- *   "message": "Сообщение на языке пользователя",
- *   "details": {
- *     "errors": [
- *       {"field": "body.email", "message": "field required", "type": "missing"}
- *     ]
- *   },
- *   "error_id": "uuid"
- * }
- * ```
- *
- * @see BACKEND_API_REFERENCE.md секция 6.2 "Error Response Format"
- */
 @Serializable
 data class ErrorResponse(
     val error: String? = null,
     val message: String? = null,
     val details: ErrorDetails? = null,
+    @SerialName("error_id")
     val errorId: String? = null,
 )
+
+@Serializable
+data class DetailErrorResponse(val detail: String)
 
 @Serializable
 data class ErrorDetails(
     val errors: List<ValidationErrorItem>? = null,
 )
 
-/**
- * Validation Error DTO для детальных ошибок валидации.
- */
 @Serializable
 data class ValidationErrorItem(
     val field: String? = null,
@@ -230,23 +216,21 @@ data class ValidationErrorItem(
     val type: String? = null,
 )
 
-/**
- * Парсит Retry-After header из response.
- *
- * @param response HTTP response
- * @return Количество секунд до следующей попытки (дефолт 60)
- */
+fun ErrorDetails.toFlatMap(): Map<String, String> {
+    val map = mutableMapOf<String, String>()
+    errors?.forEach { item ->
+        if (item.field != null && item.message != null) {
+            map[item.field] = item.message
+        }
+    }
+    return map
+}
+
 fun parseRetryAfter(response: HttpResponse): Int {
     val retryAfter = response.headers["Retry-After"]
     return retryAfter?.toIntOrNull() ?: NetworkConstants.DEFAULT_RETRY_AFTER_SECONDS
 }
 
-/**
- * Парсит validation error из response body.
- *
- * @param errorBody ErrorResponse body
- * @return ValidationError с детальной информацией
- */
 fun parseValidationError(errorBody: ErrorResponse): AppError {
     return try {
         val validationErrors = errorBody.details?.errors
@@ -269,49 +253,3 @@ fun parseValidationError(errorBody: ErrorResponse): AppError {
         )
     }
 }
-
-/**
- * Расширение для преобразования [Result] с [AppError] в удобный формат.
- *
- * Использование:
- * ```kotlin
- * safeApiCall { ... }.fold(
- *   onSuccess = { data -> ... },
- *   onFailure = { error ->
- *     when (error) {
- *       is AppError.Unauthorized -> ...
- *       is AppError.AccountLocked -> ...
- *       else -> ...
- *     }
- *   }
- * )
- * ```
- */
-inline fun <T> Result<T>.foldAppError(
-    crossinline onSuccess: (T) -> Unit,
-    crossinline onFailure: (AppError) -> Unit,
-) {
-    fold(
-        onSuccess = onSuccess,
-        onFailure = { throwable ->
-            val error =
-                when (throwable) {
-                    is AppError -> throwable
-                    else -> AppError.UnknownError(throwable)
-                }
-            onFailure(error)
-        },
-    )
-}
-
-/**
- * Получить [AppError] из [Result] или null если успешен.
- */
-val <T> Result<T>.appError: AppError?
-    get() =
-        exceptionOrNull()?.let { throwable ->
-            when (throwable) {
-                is AppError -> throwable
-                else -> AppError.UnknownError(throwable)
-            }
-        }
