@@ -6,5 +6,6 @@ import com.aggregateservice.feature.auth.presentation.screen.LoginScreen
 
 class AuthNavigatorImpl : AuthNavigator {
     override fun createLoginScreen(): Screen = LoginScreen()
+
     override fun createRegisterScreen(): Screen? = null
 }

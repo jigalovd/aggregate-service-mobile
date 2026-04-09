@@ -31,6 +31,7 @@ import com.aggregateservice.core.firebase.AuthProviderApi
 import com.aggregateservice.core.firebase.PlatformAuthContext
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
+import co.touchlab.kermit.Logger
 import com.aggregateservice.feature.auth.presentation.model.LoginScreenModel
 import org.koin.compose.koinInject
 
@@ -42,9 +43,10 @@ class LoginScreen : Screen {
         val signInUseCase: SignInUseCase = koinInject()
         val authStateProvider: AuthStateProvider = koinInject()
         val authProviderApi: AuthProviderApi = koinInject()
+        val logger: Logger = koinInject()
         val screenModel =
             rememberScreenModel {
-                LoginScreenModel(signInUseCase, authStateProvider, authProviderApi)
+                LoginScreenModel(signInUseCase, authStateProvider, authProviderApi, logger)
             }
         val uiState by screenModel.uiState.collectAsState()
         val context = LocalContext.current

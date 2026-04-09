@@ -18,6 +18,9 @@ kotlin {
             implementation(project(":core:storage"))
             implementation(project(":core:network"))
 
+            // Logging
+            implementation(libs.kermit)
+
             // Network
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)

@@ -21,10 +21,12 @@ import com.aggregateservice.core.auth.impl.usecase.SignInUseCaseImpl
 import com.aggregateservice.core.config.AppConfig
 import com.aggregateservice.core.firebase.AuthProviderApi
 import com.aggregateservice.core.network.createHttpClient
+import co.touchlab.kermit.Logger
 import com.aggregateservice.core.storage.TokenStorage
 import com.aggregateservice.feature.auth.AuthNavigatorImpl
 import io.ktor.client.HttpClient
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -32,12 +34,35 @@ val authModule =
     module {
         // Core:auth-impl components
         single<TokenManager> { TokenManagerImpl(get<TokenStorage>()) }
-        single<AuthRepository> { AuthRepositoryImpl(get<HttpClient>()) }
+        single<AuthRepository> {
+            AuthRepositoryImpl(
+                httpClient = get(),
+                authClient = get(named("auth")),
+            )
+        }
         single { AuthStateMachine(get(), get(), get()) }
 
-        // HttpClient with auth lambdas (replaces CoreModule's HttpClient)
-        // NOTE: refreshTokens lambda resolves RefreshTokenUseCase lazily to break
-        // circular dependency: HttpClient → RefreshTokenUseCase → AuthRepository → HttpClient
+        // Auth-specific client WITHOUT Bearer plugin.
+        // Used for verify/refresh requests to prevent BearerAuthProvider internal
+        // mutex deadlock: refreshTokens lambda → repository.refreshToken() → same client
+        // → 401 → Bearer tries to acquire mutex again → DEADLOCK.
+        // This client shares the same HttpClientEngine (OkHttp) and has HttpCookies
+        // so the refresh token cookie from verify is available for refresh requests.
+        single<HttpClient>(named("auth")) {
+            val config = get<AppConfig>()
+            createHttpClient(
+                engine = get(),
+                apiBaseUrl = config.apiBaseUrl,
+                apiVersion = config.apiVersion,
+                enableLogging = config.enableLogging,
+                loadTokens = null,
+                refreshTokens = null,
+            )
+        }
+
+        // Main HttpClient with Bearer auth plugin.
+        // Used for all authenticated API calls (profiles, bookings, etc.)
+        // refreshTokens lambda uses authClient (above) for refresh requests → no deadlock.
         single<HttpClient> {
             val koin = getKoin()
             val config = get<AppConfig>()
@@ -90,4 +115,7 @@ val authModule =
 
         // AuthNavigator (presentation)
         singleOf(::AuthNavigatorImpl) bind AuthNavigator::class
+
+        // Logger for feature modules
+        factory<Logger> { Logger.withTag("Auth") }
     }
