@@ -1,5 +1,6 @@
 package com.aggregateservice.core.network
 
+import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.HttpTimeout
@@ -11,11 +12,10 @@ import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.http.HttpHeaders
 import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-
-private const val TAG = "Ktor"
 
 private val SENSITIVE_FIELD_PATTERNS =
     listOf(
@@ -41,9 +41,11 @@ private fun String.sanitize(): String {
     return sanitized
 }
 
-private object SensitiveDataLogger : io.ktor.client.plugins.logging.Logger {
+private class SanitizingKermitLogger(
+    private val delegate: Logger,
+) : io.ktor.client.plugins.logging.Logger {
     override fun log(message: String) {
-        println("$TAG: ${message.sanitize()}")
+        delegate.d { message.sanitize() }
     }
 }
 
@@ -78,8 +80,9 @@ fun createHttpClient(
 
         if (enableLogging) {
             install(Logging) {
-                level = LogLevel.ALL
-                logger = SensitiveDataLogger
+                logger = SanitizingKermitLogger(Logger.withTag("Http"))
+                level = LogLevel.HEADERS
+                sanitizeHeader { header -> header == HttpHeaders.Authorization }
             }
         }
 

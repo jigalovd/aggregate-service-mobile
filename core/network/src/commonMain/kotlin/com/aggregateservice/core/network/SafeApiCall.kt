@@ -1,12 +1,10 @@
 package com.aggregateservice.core.network
 
-import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.delay
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 
 /**
  * Safe API call wrapper с автоматической обработкой ошибок и retry логикой.
@@ -59,11 +57,12 @@ suspend inline fun <reified T : Any> safeApiCall(
                 // No Content (204)
                 HttpStatusCode.NoContent -> {
                     @Suppress("UNCHECKED_CAST")
-                    val result = if (null is T) {
-                        Result.success(null as T)
-                    } else {
-                        Result.success(Unit as T)
-                    }
+                    val result =
+                        if (null is T) {
+                            Result.success(null as T)
+                        } else {
+                            Result.success(Unit as T)
+                        }
                     result
                 }
 

@@ -188,8 +188,9 @@ fun httpCodeToAppError(
 fun Throwable.toAppError(): AppError =
     when (this) {
         is AppError -> this
-        else -> AppError.UnknownError(
-            throwable = this,
-            message = this.message,
-        )
+        else ->
+            AppError.UnknownError(
+                throwable = this,
+                message = this.message,
+            )
     }
