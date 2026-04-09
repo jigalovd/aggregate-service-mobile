@@ -13,6 +13,7 @@ kotlin {
             implementation(project(":core:config"))
             implementation(project(":core:storage"))
             implementation(project(":core:utils"))
+            implementation(project(":core:i18n"))
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.client.auth)
