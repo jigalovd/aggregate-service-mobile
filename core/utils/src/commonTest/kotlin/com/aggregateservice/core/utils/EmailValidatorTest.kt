@@ -12,23 +12,23 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class EmailValidatorTest {
-
     private lateinit var testConfig: AppConfig
 
     @BeforeTest
     fun setup() {
-        testConfig = AppConfig(
-            apiBaseUrl = "https://api.test.com",
-            apiKey = "test-api-key",
-            environmentCode = Environment.DEV.name,
-            languageCode = Language.RU.code,
-            isDebug = true,
-            enableLogging = false,
-            networkTimeoutMs = 30_000L,
-            apiVersion = "v1",
-            passwordMinLength = 12,
-            passwordMaxLength = 128,
-        )
+        testConfig =
+            AppConfig(
+                apiBaseUrl = "https://api.test.com",
+                apiKey = "test-api-key",
+                environmentCode = Environment.DEV.name,
+                languageCode = Language.RU.code,
+                isDebug = true,
+                enableLogging = false,
+                networkTimeoutMs = 30_000L,
+                apiVersion = "v1",
+                passwordMinLength = 12,
+                passwordMaxLength = 128,
+            )
         Config.initialize(testConfig)
     }
 

@@ -1,5 +1,6 @@
 package com.aggregateservice.app.navigation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,7 +22,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.activity.compose.BackHandler
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationBar
@@ -91,29 +91,34 @@ fun AppBottomNavHost(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
 
     Navigator(screen = startScreen) { navigator ->
-        val bottomNavItems = listOf(
-            BottomNavItem.Catalog,
-            BottomNavItem.Bookings,
-            BottomNavItem.Favorites,
-            BottomNavItem.Profile,
-        )
+        val bottomNavItems =
+            listOf(
+                BottomNavItem.Catalog,
+                BottomNavItem.Bookings,
+                BottomNavItem.Favorites,
+                BottomNavItem.Profile,
+            )
 
         // Track selected tab index - default to Catalog (index 0)
         var selectedIndex by remember { mutableIntStateOf(0) }
 
         // Update selected index when current screen changes
         val currentScreen = navigator.lastItem
-        selectedIndex = bottomNavItems.indexOfFirst { item ->
-            // Compare by screen instance type name
-            item.screen::class.simpleName == currentScreen::class.simpleName
-        }.coerceAtLeast(0)
+        selectedIndex =
+            bottomNavItems
+                .indexOfFirst { item ->
+                    // Compare by screen instance type name
+                    item.screen::class.simpleName == currentScreen::class.simpleName
+                }.coerceAtLeast(0)
 
         Scaffold(
             // No topBar - removed per UI-01 requirement (no "Aggregate Service" title)
             bottomBar = {
                 // Bottom navigation - 4 items per UI-03
                 NavigationBar(
-                    containerColor = androidx.compose.ui.graphics.Color(0xFFADD8E6),
+                    containerColor =
+                        androidx.compose.ui.graphics
+                            .Color(0xFFADD8E6),
                 ) {
                     bottomNavItems.forEachIndexed { index, item ->
                         NavigationBarItem(
@@ -138,11 +143,16 @@ fun AppBottomNavHost(
                 // Search button above bottom nav (per UI-02: triggers modal bottom sheet)
                 // Round light blue button - positioned at bottom end
                 Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(end = 16.dp, bottom = 80.dp) // above nav bar
-                        .size(48.dp)
-                        .background(androidx.compose.ui.graphics.Color(0xFFADD8E6), CircleShape),
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(end = 16.dp, bottom = 80.dp) // above nav bar
+                            .size(48.dp)
+                            .background(
+                                androidx.compose.ui.graphics
+                                    .Color(0xFFADD8E6),
+                                CircleShape,
+                            ),
                     contentAlignment = Alignment.Center,
                 ) {
                     IconButton(
@@ -152,7 +162,9 @@ fun AppBottomNavHost(
                         Icon(
                             Icons.Default.Search,
                             contentDescription = "Search",
-                            tint = androidx.compose.ui.graphics.Color(0xFF333333),
+                            tint =
+                                androidx.compose.ui.graphics
+                                    .Color(0xFF333333),
                         )
                     }
                 }
@@ -188,9 +200,10 @@ private fun SearchBottomSheet(
         sheetState = sheetState,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
         ) {
             // Header with close button - NO TopAppBar (per UI-02 requirement)
             Row(
@@ -227,9 +240,10 @@ private fun SearchBottomSheet(
             when {
                 uiState.isLoading -> {
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
                         contentAlignment = Alignment.Center,
                     ) {
                         CircularProgressIndicator()
@@ -238,9 +252,10 @@ private fun SearchBottomSheet(
                 uiState.searchQuery.isBlank() -> {
                     // Show hint when no query
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(100.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(100.dp),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
@@ -252,9 +267,10 @@ private fun SearchBottomSheet(
                 }
                 uiState.providers.isEmpty() -> {
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(100.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(100.dp),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(

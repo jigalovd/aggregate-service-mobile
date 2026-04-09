@@ -38,7 +38,7 @@ data class BookingService(
      * Форматированная длительность (например, "60 min").
      */
     val formattedDuration: String
-        get() = "${durationMinutes} min"
+        get() = "$durationMinutes min"
 
     /**
      * Короткое описание для карточки (первые 100 символов).

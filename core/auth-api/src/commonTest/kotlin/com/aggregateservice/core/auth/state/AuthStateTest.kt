@@ -21,12 +21,13 @@ class AuthStateTest {
 
     @Test
     fun `Authenticated state has isAuthenticated true`() {
-        val state = AuthState.Authenticated(
-            userId = "user-123",
-            email = "test@example.com",
-            roles = setOf("client"),
-            currentRole = "client",
-        )
+        val state =
+            AuthState.Authenticated(
+                userId = "user-123",
+                email = "test@example.com",
+                roles = setOf("client"),
+                currentRole = "client",
+            )
         assertTrue(state.isAuthenticated)
         assertEquals("user-123", state.userId)
         assertEquals("test@example.com", state.email)
@@ -43,12 +44,13 @@ class AuthStateTest {
 
     @Test
     fun `Authenticated state requires non-blank userId`() {
-        val state = AuthState.Authenticated(
-            userId = "user-123",
-            email = null,
-            roles = emptySet(),
-            currentRole = null,
-        )
+        val state =
+            AuthState.Authenticated(
+                userId = "user-123",
+                email = null,
+                roles = emptySet(),
+                currentRole = null,
+            )
         assertEquals("user-123", state.userId)
     }
 }

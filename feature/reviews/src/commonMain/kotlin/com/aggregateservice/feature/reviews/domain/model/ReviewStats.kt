@@ -37,11 +37,12 @@ data class ReviewStats(
     fun getCountForRating(rating: Int): Int = ratingDistribution[rating] ?: 0
 
     companion object {
-        val EMPTY = ReviewStats(
-            providerId = "",
-            averageRating = 0.0,
-            totalReviews = 0,
-            ratingDistribution = emptyMap(),
-        )
+        val EMPTY =
+            ReviewStats(
+                providerId = "",
+                averageRating = 0.0,
+                totalReviews = 0,
+                ratingDistribution = emptyMap(),
+            )
     }
 }

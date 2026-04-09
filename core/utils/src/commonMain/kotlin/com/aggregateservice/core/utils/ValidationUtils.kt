@@ -12,14 +12,15 @@ sealed class ValidationResult {
     data object Valid : ValidationResult()
 
     /** Валидация не прошла */
-    data class Invalid(val errorMessage: String) : ValidationResult()
+    data class Invalid(
+        val errorMessage: String,
+    ) : ValidationResult()
 }
 
 /**
  * Валидатор для email адреса.
  */
 object EmailValidator {
-
     /**
      * Проверяет формат email адреса.
      *
@@ -65,10 +66,11 @@ object EmailValidator {
      * Проверяет email с помощью regex.
      */
     private fun isValidEmailFormat(email: String): Boolean {
-        val emailRegex = Regex(
-            pattern = """^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$""",
-            options = setOf(RegexOption.IGNORE_CASE)
-        )
+        val emailRegex =
+            Regex(
+                pattern = """^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$""",
+                options = setOf(RegexOption.IGNORE_CASE),
+            )
         return emailRegex.matches(email)
     }
 }
@@ -79,7 +81,6 @@ object EmailValidator {
  * **Important:** Использует Config для получения требований к длине пароля.
  */
 object PasswordValidator {
-
     /**
      * Проверяет силу пароля.
      *

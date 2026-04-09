@@ -1,12 +1,11 @@
 package com.aggregateservice.feature.catalog.data.api
 
 import com.aggregateservice.core.network.safeApiCall
-import com.aggregateservice.feature.catalog.data.dto.ProviderDto
 import com.aggregateservice.feature.catalog.data.dto.CategoriesResponseDto
 import com.aggregateservice.feature.catalog.data.dto.CategoryDto
+import com.aggregateservice.feature.catalog.data.dto.ProviderDto
 import com.aggregateservice.feature.catalog.data.dto.ServiceDto
 import com.aggregateservice.feature.catalog.data.dto.request.ProviderSearchRequestDto
-import com.aggregateservice.feature.catalog.data.dto.response.ProviderDetailsResponseDto
 import com.aggregateservice.feature.catalog.data.dto.response.ProviderSearchResponseDto
 import com.aggregateservice.feature.catalog.data.dto.response.ServiceListResponseDto
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
@@ -46,19 +45,21 @@ class CatalogApiService(
             val lat = filters.latitude ?: HAIFA_LAT
             val lon = filters.longitude ?: HAIFA_LON
 
-            val requestDto = ProviderSearchRequestDto(
-                lat = lat,
-                lon = lon,
-                radiusKm = filters.radiusKm ?: DEFAULT_RADIUS_KM,
-                categoryId = filters.categoryIds.firstOrNull(),
-                sortBy = when (filters.sortBy) {
-                    com.aggregateservice.feature.catalog.domain.model.SearchFilters.SortBy.DISTANCE -> "distance"
-                    com.aggregateservice.feature.catalog.domain.model.SearchFilters.SortBy.RATING -> "rating"
-                    else -> "rating"
-                },
-                limit = filters.pageSize,
-                offset = filters.offset,
-            )
+            val requestDto =
+                ProviderSearchRequestDto(
+                    lat = lat,
+                    lon = lon,
+                    radiusKm = filters.radiusKm ?: DEFAULT_RADIUS_KM,
+                    categoryId = filters.categoryIds.firstOrNull(),
+                    sortBy =
+                        when (filters.sortBy) {
+                            com.aggregateservice.feature.catalog.domain.model.SearchFilters.SortBy.DISTANCE -> "distance"
+                            com.aggregateservice.feature.catalog.domain.model.SearchFilters.SortBy.RATING -> "rating"
+                            else -> "rating"
+                        },
+                    limit = filters.pageSize,
+                    offset = filters.offset,
+                )
             client.post("/api/v1/catalog/providers/search") {
                 contentType(ContentType.Application.Json)
                 setBody(requestDto)

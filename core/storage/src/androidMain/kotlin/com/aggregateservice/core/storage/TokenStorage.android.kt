@@ -31,4 +31,3 @@ fun createTokenStorage(context: Context): TokenStorage =
     TokenStorageImpl(
         dataStore = context.authDataStore,
     )
-

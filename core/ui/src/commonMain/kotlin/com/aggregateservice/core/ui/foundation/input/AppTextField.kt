@@ -16,11 +16,8 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import com.aggregateservice.core.theme.Dimensions
@@ -114,9 +111,10 @@ fun AppTextField(
                     onValueChange(newValue)
                 }
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .defaultMinSize(minHeight = Dimensions.TextFieldHeight),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = Dimensions.TextFieldHeight),
             label = label?.let { { Text(it) } },
             placeholder = placeholder?.let { { Text(it) } },
             leadingIcon = leadingIcon,
@@ -129,14 +127,15 @@ fun AppTextField(
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             visualTransformation = visualTransformation,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                errorBorderColor = MaterialTheme.colorScheme.error,
-                focusedLabelColor = MaterialTheme.colorScheme.primary,
-                errorLabelColor = MaterialTheme.colorScheme.error,
-                cursorColor = MaterialTheme.colorScheme.primary,
-            ),
+            colors =
+                OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    errorBorderColor = MaterialTheme.colorScheme.error,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    errorLabelColor = MaterialTheme.colorScheme.error,
+                    cursorColor = MaterialTheme.colorScheme.primary,
+                ),
             shape = MaterialTheme.shapes.small,
             textStyle = MaterialTheme.typography.bodyLarge,
         )
@@ -147,10 +146,11 @@ fun AppTextField(
                 text = errorMessage,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(
-                    start = Spacing.MD,
-                    top = Spacing.XS,
-                ),
+                modifier =
+                    Modifier.padding(
+                        start = Spacing.MD,
+                        top = Spacing.XS,
+                    ),
             )
         }
 
@@ -158,16 +158,18 @@ fun AppTextField(
         if (showCounter && maxLength != null) {
             Text(
                 text = "${value.length}/$maxLength",
-                color = if (isError) {
-                    MaterialTheme.colorScheme.error
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
+                color =
+                    if (isError) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(
-                    start = Spacing.MD,
-                    top = Spacing.XS,
-                ),
+                modifier =
+                    Modifier.padding(
+                        start = Spacing.MD,
+                        top = Spacing.XS,
+                    ),
             )
         }
     }

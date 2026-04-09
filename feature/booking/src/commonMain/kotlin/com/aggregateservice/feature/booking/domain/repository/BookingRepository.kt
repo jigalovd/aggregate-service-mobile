@@ -20,7 +20,6 @@ import kotlinx.datetime.LocalDate
  * - Data layer предоставляет реализацию через DI
  */
 interface BookingRepository {
-
     /**
      * Создаёт новое бронирование.
      *

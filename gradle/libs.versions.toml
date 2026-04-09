@@ -7,8 +7,6 @@ agp = "8.12.3"
 
 # Logging
 kermit = "2.1.0"
-slf4j = "2.0.16"
-logback = "3.0.0"
 
 # Network and Data
 ktor = "3.4.1"
@@ -83,11 +81,8 @@ androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling
 # Logging
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 kermit-ktor = { module = "co.touchlab:kermit-ktor", version.ref = "kermit" }
-kermit-koin = { module = "co.touchlab:kermit-koin", version.ref = "kermit" }
 kermit-io = { module = "co.touchlab:kermit-io", version.ref = "kermit" }
 kermit-test = { module = "co.touchlab:kermit-test", version.ref = "kermit" }
-slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
-logback-android = { module = "com.github.tony19:logback-android", version.ref = "logback" }
 
 # Firebase
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }

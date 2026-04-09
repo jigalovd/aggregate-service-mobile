@@ -51,10 +51,11 @@ data class ProfileUiState(
      * Whether any edit has been made.
      */
     val hasChanges: Boolean
-        get() = profile?.let { p ->
-            editFullName != (p.fullName ?: "") ||
-                editPhone != (p.phone ?: "")
-        } ?: false
+        get() =
+            profile?.let { p ->
+                editFullName != (p.fullName ?: "") ||
+                    editPhone != (p.phone ?: "")
+            } ?: false
 
     companion object {
         /**
@@ -65,9 +66,10 @@ data class ProfileUiState(
         /**
          * Error state.
          */
-        fun error(error: AppError) = ProfileUiState(
-            isLoading = false,
-            error = error,
-        )
+        fun error(error: AppError) =
+            ProfileUiState(
+                isLoading = false,
+                error = error,
+            )
     }
 }

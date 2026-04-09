@@ -20,10 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.aggregateservice.core.i18n.I18nProvider
-import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.core.i18n.StringKey
+import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.feature.reviews.domain.usecase.CreateReviewUseCase
 import com.aggregateservice.feature.reviews.presentation.model.WriteReviewUiState
 import org.koin.compose.koinInject
@@ -81,9 +80,10 @@ fun WriteReviewDialog(
 @Composable
 private fun CheckingContent(i18nProvider: I18nProvider) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(Spacing.XXXL),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(Spacing.XXXL),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -102,9 +102,10 @@ private fun SuccessContent(
     i18nProvider: I18nProvider,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(Spacing.LG),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(Spacing.LG),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(Spacing.MD),
     ) {
@@ -130,9 +131,10 @@ private fun CannotReviewContent(
     i18nProvider: I18nProvider,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(Spacing.LG),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(Spacing.LG),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(Spacing.MD),
     ) {
@@ -162,9 +164,10 @@ private fun WriteReviewContent(
     i18nProvider: I18nProvider,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(Spacing.LG),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(Spacing.LG),
         verticalArrangement = Arrangement.spacedBy(Spacing.MD),
     ) {
         Text(
@@ -196,14 +199,16 @@ private fun WriteReviewContent(
                     Text(
                         text = "★",
                         style = MaterialTheme.typography.displaySmall,
-                        color = if (isSelected) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.outline
-                        },
-                        modifier = Modifier.clickable(enabled = !state.isSubmitting) {
-                            onRatingChange(rating)
-                        },
+                        color =
+                            if (isSelected) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.outline
+                            },
+                        modifier =
+                            Modifier.clickable(enabled = !state.isSubmitting) {
+                                onRatingChange(rating)
+                            },
                     )
                 }
             }

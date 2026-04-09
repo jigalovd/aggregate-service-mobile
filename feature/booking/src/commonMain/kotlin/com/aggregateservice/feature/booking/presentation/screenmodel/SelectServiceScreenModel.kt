@@ -24,7 +24,6 @@ import kotlinx.coroutines.launch
 class SelectServiceScreenModel(
     private val getBookingServicesUseCase: GetBookingServicesUseCase,
 ) : ScreenModel {
-
     private val _uiState = MutableStateFlow(SelectServiceUiState.Loading)
     val uiState: StateFlow<SelectServiceUiState> = _uiState.asStateFlow()
 
@@ -47,8 +46,13 @@ class SelectServiceScreenModel(
                     }
                 },
                 onFailure = { error ->
-                    _uiState.update { SelectServiceUiState.error(error as? com.aggregateservice.core.network.AppError
-                        ?: com.aggregateservice.core.network.AppError.UnknownError(throwable = error, message = error.message)) }
+                    _uiState.update {
+                        SelectServiceUiState.error(
+                            error as? com.aggregateservice.core.network.AppError
+                                ?: com.aggregateservice.core.network.AppError
+                                    .UnknownError(throwable = error, message = error.message),
+                        )
+                    }
                 },
             )
         }

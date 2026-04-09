@@ -237,8 +237,8 @@ fun Map<String, String>.localizeFormat(
         val placeholderIndex = acc.indexOf("%s")
         if (placeholderIndex != -1) {
             acc.substring(0, placeholderIndex) +
-            arg.toString() +
-            acc.substring(placeholderIndex + 2)
+                arg.toString() +
+                acc.substring(placeholderIndex + 2)
         } else {
             acc
         }

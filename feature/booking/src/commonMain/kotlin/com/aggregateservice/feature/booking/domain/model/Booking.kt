@@ -4,7 +4,6 @@ package com.aggregateservice.feature.booking.domain.model
 
 import kotlinx.datetime.Instant
 import kotlin.time.Clock
-import kotlin.time.TimeSource
 
 /**
  * Доменная модель бронирования.
@@ -56,7 +55,7 @@ data class Booking(
      * Форматированная общая длительность (например, "90 min").
      */
     val formattedDuration: String
-        get() = "${totalDurationMinutes} min"
+        get() = "$totalDurationMinutes min"
 
     /**
      * Является ли бронирование прошедшим (время окончания прошло).
@@ -75,9 +74,10 @@ data class Booking(
 
             // US-3.5: Проверка 2-часового окна
             val now = Clock.System.now()
-            val minCancelTime = Instant.fromEpochMilliseconds(
-                startTime.toEpochMilliseconds() - CANCEL_WINDOW_HOURS * 60 * 60 * 1000,
-            )
+            val minCancelTime =
+                Instant.fromEpochMilliseconds(
+                    startTime.toEpochMilliseconds() - CANCEL_WINDOW_HOURS * 60 * 60 * 1000,
+                )
             return now <= minCancelTime
         }
 
@@ -91,9 +91,10 @@ data class Booking(
 
             // US-3.11: Проверка 2-часового окна
             val now = Clock.System.now()
-            val minRescheduleTime = Instant.fromEpochMilliseconds(
-                startTime.toEpochMilliseconds() - RESCHEDULE_WINDOW_HOURS * 60 * 60 * 1000,
-            )
+            val minRescheduleTime =
+                Instant.fromEpochMilliseconds(
+                    startTime.toEpochMilliseconds() - RESCHEDULE_WINDOW_HOURS * 60 * 60 * 1000,
+                )
             return now <= minRescheduleTime
         }
 
@@ -107,8 +108,11 @@ data class Booking(
      * Краткое описание услуг (первые 3 названия).
      */
     val servicesSummary: String
-        get() = items.take(3).joinToString(", ") { it.serviceName }
-            .let { if (items.size > 3) "$it +${items.size - 3} more" else it }
+        get() =
+            items
+                .take(3)
+                .joinToString(", ") { it.serviceName }
+                .let { if (items.size > 3) "$it +${items.size - 3} more" else it }
 
     companion object {
         /**
@@ -126,21 +130,22 @@ data class Booking(
         /**
          * Создаёт пустое бронирование (для инициализации UI state).
          */
-        fun empty() = Booking(
-            id = "",
-            providerId = "",
-            providerName = "",
-            clientId = "",
-            startTime = Instant.fromEpochMilliseconds(0),
-            endTime = Instant.fromEpochMilliseconds(0),
-            status = BookingStatus.PENDING,
-            items = emptyList(),
-            totalPrice = 0.0,
-            totalDurationMinutes = 0,
-            currency = "ILS",
-            notes = null,
-            createdAt = Instant.fromEpochMilliseconds(0),
-            updatedAt = Instant.fromEpochMilliseconds(0),
-        )
+        fun empty() =
+            Booking(
+                id = "",
+                providerId = "",
+                providerName = "",
+                clientId = "",
+                startTime = Instant.fromEpochMilliseconds(0),
+                endTime = Instant.fromEpochMilliseconds(0),
+                status = BookingStatus.PENDING,
+                items = emptyList(),
+                totalPrice = 0.0,
+                totalDurationMinutes = 0,
+                currency = "ILS",
+                notes = null,
+                createdAt = Instant.fromEpochMilliseconds(0),
+                updatedAt = Instant.fromEpochMilliseconds(0),
+            )
     }
 }

@@ -20,7 +20,9 @@ sealed interface AuthState {
         override val isAuthenticated = true
     }
 
-    data class Error(val error: AuthError) : AuthState {
+    data class Error(
+        val error: AuthError,
+    ) : AuthState {
         override val isAuthenticated = false
     }
 }

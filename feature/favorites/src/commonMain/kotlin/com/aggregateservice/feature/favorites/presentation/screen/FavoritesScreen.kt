@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -22,7 +21,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
@@ -34,19 +32,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import com.aggregateservice.core.theme.Spacing
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
-import com.aggregateservice.core.i18n.I18nProvider
-import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.core.auth.contract.AuthNavigator
 import com.aggregateservice.core.auth.contract.AuthStateProvider
 import com.aggregateservice.core.auth.state.AuthState
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.core.navigation.CatalogNavigator
+import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.feature.favorites.domain.model.Favorite
 import com.aggregateservice.feature.favorites.presentation.model.FavoritesUiState
 import com.aggregateservice.feature.favorites.presentation.screenmodel.FavoritesScreenModel
@@ -56,7 +53,6 @@ import org.koin.compose.koinInject
  * Favorites screen displaying user's favorite providers.
  */
 object FavoritesScreen : Screen {
-
     @Composable
     override fun Content() {
         val screenModel = koinScreenModel<FavoritesScreenModel>()
@@ -112,15 +108,15 @@ private fun FavoritesScreenContent(
 ) {
     val pullToRefreshState = rememberPullToRefreshState()
 
-    Scaffold(
-    ) { paddingValues ->
+    Scaffold { paddingValues ->
         PullToRefreshBox(
             state = pullToRefreshState,
             isRefreshing = uiState.isLoading && uiState.favorites.isNotEmpty(),
             onRefresh = onRefresh,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
         ) {
             when {
                 uiState.isLoading && uiState.favorites.isEmpty() -> {
@@ -262,18 +258,20 @@ private fun FavoriteCard(
         elevation = CardDefaults.cardElevation(defaultElevation = Spacing.XXS),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(Spacing.XXS),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(Spacing.XXS),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // Logo
             AsyncImage(
                 model = favorite.logoUrl,
                 contentDescription = null,
-                modifier = Modifier
-                    .size(Spacing.XS)
-                    .clip(MaterialTheme.shapes.medium),
+                modifier =
+                    Modifier
+                        .size(Spacing.XS)
+                        .clip(MaterialTheme.shapes.medium),
                 contentScale = ContentScale.Crop,
             )
 

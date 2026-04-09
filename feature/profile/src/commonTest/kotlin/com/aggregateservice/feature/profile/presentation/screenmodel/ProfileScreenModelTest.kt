@@ -1,8 +1,8 @@
 package com.aggregateservice.feature.profile.presentation.screenmodel
 
 import cafe.adriel.voyager.navigator.Navigator
-import com.aggregateservice.core.navigation.CatalogNavigator
 import com.aggregateservice.core.auth.contract.LogoutUseCase
+import com.aggregateservice.core.navigation.CatalogNavigator
 import com.aggregateservice.feature.profile.domain.model.Profile
 import com.aggregateservice.feature.profile.domain.model.UpdateProfileRequest
 import com.aggregateservice.feature.profile.domain.repository.ProfileRepository
@@ -31,7 +31,6 @@ import kotlin.test.assertTrue
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProfileScreenModelTest {
-
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var mockRepository: MockProfileRepository
     private lateinit var getProfileUseCase: GetProfileUseCase
@@ -63,278 +62,301 @@ class ProfileScreenModelTest {
         mockRepository.getProfileResult = Result.success(createTestProfile())
 
         // Act
-        val screenModel = ProfileScreenModel(
-            getProfileUseCase = getProfileUseCase,
-            updateProfileUseCase = updateProfileUseCase,
-            logoutUseCase = logoutUseCase,
-            catalogNavigator = catalogNavigator,
-        )
+        val screenModel =
+            ProfileScreenModel(
+                getProfileUseCase = getProfileUseCase,
+                updateProfileUseCase = updateProfileUseCase,
+                logoutUseCase = logoutUseCase,
+                catalogNavigator = catalogNavigator,
+            )
 
         // Assert - initial state before coroutine completes
         assertTrue(screenModel.uiState.value.isLoading)
     }
 
     @Test
-    fun `should load profile on init`() = runTest {
-        // Arrange - set result BEFORE creating ScreenModel
-        val expectedProfile = createTestProfile()
-        mockRepository.getProfileResult = Result.success(expectedProfile)
+    fun `should load profile on init`() =
+        runTest {
+            // Arrange - set result BEFORE creating ScreenModel
+            val expectedProfile = createTestProfile()
+            mockRepository.getProfileResult = Result.success(expectedProfile)
 
-        // Act
-        val screenModel = ProfileScreenModel(
-            getProfileUseCase = getProfileUseCase,
-            updateProfileUseCase = updateProfileUseCase,
-            logoutUseCase = logoutUseCase,
-            catalogNavigator = catalogNavigator,
-        )
-        testDispatcher.scheduler.advanceUntilIdle()
+            // Act
+            val screenModel =
+                ProfileScreenModel(
+                    getProfileUseCase = getProfileUseCase,
+                    updateProfileUseCase = updateProfileUseCase,
+                    logoutUseCase = logoutUseCase,
+                    catalogNavigator = catalogNavigator,
+                )
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        // Assert
-        val state = screenModel.uiState.value
-        assertFalse(state.isLoading)
-        assertEquals(expectedProfile, state.profile)
-    }
-
-    @Test
-    fun `should set error state when loading fails`() = runTest {
-        // Arrange - set error result BEFORE creating ScreenModel
-        val expectedError = RuntimeException("Network error")
-        mockRepository.getProfileResult = Result.failure(expectedError)
-
-        // Act
-        val screenModel = ProfileScreenModel(
-            getProfileUseCase = getProfileUseCase,
-            updateProfileUseCase = updateProfileUseCase,
-            logoutUseCase = logoutUseCase,
-            catalogNavigator = catalogNavigator,
-        )
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        // Assert
-        val state = screenModel.uiState.value
-        assertFalse(state.isLoading)
-        assertTrue(state.error != null)
-    }
+            // Assert
+            val state = screenModel.uiState.value
+            assertFalse(state.isLoading)
+            assertEquals(expectedProfile, state.profile)
+        }
 
     @Test
-    fun `startEditing should enable edit mode with current values`() = runTest {
-        // Arrange
-        val profile = createTestProfile(fullName = "Test User", phone = "+1234567890")
-        mockRepository.getProfileResult = Result.success(profile)
-        val screenModel = ProfileScreenModel(
-            getProfileUseCase = getProfileUseCase,
-            updateProfileUseCase = updateProfileUseCase,
-            logoutUseCase = logoutUseCase,
-            catalogNavigator = catalogNavigator,
-        )
-        testDispatcher.scheduler.advanceUntilIdle()
+    fun `should set error state when loading fails`() =
+        runTest {
+            // Arrange - set error result BEFORE creating ScreenModel
+            val expectedError = RuntimeException("Network error")
+            mockRepository.getProfileResult = Result.failure(expectedError)
 
-        // Act
-        screenModel.startEditing()
-        testDispatcher.scheduler.advanceUntilIdle()
+            // Act
+            val screenModel =
+                ProfileScreenModel(
+                    getProfileUseCase = getProfileUseCase,
+                    updateProfileUseCase = updateProfileUseCase,
+                    logoutUseCase = logoutUseCase,
+                    catalogNavigator = catalogNavigator,
+                )
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        // Assert
-        val state = screenModel.uiState.value
-        assertTrue(state.isEditing)
-        assertEquals("Test User", state.editFullName)
-        assertEquals("+1234567890", state.editPhone)
-    }
-
-    @Test
-    fun `cancelEditing should disable edit mode and revert changes`() = runTest {
-        // Arrange
-        val profile = createTestProfile(fullName = "Original", phone = "+1111111111")
-        mockRepository.getProfileResult = Result.success(profile)
-        val screenModel = ProfileScreenModel(
-            getProfileUseCase = getProfileUseCase,
-            updateProfileUseCase = updateProfileUseCase,
-            logoutUseCase = logoutUseCase,
-            catalogNavigator = catalogNavigator,
-        )
-        testDispatcher.scheduler.advanceUntilIdle()
-        screenModel.startEditing()
-        screenModel.onFullNameChanged("Changed")
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        // Act
-        screenModel.cancelEditing()
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        // Assert
-        val state = screenModel.uiState.value
-        assertFalse(state.isEditing)
-        assertEquals("Original", state.editFullName)
-        assertEquals("+1111111111", state.editPhone)
-    }
+            // Assert
+            val state = screenModel.uiState.value
+            assertFalse(state.isLoading)
+            assertTrue(state.error != null)
+        }
 
     @Test
-    fun `onFullNameChanged should update editFullName`() = runTest {
-        // Arrange
-        mockRepository.getProfileResult = Result.success(createTestProfile())
-        val screenModel = ProfileScreenModel(
-            getProfileUseCase = getProfileUseCase,
-            updateProfileUseCase = updateProfileUseCase,
-            logoutUseCase = logoutUseCase,
-            catalogNavigator = catalogNavigator,
-        )
-        testDispatcher.scheduler.advanceUntilIdle()
+    fun `startEditing should enable edit mode with current values`() =
+        runTest {
+            // Arrange
+            val profile = createTestProfile(fullName = "Test User", phone = "+1234567890")
+            mockRepository.getProfileResult = Result.success(profile)
+            val screenModel =
+                ProfileScreenModel(
+                    getProfileUseCase = getProfileUseCase,
+                    updateProfileUseCase = updateProfileUseCase,
+                    logoutUseCase = logoutUseCase,
+                    catalogNavigator = catalogNavigator,
+                )
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        // Act
-        screenModel.onFullNameChanged("New Name")
-        testDispatcher.scheduler.advanceUntilIdle()
+            // Act
+            screenModel.startEditing()
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        // Assert
-        assertEquals("New Name", screenModel.uiState.value.editFullName)
-    }
-
-    @Test
-    fun `onPhoneChanged should update editPhone`() = runTest {
-        // Arrange
-        mockRepository.getProfileResult = Result.success(createTestProfile())
-        val screenModel = ProfileScreenModel(
-            getProfileUseCase = getProfileUseCase,
-            updateProfileUseCase = updateProfileUseCase,
-            logoutUseCase = logoutUseCase,
-            catalogNavigator = catalogNavigator,
-        )
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        // Act
-        screenModel.onPhoneChanged("+9998887777")
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        // Assert
-        assertEquals("+9998887777", screenModel.uiState.value.editPhone)
-    }
+            // Assert
+            val state = screenModel.uiState.value
+            assertTrue(state.isEditing)
+            assertEquals("Test User", state.editFullName)
+            assertEquals("+1234567890", state.editPhone)
+        }
 
     @Test
-    fun `saveProfile should update profile and exit edit mode`() = runTest {
-        // Arrange
-        val originalProfile = createTestProfile(fullName = "Original", phone = "+1111111111")
-        val updatedProfile = createTestProfile(fullName = "Updated", phone = "+2222222222")
-        mockRepository.getProfileResult = Result.success(originalProfile)
-        mockRepository.updateProfileResult = Result.success(updatedProfile)
-        val screenModel = ProfileScreenModel(
-            getProfileUseCase = getProfileUseCase,
-            updateProfileUseCase = updateProfileUseCase,
-            logoutUseCase = logoutUseCase,
-            catalogNavigator = catalogNavigator,
-        )
-        testDispatcher.scheduler.advanceUntilIdle()
+    fun `cancelEditing should disable edit mode and revert changes`() =
+        runTest {
+            // Arrange
+            val profile = createTestProfile(fullName = "Original", phone = "+1111111111")
+            mockRepository.getProfileResult = Result.success(profile)
+            val screenModel =
+                ProfileScreenModel(
+                    getProfileUseCase = getProfileUseCase,
+                    updateProfileUseCase = updateProfileUseCase,
+                    logoutUseCase = logoutUseCase,
+                    catalogNavigator = catalogNavigator,
+                )
+            testDispatcher.scheduler.advanceUntilIdle()
+            screenModel.startEditing()
+            screenModel.onFullNameChanged("Changed")
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        screenModel.startEditing()
-        screenModel.onFullNameChanged("Updated")
-        screenModel.onPhoneChanged("+2222222222")
-        testDispatcher.scheduler.advanceUntilIdle()
+            // Act
+            screenModel.cancelEditing()
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        // Act
-        screenModel.saveProfile()
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        // Assert
-        val state = screenModel.uiState.value
-        assertFalse(state.isEditing)
-        assertEquals(updatedProfile, state.profile)
-        assertTrue(state.saveSuccess)
-    }
+            // Assert
+            val state = screenModel.uiState.value
+            assertFalse(state.isEditing)
+            assertEquals("Original", state.editFullName)
+            assertEquals("+1111111111", state.editPhone)
+        }
 
     @Test
-    fun `saveProfile should set error when update fails`() = runTest {
-        // Arrange
-        val profile = createTestProfile()
-        mockRepository.getProfileResult = Result.success(profile)
-        mockRepository.updateProfileResult = Result.failure(RuntimeException("Update failed"))
-        val screenModel = ProfileScreenModel(
-            getProfileUseCase = getProfileUseCase,
-            updateProfileUseCase = updateProfileUseCase,
-            logoutUseCase = logoutUseCase,
-            catalogNavigator = catalogNavigator,
-        )
-        testDispatcher.scheduler.advanceUntilIdle()
+    fun `onFullNameChanged should update editFullName`() =
+        runTest {
+            // Arrange
+            mockRepository.getProfileResult = Result.success(createTestProfile())
+            val screenModel =
+                ProfileScreenModel(
+                    getProfileUseCase = getProfileUseCase,
+                    updateProfileUseCase = updateProfileUseCase,
+                    logoutUseCase = logoutUseCase,
+                    catalogNavigator = catalogNavigator,
+                )
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        screenModel.startEditing()
-        screenModel.onFullNameChanged("Changed")
-        testDispatcher.scheduler.advanceUntilIdle()
+            // Act
+            screenModel.onFullNameChanged("New Name")
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        // Act
-        screenModel.saveProfile()
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        // Assert
-        val state = screenModel.uiState.value
-        assertTrue(state.error != null)
-        assertFalse(state.saveSuccess)
-    }
+            // Assert
+            assertEquals("New Name", screenModel.uiState.value.editFullName)
+        }
 
     @Test
-    fun `clearError should clear error state`() = runTest {
-        // Arrange
-        val expectedError = RuntimeException("Error")
-        mockRepository.getProfileResult = Result.failure(expectedError)
-        val screenModel = ProfileScreenModel(
-            getProfileUseCase = getProfileUseCase,
-            updateProfileUseCase = updateProfileUseCase,
-            logoutUseCase = logoutUseCase,
-            catalogNavigator = catalogNavigator,
-        )
-        testDispatcher.scheduler.advanceUntilIdle()
+    fun `onPhoneChanged should update editPhone`() =
+        runTest {
+            // Arrange
+            mockRepository.getProfileResult = Result.success(createTestProfile())
+            val screenModel =
+                ProfileScreenModel(
+                    getProfileUseCase = getProfileUseCase,
+                    updateProfileUseCase = updateProfileUseCase,
+                    logoutUseCase = logoutUseCase,
+                    catalogNavigator = catalogNavigator,
+                )
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        // Act
-        screenModel.clearError()
-        testDispatcher.scheduler.advanceUntilIdle()
+            // Act
+            screenModel.onPhoneChanged("+9998887777")
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        // Assert
-        assertNull(screenModel.uiState.value.error)
-    }
-
-    @Test
-    fun `clearSaveSuccess should clear saveSuccess flag`() = runTest {
-        // Arrange
-        val profile = createTestProfile()
-        val updatedProfile = createTestProfile(fullName = "Updated")
-        mockRepository.getProfileResult = Result.success(profile)
-        mockRepository.updateProfileResult = Result.success(updatedProfile)
-        val screenModel = ProfileScreenModel(
-            getProfileUseCase = getProfileUseCase,
-            updateProfileUseCase = updateProfileUseCase,
-            logoutUseCase = logoutUseCase,
-            catalogNavigator = catalogNavigator,
-        )
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        screenModel.startEditing()
-        screenModel.onFullNameChanged("Updated")
-        screenModel.saveProfile()
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        // Act
-        screenModel.clearSaveSuccess()
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        // Assert
-        assertFalse(screenModel.uiState.value.saveSuccess)
-    }
+            // Assert
+            assertEquals("+9998887777", screenModel.uiState.value.editPhone)
+        }
 
     @Test
-    fun `logout should call useCase and navigate to catalog`() = runTest {
-        // Arrange
-        mockRepository.getProfileResult = Result.success(createTestProfile())
-        val screenModel = ProfileScreenModel(
-            getProfileUseCase = getProfileUseCase,
-            updateProfileUseCase = updateProfileUseCase,
-            logoutUseCase = logoutUseCase,
-            catalogNavigator = catalogNavigator,
-        )
-        testDispatcher.scheduler.advanceUntilIdle()
+    fun `saveProfile should update profile and exit edit mode`() =
+        runTest {
+            // Arrange
+            val originalProfile = createTestProfile(fullName = "Original", phone = "+1111111111")
+            val updatedProfile = createTestProfile(fullName = "Updated", phone = "+2222222222")
+            mockRepository.getProfileResult = Result.success(originalProfile)
+            mockRepository.updateProfileResult = Result.success(updatedProfile)
+            val screenModel =
+                ProfileScreenModel(
+                    getProfileUseCase = getProfileUseCase,
+                    updateProfileUseCase = updateProfileUseCase,
+                    logoutUseCase = logoutUseCase,
+                    catalogNavigator = catalogNavigator,
+                )
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        // when
-        screenModel.logout(mockNavigator)
-        testDispatcher.scheduler.advanceUntilIdle()
+            screenModel.startEditing()
+            screenModel.onFullNameChanged("Updated")
+            screenModel.onPhoneChanged("+2222222222")
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        // then
-        coVerify { logoutUseCase() }
-        verify { mockNavigator.replace(any()) }
-    }
+            // Act
+            screenModel.saveProfile()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Assert
+            val state = screenModel.uiState.value
+            assertFalse(state.isEditing)
+            assertEquals(updatedProfile, state.profile)
+            assertTrue(state.saveSuccess)
+        }
+
+    @Test
+    fun `saveProfile should set error when update fails`() =
+        runTest {
+            // Arrange
+            val profile = createTestProfile()
+            mockRepository.getProfileResult = Result.success(profile)
+            mockRepository.updateProfileResult = Result.failure(RuntimeException("Update failed"))
+            val screenModel =
+                ProfileScreenModel(
+                    getProfileUseCase = getProfileUseCase,
+                    updateProfileUseCase = updateProfileUseCase,
+                    logoutUseCase = logoutUseCase,
+                    catalogNavigator = catalogNavigator,
+                )
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            screenModel.startEditing()
+            screenModel.onFullNameChanged("Changed")
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Act
+            screenModel.saveProfile()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Assert
+            val state = screenModel.uiState.value
+            assertTrue(state.error != null)
+            assertFalse(state.saveSuccess)
+        }
+
+    @Test
+    fun `clearError should clear error state`() =
+        runTest {
+            // Arrange
+            val expectedError = RuntimeException("Error")
+            mockRepository.getProfileResult = Result.failure(expectedError)
+            val screenModel =
+                ProfileScreenModel(
+                    getProfileUseCase = getProfileUseCase,
+                    updateProfileUseCase = updateProfileUseCase,
+                    logoutUseCase = logoutUseCase,
+                    catalogNavigator = catalogNavigator,
+                )
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Act
+            screenModel.clearError()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Assert
+            assertNull(screenModel.uiState.value.error)
+        }
+
+    @Test
+    fun `clearSaveSuccess should clear saveSuccess flag`() =
+        runTest {
+            // Arrange
+            val profile = createTestProfile()
+            val updatedProfile = createTestProfile(fullName = "Updated")
+            mockRepository.getProfileResult = Result.success(profile)
+            mockRepository.updateProfileResult = Result.success(updatedProfile)
+            val screenModel =
+                ProfileScreenModel(
+                    getProfileUseCase = getProfileUseCase,
+                    updateProfileUseCase = updateProfileUseCase,
+                    logoutUseCase = logoutUseCase,
+                    catalogNavigator = catalogNavigator,
+                )
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            screenModel.startEditing()
+            screenModel.onFullNameChanged("Updated")
+            screenModel.saveProfile()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Act
+            screenModel.clearSaveSuccess()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Assert
+            assertFalse(screenModel.uiState.value.saveSuccess)
+        }
+
+    @Test
+    fun `logout should call useCase and navigate to catalog`() =
+        runTest {
+            // Arrange
+            mockRepository.getProfileResult = Result.success(createTestProfile())
+            val screenModel =
+                ProfileScreenModel(
+                    getProfileUseCase = getProfileUseCase,
+                    updateProfileUseCase = updateProfileUseCase,
+                    logoutUseCase = logoutUseCase,
+                    catalogNavigator = catalogNavigator,
+                )
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // when
+            screenModel.logout(mockNavigator)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // then
+            coVerify { logoutUseCase() }
+            verify { mockNavigator.replace(any()) }
+        }
 
     private fun createTestProfile(
         fullName: String? = "Test User",
@@ -354,28 +376,30 @@ class ProfileScreenModelTest {
  * Mock implementation of ProfileRepository for testing.
  */
 class MockProfileRepository : ProfileRepository {
-    var getProfileResult: Result<Profile> = Result.success(
-        Profile(
-            id = "default",
-            userId = "default",
-            fullName = null,
-            phone = null,
-            avatarUrl = null,
-            noShowCount = 0,
-            noShowRate = 0.0,
+    var getProfileResult: Result<Profile> =
+        Result.success(
+            Profile(
+                id = "default",
+                userId = "default",
+                fullName = null,
+                phone = null,
+                avatarUrl = null,
+                noShowCount = 0,
+                noShowRate = 0.0,
+            ),
         )
-    )
-    var updateProfileResult: Result<Profile> = Result.success(
-        Profile(
-            id = "default",
-            userId = "default",
-            fullName = null,
-            phone = null,
-            avatarUrl = null,
-            noShowCount = 0,
-            noShowRate = 0.0,
+    var updateProfileResult: Result<Profile> =
+        Result.success(
+            Profile(
+                id = "default",
+                userId = "default",
+                fullName = null,
+                phone = null,
+                avatarUrl = null,
+                noShowCount = 0,
+                noShowRate = 0.0,
+            ),
         )
-    )
     var getProfileCallCount = 0
     var updateProfileCallCount = 0
 

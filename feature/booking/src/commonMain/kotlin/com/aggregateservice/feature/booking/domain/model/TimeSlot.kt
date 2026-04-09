@@ -3,7 +3,6 @@
 package com.aggregateservice.feature.booking.domain.model
 
 import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
@@ -52,12 +51,13 @@ data class TimeSlot(
         /**
          * Создаёт пустой (недоступный) слот.
          */
-        fun empty(providerId: String) = TimeSlot(
-            startTime = Instant.fromEpochMilliseconds(0),
-            endTime = Instant.fromEpochMilliseconds(0),
-            isAvailable = false,
-            providerId = providerId,
-        )
+        fun empty(providerId: String) =
+            TimeSlot(
+                startTime = Instant.fromEpochMilliseconds(0),
+                endTime = Instant.fromEpochMilliseconds(0),
+                isAvailable = false,
+                providerId = providerId,
+            )
     }
 }
 

@@ -4,5 +4,6 @@ import cafe.adriel.voyager.core.screen.Screen
 
 interface AuthNavigator {
     fun createLoginScreen(): Screen
+
     fun createRegisterScreen(): Screen?
 }

@@ -1,5 +1,6 @@
 package com.aggregateservice.core.firebase
 
+import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import com.aggregateservice.core.auth.contract.AuthProvider
@@ -18,6 +19,8 @@ actual class AuthProviderApi actual constructor() {
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     private var credentialManager: CredentialManager? = null
 
+    private val tag = "AuthProviderApi"
+
     private fun getCredentialManager(context: PlatformAuthContext): CredentialManager {
         return credentialManager ?: CredentialManager.create(context).also {
             credentialManager = it
@@ -27,6 +30,7 @@ actual class AuthProviderApi actual constructor() {
     actual suspend fun signInWithGoogle(context: PlatformAuthContext): Result<AuthProviderResult> =
         withContext(Dispatchers.Main) {
             try {
+                Log.d(tag, "1. signInWithGoogle started")
                 val cm = getCredentialManager(context)
 
                 val googleIdOption =
@@ -50,9 +54,13 @@ actual class AuthProviderApi actual constructor() {
 
                 val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(result.credential.data)
                 val googleIdToken = googleIdTokenCredential.idToken
+                Log.d(tag, "2. Google ID token obtained: ${googleIdToken.take(20)}...")
 
-                exchangeGoogleTokenForFirebase(googleIdToken)
+                val exchangeResult = exchangeGoogleTokenForFirebase(googleIdToken)
+                Log.d(tag, "6. exchangeGoogleTokenForFirebase result: ${exchangeResult.isSuccess}")
+                exchangeResult
             } catch (e: Exception) {
+                Log.e(tag, "signInWithGoogle failed", e)
                 Result.failure(e)
             }
         }
@@ -60,6 +68,7 @@ actual class AuthProviderApi actual constructor() {
     private suspend fun exchangeGoogleTokenForFirebase(googleIdToken: String): Result<AuthProviderResult> =
         withTimeoutOrNull(TOKEN_TIMEOUT_MS) {
             suspendCancellableCoroutine { continuation ->
+                Log.d(tag, "3. exchangeGoogleTokenForFirebase started")
                 val credential = GoogleAuthProvider.getCredential(googleIdToken, null)
                 var resumed = false
 
@@ -72,10 +81,12 @@ actual class AuthProviderApi actual constructor() {
                 firebaseAuth
                     .signInWithCredential(credential)
                     .addOnSuccessListener { authResult ->
+                        Log.d(tag, "4. signInWithCredential success, user=${authResult.user?.uid}")
                         if (resumed) return@addOnSuccessListener
                         authResult.user
                             ?.getIdToken(false)
                             ?.addOnSuccessListener { tokenResult ->
+                                Log.d(tag, "5. getIdToken success, token=${tokenResult.token?.take(20)}...")
                                 if (resumed) return@addOnSuccessListener
                                 val firebaseIdToken = tokenResult.token
                                 if (firebaseIdToken != null) {

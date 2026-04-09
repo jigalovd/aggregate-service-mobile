@@ -20,7 +20,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,13 +27,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.aggregateservice.core.theme.Spacing
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
+import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.feature.booking.domain.model.BookingService
 import com.aggregateservice.feature.booking.presentation.screenmodel.SelectServiceScreenModel
 import org.koin.compose.koinInject
@@ -49,7 +48,6 @@ data class SelectServiceScreen(
     val providerId: String,
     val providerName: String,
 ) : Screen {
-
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -74,7 +72,7 @@ data class SelectServiceScreen(
                         providerId = providerId,
                         providerName = providerName,
                         serviceIds = selectedIds,
-                    )
+                    ),
                 )
             },
             onBack = { navigator.pop() },
@@ -108,9 +106,10 @@ fun SelectServiceScreenContent(
         when {
             uiState.isLoading -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()
@@ -119,9 +118,10 @@ fun SelectServiceScreenContent(
 
             uiState.error != null -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
@@ -133,9 +133,10 @@ fun SelectServiceScreenContent(
 
             uiState.nonCombinableError != null -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
@@ -147,9 +148,10 @@ fun SelectServiceScreenContent(
 
             uiState.services.isEmpty() -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(i18nProvider[StringKey.Booking.NO_SERVICES])
@@ -158,9 +160,10 @@ fun SelectServiceScreenContent(
 
             else -> {
                 LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
                 ) {
                     items(uiState.services, key = { it.id }) { service ->
                         ServiceSelectionItem(
@@ -185,15 +188,17 @@ fun ServiceSelectionItem(
     onToggle: () -> Unit,
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = Spacing.MD, vertical = Spacing.SM)
-            .clickable(onClick = onToggle),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Spacing.MD, vertical = Spacing.SM)
+                .clickable(onClick = onToggle),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(Spacing.MD),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(Spacing.MD),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Checkbox(
@@ -201,9 +206,10 @@ fun ServiceSelectionItem(
                 onCheckedChange = { onToggle() },
             )
             Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 12.dp),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(start = 12.dp),
             ) {
                 Text(
                     text = service.name,
@@ -247,9 +253,10 @@ fun ServiceSelectionBottomBar(
         modifier = Modifier.fillMaxWidth(),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(Spacing.MD),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(Spacing.MD),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {

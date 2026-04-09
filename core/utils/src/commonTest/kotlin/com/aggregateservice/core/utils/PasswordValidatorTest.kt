@@ -12,7 +12,6 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class PasswordValidatorTest {
-
     @BeforeTest
     fun setup() {
         Config.initialize(
@@ -27,7 +26,7 @@ class PasswordValidatorTest {
                 apiVersion = "v1",
                 passwordMinLength = 12,
                 passwordMaxLength = 128,
-            )
+            ),
         )
     }
 

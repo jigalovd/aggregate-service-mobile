@@ -14,7 +14,6 @@ class I18nProviderImpl(
     initialLocale: AppLocale = AppLocale.DEFAULT,
     private val resources: Map<AppLocale, Map<String, String>> = emptyMap(),
 ) : I18nProvider {
-
     private val _localeFlow = MutableStateFlow(initialLocale)
     public val localeFlow: StateFlow<AppLocale> = _localeFlow.asStateFlow()
 

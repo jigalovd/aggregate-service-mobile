@@ -8,7 +8,6 @@ import kotlin.test.assertEquals
  * Tests enum values per GEO-03 requirement.
  */
 class LocationAccuracyTest {
-
     @Test
     fun `LocationAccuracy should have HIGH value`() {
         val high = LocationAccuracy.HIGH

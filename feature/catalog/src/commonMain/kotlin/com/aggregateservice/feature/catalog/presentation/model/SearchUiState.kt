@@ -3,7 +3,6 @@ package com.aggregateservice.feature.catalog.presentation.model
 import androidx.compose.runtime.Stable
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.catalog.domain.model.Category
-import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.presentation.screenmodel.ProviderWithDistance
 

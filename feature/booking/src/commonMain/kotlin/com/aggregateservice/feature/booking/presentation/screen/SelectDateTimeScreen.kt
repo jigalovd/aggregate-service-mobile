@@ -15,9 +15,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -26,7 +26,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -34,14 +33,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import com.aggregateservice.core.theme.Spacing
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
+import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.feature.booking.domain.model.TimeSlot
 import com.aggregateservice.feature.booking.presentation.screenmodel.SelectDateTimeScreenModel
 import kotlinx.datetime.DateTimeUnit
@@ -49,8 +47,8 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.todayIn
-import kotlin.time.Clock
 import org.koin.compose.koinInject
+import kotlin.time.Clock
 
 /**
  * Voyager Screen для выбора даты и времени.
@@ -64,7 +62,6 @@ data class SelectDateTimeScreen(
     val providerName: String,
     val serviceIds: List<String>,
 ) : Screen {
-
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -93,7 +90,7 @@ data class SelectDateTimeScreen(
                                 serviceIds = serviceIds,
                                 selectedDate = date.toString(),
                                 slotStartTime = slot.startTime.toString(),
-                            )
+                            ),
                         )
                     }
                 }
@@ -119,9 +116,10 @@ fun SelectDateTimeScreenContent(
             if (uiState.hasSelection) {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(Spacing.MD),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(Spacing.MD),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
@@ -145,9 +143,10 @@ fun SelectDateTimeScreenContent(
         when {
             uiState.isLoading -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()
@@ -156,9 +155,10 @@ fun SelectDateTimeScreenContent(
 
             uiState.error != null -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
@@ -170,10 +170,11 @@ fun SelectDateTimeScreenContent(
 
             else -> {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .padding(Spacing.MD),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                            .padding(Spacing.MD),
                 ) {
                     // Date selection header
                     Text(
@@ -264,13 +265,15 @@ fun DateChip(
 ) {
     OutlinedButton(
         onClick = onClick,
-        colors = if (isSelected) {
-            androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-            )
-        } else {
-            androidx.compose.material3.ButtonDefaults.outlinedButtonColors()
-        },
+        colors =
+            if (isSelected) {
+                androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                )
+            } else {
+                androidx.compose.material3.ButtonDefaults
+                    .outlinedButtonColors()
+            },
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
@@ -293,21 +296,24 @@ fun TimeSlotItem(
     i18nProvider: I18nProvider,
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(enabled = slot.isAvailable, onClick = onClick),
-        colors = if (isSelected) {
-            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-        } else if (!slot.isAvailable) {
-            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-        } else {
-            CardDefaults.cardColors()
-        },
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(enabled = slot.isAvailable, onClick = onClick),
+        colors =
+            if (isSelected) {
+                CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+            } else if (!slot.isAvailable) {
+                CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            } else {
+                CardDefaults.cardColors()
+            },
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(Spacing.MD),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(Spacing.MD),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(

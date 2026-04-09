@@ -9,11 +9,11 @@ import com.aggregateservice.feature.catalog.domain.model.SearchResult
 import com.aggregateservice.feature.catalog.domain.model.WorkingHours
 import com.aggregateservice.feature.catalog.domain.repository.CatalogRepository
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlinx.datetime.Instant
 
 class SearchProvidersUseCaseTest {
     private lateinit var searchProvidersUseCase: SearchProvidersUseCase

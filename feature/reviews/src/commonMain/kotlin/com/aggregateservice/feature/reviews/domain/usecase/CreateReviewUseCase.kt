@@ -43,15 +43,16 @@ class CreateReviewUseCase(
         val trimmedComment = comment?.trim()?.takeIf { it.isNotBlank() }
 
         // ADD: Validate booking status is COMPLETED (defense-in-depth)
-        val canReview = repository.canReviewBooking(bookingId).getOrElse {
-            return Result.failure(it)
-        }
+        val canReview =
+            repository.canReviewBooking(bookingId).getOrElse {
+                return Result.failure(it)
+            }
         if (!canReview) {
             return Result.failure(
                 AppError.ValidationError(
                     field = "bookingId",
-                    message = "Review can only be created for completed bookings"
-                )
+                    message = "Review can only be created for completed bookings",
+                ),
             )
         }
 

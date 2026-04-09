@@ -4,7 +4,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxColors
@@ -13,17 +12,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.aggregateservice.core.theme.Spacing
 
 /**
@@ -59,16 +55,18 @@ fun AppCheckbox(
     colors: CheckboxColors = CheckboxDefaults.colors(),
     interactionSource: MutableInteractionSource? = null,
 ) {
-    val contentColor = when {
-        !enabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-        else -> MaterialTheme.colorScheme.onSurface
-    }
+    val contentColor =
+        when {
+            !enabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+            else -> MaterialTheme.colorScheme.onSurface
+        }
 
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics { role = Role.Checkbox },
-        verticalAlignment = Alignment.CenterVertically
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .semantics { role = Role.Checkbox },
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         if (labelPosition == LabelPosition.Start && (label != null || labelAsAnnotatedString != null)) {
             LabelContent(
@@ -76,7 +74,7 @@ fun AppCheckbox(
                 labelAsAnnotatedString = labelAsAnnotatedString,
                 supportText = supportText,
                 enabled = enabled,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
             Spacer(modifier = Modifier.width(Spacing.MD))
         }
@@ -87,7 +85,7 @@ fun AppCheckbox(
             enabled = enabled,
             colors = colors,
             interactionSource = interactionSource,
-            modifier = Modifier.semantics { role = Role.Checkbox }
+            modifier = Modifier.semantics { role = Role.Checkbox },
         )
 
         if (labelPosition == LabelPosition.End && (label != null || labelAsAnnotatedString != null)) {
@@ -97,7 +95,7 @@ fun AppCheckbox(
                 labelAsAnnotatedString = labelAsAnnotatedString,
                 supportText = supportText,
                 enabled = enabled,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
         }
     }
@@ -130,18 +128,23 @@ fun AppTriStateCheckbox(
     interactionSource: MutableInteractionSource? = null,
 ) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics { role = Role.Checkbox },
-        verticalAlignment = Alignment.CenterVertically
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .semantics { role = Role.Checkbox },
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         if (labelPosition == LabelPosition.Start && label != null) {
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyLarge,
-                color = if (enabled) MaterialTheme.colorScheme.onSurface
-                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                modifier = Modifier.weight(1f)
+                color =
+                    if (enabled) {
+                        MaterialTheme.colorScheme.onSurface
+                    } else {
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                    },
+                modifier = Modifier.weight(1f),
             )
             Spacer(modifier = Modifier.width(Spacing.MD))
         }
@@ -151,7 +154,7 @@ fun AppTriStateCheckbox(
             onClick = onClick,
             enabled = enabled,
             colors = colors,
-            interactionSource = interactionSource
+            interactionSource = interactionSource,
         )
 
         if (labelPosition == LabelPosition.End && label != null) {
@@ -159,9 +162,13 @@ fun AppTriStateCheckbox(
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyLarge,
-                color = if (enabled) MaterialTheme.colorScheme.onSurface
-                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                modifier = Modifier.weight(1f)
+                color =
+                    if (enabled) {
+                        MaterialTheme.colorScheme.onSurface
+                    } else {
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                    },
+                modifier = Modifier.weight(1f),
             )
         }
     }
@@ -172,7 +179,7 @@ fun AppTriStateCheckbox(
  */
 enum class LabelPosition {
     Start,
-    End
+    End,
 }
 
 @Composable
@@ -183,11 +190,15 @@ private fun LabelContent(
     enabled: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val contentColor = if (enabled) MaterialTheme.colorScheme.onSurface
-        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+    val contentColor =
+        if (enabled) {
+            MaterialTheme.colorScheme.onSurface
+        } else {
+            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+        }
 
     androidx.compose.foundation.layout.Column(
-        modifier = modifier
+        modifier = modifier,
     ) {
         when {
             labelAsAnnotatedString != null -> {
@@ -196,7 +207,7 @@ private fun LabelContent(
                     style = MaterialTheme.typography.bodyLarge,
                     color = contentColor,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             label != null -> {
@@ -205,7 +216,7 @@ private fun LabelContent(
                     style = MaterialTheme.typography.bodyLarge,
                     color = contentColor,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -216,7 +227,7 @@ private fun LabelContent(
                 style = MaterialTheme.typography.bodySmall,
                 color = contentColor.copy(alpha = 0.7f),
                 maxLines = 2,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }

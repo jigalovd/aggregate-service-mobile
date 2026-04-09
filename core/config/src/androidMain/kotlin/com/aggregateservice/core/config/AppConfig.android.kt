@@ -15,7 +15,8 @@ actual class AppConfig actual constructor(
     actual val environment: Environment = Environment.fromString(environmentCode)
     actual val language: Language = Language.fromCode(languageCode)
 
-    override fun toString(): String = """
+    override fun toString(): String =
+        """
         |AppConfig (Android):
         |  - API Base URL: $apiBaseUrl
         |  - API Key: ${apiKey.take(3)}*** (hidden)
@@ -28,5 +29,5 @@ actual class AppConfig actual constructor(
         |  - Password Min Length: $passwordMinLength
         |  - Password Max Length: $passwordMaxLength
         |
-    """.trimMargin()
+        """.trimMargin()
 }

@@ -25,53 +25,59 @@ class AuthRepositoryImplTest {
 
     @BeforeTest
     fun setup() {
-        val mockEngine = MockEngine { request ->
-            when {
-                request.url.encodedPath.contains("/auth/me") -> {
-                    respond(
-                        content = json.encodeToString(
-                            UserResponse.serializer(),
-                            UserResponse(id = "user-123", email = "test@example.com"),
-                        ),
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType, "application/json"),
-                    )
-                }
-                else -> {
-                    respond(
-                        content = json.encodeToString(
-                            AuthResponse.serializer(),
-                            AuthResponse(
-                                accessToken = "test-token",
-                                user = UserResponse(id = "user-123", email = "test@example.com"),
-                            ),
-                        ),
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType, "application/json"),
-                    )
+        val mockEngine =
+            MockEngine { request ->
+                when {
+                    request.url.encodedPath.contains("/auth/me") -> {
+                        respond(
+                            content =
+                                json.encodeToString(
+                                    UserResponse.serializer(),
+                                    UserResponse(id = "user-123", email = "test@example.com"),
+                                ),
+                            status = HttpStatusCode.OK,
+                            headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                        )
+                    }
+                    else -> {
+                        respond(
+                            content =
+                                json.encodeToString(
+                                    AuthResponse.serializer(),
+                                    AuthResponse(
+                                        accessToken = "test-token",
+                                        user = UserResponse(id = "user-123", email = "test@example.com"),
+                                    ),
+                                ),
+                            status = HttpStatusCode.OK,
+                            headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                        )
+                    }
                 }
             }
-        }
-        val httpClient = HttpClient(mockEngine) {
-            install(ContentNegotiation) { json(json) }
-        }
-        repository = AuthRepositoryImpl(httpClient)
+        val httpClient =
+            HttpClient(mockEngine) {
+                install(ContentNegotiation) { json(json) }
+            }
+        repository = AuthRepositoryImpl(httpClient = httpClient, authClient = httpClient)
     }
 
     @Test
-    fun `verifyFirebaseToken returns VerifyResult Authenticated on success`() = runTest {
-        val result = repository.verifyFirebaseToken("google", "firebase-token")
-        assertTrue(result.isSuccess)
-        val verifyResult = result.getOrNull()
-        assertIs<VerifyResult.Authenticated>(verifyResult)
-        assertEquals("test-token", verifyResult.accessToken)
-        assertEquals("user-123", verifyResult.userId)
-    }
+    fun `verifyFirebaseToken returns VerifyResult Authenticated on success`() =
+        runTest {
+            val result = repository.verifyFirebaseToken("google", "firebase-token")
+            assertTrue(result.isSuccess)
+            val verifyResult = result.getOrNull()
+            assertIs<VerifyResult.Authenticated>(verifyResult)
+            assertEquals("test-token", verifyResult.accessToken)
+            assertEquals("user-123", verifyResult.userId)
+        }
 
     @Test
-    fun `getCurrentUser returns UserResponse on success`() = runTest {
-        val result = repository.getCurrentUser()
-        assertTrue(result.isSuccess)
-        assertEquals("user-123", result.getOrNull()?.id)
-    }
+    fun `getCurrentUser returns UserResponse on success`() =
+        runTest {
+            val result = repository.getCurrentUser()
+            assertTrue(result.isSuccess)
+            assertEquals("user-123", result.getOrNull()?.id)
+        }
 }

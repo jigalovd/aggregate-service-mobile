@@ -12,15 +12,15 @@ import kotlin.test.assertTrue
  * Tests for ProviderWithDistance distance formatting (UI-05 requirement).
  */
 class ProviderWithDistanceTest {
-
     @Test
     fun `from formats distance under 1km as meters`() {
-        val userLocation = Location(
-            latitude = 32.0853,
-            longitude = 34.7818,
-            address = "User",
-            city = "Tel Aviv"
-        )
+        val userLocation =
+            Location(
+                latitude = 32.0853,
+                longitude = 34.7818,
+                address = "User",
+                city = "Tel Aviv",
+            )
 
         // Provider ~87m away
         val provider = createProviderAt(32.0860, 34.7820)
@@ -28,19 +28,24 @@ class ProviderWithDistanceTest {
         val result = ProviderWithDistance.from(provider, userLocation)
 
         assertTrue(result.formattedDistance.endsWith(" m"), "Expected meters suffix, got: ${result.formattedDistance}")
-        val distanceValue = result.formattedDistance.dropLast(2).trim().toInt()
+        val distanceValue =
+            result.formattedDistance
+                .dropLast(2)
+                .trim()
+                .toInt()
         assertTrue(distanceValue in 50..150, "Expected ~50-150m, got: ${result.formattedDistance}")
         assertEquals(0.087, result.distanceKm!!, 0.01)
     }
 
     @Test
     fun `from formats distance over 1km as kilometers with one decimal`() {
-        val userLocation = Location(
-            latitude = 32.0853,
-            longitude = 34.7818,
-            address = "User",
-            city = "Tel Aviv"
-        )
+        val userLocation =
+            Location(
+                latitude = 32.0853,
+                longitude = 34.7818,
+                address = "User",
+                city = "Tel Aviv",
+            )
 
         // Provider ~15km away
         val provider = createProviderAt(32.1953, 34.8818)
@@ -64,12 +69,13 @@ class ProviderWithDistanceTest {
 
     @Test
     fun `from preserves provider data`() {
-        val userLocation = Location(
-            latitude = 32.0853,
-            longitude = 34.7818,
-            address = "User",
-            city = "Tel Aviv"
-        )
+        val userLocation =
+            Location(
+                latitude = 32.0853,
+                longitude = 34.7818,
+                address = "User",
+                city = "Tel Aviv",
+            )
         val provider = createProviderAt(32.0860, 34.7820)
 
         val result = ProviderWithDistance.from(provider, userLocation)
@@ -80,12 +86,13 @@ class ProviderWithDistanceTest {
 
     @Test
     fun `from formats exactly 1km as kilometers`() {
-        val userLocation = Location(
-            latitude = 0.0,
-            longitude = 0.0,
-            address = "User",
-            city = "Origin"
-        )
+        val userLocation =
+            Location(
+                latitude = 0.0,
+                longitude = 0.0,
+                address = "User",
+                city = "Origin",
+            )
 
         // Provider exactly 1km away (0.009 degrees ~ 1km at equator)
         val provider = createProviderAt(0.009, 0.0)
@@ -98,12 +105,13 @@ class ProviderWithDistanceTest {
 
     @Test
     fun `from formats just under 1km as meters`() {
-        val userLocation = Location(
-            latitude = 32.0853,
-            longitude = 34.7818,
-            address = "User",
-            city = "Tel Aviv"
-        )
+        val userLocation =
+            Location(
+                latitude = 32.0853,
+                longitude = 34.7818,
+                address = "User",
+                city = "Tel Aviv",
+            )
 
         // Provider ~999m away
         val provider = createProviderAt(32.0844, 34.7818)
@@ -121,16 +129,17 @@ class ProviderWithDistanceTest {
             description = "Test",
             rating = 4.5,
             reviewCount = 100,
-            location = Location(
-                latitude = lat,
-                longitude = lon,
-                address = "Test Address",
-                city = "Tel Aviv"
-            ),
+            location =
+                Location(
+                    latitude = lat,
+                    longitude = lon,
+                    address = "Test Address",
+                    city = "Tel Aviv",
+                ),
             workingHours = WorkingHours(),
             isVerified = true,
             createdAt = Clock.System.now(),
-            categories = emptyList()
+            categories = emptyList(),
         )
     }
 }

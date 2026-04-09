@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -28,7 +27,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,26 +38,25 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.aggregateservice.core.theme.Spacing
-import com.aggregateservice.core.auth.contract.AuthNavigator
-import com.aggregateservice.core.auth.contract.AuthStateProvider
-import com.aggregateservice.core.auth.state.AuthState
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import coil3.compose.AsyncImage
+import com.aggregateservice.core.auth.contract.AuthNavigator
+import com.aggregateservice.core.auth.contract.AuthStateProvider
+import com.aggregateservice.core.auth.state.AuthState
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
+import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.feature.profile.domain.model.Profile
 import com.aggregateservice.feature.profile.presentation.screenmodel.ProfileScreenModel
-import coil3.compose.AsyncImage
 import org.koin.compose.koinInject
 
 /**
  * Voyager Screen for user profile management.
  */
 object ProfileScreen : Screen {
-
     @Composable
     override fun Content() {
         val screenModel = koinScreenModel<ProfileScreenModel>()
@@ -140,9 +137,10 @@ fun ProfileScreenContent(
         when {
             uiState.isLoading -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()
@@ -151,9 +149,10 @@ fun ProfileScreenContent(
 
             uiState.error != null -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -171,10 +170,11 @@ fun ProfileScreenContent(
 
             uiState.hasProfile -> {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .verticalScroll(rememberScrollState()),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                            .verticalScroll(rememberScrollState()),
                 ) {
                     // Avatar and basic info
                     ProfileHeader(profile = uiState.profile!!)
@@ -226,18 +226,20 @@ fun ProfileScreenContent(
 @Composable
 fun ProfileHeader(profile: Profile) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(Spacing.MD),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(Spacing.MD),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // Avatar
         AsyncImage(
             model = profile.avatarUrl,
             contentDescription = "Profile avatar",
-            modifier = Modifier
-                .size(100.dp)
-                .clip(CircleShape),
+            modifier =
+                Modifier
+                    .size(100.dp)
+                    .clip(CircleShape),
             contentScale = ContentScale.Crop,
         )
 
@@ -258,9 +260,10 @@ fun ViewProfileInfo(
     i18nProvider: I18nProvider,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = Spacing.MD),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Spacing.MD),
     ) {
         ProfileInfoRow(
             label = i18nProvider[StringKey.Profile.FULL_NAME],
@@ -321,9 +324,10 @@ fun EditProfileForm(
     i18nProvider: I18nProvider,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = Spacing.MD),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Spacing.MD),
     ) {
         OutlinedTextField(
             value = uiState.editFullName,
@@ -383,9 +387,10 @@ fun EditProfileForm(
 @Composable
 fun ProfileStats(profile: Profile) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = Spacing.MD),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Spacing.MD),
     ) {
         Text(
             text = "Booking Statistics",

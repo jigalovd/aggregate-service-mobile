@@ -16,19 +16,22 @@ class TokenManagerImpl(
 
     override suspend fun getAccessToken(): String? = mutex.withLock { _token.value }
 
-    override suspend fun setTokens(accessToken: String) = mutex.withLock {
-        _token.value = accessToken
-        tokenStorage.saveAccessToken(accessToken)
-    }
+    override suspend fun setTokens(accessToken: String) =
+        mutex.withLock {
+            _token.value = accessToken
+            tokenStorage.saveAccessToken(accessToken)
+        }
 
-    override suspend fun clearTokens() = mutex.withLock {
-        _token.value = null
-        tokenStorage.clearTokens()
-    }
+    override suspend fun clearTokens() =
+        mutex.withLock {
+            _token.value = null
+            tokenStorage.clearTokens()
+        }
 
     override fun observeToken(): StateFlow<String?> = _tokenFlow
 
-    override suspend fun initFromStorage() = mutex.withLock {
-        _token.value = tokenStorage.getAccessTokenSync()
-    }
+    override suspend fun initFromStorage() =
+        mutex.withLock {
+            _token.value = tokenStorage.getAccessTokenSync()
+        }
 }

@@ -9,18 +9,19 @@ import androidx.compose.ui.unit.dp
  *
  * Defines corner radii for different component categories.
  */
-val AppShapes = Shapes(
-    // Extra Small - Chips, small buttons
-    extraSmall = RoundedCornerShape(4.dp),
-    // Small - Text fields, cards (small)
-    small = RoundedCornerShape(8.dp),
-    // Medium - Cards, dialogs
-    medium = RoundedCornerShape(12.dp),
-    // Large - Bottom sheets, large cards
-    large = RoundedCornerShape(16.dp),
-    // Extra Large - Modal bottom sheets, navigation drawers
-    extraLarge = RoundedCornerShape(28.dp),
-)
+val AppShapes =
+    Shapes(
+        // Extra Small - Chips, small buttons
+        extraSmall = RoundedCornerShape(4.dp),
+        // Small - Text fields, cards (small)
+        small = RoundedCornerShape(8.dp),
+        // Medium - Cards, dialogs
+        medium = RoundedCornerShape(12.dp),
+        // Large - Bottom sheets, large cards
+        large = RoundedCornerShape(16.dp),
+        // Extra Large - Modal bottom sheets, navigation drawers
+        extraLarge = RoundedCornerShape(28.dp),
+    )
 
 /**
  * Additional shape definitions for specific use cases.
@@ -45,12 +46,13 @@ object AppShape {
     val TextField = RoundedCornerShape(4.dp)
 
     // Bottom sheet shapes
-    val BottomSheet = RoundedCornerShape(
-        topStart = 28.dp,
-        topEnd = 28.dp,
-        bottomStart = 0.dp,
-        bottomEnd = 0.dp,
-    )
+    val BottomSheet =
+        RoundedCornerShape(
+            topStart = 28.dp,
+            topEnd = 28.dp,
+            bottomStart = 0.dp,
+            bottomEnd = 0.dp,
+        )
 
     // Dialog shape
     val Dialog = RoundedCornerShape(28.dp)

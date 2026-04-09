@@ -26,19 +26,19 @@ import kotlinx.datetime.LocalDate
 class BookingRepositoryImpl(
     private val apiService: BookingApiService,
 ) : BookingRepository {
-
     override suspend fun createBooking(
         providerId: String,
         serviceIds: List<String>,
         startTime: Instant,
         notes: String?,
     ): Result<Booking> {
-        val request = CreateBookingRequest(
-            providerId = providerId,
-            serviceIds = serviceIds,
-            startTime = startTime,
-            notes = notes,
-        )
+        val request =
+            CreateBookingRequest(
+                providerId = providerId,
+                serviceIds = serviceIds,
+                startTime = startTime,
+                notes = notes,
+            )
 
         return apiService.createBooking(request).fold(
             onSuccess = { dto -> Result.success(BookingMapper.toDomain(dto)) },

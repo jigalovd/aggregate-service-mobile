@@ -103,53 +103,60 @@ fun AppPasswordField(
             isError = isError,
             enabled = enabled,
             singleLine = true,
-            visualTransformation = if (passwordVisible) {
-                VisualTransformation.None
-            } else {
-                PasswordVisualTransformation()
-            },
-            trailingIcon = if (showVisibilityToggle) {
-                {
-                    val icon = if (passwordVisible) {
-                        Icons.Filled.VisibilityOff
-                    } else {
-                        Icons.Filled.Visibility
-                    }
-                    val description = if (passwordVisible) {
-                        "Скрыть пароль"
-                    } else {
-                        "Показать пароль"
-                    }
+            visualTransformation =
+                if (passwordVisible) {
+                    VisualTransformation.None
+                } else {
+                    PasswordVisualTransformation()
+                },
+            trailingIcon =
+                if (showVisibilityToggle) {
+                    {
+                        val icon =
+                            if (passwordVisible) {
+                                Icons.Filled.VisibilityOff
+                            } else {
+                                Icons.Filled.Visibility
+                            }
+                        val description =
+                            if (passwordVisible) {
+                                "Скрыть пароль"
+                            } else {
+                                "Показать пароль"
+                            }
 
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = description,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = description,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
-                }
-            } else {
-                null
-            },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-                imeAction = imeAction,
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = { onImeAction() },
-                onGo = { onImeAction() },
-                onSearch = { onImeAction() },
-                onSend = { onImeAction() },
-            ),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                errorBorderColor = MaterialTheme.colorScheme.error,
-                focusedLabelColor = MaterialTheme.colorScheme.primary,
-                errorLabelColor = MaterialTheme.colorScheme.error,
-                cursorColor = MaterialTheme.colorScheme.primary,
-            ),
+                } else {
+                    null
+                },
+            keyboardOptions =
+                KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = imeAction,
+                ),
+            keyboardActions =
+                KeyboardActions(
+                    onDone = { onImeAction() },
+                    onGo = { onImeAction() },
+                    onSearch = { onImeAction() },
+                    onSend = { onImeAction() },
+                ),
+            colors =
+                OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    errorBorderColor = MaterialTheme.colorScheme.error,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    errorLabelColor = MaterialTheme.colorScheme.error,
+                    cursorColor = MaterialTheme.colorScheme.primary,
+                ),
             shape = MaterialTheme.shapes.small,
             textStyle = MaterialTheme.typography.bodyLarge,
         )
@@ -169,10 +176,11 @@ fun AppPasswordField(
                 text = errorMessage,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(
-                    start = Spacing.MD,
-                    top = Spacing.XS,
-                ),
+                modifier =
+                    Modifier.padding(
+                        start = Spacing.MD,
+                        top = Spacing.XS,
+                    ),
             )
         }
     }
@@ -200,9 +208,10 @@ private fun PasswordStrengthIndicator(
     Column(modifier = modifier) {
         LinearProgressIndicator(
             progress = { strength / 4f },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(Dimensions.DividerThickness * 2),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(Dimensions.DividerThickness * 2),
             color = color,
             trackColor = MaterialTheme.colorScheme.surfaceVariant,
         )
@@ -250,9 +259,15 @@ private fun calculatePasswordStrength(password: String): Int {
 private fun getStrengthColorAndLabel(strength: Int): Pair<androidx.compose.ui.graphics.Color, String> {
     return when (strength) {
         0, 1 -> MaterialTheme.colorScheme.error to "Слабый"
-        2 -> androidx.compose.ui.graphics.Color(0xFFFF9800) to "Средний" // Warning color
-        3 -> androidx.compose.ui.graphics.Color(0xFF8BC34A) to "Хороший"
-        4 -> androidx.compose.ui.graphics.Color(0xFF4CAF50) to "Надёжный"
+        2 ->
+            androidx.compose.ui.graphics
+                .Color(0xFFFF9800) to "Средний" // Warning color
+        3 ->
+            androidx.compose.ui.graphics
+                .Color(0xFF8BC34A) to "Хороший"
+        4 ->
+            androidx.compose.ui.graphics
+                .Color(0xFF4CAF50) to "Надёжный"
         else -> MaterialTheme.colorScheme.error to "Слабый"
     }
 }

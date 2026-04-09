@@ -11,17 +11,19 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 class AuthRepositoryImpl(
     private val httpClient: HttpClient,
+    private val authClient: HttpClient,
 ) : AuthRepository {
     override suspend fun verifyFirebaseToken(
         provider: String,
         token: String,
     ): Result<VerifyResult> =
         safeApiCall<AuthResponse> {
-            httpClient.post("/api/v1/auth/provider/verify") {
+            authClient.post("/api/v1/auth/provider/verify") {
                 contentType(ContentType.Application.Json)
                 setBody(FirebaseVerifyRequest(firebaseToken = token, provider = provider))
             }
@@ -37,7 +39,7 @@ class AuthRepositoryImpl(
 
     override suspend fun refreshToken(): Result<RefreshTokenResponse> =
         safeApiCall {
-            httpClient.post("/api/v1/auth/refresh") {
+            authClient.post("/api/v1/auth/refresh") {
                 contentType(ContentType.Application.Json)
             }
         }
@@ -58,6 +60,7 @@ class AuthRepositoryImpl(
 
 @Serializable
 data class FirebaseVerifyRequest(
+    @SerialName("firebase_token")
     val firebaseToken: String,
     val provider: String,
 )

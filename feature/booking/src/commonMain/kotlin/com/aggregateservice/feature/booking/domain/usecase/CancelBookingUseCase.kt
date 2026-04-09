@@ -5,7 +5,6 @@ package com.aggregateservice.feature.booking.domain.usecase
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.booking.domain.model.Booking
 import com.aggregateservice.feature.booking.domain.repository.BookingRepository
-import kotlinx.datetime.Instant
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
 
@@ -41,9 +40,10 @@ class CancelBookingUseCase(
         }
 
         // Get booking to check time window
-        val booking = repository.getBookingById(bookingId).getOrElse { error ->
-            return Result.failure(error)
-        }
+        val booking =
+            repository.getBookingById(bookingId).getOrElse { error ->
+                return Result.failure(error)
+            }
 
         // Validation: booking must be cancellable status
         if (!booking.status.isCancellable) {

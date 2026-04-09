@@ -1,7 +1,6 @@
 package com.aggregateservice.feature.favorites.data.api
 
 import com.aggregateservice.core.network.safeApiCall
-import com.aggregateservice.feature.favorites.data.dto.FavoriteDto
 import com.aggregateservice.feature.favorites.data.dto.FavoritesListResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete

@@ -18,19 +18,20 @@ import org.koin.dsl.module
  * - UseCases (domain layer)
  * - ScreenModels (presentation layer)
  */
-val profileModule = module {
-    // API Service (Ktor Auth Plugin handles auth automatically)
-    single { ProfileApiService(get()) }
+val profileModule =
+    module {
+        // API Service (Ktor Auth Plugin handles auth automatically)
+        single { ProfileApiService(get()) }
 
-    // Repository
-    single<ProfileRepository> {
-        ProfileRepositoryImpl(apiService = get())
+        // Repository
+        single<ProfileRepository> {
+            ProfileRepositoryImpl(apiService = get())
+        }
+
+        // UseCases (Domain layer)
+        factoryOf(::GetProfileUseCase)
+        factoryOf(::UpdateProfileUseCase)
+
+        // ScreenModels (Presentation layer)
+        factoryOf(::ProfileScreenModel)
     }
-
-    // UseCases (Domain layer)
-    factoryOf(::GetProfileUseCase)
-    factoryOf(::UpdateProfileUseCase)
-
-    // ScreenModels (Presentation layer)
-    factoryOf(::ProfileScreenModel)
-}

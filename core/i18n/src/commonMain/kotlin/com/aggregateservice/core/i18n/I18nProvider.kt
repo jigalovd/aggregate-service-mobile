@@ -110,6 +110,7 @@ object StringKey {
         const val LINK_ACCOUNT_TITLE = "auth_link_account_title"
         const val LINK_ACCOUNT_MESSAGE = "auth_link_account_message"
         const val LINK_ACCOUNT = "auth_link_account"
+
         // Firebase auth strings
         const val SIGN_IN_WITH_GOOGLE = "auth_sign_in_with_google"
         const val SIGN_IN_WITH_APPLE = "auth_sign_in_with_apple"
@@ -196,6 +197,7 @@ object StringKey {
         const val SELECT_DATE_TIME = "booking_select_date_time"
         const val SELECT_SLOT = "booking_select_slot"
         const val SELECT_DATE_TO_SEE = "booking_select_date_to_see"
+
         // Booking statuses
         const val STATUS_PENDING = "booking_status_pending"
         const val STATUS_CONFIRMED = "booking_status_confirmed"

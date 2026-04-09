@@ -31,7 +31,6 @@ import kotlin.time.Clock
 class SelectDateTimeScreenModel(
     private val getAvailableSlotsUseCase: GetAvailableSlotsUseCase,
 ) : ScreenModel {
-
     private val _uiState = MutableStateFlow(SelectDateTimeUiState.Initial)
     val uiState: StateFlow<SelectDateTimeUiState> = _uiState.asStateFlow()
 

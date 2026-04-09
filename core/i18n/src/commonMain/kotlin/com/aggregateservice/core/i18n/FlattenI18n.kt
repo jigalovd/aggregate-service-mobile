@@ -1,8 +1,6 @@
 package com.aggregateservice.core.i18n
 
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
@@ -25,7 +23,6 @@ import kotlinx.serialization.json.jsonPrimitive
  * This helper extracts the appropriate language value based on the current locale.
  */
 public object FlattenI18n {
-
     /**
      * Extract a localized string from an _i18n field.
      *
@@ -123,11 +120,12 @@ public data class LocalizedString(
     /**
      * Get the string for the specified locale.
      */
-    public fun get(locale: AppLocale): String? = when (locale) {
-        AppLocale.EN -> en
-        AppLocale.RU -> ru
-        AppLocale.HE -> he
-    }
+    public fun get(locale: AppLocale): String? =
+        when (locale) {
+            AppLocale.EN -> en
+            AppLocale.RU -> ru
+            AppLocale.HE -> he
+        }
 
     /**
      * Get the string for the specified locale with fallback.

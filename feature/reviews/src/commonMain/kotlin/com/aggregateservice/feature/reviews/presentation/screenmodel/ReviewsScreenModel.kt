@@ -22,7 +22,6 @@ class ReviewsScreenModel(
     private val getProviderReviewsUseCase: GetProviderReviewsUseCase,
     private val getReviewStatsUseCase: GetReviewStatsUseCase,
 ) : ScreenModel {
-
     private val _uiState = MutableStateFlow(ReviewsUiState())
     val uiState: StateFlow<ReviewsUiState> = _uiState.asStateFlow()
 
@@ -43,20 +42,22 @@ class ReviewsScreenModel(
 
             // Load stats and reviews in parallel
             val statsResult = getReviewStatsUseCase(providerId)
-            val reviewsResult = getProviderReviewsUseCase(
-                providerId = providerId,
-                page = GetProviderReviewsUseCase.DEFAULT_PAGE,
-                pageSize = GetProviderReviewsUseCase.DEFAULT_PAGE_SIZE,
-            )
+            val reviewsResult =
+                getProviderReviewsUseCase(
+                    providerId = providerId,
+                    page = GetProviderReviewsUseCase.DEFAULT_PAGE,
+                    pageSize = GetProviderReviewsUseCase.DEFAULT_PAGE_SIZE,
+                )
 
             _uiState.update { state ->
                 state.copy(
                     isLoading = false,
                     stats = statsResult.getOrNull(),
                     reviews = reviewsResult.getOrNull() ?: emptyList(),
-                    error = reviewsResult.exceptionOrNull()?.let {
-                        AppError.UnknownError(it)
-                    },
+                    error =
+                        reviewsResult.exceptionOrNull()?.let {
+                            AppError.UnknownError(it)
+                        },
                     hasMore = (reviewsResult.getOrNull()?.size ?: 0) >= GetProviderReviewsUseCase.DEFAULT_PAGE_SIZE,
                     currentPage = 1,
                 )
@@ -80,11 +81,12 @@ class ReviewsScreenModel(
             _uiState.update { it.copy(isLoadingMore = true) }
 
             val nextPage = state.currentPage + 1
-            val result = getProviderReviewsUseCase(
-                providerId = currentProviderId,
-                page = nextPage,
-                pageSize = GetProviderReviewsUseCase.DEFAULT_PAGE_SIZE,
-            )
+            val result =
+                getProviderReviewsUseCase(
+                    providerId = currentProviderId,
+                    page = nextPage,
+                    pageSize = GetProviderReviewsUseCase.DEFAULT_PAGE_SIZE,
+                )
 
             result.fold(
                 onSuccess = { newReviews ->
@@ -121,7 +123,6 @@ class WriteReviewScreenModel(
     private val canReviewBookingUseCase: CanReviewBookingUseCase,
     private val createReviewUseCase: CreateReviewUseCase,
 ) : ScreenModel {
-
     private val _uiState = MutableStateFlow(WriteReviewUiState.Checking)
     val uiState: StateFlow<WriteReviewUiState> = _uiState.asStateFlow()
 

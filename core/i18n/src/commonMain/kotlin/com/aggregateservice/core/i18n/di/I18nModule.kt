@@ -11,10 +11,11 @@ import org.koin.dsl.module
  * Provides:
  * - [I18nProvider] for accessing localized strings
  */
-val i18nModule = module {
-    single<I18nProvider> {
-        // Default to system locale or Russian as fallback
-        val initialLocale = AppLocale.RU // Can be changed based on system settings
-        createDefaultI18nProvider(initialLocale)
+val i18nModule =
+    module {
+        single<I18nProvider> {
+            // Default to system locale or Russian as fallback
+            val initialLocale = AppLocale.RU // Can be changed based on system settings
+            createDefaultI18nProvider(initialLocale)
+        }
     }
-}

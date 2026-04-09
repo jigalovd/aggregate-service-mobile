@@ -1,6 +1,5 @@
 package com.aggregateservice.feature.reviews.data.repository
 
-import com.aggregateservice.core.network.AppError
 import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.reviews.data.api.ReviewsApiService
 import com.aggregateservice.feature.reviews.data.dto.CreateReviewRequest
@@ -20,7 +19,6 @@ import com.aggregateservice.feature.reviews.domain.repository.ReviewsRepository
 class ReviewsRepositoryImpl(
     private val apiService: ReviewsApiService,
 ) : ReviewsRepository {
-
     override suspend fun getProviderReviews(
         providerId: String,
         page: Int,
@@ -51,11 +49,12 @@ class ReviewsRepositoryImpl(
         rating: Int,
         comment: String?,
     ): Result<Review> {
-        val request = CreateReviewRequest(
-            bookingId = bookingId,
-            rating = rating,
-            comment = comment,
-        )
+        val request =
+            CreateReviewRequest(
+                bookingId = bookingId,
+                rating = rating,
+                comment = comment,
+            )
         return apiService.createReview(request).fold(
             onSuccess = { dto -> Result.success(ReviewMapper.toDomain(dto)) },
             onFailure = { error -> Result.failure(error.toAppError()) },

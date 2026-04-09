@@ -28,30 +28,31 @@ import org.koin.dsl.module
  * - UseCases (domain layer)
  * - ScreenModels (presentation layer)
  */
-val bookingModule = module {
-    // Navigator for cross-feature navigation
-    single<BookingNavigator> { BookingNavigatorImpl() }
+val bookingModule =
+    module {
+        // Navigator for cross-feature navigation
+        single<BookingNavigator> { BookingNavigatorImpl() }
 
-    // API Service (Ktor Auth Plugin handles auth automatically)
-    single { BookingApiService(get()) }
+        // API Service (Ktor Auth Plugin handles auth automatically)
+        single { BookingApiService(get()) }
 
-    // Repository
-    single<BookingRepository> {
-        BookingRepositoryImpl(apiService = get())
+        // Repository
+        single<BookingRepository> {
+            BookingRepositoryImpl(apiService = get())
+        }
+
+        // UseCases (Domain layer)
+        factoryOf(::CreateBookingUseCase)
+        factoryOf(::CancelBookingUseCase)
+        factoryOf(::RescheduleBookingUseCase)
+        factoryOf(::GetBookingByIdUseCase)
+        factoryOf(::GetClientBookingsUseCase)
+        factoryOf(::GetAvailableSlotsUseCase)
+        factoryOf(::GetBookingServicesUseCase)
+
+        // ScreenModels (Presentation layer)
+        factoryOf(::SelectServiceScreenModel)
+        factoryOf(::SelectDateTimeScreenModel)
+        factoryOf(::BookingConfirmationScreenModel)
+        factoryOf(::BookingHistoryScreenModel)
     }
-
-    // UseCases (Domain layer)
-    factoryOf(::CreateBookingUseCase)
-    factoryOf(::CancelBookingUseCase)
-    factoryOf(::RescheduleBookingUseCase)
-    factoryOf(::GetBookingByIdUseCase)
-    factoryOf(::GetClientBookingsUseCase)
-    factoryOf(::GetAvailableSlotsUseCase)
-    factoryOf(::GetBookingServicesUseCase)
-
-    // ScreenModels (Presentation layer)
-    factoryOf(::SelectServiceScreenModel)
-    factoryOf(::SelectDateTimeScreenModel)
-    factoryOf(::BookingConfirmationScreenModel)
-    factoryOf(::BookingHistoryScreenModel)
-}

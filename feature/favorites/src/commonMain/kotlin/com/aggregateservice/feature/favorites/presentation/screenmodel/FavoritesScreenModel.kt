@@ -2,7 +2,6 @@ package com.aggregateservice.feature.favorites.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.aggregateservice.core.network.AppError
 import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.favorites.domain.model.Favorite
 import com.aggregateservice.feature.favorites.domain.usecase.GetFavoritesUseCase
@@ -29,7 +28,6 @@ class FavoritesScreenModel(
     private val getFavoritesUseCase: GetFavoritesUseCase,
     private val removeFavoriteUseCase: RemoveFavoriteUseCase,
 ) : ScreenModel {
-
     private val _uiState = MutableStateFlow(FavoritesUiState.Loading)
     val uiState: StateFlow<FavoritesUiState> = _uiState.asStateFlow()
 

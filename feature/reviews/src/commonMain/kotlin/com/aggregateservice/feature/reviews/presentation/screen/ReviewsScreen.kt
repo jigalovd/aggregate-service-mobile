@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
@@ -34,19 +32,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.aggregateservice.core.theme.Spacing
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
-import com.aggregateservice.feature.reviews.domain.model.Review
+import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.feature.reviews.domain.model.ReviewStats
 import com.aggregateservice.feature.reviews.presentation.component.ReviewCard
 import com.aggregateservice.feature.reviews.presentation.component.WriteReviewDialog
 import com.aggregateservice.feature.reviews.presentation.model.ReviewsUiState
-import com.aggregateservice.feature.reviews.presentation.model.WriteReviewUiState
 import com.aggregateservice.feature.reviews.presentation.screenmodel.ReviewsScreenModel
 import com.aggregateservice.feature.reviews.presentation.screenmodel.WriteReviewScreenModel
 import org.koin.compose.koinInject
@@ -61,7 +57,6 @@ class ReviewsScreen(
     private val providerId: String,
     private val providerName: String = "",
 ) : Screen {
-
     @Composable
     override fun Content() {
         val screenModel = koinScreenModel<ReviewsScreenModel>()
@@ -147,15 +142,15 @@ private fun ReviewsScreenContent(
         }
     }
 
-    Scaffold(
-    ) { paddingValues ->
+    Scaffold { paddingValues ->
         PullToRefreshBox(
             state = pullToRefreshState,
             isRefreshing = uiState.isRefreshing,
             onRefresh = onRefresh,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
         ) {
             when {
                 uiState.isLoading && uiState.reviews.isEmpty() -> {
@@ -205,9 +200,10 @@ private fun ReviewsScreenContent(
                         if (uiState.isLoadingMore) {
                             item {
                                 Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(Spacing.MD),
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(Spacing.MD),
                                     contentAlignment = Alignment.Center,
                                 ) {
                                     CircularProgressIndicator()
@@ -228,9 +224,10 @@ private fun ReviewStatsHeader(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(Spacing.MD),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(Spacing.MD),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(Spacing.MD),
     ) {
@@ -251,17 +248,19 @@ private fun ReviewStatsHeader(
                         Text(
                             text = "★",
                             style = MaterialTheme.typography.titleMedium,
-                            color = if (isFilled) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.outline
-                            },
+                            color =
+                                if (isFilled) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.outline
+                                },
                         )
                     }
                 }
                 Text(
-                    text = i18nProvider[StringKey.Plurals.REVIEWS_COUNT]
-                        .replace("{count}", "${stats.totalReviews}"),
+                    text =
+                        i18nProvider[StringKey.Plurals.REVIEWS_COUNT]
+                            .replace("{count}", "${stats.totalReviews}"),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -307,14 +306,16 @@ private fun RatingDistributionRow(
         )
         // Progress bar simulation
         Box(
-            modifier = Modifier
-                .weight(1f)
-                .height(Spacing.SM)
-                .fillMaxWidth((percentage / 100).toFloat()),
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .height(Spacing.SM)
+                    .fillMaxWidth((percentage / 100).toFloat()),
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier =
+                    Modifier
+                        .fillMaxSize(),
             )
         }
         Text(

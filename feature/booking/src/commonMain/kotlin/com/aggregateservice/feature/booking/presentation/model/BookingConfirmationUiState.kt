@@ -58,18 +58,19 @@ data class BookingConfirmationUiState(
      * Форматированная общая стоимость.
      */
     val formattedTotal: String
-        get() = if (services.isNotEmpty()) {
-            val currency = services.first().currency
-            "%.0f %s".format(totalPrice, currency)
-        } else {
-            "0 ILS"
-        }
+        get() =
+            if (services.isNotEmpty()) {
+                val currency = services.first().currency
+                "%.0f %s".format(totalPrice, currency)
+            } else {
+                "0 ILS"
+            }
 
     /**
      * Форматированная длительность.
      */
     val formattedDuration: String
-        get() = "${totalDurationMinutes} min"
+        get() = "$totalDurationMinutes min"
 
     companion object {
         /**

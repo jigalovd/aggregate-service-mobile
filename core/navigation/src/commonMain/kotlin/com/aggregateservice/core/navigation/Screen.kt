@@ -15,7 +15,9 @@ sealed interface Screen {
 /**
  * Auth экраны.
  */
-sealed class AuthScreen(override val route: String) : Screen {
+sealed class AuthScreen(
+    override val route: String,
+) : Screen {
     /**
      * Экран входа.
      */
@@ -35,7 +37,9 @@ sealed class AuthScreen(override val route: String) : Screen {
 /**
  * Главные экраны приложения.
  */
-sealed class MainScreen(override val route: String) : Screen {
+sealed class MainScreen(
+    override val route: String,
+) : Screen {
     /**
      * Экран каталога услуг.
      */

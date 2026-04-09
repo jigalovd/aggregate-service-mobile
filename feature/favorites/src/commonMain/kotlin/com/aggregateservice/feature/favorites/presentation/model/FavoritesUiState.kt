@@ -50,9 +50,10 @@ data class FavoritesUiState(
         /**
          * Error state.
          */
-        fun error(error: AppError) = FavoritesUiState(
-            isLoading = false,
-            error = error,
-        )
+        fun error(error: AppError) =
+            FavoritesUiState(
+                isLoading = false,
+                error = error,
+            )
     }
 }

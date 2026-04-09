@@ -1,8 +1,6 @@
 package com.aggregateservice.feature.catalog.presentation.screenmodel
 
 import com.aggregateservice.core.common.model.Location
-import com.aggregateservice.core.location.LocationAccuracy
-import com.aggregateservice.core.location.LocationPermissionStatus
 import com.aggregateservice.core.location.LocationProvider
 import com.aggregateservice.core.location.LocationProviderFactory
 import com.aggregateservice.core.network.AppError
@@ -18,6 +16,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.Clock
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -25,7 +24,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlinx.datetime.Clock
 
 /**
  * Tests for CatalogScreenModel using functional mocks.

@@ -5,12 +5,12 @@ import com.aggregateservice.feature.catalog.data.dto.DayScheduleDto
 import com.aggregateservice.feature.catalog.data.dto.ProviderDto
 import com.aggregateservice.feature.catalog.data.dto.WorkingHoursDto
 import com.aggregateservice.feature.catalog.data.dto.response.LocationDto
+import kotlinx.datetime.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlinx.datetime.Instant
 
 class ProviderMapperTest {
     // ========== Basic Mapping Tests ==========

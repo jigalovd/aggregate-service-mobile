@@ -1,6 +1,5 @@
 package com.aggregateservice.core.location
 
-import com.aggregateservice.core.common.model.Location
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -14,7 +13,6 @@ import kotlin.test.assertTrue
  * test directories.
  */
 class LocationProviderTest {
-
     @Test
     fun `LocationProviderFactory should create LocationProvider instance`() {
         val provider = LocationProviderFactory.create()

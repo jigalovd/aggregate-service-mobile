@@ -1,12 +1,10 @@
 package com.aggregateservice.core.ui.foundation.button
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
@@ -103,13 +101,14 @@ fun AppButton(
         ButtonVariant.Primary, ButtonVariant.Danger -> {
             Button(
                 onClick = onClick,
-                modifier = modifier
-                    .defaultMinSize(minHeight = buttonHeight)
-                    .semantics {
-                        if (isLoading) {
-                            this.contentDescription = contentDescription ?: "Loading"
-                        }
-                    },
+                modifier =
+                    modifier
+                        .defaultMinSize(minHeight = buttonHeight)
+                        .semantics {
+                            if (isLoading) {
+                                this.contentDescription = contentDescription ?: "Loading"
+                            }
+                        },
                 enabled = actualEnabled,
                 colors = buttonColors,
                 contentPadding = contentPadding,
@@ -128,13 +127,14 @@ fun AppButton(
         ButtonVariant.Secondary -> {
             OutlinedButton(
                 onClick = onClick,
-                modifier = modifier
-                    .defaultMinSize(minHeight = buttonHeight)
-                    .semantics {
-                        if (isLoading) {
-                            this.contentDescription = contentDescription ?: "Loading"
-                        }
-                    },
+                modifier =
+                    modifier
+                        .defaultMinSize(minHeight = buttonHeight)
+                        .semantics {
+                            if (isLoading) {
+                                this.contentDescription = contentDescription ?: "Loading"
+                            }
+                        },
                 enabled = actualEnabled,
                 colors = buttonColors,
                 contentPadding = contentPadding,
@@ -153,13 +153,14 @@ fun AppButton(
         ButtonVariant.Tertiary -> {
             TextButton(
                 onClick = onClick,
-                modifier = modifier
-                    .defaultMinSize(minHeight = buttonHeight)
-                    .semantics {
-                        if (isLoading) {
-                            this.contentDescription = contentDescription ?: "Loading"
-                        }
-                    },
+                modifier =
+                    modifier
+                        .defaultMinSize(minHeight = buttonHeight)
+                        .semantics {
+                            if (isLoading) {
+                                this.contentDescription = contentDescription ?: "Loading"
+                            }
+                        },
                 enabled = actualEnabled,
                 colors = buttonColors,
                 contentPadding = contentPadding,
@@ -186,11 +187,12 @@ private fun ButtonContent(
     trailingIcon: @Composable (() -> Unit)?,
     buttonColors: ButtonColors,
 ) {
-    val contentColor = if (enabled) {
-        buttonColors.contentColor
-    } else {
-        buttonColors.disabledContentColor
-    }
+    val contentColor =
+        if (enabled) {
+            buttonColors.contentColor
+        } else {
+            buttonColors.disabledContentColor
+        }
 
     Row(
         horizontalArrangement = Arrangement.Center,
@@ -229,57 +231,65 @@ private fun ButtonContent(
 @Composable
 private fun getButtonColors(variant: ButtonVariant): ButtonColors {
     return when (variant) {
-        ButtonVariant.Primary -> ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
-            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        ButtonVariant.Primary ->
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
 
-        ButtonVariant.Secondary -> ButtonDefaults.outlinedButtonColors(
-            containerColor = Color.Transparent,
-            contentColor = MaterialTheme.colorScheme.primary,
-            disabledContainerColor = Color.Transparent,
-            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        ButtonVariant.Secondary ->
+            ButtonDefaults.outlinedButtonColors(
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.primary,
+                disabledContainerColor = Color.Transparent,
+                disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
 
-        ButtonVariant.Tertiary -> ButtonDefaults.textButtonColors(
-            containerColor = Color.Transparent,
-            contentColor = MaterialTheme.colorScheme.primary,
-            disabledContainerColor = Color.Transparent,
-            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        ButtonVariant.Tertiary ->
+            ButtonDefaults.textButtonColors(
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.primary,
+                disabledContainerColor = Color.Transparent,
+                disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
 
-        ButtonVariant.Danger -> ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.error,
-            contentColor = MaterialTheme.colorScheme.onError,
-            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        ButtonVariant.Danger ->
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.onError,
+                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
     }
 }
 
-private fun getButtonHeight(size: ButtonSize): Dp = when (size) {
-    ButtonSize.Small -> Dimensions.ButtonHeightSM
-    ButtonSize.Medium -> Dimensions.ButtonHeightMD
-    ButtonSize.Large -> Dimensions.ButtonHeightLG
-}
+private fun getButtonHeight(size: ButtonSize): Dp =
+    when (size) {
+        ButtonSize.Small -> Dimensions.ButtonHeightSM
+        ButtonSize.Medium -> Dimensions.ButtonHeightMD
+        ButtonSize.Large -> Dimensions.ButtonHeightLG
+    }
 
-private fun getButtonPadding(size: ButtonSize) = when (size) {
-    ButtonSize.Small -> PaddingValues(
-        start = Spacing.SM,
-        end = Spacing.SM,
-        top = Spacing.XS,
-        bottom = Spacing.XS,
-    )
-    ButtonSize.Medium -> ButtonDefaults.ContentPadding
-    ButtonSize.Large -> PaddingValues(
-        start = Spacing.LG,
-        end = Spacing.LG,
-        top = Spacing.SM,
-        bottom = Spacing.SM,
-    )
-}
+private fun getButtonPadding(size: ButtonSize) =
+    when (size) {
+        ButtonSize.Small ->
+            PaddingValues(
+                start = Spacing.SM,
+                end = Spacing.SM,
+                top = Spacing.XS,
+                bottom = Spacing.XS,
+            )
+        ButtonSize.Medium -> ButtonDefaults.ContentPadding
+        ButtonSize.Large ->
+            PaddingValues(
+                start = Spacing.LG,
+                end = Spacing.LG,
+                top = Spacing.SM,
+                bottom = Spacing.SM,
+            )
+    }
 
 /**
  * Button visual style variants.

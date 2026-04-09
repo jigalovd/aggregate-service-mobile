@@ -16,7 +16,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -24,12 +23,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import com.aggregateservice.core.theme.Spacing
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
+import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.feature.booking.domain.model.Booking
 import com.aggregateservice.feature.booking.domain.model.BookingStatus
 import com.aggregateservice.feature.booking.presentation.screenmodel.BookingHistoryScreenModel
@@ -39,7 +37,6 @@ import org.koin.compose.koinInject
  * Voyager Screen для истории бронирований.
  */
 object BookingHistoryScreen : Screen {
-
     @Composable
     override fun Content() {
         val screenModel = koinScreenModel<BookingHistoryScreenModel>()
@@ -69,14 +66,14 @@ fun BookingHistoryScreenContent(
     onRefresh: () -> Unit,
     onCancelBooking: (String, String?) -> Unit,
 ) {
-    Scaffold(
-    ) { paddingValues ->
+    Scaffold { paddingValues ->
         when {
             uiState.isLoading -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()
@@ -85,9 +82,10 @@ fun BookingHistoryScreenContent(
 
             uiState.error != null -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
@@ -99,9 +97,10 @@ fun BookingHistoryScreenContent(
 
             uiState.isEmpty -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -120,10 +119,11 @@ fun BookingHistoryScreenContent(
 
             else -> {
                 LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .padding(horizontal = Spacing.MD),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                            .padding(horizontal = Spacing.MD),
                 ) {
                     // Upcoming bookings
                     if (uiState.upcomingBookings.isNotEmpty()) {
@@ -176,9 +176,10 @@ fun BookingCard(
     i18nProvider: I18nProvider,
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = Spacing.SM),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = Spacing.SM),
     ) {
         Column(modifier = Modifier.padding(Spacing.MD)) {
             // Provider name
@@ -235,15 +236,16 @@ fun BookingCard(
 
 @Composable
 fun StatusChip(status: BookingStatus, i18nProvider: I18nProvider) {
-    val (text, color) = when (status) {
-        BookingStatus.PENDING -> i18nProvider[StringKey.Booking.STATUS_PENDING] to MaterialTheme.colorScheme.tertiary
-        BookingStatus.CONFIRMED -> i18nProvider[StringKey.Booking.STATUS_CONFIRMED] to MaterialTheme.colorScheme.primary
-        BookingStatus.IN_PROGRESS -> i18nProvider[StringKey.Booking.STATUS_IN_PROGRESS] to MaterialTheme.colorScheme.secondary
-        BookingStatus.COMPLETED -> i18nProvider[StringKey.Booking.STATUS_COMPLETED] to MaterialTheme.colorScheme.primaryContainer
-        BookingStatus.CANCELLED -> i18nProvider[StringKey.Booking.STATUS_CANCELLED] to MaterialTheme.colorScheme.error
-        BookingStatus.EXPIRED -> i18nProvider[StringKey.Booking.STATUS_EXPIRED] to MaterialTheme.colorScheme.outline
-        BookingStatus.NO_SHOW -> i18nProvider[StringKey.Booking.STATUS_NO_SHOW] to MaterialTheme.colorScheme.errorContainer
-    }
+    val (text, color) =
+        when (status) {
+            BookingStatus.PENDING -> i18nProvider[StringKey.Booking.STATUS_PENDING] to MaterialTheme.colorScheme.tertiary
+            BookingStatus.CONFIRMED -> i18nProvider[StringKey.Booking.STATUS_CONFIRMED] to MaterialTheme.colorScheme.primary
+            BookingStatus.IN_PROGRESS -> i18nProvider[StringKey.Booking.STATUS_IN_PROGRESS] to MaterialTheme.colorScheme.secondary
+            BookingStatus.COMPLETED -> i18nProvider[StringKey.Booking.STATUS_COMPLETED] to MaterialTheme.colorScheme.primaryContainer
+            BookingStatus.CANCELLED -> i18nProvider[StringKey.Booking.STATUS_CANCELLED] to MaterialTheme.colorScheme.error
+            BookingStatus.EXPIRED -> i18nProvider[StringKey.Booking.STATUS_EXPIRED] to MaterialTheme.colorScheme.outline
+            BookingStatus.NO_SHOW -> i18nProvider[StringKey.Booking.STATUS_NO_SHOW] to MaterialTheme.colorScheme.errorContainer
+        }
 
     androidx.compose.material3.Surface(
         color = color,

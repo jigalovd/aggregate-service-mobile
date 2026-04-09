@@ -40,11 +40,12 @@ data class BookingHistoryUiState(
      * Отфильтрованный список по статусу.
      */
     val filteredBookings: List<Booking>
-        get() = if (selectedStatus != null) {
-            bookings.filter { it.status == selectedStatus }
-        } else {
-            bookings
-        }
+        get() =
+            if (selectedStatus != null) {
+                bookings.filter { it.status == selectedStatus }
+            } else {
+                bookings
+            }
 
     /**
      * Пустой список.
@@ -61,9 +62,10 @@ data class BookingHistoryUiState(
         /**
          * Состояние ошибки.
          */
-        fun error(error: AppError) = BookingHistoryUiState(
-            isLoading = false,
-            error = error,
-        )
+        fun error(error: AppError) =
+            BookingHistoryUiState(
+                isLoading = false,
+                error = error,
+            )
     }
 }

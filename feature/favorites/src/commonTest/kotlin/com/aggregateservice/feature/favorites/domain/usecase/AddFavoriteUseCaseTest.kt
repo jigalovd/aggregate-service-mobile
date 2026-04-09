@@ -10,7 +10,6 @@ import kotlin.test.assertTrue
  * Tests for AddFavoriteUseCase.
  */
 class AddFavoriteUseCaseTest {
-
     private lateinit var addFavoriteUseCase: AddFavoriteUseCase
     private lateinit var mockRepository: MockFavoritesRepository
 
@@ -21,45 +20,48 @@ class AddFavoriteUseCaseTest {
     }
 
     @Test
-    fun `should add favorite successfully`() = runTest {
-        // Arrange
-        val providerId = "provider-123"
-        mockRepository.addFavoriteResult = Result.success(Unit)
+    fun `should add favorite successfully`() =
+        runTest {
+            // Arrange
+            val providerId = "provider-123"
+            mockRepository.addFavoriteResult = Result.success(Unit)
 
-        // Act
-        val result = addFavoriteUseCase(providerId)
+            // Act
+            val result = addFavoriteUseCase(providerId)
 
-        // Assert
-        assertTrue(result.isSuccess)
-        assertEquals(providerId, mockRepository.lastAddedProviderId)
-    }
-
-    @Test
-    fun `should return error when add fails`() = runTest {
-        // Arrange
-        val providerId = "provider-123"
-        val expectedError = RuntimeException("Already in favorites")
-        mockRepository.addFavoriteResult = Result.failure(expectedError)
-
-        // Act
-        val result = addFavoriteUseCase(providerId)
-
-        // Assert
-        assertTrue(result.isFailure)
-        assertEquals(expectedError, result.exceptionOrNull())
-    }
+            // Assert
+            assertTrue(result.isSuccess)
+            assertEquals(providerId, mockRepository.lastAddedProviderId)
+        }
 
     @Test
-    fun `should call repository addFavorite with correct providerId`() = runTest {
-        // Arrange
-        val providerId = "provider-456"
-        mockRepository.addFavoriteResult = Result.success(Unit)
+    fun `should return error when add fails`() =
+        runTest {
+            // Arrange
+            val providerId = "provider-123"
+            val expectedError = RuntimeException("Already in favorites")
+            mockRepository.addFavoriteResult = Result.failure(expectedError)
 
-        // Act
-        addFavoriteUseCase(providerId)
+            // Act
+            val result = addFavoriteUseCase(providerId)
 
-        // Assert
-        assertEquals(1, mockRepository.addFavoriteCallCount)
-        assertEquals(providerId, mockRepository.lastAddedProviderId)
-    }
+            // Assert
+            assertTrue(result.isFailure)
+            assertEquals(expectedError, result.exceptionOrNull())
+        }
+
+    @Test
+    fun `should call repository addFavorite with correct providerId`() =
+        runTest {
+            // Arrange
+            val providerId = "provider-456"
+            mockRepository.addFavoriteResult = Result.success(Unit)
+
+            // Act
+            addFavoriteUseCase(providerId)
+
+            // Assert
+            assertEquals(1, mockRepository.addFavoriteCallCount)
+            assertEquals(providerId, mockRepository.lastAddedProviderId)
+        }
 }

@@ -13,7 +13,6 @@ import kotlin.test.assertTrue
  * Tests for GetFavoritesUseCase.
  */
 class GetFavoritesUseCaseTest {
-
     private lateinit var getFavoritesUseCase: GetFavoritesUseCase
     private lateinit var mockRepository: MockFavoritesRepository
 
@@ -24,57 +23,61 @@ class GetFavoritesUseCaseTest {
     }
 
     @Test
-    fun `should return favorites on successful fetch`() = runTest {
-        // Arrange
-        val expectedFavorites = listOf(createTestFavorite())
-        mockRepository.getFavoritesResult = Result.success(expectedFavorites)
+    fun `should return favorites on successful fetch`() =
+        runTest {
+            // Arrange
+            val expectedFavorites = listOf(createTestFavorite())
+            mockRepository.getFavoritesResult = Result.success(expectedFavorites)
 
-        // Act
-        val result = getFavoritesUseCase()
+            // Act
+            val result = getFavoritesUseCase()
 
-        // Assert
-        assertTrue(result.isSuccess)
-        assertEquals(expectedFavorites, result.getOrNull())
-    }
-
-    @Test
-    fun `should return empty list when no favorites`() = runTest {
-        // Arrange
-        mockRepository.getFavoritesResult = Result.success(emptyList())
-
-        // Act
-        val result = getFavoritesUseCase()
-
-        // Assert
-        assertTrue(result.isSuccess)
-        assertTrue(result.getOrNull()!!.isEmpty())
-    }
+            // Assert
+            assertTrue(result.isSuccess)
+            assertEquals(expectedFavorites, result.getOrNull())
+        }
 
     @Test
-    fun `should return error when repository fails`() = runTest {
-        // Arrange
-        val expectedError = RuntimeException("Network error")
-        mockRepository.getFavoritesResult = Result.failure(expectedError)
+    fun `should return empty list when no favorites`() =
+        runTest {
+            // Arrange
+            mockRepository.getFavoritesResult = Result.success(emptyList())
 
-        // Act
-        val result = getFavoritesUseCase()
+            // Act
+            val result = getFavoritesUseCase()
 
-        // Assert
-        assertTrue(result.isFailure)
-        assertEquals(expectedError, result.exceptionOrNull())
-    }
+            // Assert
+            assertTrue(result.isSuccess)
+            assertTrue(result.getOrNull()!!.isEmpty())
+        }
 
     @Test
-    fun `should call repository getFavorites`() = runTest {
-        // Arrange
-        mockRepository.getFavoritesResult = Result.success(emptyList())
+    fun `should return error when repository fails`() =
+        runTest {
+            // Arrange
+            val expectedError = RuntimeException("Network error")
+            mockRepository.getFavoritesResult = Result.failure(expectedError)
 
-        // Act
-        getFavoritesUseCase()
+            // Act
+            val result = getFavoritesUseCase()
 
-        // Assert
-        assertEquals(1, mockRepository.getFavoritesCallCount)
-    }
+            // Assert
+            assertTrue(result.isFailure)
+            assertEquals(expectedError, result.exceptionOrNull())
+        }
+
+    @Test
+    fun `should call repository getFavorites`() =
+        runTest {
+            // Arrange
+            mockRepository.getFavoritesResult = Result.success(emptyList())
+
+            // Act
+            getFavoritesUseCase()
+
+            // Assert
+            assertEquals(1, mockRepository.getFavoritesCallCount)
+        }
 
     private fun createTestFavorite(
         providerId: String = "provider-123",

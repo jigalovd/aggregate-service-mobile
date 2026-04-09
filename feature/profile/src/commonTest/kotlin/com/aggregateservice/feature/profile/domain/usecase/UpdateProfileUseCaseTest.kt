@@ -12,7 +12,6 @@ import kotlin.test.assertTrue
  * Tests for UpdateProfileUseCase.
  */
 class UpdateProfileUseCaseTest {
-
     private lateinit var updateProfileUseCase: UpdateProfileUseCase
     private lateinit var mockRepository: MockProfileRepository
 
@@ -23,71 +22,78 @@ class UpdateProfileUseCaseTest {
     }
 
     @Test
-    fun `should return updated profile on successful update`() = runTest {
-        // Arrange
-        val request = UpdateProfileRequest(
-            fullName = "Updated Name",
-            phone = "+9876543210",
-        )
-        val expectedProfile = createTestProfile(
-            fullName = "Updated Name",
-            phone = "+9876543210",
-        )
-        mockRepository.updateProfileResult = Result.success(expectedProfile)
+    fun `should return updated profile on successful update`() =
+        runTest {
+            // Arrange
+            val request =
+                UpdateProfileRequest(
+                    fullName = "Updated Name",
+                    phone = "+9876543210",
+                )
+            val expectedProfile =
+                createTestProfile(
+                    fullName = "Updated Name",
+                    phone = "+9876543210",
+                )
+            mockRepository.updateProfileResult = Result.success(expectedProfile)
 
-        // Act
-        val result = updateProfileUseCase(request)
+            // Act
+            val result = updateProfileUseCase(request)
 
-        // Assert
-        assertTrue(result.isSuccess)
-        assertEquals(expectedProfile, result.getOrNull())
-    }
-
-    @Test
-    fun `should return error when repository fails`() = runTest {
-        // Arrange
-        val request = UpdateProfileRequest(fullName = "New Name")
-        val expectedError = RuntimeException("Update failed")
-        mockRepository.updateProfileResult = Result.failure(expectedError)
-
-        // Act
-        val result = updateProfileUseCase(request)
-
-        // Assert
-        assertTrue(result.isFailure)
-        assertEquals(expectedError, result.exceptionOrNull())
-    }
+            // Assert
+            assertTrue(result.isSuccess)
+            assertEquals(expectedProfile, result.getOrNull())
+        }
 
     @Test
-    fun `should call repository updateProfile with correct request`() = runTest {
-        // Arrange
-        val request = UpdateProfileRequest(
-            fullName = "Test Name",
-            phone = "+1112223333",
-        )
-        mockRepository.updateProfileResult = Result.success(createTestProfile())
+    fun `should return error when repository fails`() =
+        runTest {
+            // Arrange
+            val request = UpdateProfileRequest(fullName = "New Name")
+            val expectedError = RuntimeException("Update failed")
+            mockRepository.updateProfileResult = Result.failure(expectedError)
 
-        // Act
-        updateProfileUseCase(request)
+            // Act
+            val result = updateProfileUseCase(request)
 
-        // Assert
-        assertEquals(1, mockRepository.updateProfileCallCount)
-    }
+            // Assert
+            assertTrue(result.isFailure)
+            assertEquals(expectedError, result.exceptionOrNull())
+        }
 
     @Test
-    fun `should update only fullName when phone is null`() = runTest {
-        // Arrange
-        val request = UpdateProfileRequest(fullName = "Only Name")
-        val expectedProfile = createTestProfile(fullName = "Only Name")
-        mockRepository.updateProfileResult = Result.success(expectedProfile)
+    fun `should call repository updateProfile with correct request`() =
+        runTest {
+            // Arrange
+            val request =
+                UpdateProfileRequest(
+                    fullName = "Test Name",
+                    phone = "+1112223333",
+                )
+            mockRepository.updateProfileResult = Result.success(createTestProfile())
 
-        // Act
-        val result = updateProfileUseCase(request)
+            // Act
+            updateProfileUseCase(request)
 
-        // Assert
-        assertTrue(result.isSuccess)
-        assertEquals("Only Name", result.getOrNull()?.fullName)
-    }
+            // Assert
+            assertEquals(1, mockRepository.updateProfileCallCount)
+        }
+
+    @Test
+    fun `should update only fullName when phone is null`() =
+        runTest {
+            // Arrange
+            val request = UpdateProfileRequest(fullName = "Only Name")
+            val expectedProfile = createTestProfile(fullName = "Only Name")
+            mockRepository.updateProfileResult = Result.success(expectedProfile)
+
+            // Act
+            val result = updateProfileUseCase(request)
+
+            // Assert
+            assertTrue(result.isSuccess)
+            assertEquals("Only Name", result.getOrNull()?.fullName)
+        }
 
     private fun createTestProfile(
         fullName: String? = "Test User",

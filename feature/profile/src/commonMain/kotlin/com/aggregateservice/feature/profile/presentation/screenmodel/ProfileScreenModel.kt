@@ -3,9 +3,9 @@ package com.aggregateservice.feature.profile.presentation.screenmodel
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import cafe.adriel.voyager.navigator.Navigator
+import com.aggregateservice.core.auth.contract.LogoutUseCase
 import com.aggregateservice.core.navigation.CatalogNavigator
 import com.aggregateservice.core.network.toAppError
-import com.aggregateservice.core.auth.contract.LogoutUseCase
 import com.aggregateservice.feature.profile.domain.model.UpdateProfileRequest
 import com.aggregateservice.feature.profile.domain.usecase.GetProfileUseCase
 import com.aggregateservice.feature.profile.domain.usecase.UpdateProfileUseCase
@@ -34,7 +34,6 @@ class ProfileScreenModel(
     private val logoutUseCase: LogoutUseCase,
     private val catalogNavigator: CatalogNavigator,
 ) : ScreenModel {
-
     private val _uiState = MutableStateFlow(ProfileUiState.Loading)
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
@@ -149,10 +148,11 @@ class ProfileScreenModel(
         screenModelScope.launch {
             _uiState.update { it.copy(isSaving = true) }
 
-            val request = UpdateProfileRequest(
-                fullName = currentState.editFullName.takeIf { it.isNotBlank() },
-                phone = currentState.editPhone.takeIf { it.isNotBlank() },
-            )
+            val request =
+                UpdateProfileRequest(
+                    fullName = currentState.editFullName.takeIf { it.isNotBlank() },
+                    phone = currentState.editPhone.takeIf { it.isNotBlank() },
+                )
 
             updateProfileUseCase(request).fold(
                 onSuccess = { updatedProfile ->

@@ -43,10 +43,11 @@ actual class LocationProvider actual constructor() {
                 val fineGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
                 val coarseGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
 
-                val status = when {
-                    fineGranted || coarseGranted -> LocationPermissionStatus.Granted
-                    else -> LocationPermissionStatus.Denied
-                }
+                val status =
+                    when {
+                        fineGranted || coarseGranted -> LocationPermissionStatus.Granted
+                        else -> LocationPermissionStatus.Denied
+                    }
 
                 permissionDeferred?.complete(status)
                 permissionDeferred = null

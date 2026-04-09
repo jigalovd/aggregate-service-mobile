@@ -15,7 +15,6 @@ import kotlin.test.assertTrue
  * Uses a testable implementation that allows injecting mock results.
  */
 class ProfileRepositoryImplTest {
-
     private lateinit var repository: TestableProfileRepository
 
     @BeforeTest
@@ -24,93 +23,101 @@ class ProfileRepositoryImplTest {
     }
 
     @Test
-    fun `should return profile on successful getProfile`() = runTest {
-        // Arrange
-        val expectedProfile = createTestProfile()
-        repository.getProfileResult = Result.success(expectedProfile)
+    fun `should return profile on successful getProfile`() =
+        runTest {
+            // Arrange
+            val expectedProfile = createTestProfile()
+            repository.getProfileResult = Result.success(expectedProfile)
 
-        // Act
-        val result = repository.getProfile()
+            // Act
+            val result = repository.getProfile()
 
-        // Assert
-        assertTrue(result.isSuccess)
-        val profile = result.getOrNull()!!
-        assertEquals(expectedProfile.id, profile.id)
-        assertEquals(expectedProfile.userId, profile.userId)
-        assertEquals(expectedProfile.fullName, profile.fullName)
-        assertEquals(expectedProfile.phone, profile.phone)
-    }
-
-    @Test
-    fun `should return error when api fails on getProfile`() = runTest {
-        // Arrange
-        val expectedError = RuntimeException("Network error")
-        repository.getProfileResult = Result.failure(expectedError)
-
-        // Act
-        val result = repository.getProfile()
-
-        // Assert
-        assertTrue(result.isFailure)
-        assertEquals(expectedError, result.exceptionOrNull())
-    }
+            // Assert
+            assertTrue(result.isSuccess)
+            val profile = result.getOrNull()!!
+            assertEquals(expectedProfile.id, profile.id)
+            assertEquals(expectedProfile.userId, profile.userId)
+            assertEquals(expectedProfile.fullName, profile.fullName)
+            assertEquals(expectedProfile.phone, profile.phone)
+        }
 
     @Test
-    fun `should return updated profile on successful updateProfile`() = runTest {
-        // Arrange
-        val request = UpdateProfileRequest(
-            fullName = "Updated Name",
-            phone = "+9876543210",
-        )
-        val expectedProfile = createTestProfile(
-            fullName = "Updated Name",
-            phone = "+9876543210",
-        )
-        repository.updateProfileResult = Result.success(expectedProfile)
+    fun `should return error when api fails on getProfile`() =
+        runTest {
+            // Arrange
+            val expectedError = RuntimeException("Network error")
+            repository.getProfileResult = Result.failure(expectedError)
 
-        // Act
-        val result = repository.updateProfile(request)
+            // Act
+            val result = repository.getProfile()
 
-        // Assert
-        assertTrue(result.isSuccess)
-        val profile = result.getOrNull()!!
-        assertEquals("Updated Name", profile.fullName)
-        assertEquals("+9876543210", profile.phone)
-    }
+            // Assert
+            assertTrue(result.isFailure)
+            assertEquals(expectedError, result.exceptionOrNull())
+        }
 
     @Test
-    fun `should return error when api fails on updateProfile`() = runTest {
-        // Arrange
-        val request = UpdateProfileRequest(fullName = "New Name")
-        val expectedError = RuntimeException("Update failed")
-        repository.updateProfileResult = Result.failure(expectedError)
+    fun `should return updated profile on successful updateProfile`() =
+        runTest {
+            // Arrange
+            val request =
+                UpdateProfileRequest(
+                    fullName = "Updated Name",
+                    phone = "+9876543210",
+                )
+            val expectedProfile =
+                createTestProfile(
+                    fullName = "Updated Name",
+                    phone = "+9876543210",
+                )
+            repository.updateProfileResult = Result.success(expectedProfile)
 
-        // Act
-        val result = repository.updateProfile(request)
+            // Act
+            val result = repository.updateProfile(request)
 
-        // Assert
-        assertTrue(result.isFailure)
-        assertEquals(expectedError, result.exceptionOrNull())
-    }
+            // Assert
+            assertTrue(result.isSuccess)
+            val profile = result.getOrNull()!!
+            assertEquals("Updated Name", profile.fullName)
+            assertEquals("+9876543210", profile.phone)
+        }
 
     @Test
-    fun `should map noShowCount and noShowRate correctly`() = runTest {
-        // Arrange
-        val expectedProfile = createTestProfile(
-            noShowCount = 5,
-            noShowRate = 0.15,
-        )
-        repository.getProfileResult = Result.success(expectedProfile)
+    fun `should return error when api fails on updateProfile`() =
+        runTest {
+            // Arrange
+            val request = UpdateProfileRequest(fullName = "New Name")
+            val expectedError = RuntimeException("Update failed")
+            repository.updateProfileResult = Result.failure(expectedError)
 
-        // Act
-        val result = repository.getProfile()
+            // Act
+            val result = repository.updateProfile(request)
 
-        // Assert
-        assertTrue(result.isSuccess)
-        val profile = result.getOrNull()!!
-        assertEquals(5, profile.noShowCount)
-        assertEquals(0.15, profile.noShowRate)
-    }
+            // Assert
+            assertTrue(result.isFailure)
+            assertEquals(expectedError, result.exceptionOrNull())
+        }
+
+    @Test
+    fun `should map noShowCount and noShowRate correctly`() =
+        runTest {
+            // Arrange
+            val expectedProfile =
+                createTestProfile(
+                    noShowCount = 5,
+                    noShowRate = 0.15,
+                )
+            repository.getProfileResult = Result.success(expectedProfile)
+
+            // Act
+            val result = repository.getProfile()
+
+            // Assert
+            assertTrue(result.isSuccess)
+            val profile = result.getOrNull()!!
+            assertEquals(5, profile.noShowCount)
+            assertEquals(0.15, profile.noShowRate)
+        }
 
     private fun createTestProfile(
         fullName: String? = "Test User",
@@ -132,7 +139,6 @@ class ProfileRepositoryImplTest {
  * Testable implementation of ProfileRepository that allows injecting mock results.
  */
 class TestableProfileRepository : ProfileRepository {
-
     var getProfileResult: Result<Profile> = Result.success(createDefaultProfile())
 
     var updateProfileResult: Result<Profile> = Result.success(createDefaultProfile())
@@ -150,13 +156,14 @@ class TestableProfileRepository : ProfileRepository {
         return updateProfileResult
     }
 
-    private fun createDefaultProfile() = Profile(
-        id = "default-id",
-        userId = "default-user",
-        fullName = null,
-        phone = null,
-        avatarUrl = null,
-        noShowCount = 0,
-        noShowRate = 0.0,
-    )
+    private fun createDefaultProfile() =
+        Profile(
+            id = "default-id",
+            userId = "default-user",
+            fullName = null,
+            phone = null,
+            avatarUrl = null,
+            noShowCount = 0,
+            noShowRate = 0.0,
+        )
 }

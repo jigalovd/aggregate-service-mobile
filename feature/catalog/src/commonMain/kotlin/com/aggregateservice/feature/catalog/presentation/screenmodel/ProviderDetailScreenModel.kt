@@ -57,7 +57,7 @@ class ProviderDetailScreenModel(
      */
     fun initialize(id: String) {
         if (providerId == id) return // Already loaded
-        if (loadingId == id) return  // Loading already in progress for this id
+        if (loadingId == id) return // Loading already in progress for this id
 
         loadingId = id
         providerId = id
@@ -201,7 +201,7 @@ class ProviderDetailScreenModel(
      */
     fun retry() {
         providerId?.let { id ->
-            loadingId = null  // Reset so retry works
+            loadingId = null // Reset so retry works
             loadProviderDetails(id)
             loadProviderServices(id)
         }

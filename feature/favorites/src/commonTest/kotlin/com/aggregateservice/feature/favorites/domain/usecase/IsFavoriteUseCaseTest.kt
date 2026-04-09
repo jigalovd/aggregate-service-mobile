@@ -10,7 +10,6 @@ import kotlin.test.assertTrue
  * Tests for IsFavoriteUseCase.
  */
 class IsFavoriteUseCaseTest {
-
     private lateinit var isFavoriteUseCase: IsFavoriteUseCase
     private lateinit var mockRepository: MockFavoritesRepository
 
@@ -21,59 +20,63 @@ class IsFavoriteUseCaseTest {
     }
 
     @Test
-    fun `should return true when provider is favorite`() = runTest {
-        // Arrange
-        val providerId = "provider-123"
-        mockRepository.isFavoriteResult = Result.success(true)
+    fun `should return true when provider is favorite`() =
+        runTest {
+            // Arrange
+            val providerId = "provider-123"
+            mockRepository.isFavoriteResult = Result.success(true)
 
-        // Act
-        val result = isFavoriteUseCase(providerId)
+            // Act
+            val result = isFavoriteUseCase(providerId)
 
-        // Assert
-        assertTrue(result.isSuccess)
-        assertTrue(result.getOrNull()!!)
-    }
-
-    @Test
-    fun `should return false when provider is not favorite`() = runTest {
-        // Arrange
-        val providerId = "provider-456"
-        mockRepository.isFavoriteResult = Result.success(false)
-
-        // Act
-        val result = isFavoriteUseCase(providerId)
-
-        // Assert
-        assertTrue(result.isSuccess)
-        assertTrue(result.getOrNull()!! == false)
-    }
+            // Assert
+            assertTrue(result.isSuccess)
+            assertTrue(result.getOrNull()!!)
+        }
 
     @Test
-    fun `should return error when check fails`() = runTest {
-        // Arrange
-        val providerId = "provider-123"
-        val expectedError = RuntimeException("Network error")
-        mockRepository.isFavoriteResult = Result.failure(expectedError)
+    fun `should return false when provider is not favorite`() =
+        runTest {
+            // Arrange
+            val providerId = "provider-456"
+            mockRepository.isFavoriteResult = Result.success(false)
 
-        // Act
-        val result = isFavoriteUseCase(providerId)
+            // Act
+            val result = isFavoriteUseCase(providerId)
 
-        // Assert
-        assertTrue(result.isFailure)
-        assertEquals(expectedError, result.exceptionOrNull())
-    }
+            // Assert
+            assertTrue(result.isSuccess)
+            assertTrue(result.getOrNull()!! == false)
+        }
 
     @Test
-    fun `should call repository isFavorite with correct providerId`() = runTest {
-        // Arrange
-        val providerId = "provider-789"
-        mockRepository.isFavoriteResult = Result.success(false)
+    fun `should return error when check fails`() =
+        runTest {
+            // Arrange
+            val providerId = "provider-123"
+            val expectedError = RuntimeException("Network error")
+            mockRepository.isFavoriteResult = Result.failure(expectedError)
 
-        // Act
-        isFavoriteUseCase(providerId)
+            // Act
+            val result = isFavoriteUseCase(providerId)
 
-        // Assert
-        assertEquals(1, mockRepository.isFavoriteCallCount)
-        assertEquals(providerId, mockRepository.lastCheckedProviderId)
-    }
+            // Assert
+            assertTrue(result.isFailure)
+            assertEquals(expectedError, result.exceptionOrNull())
+        }
+
+    @Test
+    fun `should call repository isFavorite with correct providerId`() =
+        runTest {
+            // Arrange
+            val providerId = "provider-789"
+            mockRepository.isFavoriteResult = Result.success(false)
+
+            // Act
+            isFavoriteUseCase(providerId)
+
+            // Assert
+            assertEquals(1, mockRepository.isFavoriteCallCount)
+            assertEquals(providerId, mockRepository.lastCheckedProviderId)
+        }
 }

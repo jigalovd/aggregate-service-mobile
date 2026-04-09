@@ -29,7 +29,6 @@ class BookingConfirmationScreenModel(
     private val getBookingServicesUseCase: GetBookingServicesUseCase,
     private val getAvailableSlotsUseCase: GetAvailableSlotsUseCase,
 ) : ScreenModel {
-
     private val _uiState = MutableStateFlow(BookingConfirmationUiState.Initial)
     val uiState: StateFlow<BookingConfirmationUiState> = _uiState.asStateFlow()
 
@@ -110,27 +109,30 @@ class BookingConfirmationScreenModel(
             val serviceIds = currentState.services.map { it.id }
 
             // D-04: Auto-refresh slots before confirmation
-            val slotsResult = getAvailableSlotsUseCase(
-                providerId = currentState.providerId,
-                date = date,
-                serviceIds = serviceIds,
-            )
+            val slotsResult =
+                getAvailableSlotsUseCase(
+                    providerId = currentState.providerId,
+                    date = date,
+                    serviceIds = serviceIds,
+                )
 
-            val isSlotStillAvailable = slotsResult.fold(
-                onSuccess = { availableSlots ->
-                    availableSlots.any { it.startTime == slot.startTime && it.isAvailable }
-                },
-                onFailure = { false },
-            )
+            val isSlotStillAvailable =
+                slotsResult.fold(
+                    onSuccess = { availableSlots ->
+                        availableSlots.any { it.startTime == slot.startTime && it.isAvailable }
+                    },
+                    onFailure = { false },
+                )
 
             if (!isSlotStillAvailable) {
                 _uiState.update {
                     it.copy(
                         isSubmitting = false,
-                        error = com.aggregateservice.core.network.AppError.ValidationError(
-                            field = "slot",
-                            message = "Selected time slot is no longer available. Please choose another slot.",
-                        ),
+                        error =
+                            com.aggregateservice.core.network.AppError.ValidationError(
+                                field = "slot",
+                                message = "Selected time slot is no longer available. Please choose another slot.",
+                            ),
                     )
                 }
                 return@launch
@@ -156,11 +158,12 @@ class BookingConfirmationScreenModel(
                     _uiState.update {
                         it.copy(
                             isSubmitting = false,
-                            error = error as? com.aggregateservice.core.network.AppError
-                                ?: com.aggregateservice.core.network.AppError.UnknownError(
-                                    throwable = error,
-                                    message = error.message,
-                                ),
+                            error =
+                                error as? com.aggregateservice.core.network.AppError
+                                    ?: com.aggregateservice.core.network.AppError.UnknownError(
+                                        throwable = error,
+                                        message = error.message,
+                                    ),
                         )
                     }
                 },

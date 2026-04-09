@@ -21,22 +21,23 @@ import org.koin.dsl.module
  * - UseCases (domain layer)
  * - ScreenModels (presentation layer)
  */
-val reviewsModule = module {
-    // API Service (Ktor Auth Plugin handles auth automatically)
-    single { ReviewsApiService(get()) }
+val reviewsModule =
+    module {
+        // API Service (Ktor Auth Plugin handles auth automatically)
+        single { ReviewsApiService(get()) }
 
-    // Repository
-    single<ReviewsRepository> {
-        ReviewsRepositoryImpl(apiService = get())
+        // Repository
+        single<ReviewsRepository> {
+            ReviewsRepositoryImpl(apiService = get())
+        }
+
+        // UseCases (Domain layer)
+        factoryOf(::GetProviderReviewsUseCase)
+        factoryOf(::GetReviewStatsUseCase)
+        factoryOf(::CanReviewBookingUseCase)
+        factoryOf(::CreateReviewUseCase)
+
+        // ScreenModels (Presentation layer)
+        factoryOf(::ReviewsScreenModel)
+        factoryOf(::WriteReviewScreenModel)
     }
-
-    // UseCases (Domain layer)
-    factoryOf(::GetProviderReviewsUseCase)
-    factoryOf(::GetReviewStatsUseCase)
-    factoryOf(::CanReviewBookingUseCase)
-    factoryOf(::CreateReviewUseCase)
-
-    // ScreenModels (Presentation layer)
-    factoryOf(::ReviewsScreenModel)
-    factoryOf(::WriteReviewScreenModel)
-}

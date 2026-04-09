@@ -57,9 +57,10 @@ class CreateBookingUseCase(
 
         // Validation: startTime must be at least MIN_BOOKING_NOTICE_HOURS in the future (US-3.35)
         val now = Clock.System.now()
-        val minBookingTime = Instant.fromEpochMilliseconds(
-            now.toEpochMilliseconds() + MIN_BOOKING_NOTICE_HOURS * 60 * 60 * 1000,
-        )
+        val minBookingTime =
+            Instant.fromEpochMilliseconds(
+                now.toEpochMilliseconds() + MIN_BOOKING_NOTICE_HOURS * 60 * 60 * 1000,
+            )
         if (startTime < minBookingTime) {
             return Result.failure(
                 AppError.ValidationError(
@@ -70,9 +71,10 @@ class CreateBookingUseCase(
         }
 
         // Validation: startTime not more than MAX_ADVANCE_DAYS in advance (US-3.34)
-        val maxAdvanceTime = Instant.fromEpochMilliseconds(
-            now.toEpochMilliseconds() + MAX_ADVANCE_DAYS * 24 * 60 * 60 * 1000,
-        )
+        val maxAdvanceTime =
+            Instant.fromEpochMilliseconds(
+                now.toEpochMilliseconds() + MAX_ADVANCE_DAYS * 24 * 60 * 60 * 1000,
+            )
         if (startTime > maxAdvanceTime) {
             return Result.failure(
                 AppError.ValidationError("startTime", "Cannot book more than $MAX_ADVANCE_DAYS days in advance"),

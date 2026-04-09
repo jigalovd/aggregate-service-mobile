@@ -44,18 +44,19 @@ data class SelectServiceUiState(
      * Форматированная общая стоимость (например, "300 ILS").
      */
     val formattedTotal: String
-        get() = if (hasSelection) {
-            val currency = selectedServices.firstOrNull()?.currency ?: "ILS"
-            "%.0f %s".format(totalPrice, currency)
-        } else {
-            "0 ILS"
-        }
+        get() =
+            if (hasSelection) {
+                val currency = selectedServices.firstOrNull()?.currency ?: "ILS"
+                "%.0f %s".format(totalPrice, currency)
+            } else {
+                "0 ILS"
+            }
 
     /**
      * Форматированная общая длительность (например, "90 min").
      */
     val formattedDuration: String
-        get() = "${totalDurationMinutes} min"
+        get() = "$totalDurationMinutes min"
 
     /**
      * Проверка, выбрана ли услуга.
@@ -71,9 +72,10 @@ data class SelectServiceUiState(
         /**
          * Состояние ошибки.
          */
-        fun error(error: AppError) = SelectServiceUiState(
-            isLoading = false,
-            error = error,
-        )
+        fun error(error: AppError) =
+            SelectServiceUiState(
+                isLoading = false,
+                error = error,
+            )
     }
 }

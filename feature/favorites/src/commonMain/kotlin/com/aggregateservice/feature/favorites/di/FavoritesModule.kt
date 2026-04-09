@@ -19,21 +19,22 @@ import org.koin.dsl.module
  * - UseCases (domain layer)
  * - ScreenModels (presentation layer)
  */
-val favoritesModule = module {
-    // API Service (Ktor Auth Plugin handles auth automatically)
-    single { FavoritesApiService(get()) }
+val favoritesModule =
+    module {
+        // API Service (Ktor Auth Plugin handles auth automatically)
+        single { FavoritesApiService(get()) }
 
-    // Repository
-    single<FavoritesRepository> {
-        FavoritesRepositoryImpl(apiService = get())
+        // Repository
+        single<FavoritesRepository> {
+            FavoritesRepositoryImpl(apiService = get())
+        }
+
+        // UseCases (Domain layer)
+        factoryOf(::GetFavoritesUseCase)
+        factoryOf(::AddFavoriteUseCase)
+        factoryOf(::RemoveFavoriteUseCase)
+        factoryOf(::IsFavoriteUseCase)
+
+        // ScreenModels (Presentation layer)
+        factoryOf(::FavoritesScreenModel)
     }
-
-    // UseCases (Domain layer)
-    factoryOf(::GetFavoritesUseCase)
-    factoryOf(::AddFavoriteUseCase)
-    factoryOf(::RemoveFavoriteUseCase)
-    factoryOf(::IsFavoriteUseCase)
-
-    // ScreenModels (Presentation layer)
-    factoryOf(::FavoritesScreenModel)
-}

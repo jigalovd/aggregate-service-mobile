@@ -30,14 +30,16 @@ expect class AppConfig(
 enum class Environment {
     DEV,
     STAGING,
-    PROD;
+    PROD,
+    ;
 
     companion object {
-        fun fromString(value: String): Environment = when (value.uppercase()) {
-            "DEV", "DEVELOPMENT" -> DEV
-            "STAGING", "STAGE" -> STAGING
-            else -> PROD
-        }
+        fun fromString(value: String): Environment =
+            when (value.uppercase()) {
+                "DEV", "DEVELOPMENT" -> DEV
+                "STAGING", "STAGE" -> STAGING
+                else -> PROD
+            }
     }
 }
 
@@ -47,7 +49,8 @@ enum class Language(
 ) {
     RU("ru", "Русский"),
     HE("he", "עברית"),
-    EN("en", "English");
+    EN("en", "English"),
+    ;
 
     companion object {
         fun fromCode(code: String?): Language = entries.firstOrNull { it.code == code } ?: RU
@@ -73,9 +76,10 @@ object Config {
     }
 
     val instance: AppConfig
-        get() = _instance ?: throw IllegalStateException(
-            "Config not initialized. Call Config.initialize() in Application.onCreate()"
-        )
+        get() =
+            _instance ?: throw IllegalStateException(
+                "Config not initialized. Call Config.initialize() in Application.onCreate()",
+            )
 
     val apiBaseUrl: String get() = instance.apiBaseUrl
     val apiKey: String get() = instance.apiKey

@@ -46,21 +46,24 @@ data class SelectDateTimeUiState(
      * Доступные даты (на основе слотов).
      */
     val availableDates: Set<LocalDate>
-        get() = availableSlots.map { slot ->
-            slot.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
-        }.toSet()
+        get() =
+            availableSlots
+                .map { slot ->
+                    slot.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                }.toSet()
 
     /**
      * Доступные слоты для выбранной даты.
      */
     val slotsForSelectedDate: List<TimeSlot>
-        get() = if (selectedDate == null) {
-            emptyList()
-        } else {
-            availableSlots.filter { slot ->
-                slot.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date == selectedDate
+        get() =
+            if (selectedDate == null) {
+                emptyList()
+            } else {
+                availableSlots.filter { slot ->
+                    slot.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date == selectedDate
+                }
             }
-        }
 
     /**
      * Только доступные (не занятые) слоты.

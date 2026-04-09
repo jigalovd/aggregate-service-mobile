@@ -9,7 +9,6 @@ import kotlin.test.assertTrue
  * Tests sealed interface cases per GEO-04 requirement.
  */
 class LocationPermissionStatusTest {
-
     @Test
     fun `LocationPermissionStatus Granted should be the granted case`() {
         val status = LocationPermissionStatus.Granted
@@ -37,12 +36,13 @@ class LocationPermissionStatusTest {
     @Test
     fun `LocationPermissionStatus should have exactly four cases`() {
         // Sealed interface: all implementations should be data objects
-        val cases = listOf(
-            LocationPermissionStatus.Granted,
-            LocationPermissionStatus.Denied,
-            LocationPermissionStatus.DeniedPermanently,
-            LocationPermissionStatus.Unknown
-        )
+        val cases =
+            listOf(
+                LocationPermissionStatus.Granted,
+                LocationPermissionStatus.Denied,
+                LocationPermissionStatus.DeniedPermanently,
+                LocationPermissionStatus.Unknown,
+            )
         assertTrue(cases.size == 4, "LocationPermissionStatus should have exactly 4 cases")
     }
 

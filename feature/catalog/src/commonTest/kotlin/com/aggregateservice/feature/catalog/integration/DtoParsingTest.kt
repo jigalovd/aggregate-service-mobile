@@ -36,10 +36,11 @@ class DtoParsingTest {
      */
     private fun loadFixture(fixtureName: String): String {
         // Try multiple possible resource paths for Android unit test compatibility
-        val possiblePaths = listOf(
-            "src/commonTest/resources/fixtures/$fixtureName",
-            "fixtures/$fixtureName",
-        )
+        val possiblePaths =
+            listOf(
+                "src/commonTest/resources/fixtures/$fixtureName",
+                "fixtures/$fixtureName",
+            )
 
         for (path in possiblePaths) {
             val file = java.io.File(path)
@@ -51,8 +52,9 @@ class DtoParsingTest {
         // Fallback: try classpath loading
         val classLoader = this::class.java.classLoader ?: ClassLoader.getSystemClassLoader()
         val resourcePath = "fixtures/$fixtureName"
-        val resource = classLoader.getResourceAsStream(resourcePath)
-            ?: throw IllegalArgumentException("Fixture not found: $fixtureName (searched: $possiblePaths)")
+        val resource =
+            classLoader.getResourceAsStream(resourcePath)
+                ?: throw IllegalArgumentException("Fixture not found: $fixtureName (searched: $possiblePaths)")
         return resource.bufferedReader().use { it.readText() }
     }
 

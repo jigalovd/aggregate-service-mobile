@@ -19,7 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -58,7 +56,6 @@ data class BookingConfirmationScreen(
     val selectedDate: String,
     val slotStartTime: String,
 ) : Screen {
-
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -69,12 +66,13 @@ data class BookingConfirmationScreen(
         // Load services and initialize via ScreenModel
         LaunchedEffect(providerId, serviceIds) {
             val startInstant = Instant.parse(slotStartTime)
-            val slot = TimeSlot(
-                startTime = startInstant,
-                endTime = Instant.fromEpochMilliseconds(startInstant.toEpochMilliseconds() + 60 * 60 * 1000),
-                isAvailable = true,
-                providerId = providerId,
-            )
+            val slot =
+                TimeSlot(
+                    startTime = startInstant,
+                    endTime = Instant.fromEpochMilliseconds(startInstant.toEpochMilliseconds() + 60 * 60 * 1000),
+                    isAvailable = true,
+                    providerId = providerId,
+                )
             screenModel.initialize(
                 providerId = providerId,
                 providerName = providerName,
@@ -111,15 +109,15 @@ fun BookingConfirmationScreenContent(
     onBack: () -> Unit,
     onDone: () -> Unit,
 ) {
-    Scaffold(
-    ) { paddingValues ->
+    Scaffold { paddingValues ->
         when {
             uiState.isBooked -> {
                 // Success state
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
                     Column(
@@ -153,10 +151,11 @@ fun BookingConfirmationScreenContent(
 
             else -> {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .padding(Spacing.MD),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                            .padding(Spacing.MD),
                 ) {
                     // Provider info
                     Text(

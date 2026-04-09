@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -29,20 +32,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.aggregateservice.core.theme.Dimensions
 import com.aggregateservice.core.theme.Spacing
 import kotlinx.coroutines.delay
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
 
 /**
  * Search input field with debounced query updates.
@@ -102,66 +98,72 @@ fun AppSearchField(
         value = currentValue,
         onValueChange = { currentValue = it },
         modifier = modifier.fillMaxWidth(),
-        placeholder = placeholder?.let {
-            {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        },
+        placeholder =
+            placeholder?.let {
+                {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            },
         enabled = enabled,
         readOnly = readOnly,
-        leadingIcon = if (showSearchIcon) {
-            {
-                Icon(
-                    imageVector = SearchIcon,
-                    contentDescription = "Поиск",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        } else null,
+        leadingIcon =
+            if (showSearchIcon) {
+                {
+                    Icon(
+                        imageVector = SearchIcon,
+                        contentDescription = "Поиск",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            } else {
+                null
+            },
         trailingIcon = {
             AnimatedVisibility(
                 visible = currentValue.isNotEmpty(),
                 enter = fadeIn(),
-                exit = fadeOut()
+                exit = fadeOut(),
             ) {
                 IconButton(
                     onClick = {
                         currentValue = ""
                         onValueChange("")
                     },
-                    enabled = enabled
+                    enabled = enabled,
                 ) {
                     Icon(
                         imageVector = ClearIcon,
                         contentDescription = "Очистить",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
         },
         singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text,
-            imeAction = if (onSearch != null) ImeAction.Search else ImeAction.Done
-        ),
-        keyboardActions = KeyboardActions(
-            onSearch = {
-                onSearch?.invoke()
-                keyboardController?.hide()
-            },
-            onDone = {
-                keyboardController?.hide()
-            }
-        ),
+        keyboardOptions =
+            KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = if (onSearch != null) ImeAction.Search else ImeAction.Done,
+            ),
+        keyboardActions =
+            KeyboardActions(
+                onSearch = {
+                    onSearch?.invoke()
+                    keyboardController?.hide()
+                },
+                onDone = {
+                    keyboardController?.hide()
+                },
+            ),
         colors = colors,
         interactionSource = interactionSource,
-        shape = MaterialTheme.shapes.medium
+        shape = MaterialTheme.shapes.medium,
     )
 }
 
@@ -199,28 +201,30 @@ fun AppSearchFieldCompact(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Box(
-        modifier = modifier
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = Spacing.MD),
-        contentAlignment = Alignment.CenterStart
+        modifier =
+            modifier
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .padding(horizontal = Spacing.MD),
+        contentAlignment = Alignment.CenterStart,
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             if (showSearchIcon) {
                 Icon(
                     imageVector = SearchIcon,
                     contentDescription = null,
-                    modifier = Modifier
-                        .size(Dimensions.IconSM)
-                        .padding(end = Spacing.SM),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    modifier =
+                        Modifier
+                            .size(Dimensions.IconSM)
+                            .padding(end = Spacing.SM),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
 
             Box(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             ) {
                 if (currentValue.isEmpty() && placeholder != null) {
                     Text(
@@ -228,7 +232,7 @@ fun AppSearchFieldCompact(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
 
@@ -239,19 +243,19 @@ fun AppSearchFieldCompact(
             AnimatedVisibility(
                 visible = currentValue.isNotEmpty(),
                 enter = fadeIn(),
-                exit = fadeOut()
+                exit = fadeOut(),
             ) {
                 IconButton(
                     onClick = {
                         currentValue = ""
                         onValueChange("")
                     },
-                    modifier = Modifier.size(Dimensions.IconSM)
+                    modifier = Modifier.size(Dimensions.IconSM),
                 ) {
                     Icon(
                         imageVector = ClearIcon,
                         contentDescription = "Очистить",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }

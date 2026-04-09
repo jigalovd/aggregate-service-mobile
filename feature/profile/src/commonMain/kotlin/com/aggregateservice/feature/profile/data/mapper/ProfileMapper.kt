@@ -9,19 +9,19 @@ import com.aggregateservice.feature.profile.domain.model.UpdateProfileRequest
  * Mapper for converting between Profile DTOs and Domain models.
  */
 object ProfileMapper {
-
     /**
      * Converts DTO to domain model.
      */
-    fun toDomain(dto: ProfileDto): Profile = Profile(
-        id = dto.id,
-        userId = dto.userId,
-        fullName = dto.fullName,
-        phone = dto.phone,
-        avatarUrl = dto.avatarUrl,
-        noShowCount = dto.noShowCount,
-        noShowRate = dto.noShowRate,
-    )
+    fun toDomain(dto: ProfileDto): Profile =
+        Profile(
+            id = dto.id,
+            userId = dto.userId,
+            fullName = dto.fullName,
+            phone = dto.phone,
+            avatarUrl = dto.avatarUrl,
+            noShowCount = dto.noShowCount,
+            noShowRate = dto.noShowRate,
+        )
 
     /**
      * Converts domain UpdateProfileRequest to DTO.

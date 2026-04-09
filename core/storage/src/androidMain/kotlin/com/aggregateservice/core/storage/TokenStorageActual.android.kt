@@ -14,7 +14,7 @@ package com.aggregateservice.core.storage
 actual fun createTokenStorage(): TokenStorage {
     throw UnsupportedOperationException(
         "createTokenStorage() should not be called directly. " +
-        "Use Koin dependency injection instead: " +
-        "single<TokenStorage> { createTokenStorage(androidContext()) }"
+            "Use Koin dependency injection instead: " +
+            "single<TokenStorage> { createTokenStorage(androidContext()) }",
     )
 }

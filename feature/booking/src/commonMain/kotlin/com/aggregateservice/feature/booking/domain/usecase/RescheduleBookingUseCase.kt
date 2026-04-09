@@ -49,9 +49,10 @@ class RescheduleBookingUseCase(
         }
 
         // Получаем бронирование для проверки времени (US-3.11)
-        val booking = repository.getBookingById(bookingId).getOrElse { error ->
-            return Result.failure(error)
-        }
+        val booking =
+            repository.getBookingById(bookingId).getOrElse { error ->
+                return Result.failure(error)
+            }
 
         // Validation: 2-hour window before start time (US-3.11)
         // Клиент может перенести минимум за 2 часа до начала

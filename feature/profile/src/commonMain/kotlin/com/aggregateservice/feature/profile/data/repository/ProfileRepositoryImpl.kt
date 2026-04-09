@@ -19,7 +19,6 @@ import com.aggregateservice.feature.profile.domain.repository.ProfileRepository
 class ProfileRepositoryImpl(
     private val apiService: ProfileApiService,
 ) : ProfileRepository {
-
     override suspend fun getProfile(): Result<Profile> {
         return apiService.getProfile().fold(
             onSuccess = { dto -> Result.success(ProfileMapper.toDomain(dto)) },

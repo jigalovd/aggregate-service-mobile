@@ -32,11 +32,12 @@ data class ProviderWithDistance(
     companion object {
         fun from(provider: Provider, userLocation: Location?): ProviderWithDistance {
             val distance = userLocation?.let { provider.location.distanceTo(it) }
-            val formatted = when {
-                distance == null -> ""
-                distance < 1.0 -> "${(distance * 1000).toInt()} m"
-                else -> "%.1f km".format(distance)
-            }
+            val formatted =
+                when {
+                    distance == null -> ""
+                    distance < 1.0 -> "${(distance * 1000).toInt()} m"
+                    else -> "%.1f km".format(distance)
+                }
             return ProviderWithDistance(
                 provider = provider,
                 distanceKm = distance,
@@ -130,9 +131,10 @@ class CatalogScreenModel(
                 .fold(
                     onSuccess = { searchResult ->
                         val userLoc = _uiState.value.userLocation
-                        val providersWithDistance = searchResult.items.map {
-                            ProviderWithDistance.from(it, userLoc)
-                        }
+                        val providersWithDistance =
+                            searchResult.items.map {
+                                ProviderWithDistance.from(it, userLoc)
+                            }
                         _uiState.value =
                             _uiState.value.copy(
                                 isLoading = false,
@@ -174,9 +176,10 @@ class CatalogScreenModel(
             searchProvidersUseCase(filters)
                 .fold(
                     onSuccess = { searchResult ->
-                        val providersWithDistance = searchResult.items.map {
-                            ProviderWithDistance.from(it, state.userLocation)
-                        }
+                        val providersWithDistance =
+                            searchResult.items.map {
+                                ProviderWithDistance.from(it, state.userLocation)
+                            }
                         _uiState.value =
                             _uiState.value.copy(
                                 isLoadingMore = false,

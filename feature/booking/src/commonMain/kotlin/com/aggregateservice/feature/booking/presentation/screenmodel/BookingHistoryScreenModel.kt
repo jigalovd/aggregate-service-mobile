@@ -27,7 +27,6 @@ class BookingHistoryScreenModel(
     private val getClientBookingsUseCase: GetClientBookingsUseCase,
     private val cancelBookingUseCase: CancelBookingUseCase,
 ) : ScreenModel {
-
     private val _uiState = MutableStateFlow(BookingHistoryUiState.Loading)
     val uiState: StateFlow<BookingHistoryUiState> = _uiState.asStateFlow()
 
@@ -50,8 +49,13 @@ class BookingHistoryScreenModel(
                     }
                 },
                 onFailure = { error ->
-                    _uiState.update { BookingHistoryUiState.error(error as? com.aggregateservice.core.network.AppError
-                        ?: com.aggregateservice.core.network.AppError.UnknownError(throwable = error, message = error.message)) }
+                    _uiState.update {
+                        BookingHistoryUiState.error(
+                            error as? com.aggregateservice.core.network.AppError
+                                ?: com.aggregateservice.core.network.AppError
+                                    .UnknownError(throwable = error, message = error.message),
+                        )
+                    }
                 },
             )
         }
@@ -90,17 +94,20 @@ class BookingHistoryScreenModel(
             cancelBookingUseCase(bookingId, reason).fold(
                 onSuccess = { updatedBooking ->
                     _uiState.update { state ->
-                        val updatedList = state.bookings.map { booking ->
-                            if (booking.id == bookingId) updatedBooking else booking
-                        }
+                        val updatedList =
+                            state.bookings.map { booking ->
+                                if (booking.id == bookingId) updatedBooking else booking
+                            }
                         state.copy(bookings = updatedList)
                     }
                 },
                 onFailure = { error ->
                     _uiState.update {
                         it.copy(
-                            error = error as? com.aggregateservice.core.network.AppError
-                                ?: com.aggregateservice.core.network.AppError.UnknownError(throwable = error, message = error.message),
+                            error =
+                                error as? com.aggregateservice.core.network.AppError
+                                    ?: com.aggregateservice.core.network.AppError
+                                        .UnknownError(throwable = error, message = error.message),
                         )
                     }
                 },

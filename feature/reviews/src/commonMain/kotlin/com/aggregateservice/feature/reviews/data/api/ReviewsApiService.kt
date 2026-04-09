@@ -12,7 +12,6 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import kotlinx.serialization.builtins.ListSerializer
 
 /**
  * API service for reviews endpoints.
@@ -34,32 +33,36 @@ class ReviewsApiService(
         providerId: String,
         page: Int,
         pageSize: Int,
-    ): Result<List<ReviewDto>> = safeApiCall {
-        client.get("$REVIEWS_PATH/provider/$providerId") {
-            contentType(ContentType.Application.Json)
-            parameter("page", page)
-            parameter("page_size", pageSize)
+    ): Result<List<ReviewDto>> =
+        safeApiCall {
+            client.get("$REVIEWS_PATH/provider/$providerId") {
+                contentType(ContentType.Application.Json)
+                parameter("page", page)
+                parameter("page_size", pageSize)
+            }
         }
-    }
 
-    suspend fun getReviewStats(providerId: String): Result<ReviewStatsDto> = safeApiCall {
-        client.get("$REVIEWS_PATH/stats/provider/$providerId") {
-            contentType(ContentType.Application.Json)
+    suspend fun getReviewStats(providerId: String): Result<ReviewStatsDto> =
+        safeApiCall {
+            client.get("$REVIEWS_PATH/stats/provider/$providerId") {
+                contentType(ContentType.Application.Json)
+            }
         }
-    }
 
-    suspend fun canReviewBooking(bookingId: String): Result<CanReviewResponseDto> = safeApiCall {
-        client.get("$BOOKINGS_PATH/$bookingId/can-review") {
-            contentType(ContentType.Application.Json)
+    suspend fun canReviewBooking(bookingId: String): Result<CanReviewResponseDto> =
+        safeApiCall {
+            client.get("$BOOKINGS_PATH/$bookingId/can-review") {
+                contentType(ContentType.Application.Json)
+            }
         }
-    }
 
-    suspend fun createReview(request: CreateReviewRequest): Result<ReviewDto> = safeApiCall {
-        client.post(REVIEWS_PATH) {
-            contentType(ContentType.Application.Json)
-            setBody(request)
+    suspend fun createReview(request: CreateReviewRequest): Result<ReviewDto> =
+        safeApiCall {
+            client.post(REVIEWS_PATH) {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }
         }
-    }
 
     companion object {
         private const val REVIEWS_PATH = "/api/v1/reviews"

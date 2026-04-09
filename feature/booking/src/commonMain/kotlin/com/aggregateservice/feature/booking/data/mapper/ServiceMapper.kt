@@ -9,19 +9,19 @@ import com.aggregateservice.feature.booking.domain.model.BookingService
  * **Feature Isolation:** Преобразует DTO в собственную модель booking.
  */
 object ServiceMapper {
-
     /**
      * Преобразует DTO в доменную модель.
      */
-    fun toDomain(dto: ServiceDto): BookingService = BookingService(
-        id = dto.id,
-        name = dto.name,
-        description = dto.description,
-        price = dto.price,
-        currency = dto.currency,
-        durationMinutes = dto.durationMinutes,
-        isCombinable = dto.isCombinable,
-    )
+    fun toDomain(dto: ServiceDto): BookingService =
+        BookingService(
+            id = dto.id,
+            name = dto.name,
+            description = dto.description,
+            price = dto.price,
+            currency = dto.currency,
+            durationMinutes = dto.durationMinutes,
+            isCombinable = dto.isCombinable,
+        )
 
     /**
      * Преобразует список DTO в список доменных моделей.
