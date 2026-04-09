@@ -25,6 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.core.theme.Spacing
@@ -39,6 +41,7 @@ import org.koin.compose.koinInject
 object BookingHistoryScreen : Screen {
     @Composable
     override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
         val screenModel = koinScreenModel<BookingHistoryScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
         val i18nProvider: I18nProvider = koinInject()
@@ -50,10 +53,16 @@ object BookingHistoryScreen : Screen {
         BookingHistoryScreenContent(
             i18nProvider = i18nProvider,
             uiState = uiState,
+            hasMore = screenModel.hasMore,
             onRefresh = { screenModel.refresh() },
+            onLoadMore = { screenModel.loadMore() },
             onCancelBooking = { bookingId, reason ->
                 screenModel.cancelBooking(bookingId, reason)
             },
+            onBookingClick = { bookingId ->
+                navigator.push(BookingDetailScreen(bookingId))
+            },
+            onRetry = { screenModel.retry() },
         )
     }
 }
@@ -63,8 +72,12 @@ object BookingHistoryScreen : Screen {
 fun BookingHistoryScreenContent(
     i18nProvider: I18nProvider,
     uiState: com.aggregateservice.feature.booking.presentation.model.BookingHistoryUiState,
+    hasMore: Boolean,
     onRefresh: () -> Unit,
+    onLoadMore: () -> Unit,
     onCancelBooking: (String, String?) -> Unit,
+    onBookingClick: (String) -> Unit,
+    onRetry: () -> Unit,
 ) {
     Scaffold { paddingValues ->
         when {
@@ -88,10 +101,16 @@ fun BookingHistoryScreenContent(
                             .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(
-                        text = "${i18nProvider[StringKey.ERROR]}: ${uiState.error?.message}",
-                        color = MaterialTheme.colorScheme.error,
-                    )
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "${i18nProvider[StringKey.ERROR]}: ${uiState.error?.message}",
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                        Spacer(modifier = Modifier.height(Spacing.MD))
+                        OutlinedButton(onClick = onRetry) {
+                            Text(i18nProvider[StringKey.RETRY])
+                        }
+                    }
                 }
             }
 
@@ -118,49 +137,69 @@ fun BookingHistoryScreenContent(
             }
 
             else -> {
-                LazyColumn(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues)
-                            .padding(horizontal = Spacing.MD),
+                androidx.compose.material3.pulltorefresh.PullToRefreshBox(
+                    isRefreshing = uiState.isRefreshing,
+                    onRefresh = onRefresh,
+                    modifier = Modifier.padding(paddingValues),
                 ) {
-                    // Upcoming bookings
-                    if (uiState.upcomingBookings.isNotEmpty()) {
-                        item {
-                            Text(
-                                text = i18nProvider[StringKey.Booking.UPCOMING],
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(vertical = Spacing.SM),
-                            )
+                    LazyColumn(
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = Spacing.MD),
+                    ) {
+                        // Upcoming bookings
+                        if (uiState.upcomingBookings.isNotEmpty()) {
+                            item {
+                                Text(
+                                    text = i18nProvider[StringKey.Booking.UPCOMING],
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(vertical = Spacing.SM),
+                                )
+                            }
+                            items(uiState.upcomingBookings, key = { it.id }) { booking ->
+                                BookingCard(
+                                    booking = booking,
+                                    onCancel = { onCancelBooking(booking.id, null) },
+                                    onClick = { onBookingClick(booking.id) },
+                                    i18nProvider = i18nProvider,
+                                )
+                            }
                         }
-                        items(uiState.upcomingBookings, key = { it.id }) { booking ->
-                            BookingCard(
-                                booking = booking,
-                                onCancel = { onCancelBooking(booking.id, null) },
-                                i18nProvider = i18nProvider,
-                            )
-                        }
-                    }
 
-                    // Past bookings
-                    if (uiState.pastBookings.isNotEmpty()) {
-                        item {
-                            Spacer(modifier = Modifier.height(Spacing.MD))
-                            Text(
-                                text = i18nProvider[StringKey.Booking.PAST],
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(vertical = Spacing.SM),
-                            )
+                        // Past bookings
+                        if (uiState.pastBookings.isNotEmpty()) {
+                            item {
+                                Spacer(modifier = Modifier.height(Spacing.MD))
+                                Text(
+                                    text = i18nProvider[StringKey.Booking.PAST],
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(vertical = Spacing.SM),
+                                )
+                            }
+                            items(uiState.pastBookings, key = { it.id }) { booking ->
+                                BookingCard(
+                                    booking = booking,
+                                    onCancel = null,
+                                    onClick = { onBookingClick(booking.id) },
+                                    i18nProvider = i18nProvider,
+                                )
+                            }
                         }
-                        items(uiState.pastBookings, key = { it.id }) { booking ->
-                            BookingCard(
-                                booking = booking,
-                                onCancel = null,
-                                i18nProvider = i18nProvider,
-                            )
+
+                        // Load more indicator
+                        if (hasMore) {
+                            item {
+                                androidx.compose.runtime.LaunchedEffect(Unit) { onLoadMore() }
+                                Box(
+                                    modifier = Modifier.fillMaxWidth().padding(Spacing.MD),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
                         }
                     }
                 }
@@ -173,9 +212,11 @@ fun BookingHistoryScreenContent(
 fun BookingCard(
     booking: Booking,
     onCancel: (() -> Unit)?,
+    onClick: () -> Unit,
     i18nProvider: I18nProvider,
 ) {
     Card(
+        onClick = onClick,
         modifier =
             Modifier
                 .fillMaxWidth()

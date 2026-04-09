@@ -24,4 +24,10 @@ interface BookingNavigator {
      * @return Voyager Screen для выбора услуг
      */
     fun createSelectServiceScreen(providerId: String, providerName: String): Screen
+
+    fun createSelectDateTimeScreen(
+        providerId: String,
+        providerName: String,
+        serviceIds: List<String>,
+    ): Screen
 }

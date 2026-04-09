@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -25,6 +26,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -105,10 +107,8 @@ data class ProviderDetailScreen(
                 )
             },
             onCategorySelected = screenModel::onCategorySelected,
-            onServiceClick = { service ->
-                // Service click could navigate to booking with pre-selected service
-            },
-            onBookClick = {
+            onServiceToggle = screenModel::onServiceToggle,
+            onBookSelected = {
                 executeProtectedAction(
                     isAuthenticated = isAuthenticated,
                     trigger = AuthPromptTrigger.BOOKING,
@@ -118,9 +118,10 @@ data class ProviderDetailScreen(
                 ) {
                     uiState.provider?.let { provider ->
                         navigator.push(
-                            bookingNavigator.createSelectServiceScreen(
+                            bookingNavigator.createSelectDateTimeScreen(
                                 providerId = provider.id,
                                 providerName = provider.businessName,
+                                serviceIds = uiState.selectedServiceIds.toList(),
                             ),
                         )
                     }
@@ -140,8 +141,8 @@ fun ProviderDetailScreenContent(
     onBackClick: () -> Unit,
     onFavoriteToggle: () -> Unit,
     onCategorySelected: (String?) -> Unit,
-    onServiceClick: (Service) -> Unit,
-    onBookClick: () -> Unit,
+    onServiceToggle: (String) -> Unit,
+    onBookSelected: () -> Unit,
     onRetry: () -> Unit,
     onClearError: () -> Unit,
 ) {
@@ -160,8 +161,15 @@ fun ProviderDetailScreenContent(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
-            if (uiState.isLoaded) {
-                BookButtonBar(onBookClick = onBookClick)
+            if (uiState.isLoaded && uiState.selectedServiceIds.isNotEmpty()) {
+                SelectedServicesBar(
+                    selectedCount = uiState.selectedServiceIds.size,
+                    totalPrice = uiState.totalPrice,
+                    totalDurationMinutes = uiState.totalDurationMinutes,
+                    currency = uiState.selectedServices.firstOrNull()?.price?.currency ?: "ILS",
+                    onBookClick = onBookSelected,
+                    i18nProvider = i18nProvider,
+                )
             }
         },
     ) { paddingValues ->
@@ -176,12 +184,13 @@ fun ProviderDetailScreenContent(
                 ProviderDetailContent(
                     provider = uiState.provider,
                     services = uiState.filteredServices,
+                    selectedServiceIds = uiState.selectedServiceIds,
                     serviceCategories = uiState.serviceCategories,
                     selectedCategoryId = uiState.selectedCategoryId,
                     isLoadingServices = uiState.isLoadingServices,
                     isOpenNow = uiState.isOpenNow,
                     onCategorySelected = onCategorySelected,
-                    onServiceClick = { service -> onServiceClick(service) },
+                    onServiceToggle = onServiceToggle,
                     i18nProvider = i18nProvider,
                     modifier = Modifier.padding(paddingValues),
                 )
@@ -224,12 +233,13 @@ fun ProviderDetailTopAppBar(
 fun ProviderDetailContent(
     provider: Provider,
     services: List<Service>,
+    selectedServiceIds: Set<String>,
     serviceCategories: List<Pair<String, String>>,
     selectedCategoryId: String?,
     isLoadingServices: Boolean,
     isOpenNow: Boolean,
     onCategorySelected: (String?) -> Unit,
-    onServiceClick: (Service) -> Unit,
+    onServiceToggle: (String) -> Unit,
     i18nProvider: I18nProvider,
     modifier: Modifier = Modifier,
 ) {
@@ -259,7 +269,11 @@ fun ProviderDetailContent(
             }
         } else if (services.isNotEmpty()) {
             items(items = services, key = { it.id }) { service ->
-                ServiceCard(service = service, onClick = { onServiceClick(service) })
+                ServiceCard(
+                    service = service,
+                    isSelected = service.id in selectedServiceIds,
+                    onToggle = { onServiceToggle(service.id) },
+                )
             }
         } else {
             item {
@@ -384,51 +398,90 @@ fun ServiceCategoryChips(
 }
 
 @Composable
-fun ServiceCard(service: Service, onClick: () -> Unit) {
+fun ServiceCard(service: Service, isSelected: Boolean, onToggle: () -> Unit) {
     Card(
-        onClick = onClick,
+        onClick = onToggle,
         modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.MD, vertical = Spacing.XS),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(Spacing.MD),
+            verticalAlignment = Alignment.Top,
+        ) {
+            Checkbox(
+                checked = isSelected,
+                onCheckedChange = { onToggle() },
+            )
+            Spacer(modifier = Modifier.width(Spacing.SM))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = service.name, style = MaterialTheme.typography.titleSmall)
+                service.description?.let { desc ->
+                    Spacer(modifier = Modifier.height(Spacing.XS))
+                    Text(
+                        text = desc,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                    )
+                }
+                Spacer(modifier = Modifier.height(Spacing.SM))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        text = "${service.durationMinutes} min",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = service.formattedPrice,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SelectedServicesBar(
+    selectedCount: Int,
+    totalPrice: Double,
+    totalDurationMinutes: Int,
+    currency: String,
+    onBookClick: () -> Unit,
+    i18nProvider: I18nProvider,
+) {
+    Surface(
+        shadowElevation = 8.dp,
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Column(modifier = Modifier.padding(Spacing.MD)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = service.name, style = MaterialTheme.typography.titleSmall)
-                    service.description?.let { desc ->
-                        Spacer(modifier = Modifier.height(Spacing.XS))
-                        Text(
-                            text = desc,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 2,
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.width(Spacing.MD))
                 Text(
-                    text = service.formattedPrice,
+                    text = "$selectedCount services",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Text(
+                    text = "%.0f %s".format(totalPrice, currency),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                 )
             }
-            Spacer(modifier = Modifier.height(Spacing.SM))
+            Spacer(modifier = Modifier.height(Spacing.XS))
             Text(
-                text = "${service.durationMinutes} min",
+                text = "$totalDurationMinutes min",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-        }
-    }
-}
-
-@Composable
-fun BookButtonBar(onBookClick: () -> Unit) {
-    val i18nProvider: I18nProvider = koinInject()
-    Column(modifier = Modifier.fillMaxWidth().padding(Spacing.MD)) {
-        Button(onClick = onBookClick, modifier = Modifier.fillMaxWidth()) {
-            Text(i18nProvider[StringKey.Confirmation.BOOKING_CONFIRMED])
+            Spacer(modifier = Modifier.height(Spacing.SM))
+            Button(onClick = onBookClick, modifier = Modifier.fillMaxWidth()) {
+                Text(i18nProvider[StringKey.Booking.BOOK_SELECTED])
+            }
         }
     }
 }

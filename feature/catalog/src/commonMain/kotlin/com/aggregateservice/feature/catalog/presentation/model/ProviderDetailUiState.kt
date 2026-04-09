@@ -31,6 +31,7 @@ data class ProviderDetailUiState(
     val error: AppError? = null,
     val selectedCategoryId: String? = null,
     val isFavorite: Boolean = false,
+    val selectedServiceIds: Set<String> = emptySet(),
 ) {
     /**
      * Проверяет, загружены ли данные.
@@ -42,12 +43,33 @@ data class ProviderDetailUiState(
      * Возвращает услуги, отфильтрованные по категории.
      */
     val filteredServices: List<Service>
-        get() =
-            if (selectedCategoryId == null) {
-                services
+        get() {
+            val byCategory =
+                if (selectedCategoryId != null) {
+                    services.filter { it.categoryId == selectedCategoryId }
+                } else {
+                    services
+                }
+            if (selectedServiceIds.isEmpty()) return byCategory
+
+            val selectedServices = byCategory.filter { it.id in selectedServiceIds }
+            val hasNonCombinable = selectedServices.any { !it.isCombinable }
+
+            return if (hasNonCombinable) {
+                byCategory.filter { it.id in selectedServiceIds }
             } else {
-                services.filter { it.categoryId == selectedCategoryId }
+                byCategory.filter { it.isCombinable || it.id in selectedServiceIds }
             }
+        }
+
+    val selectedServices: List<Service>
+        get() = services.filter { it.id in selectedServiceIds }
+
+    val totalPrice: Double
+        get() = selectedServices.sumOf { it.price.amount }
+
+    val totalDurationMinutes: Int
+        get() = selectedServices.sumOf { it.durationMinutes }
 
     /**
      * Возвращает уникальные категории из услуг как List<Pair<categoryId, categoryName>>.

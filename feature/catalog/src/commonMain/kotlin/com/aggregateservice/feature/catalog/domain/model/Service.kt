@@ -31,6 +31,7 @@ data class Service(
     val price: Price,
     val durationMinutes: Int,
     val isActive: Boolean = true,
+    val isCombinable: Boolean = true,
     val createdAt: kotlinx.datetime.Instant,
 ) {
     /**

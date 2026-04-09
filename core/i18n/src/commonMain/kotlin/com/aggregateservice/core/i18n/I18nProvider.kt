@@ -197,6 +197,7 @@ object StringKey {
         const val SELECT_DATE_TIME = "booking_select_date_time"
         const val SELECT_SLOT = "booking_select_slot"
         const val SELECT_DATE_TO_SEE = "booking_select_date_to_see"
+        const val BOOK_SELECTED = "booking_book_selected"
 
         // Booking statuses
         const val STATUS_PENDING = "booking_status_pending"

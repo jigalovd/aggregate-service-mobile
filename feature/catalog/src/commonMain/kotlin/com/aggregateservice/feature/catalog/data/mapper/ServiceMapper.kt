@@ -29,6 +29,7 @@ object ServiceMapper {
                 ),
             durationMinutes = dto.durationMinutes,
             isActive = dto.isActive,
+            isCombinable = dto.isCombinable,
             createdAt = dto.createdAt,
         )
 }

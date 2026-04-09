@@ -14,17 +14,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/**
- * ScreenModel для экрана истории бронирований.
- *
- * **Responsibilities:**
- * - Загрузка истории бронирований клиента
- * - Фильтрация по статусу
- * - Отмена бронирования
- *
- * @property getClientBookingsUseCase UseCase для загрузки истории
- * @property cancelBookingUseCase UseCase для отмены бронирования
- */
 class BookingHistoryScreenModel(
     private val getClientBookingsUseCase: GetClientBookingsUseCase,
     private val cancelBookingUseCase: CancelBookingUseCase,
@@ -33,17 +22,25 @@ class BookingHistoryScreenModel(
     private val _uiState = MutableStateFlow(BookingHistoryUiState.Loading)
     val uiState: StateFlow<BookingHistoryUiState> = _uiState.asStateFlow()
 
-    /**
-     * Загружает историю бронирований.
-     */
+    private var currentPage: Int = 1
+    private val pageSize: Int = GetClientBookingsUseCase.DEFAULT_PAGE_SIZE
+    var hasMore: Boolean = true
+        private set
+
     fun loadBookings() {
+        currentPage = 1
+        hasMore = true
+
         screenModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
 
             getClientBookingsUseCase(
                 status = _uiState.value.selectedStatus?.name,
+                page = currentPage,
+                pageSize = pageSize,
             ).fold(
                 onSuccess = { bookings ->
+                    hasMore = bookings.size >= pageSize
                     _uiState.update {
                         BookingHistoryUiState(
                             bookings = bookings,
@@ -64,34 +61,72 @@ class BookingHistoryScreenModel(
         }
     }
 
-    /**
-     * Обновляет историю (pull-to-refresh).
-     */
-    fun refresh() {
+    fun loadMore() {
+        if (!hasMore || _uiState.value.isLoading) return
+        currentPage++
+
         screenModelScope.launch {
-            _uiState.update { it.copy(isRefreshing = true) }
-            loadBookings()
-            _uiState.update { it.copy(isRefreshing = false) }
+            getClientBookingsUseCase(
+                status = _uiState.value.selectedStatus?.name,
+                page = currentPage,
+                pageSize = pageSize,
+            ).fold(
+                onSuccess = { newBookings ->
+                    hasMore = newBookings.size >= pageSize
+                    _uiState.update { state ->
+                        state.copy(bookings = state.bookings + newBookings)
+                    }
+                },
+                onFailure = { error ->
+                    currentPage--
+                    val appError =
+                        error as? AppError
+                            ?: AppError.UnknownError(throwable = error, message = error.message)
+                    logger.w(appError) { "Failed to load more bookings" }
+                },
+            )
         }
     }
 
-    /**
-     * Фильтрует по статусу.
-     *
-     * @param status Статус для фильтрации (null = все)
-     */
+    fun refresh() {
+        screenModelScope.launch {
+            _uiState.update { it.copy(isRefreshing = true) }
+            currentPage = 1
+            hasMore = true
+
+            getClientBookingsUseCase(
+                status = _uiState.value.selectedStatus?.name,
+                page = 1,
+                pageSize = pageSize,
+            ).fold(
+                onSuccess = { bookings ->
+                    hasMore = bookings.size >= pageSize
+                    _uiState.update {
+                        it.copy(
+                            bookings = bookings,
+                            isRefreshing = false,
+                            isLoading = false,
+                            error = null,
+                        )
+                    }
+                },
+                onFailure = { error ->
+                    val appError =
+                        error as? AppError
+                            ?: AppError.UnknownError(throwable = error, message = error.message)
+                    _uiState.update { it.copy(isRefreshing = false, error = appError) }
+                },
+            )
+        }
+    }
+
     fun filterByStatus(status: BookingStatus?) {
         _uiState.update { state ->
             state.copy(selectedStatus = status)
         }
+        loadBookings()
     }
 
-    /**
-     * Отменяет бронирование.
-     *
-     * @param bookingId ID бронирования
-     * @param reason Причина отмены (опционально)
-     */
     fun cancelBooking(bookingId: String, reason: String? = null) {
         screenModelScope.launch {
             cancelBookingUseCase(bookingId, reason).fold(
@@ -117,9 +152,10 @@ class BookingHistoryScreenModel(
         }
     }
 
-    /**
-     * Очищает ошибку.
-     */
+    fun retry() {
+        loadBookings()
+    }
+
     fun clearError() {
         _uiState.update { state ->
             state.copy(error = null)

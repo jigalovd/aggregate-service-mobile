@@ -39,8 +39,8 @@ kotlin {
             // Shared Location type
             implementation(project(":core:common"))
 
-            // Favorites use cases for checking/managing favorite status on provider detail
-            implementation(project(":feature:favorites"))
+            // Favorites API for checking/managing favorite status on provider detail
+            implementation(project(":core:favorites-api"))
         }
 
         maybeCreate("commonTest").dependencies {

@@ -1,6 +1,8 @@
 package com.aggregateservice.feature.favorites.di
 
 import co.touchlab.kermit.Logger
+import com.aggregateservice.core.favorites_api.FavoritesToggle
+import com.aggregateservice.feature.favorites.data.adapter.FavoritesToggleAdapter
 import com.aggregateservice.feature.favorites.data.api.FavoritesApiService
 import com.aggregateservice.feature.favorites.data.repository.FavoritesRepositoryImpl
 import com.aggregateservice.feature.favorites.domain.repository.FavoritesRepository
@@ -36,7 +38,15 @@ val favoritesModule =
         factoryOf(::RemoveFavoriteUseCase)
         factoryOf(::IsFavoriteUseCase)
 
+        // FavoritesToggle adapter (for cross-feature use via core:favorites-api)
+        single<FavoritesToggle> {
+            FavoritesToggleAdapter(
+                isFavoriteUseCase = get(),
+                addFavoriteUseCase = get(),
+                removeFavoriteUseCase = get(),
+            )
+        }
+
         // ScreenModels (Presentation layer)
-        factory<Logger> { Logger.withTag("Favorites") }
-        factoryOf(::FavoritesScreenModel)
+        factory { FavoritesScreenModel(get(), get(), Logger.withTag("Favorites")) }
     }

@@ -2,6 +2,7 @@ package com.aggregateservice.feature.booking.navigation
 
 import cafe.adriel.voyager.core.screen.Screen
 import com.aggregateservice.core.navigation.BookingNavigator
+import com.aggregateservice.feature.booking.presentation.screen.SelectDateTimeScreen
 import com.aggregateservice.feature.booking.presentation.screen.SelectServiceScreen
 
 /**
@@ -16,4 +17,10 @@ class BookingNavigatorImpl : BookingNavigator {
             providerName = providerName,
         )
     }
+
+    override fun createSelectDateTimeScreen(
+        providerId: String,
+        providerName: String,
+        serviceIds: List<String>,
+    ): Screen = SelectDateTimeScreen(providerId, providerName, serviceIds)
 }

@@ -4,7 +4,6 @@ import com.aggregateservice.feature.catalog.data.dto.CategoriesResponseDto
 import com.aggregateservice.feature.catalog.data.dto.response.ProviderDetailsResponseDto
 import com.aggregateservice.feature.catalog.data.dto.response.ProviderSearchResponseDto
 import com.aggregateservice.feature.catalog.data.dto.response.ServiceListResponseDto
-import com.aggregateservice.feature.favorites.data.dto.FavoritesListResponseDto
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -211,51 +210,6 @@ class DtoParsingTest {
         val provider = dto.data
         assertTrue(provider.photos.isNotEmpty())
         assertEquals(3, provider.photos.size)
-    }
-
-    // ========== Favorites Endpoint Tests ==========
-
-    @Test
-    fun `favorites_response parses correctly`() {
-        val jsonString = loadFixture("favorites_response.json")
-        val dto = json.decodeFromString<FavoritesListResponseDto>(jsonString)
-
-        assertNotNull(dto.favorites)
-        assertEquals(1, dto.favorites.size)
-        assertEquals(1, dto.total)
-        assertEquals(20, dto.limit)
-        assertEquals(0, dto.offset)
-    }
-
-    @Test
-    fun `favorite dto fields populate correctly`() {
-        val jsonString = loadFixture("favorites_response.json")
-        val dto = json.decodeFromString<FavoritesListResponseDto>(jsonString)
-
-        val favorite = dto.favorites[0]
-        assertEquals("f1a2b3c4-d5e6-7890-abcd-ef1234567890", favorite.id)
-        assertEquals("u1a2b3c4-d5e6-7890-abcd-ef1234567890", favorite.userId)
-        assertEquals("p1a2b3c4-d5e6-7890-abcd-ef1234567890", favorite.providerId)
-        assertNotNull(favorite.provider)
-    }
-
-    @Test
-    fun `favorite provider nested dto fields populate correctly`() {
-        val jsonString = loadFixture("favorites_response.json")
-        val dto = json.decodeFromString<FavoritesListResponseDto>(jsonString)
-
-        // FavoriteDto has its own nested ProviderDto with specific fields
-        val provider = dto.favorites[0].provider
-        assertEquals("p1a2b3c4-d5e6-7890-abcd-ef1234567890", provider.id)
-        assertEquals("u1a2b3c4-d5e6-7890-abcd-ef1234567890", provider.userId)
-        assertEquals("Beauty Studio Elite", provider.displayName)
-        assertEquals("https://cdn.example.com/avatars/provider1.jpg", provider.avatarUrl)
-        assertEquals(4.8, provider.ratingCached)
-        assertEquals(127, provider.reviewsCount)
-        assertEquals("123 Herzl Street, Tel Aviv", provider.address)
-        assertEquals("Professional hair and beauty services with 10 years of experience", provider.bio)
-        assertTrue(provider.isVerified)
-        assertTrue(provider.isActive)
     }
 
     // ========== Service List Endpoint Tests ==========

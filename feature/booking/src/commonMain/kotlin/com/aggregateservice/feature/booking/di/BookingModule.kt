@@ -14,6 +14,7 @@ import com.aggregateservice.feature.booking.domain.usecase.GetClientBookingsUseC
 import com.aggregateservice.feature.booking.domain.usecase.RescheduleBookingUseCase
 import com.aggregateservice.feature.booking.navigation.BookingNavigatorImpl
 import com.aggregateservice.feature.booking.presentation.screenmodel.BookingConfirmationScreenModel
+import com.aggregateservice.feature.booking.presentation.screenmodel.BookingDetailScreenModel
 import com.aggregateservice.feature.booking.presentation.screenmodel.BookingHistoryScreenModel
 import com.aggregateservice.feature.booking.presentation.screenmodel.SelectDateTimeScreenModel
 import com.aggregateservice.feature.booking.presentation.screenmodel.SelectServiceScreenModel
@@ -52,9 +53,17 @@ val bookingModule =
         factoryOf(::GetBookingServicesUseCase)
 
         // ScreenModels (Presentation layer)
-        factory<Logger> { Logger.withTag("Booking") }
-        factoryOf(::SelectServiceScreenModel)
-        factoryOf(::SelectDateTimeScreenModel)
-        factoryOf(::BookingConfirmationScreenModel)
-        factoryOf(::BookingHistoryScreenModel)
+        factory { SelectServiceScreenModel(get(), Logger.withTag("Booking")) }
+        factory { SelectDateTimeScreenModel(get(), Logger.withTag("Booking")) }
+        factory { BookingConfirmationScreenModel(get(), get(), get(), Logger.withTag("Booking")) }
+        factory { BookingHistoryScreenModel(get(), get(), Logger.withTag("Booking")) }
+        factory {
+            BookingDetailScreenModel(
+                getBookingByIdUseCase = get(),
+                cancelBookingUseCase = get(),
+                rescheduleBookingUseCase = get(),
+                getAvailableSlotsUseCase = get(),
+                logger = Logger.withTag("Booking"),
+            )
+        }
     }

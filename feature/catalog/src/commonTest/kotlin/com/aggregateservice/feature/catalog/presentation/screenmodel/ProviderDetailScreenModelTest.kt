@@ -11,11 +11,7 @@ import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.model.SearchResult
 import com.aggregateservice.feature.catalog.domain.model.Service
 import com.aggregateservice.feature.catalog.domain.model.WorkingHours
-import com.aggregateservice.feature.favorites.domain.model.Favorite
-import com.aggregateservice.feature.favorites.domain.repository.FavoritesRepository
-import com.aggregateservice.feature.favorites.domain.usecase.AddFavoriteUseCase
-import com.aggregateservice.feature.favorites.domain.usecase.IsFavoriteUseCase
-import com.aggregateservice.feature.favorites.domain.usecase.RemoveFavoriteUseCase
+import com.aggregateservice.core.favorites_api.FavoritesToggle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -52,7 +48,7 @@ class ProviderDetailScreenModelTest {
     private var servicesInvokeCount = 0
     private var lastCategoryId: String? = null
 
-    private lateinit var mockFavoritesRepository: MockFavoritesRepository
+    private lateinit var mockFavoritesToggle: MockFavoritesToggle
 
     @BeforeTest
     fun setup() {
@@ -60,7 +56,7 @@ class ProviderDetailScreenModelTest {
         providerInvokeCount = 0
         servicesInvokeCount = 0
         lastCategoryId = null
-        mockFavoritesRepository = MockFavoritesRepository()
+        mockFavoritesToggle = MockFavoritesToggle()
     }
 
     @AfterTest
@@ -105,9 +101,7 @@ class ProviderDetailScreenModelTest {
             getProviderServicesUseCase =
                 com.aggregateservice.feature.catalog.domain.usecase
                     .GetProviderServicesUseCase(repository),
-            isFavoriteUseCase = IsFavoriteUseCase(mockFavoritesRepository),
-            addFavoriteUseCase = AddFavoriteUseCase(mockFavoritesRepository),
-            removeFavoriteUseCase = RemoveFavoriteUseCase(mockFavoritesRepository),
+            favoritesToggle = mockFavoritesToggle,
             logger = Logger.withTag("Test"),
         )
     }
@@ -295,7 +289,7 @@ class ProviderDetailScreenModelTest {
     @Test
     fun `initialize should load isFavorite status`() =
         runTest {
-            mockFavoritesRepository.isFavoriteResult = Result.success(true)
+            mockFavoritesToggle.isFavoriteResult = Result.success(true)
             getProviderByIdBehavior = { Result.success(createTestProvider()) }
             getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
 
@@ -304,14 +298,14 @@ class ProviderDetailScreenModelTest {
             testDispatcher.scheduler.advanceUntilIdle()
 
             assertTrue(screenModel.uiState.value.isFavorite)
-            assertEquals(1, mockFavoritesRepository.isFavoriteCallCount)
+            assertEquals(1, mockFavoritesToggle.isFavoriteCallCount)
         }
 
     @Test
     fun `onFavoriteToggle should call addFavoriteUseCase when not favorite`() =
         runTest {
-            mockFavoritesRepository.isFavoriteResult = Result.success(false)
-            mockFavoritesRepository.addFavoriteResult = Result.success(Unit)
+            mockFavoritesToggle.isFavoriteResult = Result.success(false)
+            mockFavoritesToggle.addFavoriteResult = Result.success(Unit)
             getProviderByIdBehavior = { Result.success(createTestProvider()) }
             getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
 
@@ -324,15 +318,15 @@ class ProviderDetailScreenModelTest {
             screenModel.onFavoriteToggle()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            assertEquals(1, mockFavoritesRepository.addFavoriteCallCount)
+            assertEquals(1, mockFavoritesToggle.addFavoriteCallCount)
             assertTrue(screenModel.uiState.value.isFavorite)
         }
 
     @Test
     fun `onFavoriteToggle should call removeFavoriteUseCase when favorite`() =
         runTest {
-            mockFavoritesRepository.isFavoriteResult = Result.success(true)
-            mockFavoritesRepository.removeFavoriteResult = Result.success(Unit)
+            mockFavoritesToggle.isFavoriteResult = Result.success(true)
+            mockFavoritesToggle.removeFavoriteResult = Result.success(Unit)
             getProviderByIdBehavior = { Result.success(createTestProvider()) }
             getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
 
@@ -345,15 +339,15 @@ class ProviderDetailScreenModelTest {
             screenModel.onFavoriteToggle()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            assertEquals(1, mockFavoritesRepository.removeFavoriteCallCount)
+            assertEquals(1, mockFavoritesToggle.removeFavoriteCallCount)
             assertFalse(screenModel.uiState.value.isFavorite)
         }
 
     @Test
     fun `onFavoriteToggle should not flip state on API error`() =
         runTest {
-            mockFavoritesRepository.isFavoriteResult = Result.success(false)
-            mockFavoritesRepository.addFavoriteResult = Result.failure(RuntimeException("API error"))
+            mockFavoritesToggle.isFavoriteResult = Result.success(false)
+            mockFavoritesToggle.addFavoriteResult = Result.failure(RuntimeException("API error"))
             getProviderByIdBehavior = { Result.success(createTestProvider()) }
             getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
 
@@ -561,18 +555,15 @@ class ProviderDetailScreenModelTest {
 }
 
 /**
- * Mock implementation of FavoritesRepository for ProviderDetailScreenModel testing.
+ * Mock implementation of FavoritesToggle for ProviderDetailScreenModel testing.
  */
-private class MockFavoritesRepository : FavoritesRepository {
-    var getFavoritesResult: Result<List<Favorite>> = Result.success(emptyList())
+private class MockFavoritesToggle : FavoritesToggle {
     var addFavoriteResult: Result<Unit> = Result.success(Unit)
     var removeFavoriteResult: Result<Unit> = Result.success(Unit)
     var isFavoriteResult: Result<Boolean> = Result.success(false)
     var addFavoriteCallCount = 0
     var removeFavoriteCallCount = 0
     var isFavoriteCallCount = 0
-
-    override suspend fun getFavorites(): Result<List<Favorite>> = getFavoritesResult
 
     override suspend fun addFavorite(providerId: String): Result<Unit> {
         addFavoriteCallCount++

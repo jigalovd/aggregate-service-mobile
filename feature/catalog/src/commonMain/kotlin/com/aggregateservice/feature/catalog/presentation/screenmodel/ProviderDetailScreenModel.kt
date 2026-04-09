@@ -5,12 +5,10 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import co.touchlab.kermit.Logger
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.core.network.toAppError
+import com.aggregateservice.core.favorites_api.FavoritesToggle
 import com.aggregateservice.feature.catalog.domain.usecase.GetProviderDetailsUseCase
 import com.aggregateservice.feature.catalog.domain.usecase.GetProviderServicesUseCase
 import com.aggregateservice.feature.catalog.presentation.model.ProviderDetailUiState
-import com.aggregateservice.feature.favorites.domain.usecase.AddFavoriteUseCase
-import com.aggregateservice.feature.favorites.domain.usecase.IsFavoriteUseCase
-import com.aggregateservice.feature.favorites.domain.usecase.RemoveFavoriteUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,9 +34,7 @@ import kotlinx.coroutines.launch
 class ProviderDetailScreenModel(
     private val getProviderDetailsUseCase: GetProviderDetailsUseCase,
     private val getProviderServicesUseCase: GetProviderServicesUseCase,
-    private val isFavoriteUseCase: IsFavoriteUseCase,
-    private val addFavoriteUseCase: AddFavoriteUseCase,
-    private val removeFavoriteUseCase: RemoveFavoriteUseCase,
+    private val favoritesToggle: FavoritesToggle,
     private val logger: Logger,
 ) : ScreenModel {
     // UI State
@@ -83,7 +79,7 @@ class ProviderDetailScreenModel(
                         // Check that we're still loading the same provider (race condition guard)
                         if (loadingId != id) return@launch
 
-                        val isFavorite = isFavoriteUseCase(id).getOrElse { false }
+                        val isFavorite = favoritesToggle.isFavorite(id).getOrElse { false }
                         _uiState.value =
                             _uiState.value.copy(
                                 provider = provider,
@@ -160,9 +156,9 @@ class ProviderDetailScreenModel(
         screenModelScope.launch {
             val result =
                 if (currentState.isFavorite) {
-                    removeFavoriteUseCase(providerId)
+                    favoritesToggle.removeFavorite(providerId)
                 } else {
-                    addFavoriteUseCase(providerId)
+                    favoritesToggle.addFavorite(providerId)
                 }
 
             result.fold(
@@ -200,6 +196,17 @@ class ProviderDetailScreenModel(
      */
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
+    }
+
+    fun onServiceToggle(serviceId: String) {
+        val current = _uiState.value.selectedServiceIds
+        val newSelection =
+            if (serviceId in current) {
+                current - serviceId
+            } else {
+                current + serviceId
+            }
+        _uiState.value = _uiState.value.copy(selectedServiceIds = newSelection)
     }
 
     /**

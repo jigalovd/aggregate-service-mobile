@@ -34,6 +34,9 @@ kotlin {
 
             // Auth contracts (AuthStateProvider, AuthNavigator)
             implementation(project(":core:auth-api"))
+
+            // Favorites API (FavoritesToggle interface)
+            implementation(project(":core:favorites-api"))
         }
 
         maybeCreate("androidMain").dependencies {

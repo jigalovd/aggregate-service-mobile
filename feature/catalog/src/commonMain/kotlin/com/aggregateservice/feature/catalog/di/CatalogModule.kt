@@ -62,10 +62,16 @@ val catalogModule =
         factoryOf(::GetCategoriesUseCase)
 
         // ScreenModels (Presentation layer)
-        factory<Logger> { Logger.withTag("Catalog") }
-        factoryOf(::CatalogScreenModel)
-        factoryOf(::ProviderDetailScreenModel)
-        factoryOf(::SearchScreenModel)
+        factory { CatalogScreenModel(get(), get(), get(), Logger.withTag("Catalog")) }
+        factory {
+            ProviderDetailScreenModel(
+                getProviderDetailsUseCase = get(),
+                getProviderServicesUseCase = get(),
+                favoritesToggle = get(),
+                logger = Logger.withTag("Catalog"),
+            )
+        }
+        factory { SearchScreenModel(get(), get(), Logger.withTag("Catalog")) }
 
         // Navigation
         single<CatalogNavigator> { CatalogNavigatorImpl() }

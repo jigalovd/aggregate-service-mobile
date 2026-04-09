@@ -32,6 +32,7 @@ data class ServiceDto(
     @SerialName("base_price") val priceInCents: Int,
     @SerialName("duration_minutes") val durationMinutes: Int,
     @SerialName("is_active") val isActive: Boolean = true,
+    @SerialName("is_combinable") val isCombinable: Boolean = true,
     @SerialName("created_at") val createdAt: Instant,
 ) {
     /**
