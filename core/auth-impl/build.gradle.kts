@@ -12,6 +12,7 @@ kotlin {
         maybeCreate("commonMain").dependencies {
             implementation(project(":core:auth-api"))
             implementation(project(":core:network"))
+            implementation(project(":core:utils"))
             implementation(project(":core:storage"))
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.ktor.client.core)
