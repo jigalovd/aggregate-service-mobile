@@ -1,5 +1,6 @@
 package com.aggregateservice.feature.favorites.presentation.screenmodel
 
+import co.touchlab.kermit.Logger
 import com.aggregateservice.feature.favorites.domain.model.Favorite
 import com.aggregateservice.feature.favorites.domain.repository.FavoritesRepository
 import com.aggregateservice.feature.favorites.domain.usecase.GetFavoritesUseCase
@@ -52,6 +53,7 @@ class FavoritesScreenModelTest {
             FavoritesScreenModel(
                 getFavoritesUseCase = getFavoritesUseCase,
                 removeFavoriteUseCase = removeFavoriteUseCase,
+                logger = Logger.withTag("Test"),
             )
 
         // Assert
@@ -70,6 +72,7 @@ class FavoritesScreenModelTest {
                 FavoritesScreenModel(
                     getFavoritesUseCase = getFavoritesUseCase,
                     removeFavoriteUseCase = removeFavoriteUseCase,
+                    logger = Logger.withTag("Test"),
                 )
             screenModel.loadFavorites()
             testDispatcher.scheduler.advanceUntilIdle()
@@ -93,6 +96,7 @@ class FavoritesScreenModelTest {
                 FavoritesScreenModel(
                     getFavoritesUseCase = getFavoritesUseCase,
                     removeFavoriteUseCase = removeFavoriteUseCase,
+                    logger = Logger.withTag("Test"),
                 )
             screenModel.loadFavorites()
             testDispatcher.scheduler.advanceUntilIdle()
@@ -114,6 +118,7 @@ class FavoritesScreenModelTest {
                 FavoritesScreenModel(
                     getFavoritesUseCase = getFavoritesUseCase,
                     removeFavoriteUseCase = removeFavoriteUseCase,
+                    logger = Logger.withTag("Test"),
                 )
             screenModel.loadFavorites()
             testDispatcher.scheduler.advanceUntilIdle()
@@ -135,6 +140,7 @@ class FavoritesScreenModelTest {
                 FavoritesScreenModel(
                     getFavoritesUseCase = getFavoritesUseCase,
                     removeFavoriteUseCase = removeFavoriteUseCase,
+                    logger = Logger.withTag("Test"),
                 )
             screenModel.loadFavorites()
             testDispatcher.scheduler.advanceUntilIdle()
@@ -159,6 +165,7 @@ class FavoritesScreenModelTest {
                 FavoritesScreenModel(
                     getFavoritesUseCase = getFavoritesUseCase,
                     removeFavoriteUseCase = removeFavoriteUseCase,
+                    logger = Logger.withTag("Test"),
                 )
             screenModel.loadFavorites()
             testDispatcher.scheduler.advanceUntilIdle()
@@ -187,6 +194,7 @@ class FavoritesScreenModelTest {
                 FavoritesScreenModel(
                     getFavoritesUseCase = getFavoritesUseCase,
                     removeFavoriteUseCase = removeFavoriteUseCase,
+                    logger = Logger.withTag("Test"),
                 )
             screenModel.loadFavorites()
             testDispatcher.scheduler.advanceUntilIdle()
@@ -215,6 +223,7 @@ class FavoritesScreenModelTest {
                 FavoritesScreenModel(
                     getFavoritesUseCase = getFavoritesUseCase,
                     removeFavoriteUseCase = removeFavoriteUseCase,
+                    logger = Logger.withTag("Test"),
                 )
             screenModel.loadFavorites()
             testDispatcher.scheduler.advanceUntilIdle()
@@ -242,6 +251,7 @@ class FavoritesScreenModelTest {
                 FavoritesScreenModel(
                     getFavoritesUseCase = getFavoritesUseCase,
                     removeFavoriteUseCase = removeFavoriteUseCase,
+                    logger = Logger.withTag("Test"),
                 )
             screenModel.loadFavorites()
             testDispatcher.scheduler.advanceUntilIdle()

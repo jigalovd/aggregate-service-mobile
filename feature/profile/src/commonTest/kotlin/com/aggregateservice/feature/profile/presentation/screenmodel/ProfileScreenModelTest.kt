@@ -1,6 +1,7 @@
 package com.aggregateservice.feature.profile.presentation.screenmodel
 
 import cafe.adriel.voyager.navigator.Navigator
+import co.touchlab.kermit.Logger
 import com.aggregateservice.core.auth.contract.LogoutUseCase
 import com.aggregateservice.core.navigation.CatalogNavigator
 import com.aggregateservice.feature.profile.domain.model.Profile
@@ -68,6 +69,7 @@ class ProfileScreenModelTest {
                 updateProfileUseCase = updateProfileUseCase,
                 logoutUseCase = logoutUseCase,
                 catalogNavigator = catalogNavigator,
+                logger = Logger.withTag("Test"),
             )
 
         // Assert - initial state before coroutine completes
@@ -88,6 +90,7 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
+                    logger = Logger.withTag("Test"),
                 )
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -111,6 +114,7 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
+                    logger = Logger.withTag("Test"),
                 )
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -132,6 +136,7 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
+                    logger = Logger.withTag("Test"),
                 )
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -158,6 +163,7 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
+                    logger = Logger.withTag("Test"),
                 )
             testDispatcher.scheduler.advanceUntilIdle()
             screenModel.startEditing()
@@ -186,6 +192,7 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
+                    logger = Logger.withTag("Test"),
                 )
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -208,6 +215,7 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
+                    logger = Logger.withTag("Test"),
                 )
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -233,6 +241,7 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
+                    logger = Logger.withTag("Test"),
                 )
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -265,6 +274,7 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
+                    logger = Logger.withTag("Test"),
                 )
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -294,6 +304,7 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
+                    logger = Logger.withTag("Test"),
                 )
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -319,6 +330,7 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
+                    logger = Logger.withTag("Test"),
                 )
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -346,6 +358,7 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
+                    logger = Logger.withTag("Test"),
                 )
             testDispatcher.scheduler.advanceUntilIdle()
 

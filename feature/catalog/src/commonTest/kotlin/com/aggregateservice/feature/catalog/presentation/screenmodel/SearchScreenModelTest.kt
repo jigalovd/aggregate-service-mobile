@@ -1,5 +1,6 @@
 package com.aggregateservice.feature.catalog.presentation.screenmodel
 
+import co.touchlab.kermit.Logger
 import com.aggregateservice.core.common.model.Location
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.catalog.domain.model.Category
@@ -83,6 +84,7 @@ class SearchScreenModelTest {
             getCategoriesUseCase =
                 com.aggregateservice.feature.catalog.domain.usecase
                     .GetCategoriesUseCase(repository),
+            logger = Logger.withTag("Test"),
         )
     }
 

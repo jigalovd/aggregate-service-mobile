@@ -1,5 +1,6 @@
 package com.aggregateservice.feature.catalog.presentation.screenmodel
 
+import co.touchlab.kermit.Logger
 import com.aggregateservice.core.common.model.Location
 import com.aggregateservice.core.location.LocationProvider
 import com.aggregateservice.core.location.LocationProviderFactory
@@ -71,6 +72,7 @@ class CatalogScreenModelTest {
             searchProvidersUseCase = createSearchProvidersUseCase(),
             getCategoriesUseCase = createGetCategoriesUseCase(),
             locationProvider = locationProvider,
+            logger = Logger.withTag("Test"),
         )
     }
 

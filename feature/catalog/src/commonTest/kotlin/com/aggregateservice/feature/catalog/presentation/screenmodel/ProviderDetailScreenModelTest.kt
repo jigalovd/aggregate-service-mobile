@@ -1,5 +1,6 @@
 package com.aggregateservice.feature.catalog.presentation.screenmodel
 
+import co.touchlab.kermit.Logger
 import com.aggregateservice.core.common.model.Location
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.catalog.domain.model.Category
@@ -107,6 +108,7 @@ class ProviderDetailScreenModelTest {
             isFavoriteUseCase = IsFavoriteUseCase(mockFavoritesRepository),
             addFavoriteUseCase = AddFavoriteUseCase(mockFavoritesRepository),
             removeFavoriteUseCase = RemoveFavoriteUseCase(mockFavoritesRepository),
+            logger = Logger.withTag("Test"),
         )
     }
 
