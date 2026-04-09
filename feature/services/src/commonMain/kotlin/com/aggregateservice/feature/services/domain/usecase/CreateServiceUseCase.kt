@@ -1,6 +1,7 @@
 package com.aggregateservice.feature.services.domain.usecase
 
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.utils.ValidationRule
 import com.aggregateservice.feature.services.domain.model.CreateServiceRequest
 import com.aggregateservice.feature.services.domain.model.ProviderService
 import com.aggregateservice.feature.services.domain.repository.ServicesRepository
@@ -39,43 +40,43 @@ class CreateServiceUseCase(
         // Validation: name
         if (name.isBlank()) {
             return Result.failure(
-                AppError.ValidationError("name", "Service name is required"),
+                AppError.FormValidation("name", ValidationRule.Required),
             )
         }
         if (name.length < MIN_NAME_LENGTH) {
             return Result.failure(
-                AppError.ValidationError("name", "Service name must be at least $MIN_NAME_LENGTH characters"),
+                AppError.FormValidation("name", ValidationRule.TooShort, mapOf("min" to MIN_NAME_LENGTH)),
             )
         }
         if (name.length > MAX_NAME_LENGTH) {
             return Result.failure(
-                AppError.ValidationError("name", "Service name must be at most $MAX_NAME_LENGTH characters"),
+                AppError.FormValidation("name", ValidationRule.TooLong, mapOf("max" to MAX_NAME_LENGTH)),
             )
         }
 
         // Validation: basePrice
         if (basePrice < 0) {
             return Result.failure(
-                AppError.ValidationError("basePrice", "Base price must be non-negative"),
+                AppError.FormValidation("basePrice", ValidationRule.NonNegative),
             )
         }
 
         // Validation: durationMinutes
         if (durationMinutes < MIN_DURATION) {
             return Result.failure(
-                AppError.ValidationError("durationMinutes", "Duration must be at least $MIN_DURATION minutes"),
+                AppError.FormValidation("durationMinutes", ValidationRule.TooLow, mapOf("min" to MIN_DURATION)),
             )
         }
         if (durationMinutes > MAX_DURATION) {
             return Result.failure(
-                AppError.ValidationError("durationMinutes", "Duration must be at most $MAX_DURATION minutes"),
+                AppError.FormValidation("durationMinutes", ValidationRule.TooHigh, mapOf("max" to MAX_DURATION)),
             )
         }
 
         // Validation: categoryId
         if (categoryId.isBlank()) {
             return Result.failure(
-                AppError.ValidationError("categoryId", "Category is required"),
+                AppError.FormValidation("categoryId", ValidationRule.Required),
             )
         }
 

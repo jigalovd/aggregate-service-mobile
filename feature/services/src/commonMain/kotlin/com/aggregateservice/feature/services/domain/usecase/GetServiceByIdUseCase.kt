@@ -1,6 +1,7 @@
 package com.aggregateservice.feature.services.domain.usecase
 
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.utils.ValidationRule
 import com.aggregateservice.feature.services.domain.model.ProviderService
 import com.aggregateservice.feature.services.domain.repository.ServicesRepository
 
@@ -21,10 +22,7 @@ class GetServiceByIdUseCase(
     suspend operator fun invoke(id: String): Result<ProviderService> {
         if (id.isBlank()) {
             return Result.failure(
-                AppError.ValidationError(
-                    field = "id",
-                    message = "Service ID cannot be empty",
-                ),
+                AppError.FormValidation("id", ValidationRule.NotBlank),
             )
         }
 

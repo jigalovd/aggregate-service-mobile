@@ -1,6 +1,7 @@
 package com.aggregateservice.feature.services.domain.usecase
 
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.utils.ValidationRule
 import com.aggregateservice.feature.services.domain.model.ProviderService
 import com.aggregateservice.feature.services.domain.model.UpdateServiceRequest
 import com.aggregateservice.feature.services.domain.repository.ServicesRepository
@@ -43,7 +44,7 @@ class UpdateServiceUseCase(
         // Validation: id
         if (id.isBlank()) {
             return Result.failure(
-                AppError.ValidationError("id", "Service ID cannot be empty"),
+                AppError.FormValidation("id", ValidationRule.NotBlank),
             )
         }
 
@@ -52,7 +53,7 @@ class UpdateServiceUseCase(
             durationMinutes == null && categoryId == null && isActive == null
         ) {
             return Result.failure(
-                AppError.ValidationError("request", "At least one field must be provided for update"),
+                AppError.FormValidation("request", ValidationRule.Required),
             )
         }
 
@@ -60,17 +61,17 @@ class UpdateServiceUseCase(
         if (name != null) {
             if (name.isBlank()) {
                 return Result.failure(
-                    AppError.ValidationError("name", "Service name cannot be blank"),
+                    AppError.FormValidation("name", ValidationRule.NotBlank),
                 )
             }
             if (name.length < MIN_NAME_LENGTH) {
                 return Result.failure(
-                    AppError.ValidationError("name", "Service name must be at least $MIN_NAME_LENGTH characters"),
+                    AppError.FormValidation("name", ValidationRule.TooShort, mapOf("min" to MIN_NAME_LENGTH)),
                 )
             }
             if (name.length > MAX_NAME_LENGTH) {
                 return Result.failure(
-                    AppError.ValidationError("name", "Service name must be at most $MAX_NAME_LENGTH characters"),
+                    AppError.FormValidation("name", ValidationRule.TooLong, mapOf("max" to MAX_NAME_LENGTH)),
                 )
             }
         }
@@ -78,7 +79,7 @@ class UpdateServiceUseCase(
         // Validation: basePrice
         if (basePrice != null && basePrice < 0) {
             return Result.failure(
-                AppError.ValidationError("basePrice", "Base price must be non-negative"),
+                AppError.FormValidation("basePrice", ValidationRule.NonNegative),
             )
         }
 
@@ -86,12 +87,12 @@ class UpdateServiceUseCase(
         if (durationMinutes != null) {
             if (durationMinutes < MIN_DURATION) {
                 return Result.failure(
-                    AppError.ValidationError("durationMinutes", "Duration must be at least $MIN_DURATION minutes"),
+                    AppError.FormValidation("durationMinutes", ValidationRule.TooLow, mapOf("min" to MIN_DURATION)),
                 )
             }
             if (durationMinutes > MAX_DURATION) {
                 return Result.failure(
-                    AppError.ValidationError("durationMinutes", "Duration must be at most $MAX_DURATION minutes"),
+                    AppError.FormValidation("durationMinutes", ValidationRule.TooHigh, mapOf("max" to MAX_DURATION)),
                 )
             }
         }
