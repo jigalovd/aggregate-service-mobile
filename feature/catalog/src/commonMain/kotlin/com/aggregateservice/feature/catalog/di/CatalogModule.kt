@@ -1,5 +1,6 @@
 package com.aggregateservice.feature.catalog.di
 
+import co.touchlab.kermit.Logger
 import com.aggregateservice.core.location.LocationProviderFactory
 import com.aggregateservice.core.navigation.CatalogNavigator
 import com.aggregateservice.feature.catalog.data.api.CatalogApiService
@@ -61,6 +62,7 @@ val catalogModule =
         factoryOf(::GetCategoriesUseCase)
 
         // ScreenModels (Presentation layer)
+        factory<Logger> { Logger.withTag("Catalog") }
         factoryOf(::CatalogScreenModel)
         factoryOf(::ProviderDetailScreenModel)
         factoryOf(::SearchScreenModel)

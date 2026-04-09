@@ -4,6 +4,9 @@ package com.aggregateservice.feature.booking.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import co.touchlab.kermit.Logger
+import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.booking.domain.usecase.GetAvailableSlotsUseCase
 import com.aggregateservice.feature.booking.presentation.model.SelectDateTimeUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,6 +33,7 @@ import kotlin.time.Clock
  */
 class SelectDateTimeScreenModel(
     private val getAvailableSlotsUseCase: GetAvailableSlotsUseCase,
+    private val logger: Logger,
 ) : ScreenModel {
     private val _uiState = MutableStateFlow(SelectDateTimeUiState.Initial)
     val uiState: StateFlow<SelectDateTimeUiState> = _uiState.asStateFlow()
@@ -52,7 +56,10 @@ class SelectDateTimeScreenModel(
                 val date = today.plus(i, DateTimeUnit.DAY)
                 getAvailableSlotsUseCase(providerId, date, serviceIds).fold(
                     onSuccess = { slots -> allSlots.addAll(slots) },
-                    onFailure = { /* Continue loading other days */ },
+                    onFailure = { error ->
+                        val appError = (error as? AppError) ?: error.toAppError()
+                        logger.w(appError) { "Failed to load slots for day, continuing" }
+                    },
                 )
             }
 

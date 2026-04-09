@@ -21,6 +21,9 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.coroutines.core)
 
+            // Logging
+            implementation(libs.kermit)
+
             // Koin Compose for koinInject() in @Composable functions
             implementation(libs.koin.compose)
 

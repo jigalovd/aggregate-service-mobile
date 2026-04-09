@@ -1,6 +1,7 @@
 package com.aggregateservice.feature.reviews.domain.usecase
 
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.utils.ValidationRule
 import com.aggregateservice.feature.reviews.domain.model.Review
 import com.aggregateservice.feature.reviews.domain.repository.ReviewsRepository
 
@@ -24,18 +25,19 @@ class CreateReviewUseCase(
         // Validation
         if (bookingId.isBlank()) {
             return Result.failure(
-                AppError.ValidationError(
+                AppError.FormValidation(
                     field = "bookingId",
-                    message = "Booking ID cannot be empty",
+                    rule = ValidationRule.Required,
                 ),
             )
         }
         if (rating !in MIN_RATING..MAX_RATING) {
             return Result.failure(
-                AppError.ValidationError(
+                AppError.FormValidation(
                     field = "rating",
-                    message = "Rating must be between $MIN_RATING and $MAX_RATING",
-                ),
+                    rule = ValidationRule.TooLow,
+                    parameters = mapOf("min" to MIN_RATING, "max" to MAX_RATING),
+                )
             )
         }
 
@@ -49,9 +51,9 @@ class CreateReviewUseCase(
             }
         if (!canReview) {
             return Result.failure(
-                AppError.ValidationError(
+                AppError.FormValidation(
                     field = "bookingId",
-                    message = "Review can only be created for completed bookings",
+                    rule = ValidationRule.InvalidValue,
                 ),
             )
         }

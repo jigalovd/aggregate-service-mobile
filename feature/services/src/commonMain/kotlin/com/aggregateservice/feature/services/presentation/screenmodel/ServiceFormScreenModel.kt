@@ -2,8 +2,8 @@ package com.aggregateservice.feature.services.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import co.touchlab.kermit.Logger
 import com.aggregateservice.core.network.AppError
-import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.services.domain.usecase.CreateServiceUseCase
 import com.aggregateservice.feature.services.domain.usecase.GetServiceByIdUseCase
@@ -31,6 +31,7 @@ class ServiceFormScreenModel(
     private val getServiceByIdUseCase: GetServiceByIdUseCase,
     private val createServiceUseCase: CreateServiceUseCase,
     private val updateServiceUseCase: UpdateServiceUseCase,
+    private val logger: Logger,
 ) : ScreenModel {
 
     private val _uiState = MutableStateFlow(ServiceFormUiState.Create)
@@ -50,11 +51,13 @@ class ServiceFormScreenModel(
                     _uiState.update { ServiceFormUiState.fromService(service) }
                 },
                 onFailure = { error ->
+                    val appError = error.toAppError()
+                    logger.w(appError) { "Failed to load service: ${appError::class.simpleName}" }
                     _uiState.update {
                         ServiceFormUiState(
                             serviceId = serviceId,
                             isLoading = false,
-                            error = error.toAppError(),
+                            error = appError,
                         )
                     }
                 },
@@ -172,10 +175,12 @@ class ServiceFormScreenModel(
                     _uiState.update { it.copy(isSaving = false, saveSuccess = true) }
                 },
                 onFailure = { error ->
+                    val appError = error.toAppError()
+                    logger.w(appError) { "Failed to save service: ${appError::class.simpleName}" }
                     _uiState.update {
                         it.copy(
                             isSaving = false,
-                            error = error.toAppError(),
+                            error = appError,
                         )
                     }
                 },

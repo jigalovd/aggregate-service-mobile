@@ -1,5 +1,6 @@
 package com.aggregateservice.feature.services.di
 
+import co.touchlab.kermit.Logger
 import com.aggregateservice.feature.services.data.api.ServicesApiService
 import com.aggregateservice.feature.services.data.repository.ServicesRepositoryImpl
 import com.aggregateservice.feature.services.domain.repository.ServicesRepository
@@ -38,6 +39,7 @@ val servicesModule = module {
     factoryOf(::DeleteServiceUseCase)
 
     // ScreenModels (Presentation layer)
+    factory<Logger> { Logger.withTag("Services") }
     factoryOf(::ServicesListScreenModel)
     factoryOf(::ServiceFormScreenModel)
 }

@@ -1,6 +1,7 @@
 package com.aggregateservice.feature.booking.domain.usecase
 
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.utils.ValidationRule
 import com.aggregateservice.feature.booking.domain.model.Booking
 import com.aggregateservice.feature.booking.domain.repository.BookingRepository
 
@@ -30,14 +31,19 @@ class GetClientBookingsUseCase(
         // Validation: page
         if (page < 1) {
             return Result.failure(
-                AppError.ValidationError("page", "Page must be >= 1"),
+                AppError.FormValidation("page", ValidationRule.TooLow, mapOf("min" to 1)),
             )
         }
 
         // Validation: pageSize
-        if (pageSize < 1 || pageSize > MAX_PAGE_SIZE) {
+        if (pageSize < 1) {
             return Result.failure(
-                AppError.ValidationError("pageSize", "Page size must be between 1 and $MAX_PAGE_SIZE"),
+                AppError.FormValidation("pageSize", ValidationRule.TooLow, mapOf("min" to 1)),
+            )
+        }
+        if (pageSize > MAX_PAGE_SIZE) {
+            return Result.failure(
+                AppError.FormValidation("pageSize", ValidationRule.TooHigh, mapOf("max" to MAX_PAGE_SIZE)),
             )
         }
 

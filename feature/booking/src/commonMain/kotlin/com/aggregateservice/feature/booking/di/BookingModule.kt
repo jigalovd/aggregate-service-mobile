@@ -1,5 +1,6 @@
 package com.aggregateservice.feature.booking.di
 
+import co.touchlab.kermit.Logger
 import com.aggregateservice.core.navigation.BookingNavigator
 import com.aggregateservice.feature.booking.data.api.BookingApiService
 import com.aggregateservice.feature.booking.data.repository.BookingRepositoryImpl
@@ -51,6 +52,7 @@ val bookingModule =
         factoryOf(::GetBookingServicesUseCase)
 
         // ScreenModels (Presentation layer)
+        factory<Logger> { Logger.withTag("Booking") }
         factoryOf(::SelectServiceScreenModel)
         factoryOf(::SelectDateTimeScreenModel)
         factoryOf(::BookingConfirmationScreenModel)

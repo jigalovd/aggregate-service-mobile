@@ -20,6 +20,9 @@ kotlin {
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor3)
 
+            // Logging
+            implementation(libs.kermit)
+
             // Koin Compose for koinInject() in @Composable functions
             implementation(libs.koin.compose)
 

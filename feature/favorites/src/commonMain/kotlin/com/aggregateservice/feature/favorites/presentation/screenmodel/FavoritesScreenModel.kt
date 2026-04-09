@@ -2,6 +2,7 @@ package com.aggregateservice.feature.favorites.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import co.touchlab.kermit.Logger
 import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.favorites.domain.model.Favorite
 import com.aggregateservice.feature.favorites.domain.usecase.GetFavoritesUseCase
@@ -27,6 +28,7 @@ import kotlinx.coroutines.launch
 class FavoritesScreenModel(
     private val getFavoritesUseCase: GetFavoritesUseCase,
     private val removeFavoriteUseCase: RemoveFavoriteUseCase,
+    private val logger: Logger,
 ) : ScreenModel {
     private val _uiState = MutableStateFlow(FavoritesUiState.Loading)
     val uiState: StateFlow<FavoritesUiState> = _uiState.asStateFlow()
@@ -48,8 +50,10 @@ class FavoritesScreenModel(
                     }
                 },
                 onFailure = { error ->
+                    val appError = error.toAppError()
+                    logger.w(appError) { "Failed to load favorites: ${appError::class.simpleName}" }
                     _uiState.update {
-                        FavoritesUiState.error(error.toAppError())
+                        FavoritesUiState.error(appError)
                     }
                 },
             )
@@ -92,11 +96,13 @@ class FavoritesScreenModel(
                     }
                 },
                 onFailure = { error ->
+                    val appError = error.toAppError()
+                    logger.w(appError) { "Failed to remove favorite: ${appError::class.simpleName}" }
                     _uiState.update { state ->
                         state.copy(
                             favoriteToRemove = null,
                             isRemoving = false,
-                            error = error.toAppError(),
+                            error = appError,
                         )
                     }
                 },

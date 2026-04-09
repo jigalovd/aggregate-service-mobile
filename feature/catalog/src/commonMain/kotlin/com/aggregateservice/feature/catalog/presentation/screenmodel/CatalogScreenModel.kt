@@ -2,10 +2,12 @@ package com.aggregateservice.feature.catalog.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import co.touchlab.kermit.Logger
 import com.aggregateservice.core.common.model.Location
 import com.aggregateservice.core.location.LocationAccuracy
 import com.aggregateservice.core.location.LocationPermissionStatus
 import com.aggregateservice.core.location.LocationProvider
+import com.aggregateservice.core.network.AppError
 import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
@@ -73,6 +75,7 @@ class CatalogScreenModel(
     private val searchProvidersUseCase: SearchProvidersUseCase,
     private val getCategoriesUseCase: GetCategoriesUseCase,
     private val locationProvider: LocationProvider,
+    private val logger: Logger,
 ) : ScreenModel {
     // UI State
     private val _uiState = MutableStateFlow(CatalogUiState.Initial)
@@ -98,8 +101,9 @@ class CatalogScreenModel(
                                 categories = categories,
                             )
                     },
-                    onFailure = { _ ->
-                        // Ошибка загрузки категорий не критична - UI отобразит пустой список
+                    onFailure = { error ->
+                        val appError = (error as? AppError) ?: error.toAppError()
+                        logger.w(appError) { "Failed to load categories, continuing" }
                     },
                 )
         }
@@ -144,10 +148,12 @@ class CatalogScreenModel(
                             )
                     },
                     onFailure = { error ->
+                        val appError = error.toAppError()
+                        logger.w(appError) { "Search providers failed: ${appError::class.simpleName}" }
                         _uiState.value =
                             _uiState.value.copy(
                                 isLoading = false,
-                                error = error.toAppError(),
+                                error = appError,
                             )
                     },
                 )
@@ -189,10 +195,12 @@ class CatalogScreenModel(
                             )
                     },
                     onFailure = { error ->
+                        val appError = error.toAppError()
+                        logger.w(appError) { "Load more providers failed: ${appError::class.simpleName}" }
                         _uiState.value =
                             _uiState.value.copy(
                                 isLoadingMore = false,
-                                error = error.toAppError(),
+                                error = appError,
                             )
                     },
                 )
@@ -318,7 +326,10 @@ class CatalogScreenModel(
                                             ),
                                     )
                             },
-                            onFailure = { /* Fall back to non-geo search */ },
+                            onFailure = { error ->
+                                val appError = (error as? AppError) ?: error.toAppError()
+                                logger.w(appError) { "Failed to get location, falling back to non-geo search" }
+                            },
                         )
                         searchProviders()
                     }
@@ -330,7 +341,7 @@ class CatalogScreenModel(
                     }
                 }
             } catch (e: Exception) {
-                // Fallback: if anything fails, just search without geo
+                logger.w(e) { "Location request failed, falling back to non-geo search" }
                 searchProviders()
             }
         }

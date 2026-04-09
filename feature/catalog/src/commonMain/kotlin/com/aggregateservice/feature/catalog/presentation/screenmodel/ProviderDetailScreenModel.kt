@@ -2,6 +2,8 @@ package com.aggregateservice.feature.catalog.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import co.touchlab.kermit.Logger
+import com.aggregateservice.core.network.AppError
 import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.catalog.domain.usecase.GetProviderDetailsUseCase
 import com.aggregateservice.feature.catalog.domain.usecase.GetProviderServicesUseCase
@@ -37,6 +39,7 @@ class ProviderDetailScreenModel(
     private val isFavoriteUseCase: IsFavoriteUseCase,
     private val addFavoriteUseCase: AddFavoriteUseCase,
     private val removeFavoriteUseCase: RemoveFavoriteUseCase,
+    private val logger: Logger,
 ) : ScreenModel {
     // UI State
     private val _uiState = MutableStateFlow<ProviderDetailUiState>(ProviderDetailUiState.Loading)
@@ -91,7 +94,9 @@ class ProviderDetailScreenModel(
                     },
                     onFailure = { error ->
                         if (loadingId != id) return@launch
-                        _uiState.value = ProviderDetailUiState.error(error.toAppError())
+                        val appError = error.toAppError()
+                        logger.w(appError) { "Failed to load provider details: ${appError::class.simpleName}" }
+                        _uiState.value = ProviderDetailUiState.error(appError)
                     },
                 )
         }
@@ -115,8 +120,9 @@ class ProviderDetailScreenModel(
                                 isLoadingServices = false,
                             )
                     },
-                    onFailure = { _ ->
-                        // Ошибка загрузки услуг не критична - UI отобразит пустой список услуг
+                    onFailure = { error ->
+                        val appError = (error as? AppError) ?: error.toAppError()
+                        logger.w(appError) { "Failed to load provider services, continuing" }
                         _uiState.value =
                             _uiState.value.copy(
                                 isLoadingServices = false,
@@ -164,9 +170,11 @@ class ProviderDetailScreenModel(
                     _uiState.value = currentState.copy(isFavorite = !currentState.isFavorite)
                 },
                 onFailure = { error ->
+                    val appError = error.toAppError()
+                    logger.w(appError) { "Favorite toggle failed: ${appError::class.simpleName}" }
                     _uiState.value =
                         currentState.copy(
-                            error = error.toAppError(),
+                            error = appError,
                         )
                 },
             )

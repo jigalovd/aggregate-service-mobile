@@ -2,6 +2,10 @@ package com.aggregateservice.feature.booking.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import co.touchlab.kermit.Logger
+import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.network.toAppError
+import com.aggregateservice.core.utils.ValidationRule
 import com.aggregateservice.feature.booking.domain.model.BookingService
 import com.aggregateservice.feature.booking.domain.usecase.CreateBookingUseCase
 import com.aggregateservice.feature.booking.domain.usecase.GetAvailableSlotsUseCase
@@ -28,6 +32,7 @@ class BookingConfirmationScreenModel(
     private val createBookingUseCase: CreateBookingUseCase,
     private val getBookingServicesUseCase: GetBookingServicesUseCase,
     private val getAvailableSlotsUseCase: GetAvailableSlotsUseCase,
+    private val logger: Logger,
 ) : ScreenModel {
     private val _uiState = MutableStateFlow(BookingConfirmationUiState.Initial)
     val uiState: StateFlow<BookingConfirmationUiState> = _uiState.asStateFlow()
@@ -47,7 +52,9 @@ class BookingConfirmationScreenModel(
                     val filteredServices = allServices.filter { it.id in serviceIds }
                     _uiState.update { it.copy(services = filteredServices) }
                 },
-                onFailure = {
+                onFailure = { error ->
+                    val appError = (error as? AppError) ?: error.toAppError()
+                    logger.w(appError) { "Failed to load booking services, continuing" }
                     _uiState.update { it.copy(services = emptyList()) }
                 },
             )
@@ -121,7 +128,11 @@ class BookingConfirmationScreenModel(
                     onSuccess = { availableSlots ->
                         availableSlots.any { it.startTime == slot.startTime && it.isAvailable }
                     },
-                    onFailure = { false },
+                    onFailure = { error ->
+                        val appError = (error as? AppError) ?: error.toAppError()
+                        logger.w(appError) { "Failed to verify slot availability, treating as unavailable" }
+                        false
+                    },
                 )
 
             if (!isSlotStillAvailable) {
@@ -129,9 +140,9 @@ class BookingConfirmationScreenModel(
                     it.copy(
                         isSubmitting = false,
                         error =
-                            com.aggregateservice.core.network.AppError.ValidationError(
+                            AppError.FormValidation(
                                 field = "slot",
-                                message = "Selected time slot is no longer available. Please choose another slot.",
+                                rule = ValidationRule.InvalidValue,
                             ),
                     )
                 }
@@ -155,15 +166,14 @@ class BookingConfirmationScreenModel(
                     }
                 },
                 onFailure = { error ->
+                    val appError =
+                        error as? AppError
+                            ?: AppError.UnknownError(throwable = error, message = error.message)
+                    logger.w(appError) { "Booking creation failed: ${appError::class.simpleName}" }
                     _uiState.update {
                         it.copy(
                             isSubmitting = false,
-                            error =
-                                error as? com.aggregateservice.core.network.AppError
-                                    ?: com.aggregateservice.core.network.AppError.UnknownError(
-                                        throwable = error,
-                                        message = error.message,
-                                    ),
+                            error = appError,
                         )
                     }
                 },

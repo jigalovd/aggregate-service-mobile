@@ -2,6 +2,8 @@ package com.aggregateservice.feature.catalog.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import co.touchlab.kermit.Logger
+import com.aggregateservice.core.network.AppError
 import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.usecase.GetCategoriesUseCase
@@ -34,6 +36,7 @@ import kotlinx.coroutines.launch
 class SearchScreenModel(
     private val searchProvidersUseCase: SearchProvidersUseCase,
     private val getCategoriesUseCase: GetCategoriesUseCase,
+    private val logger: Logger,
 ) : ScreenModel {
     private val _uiState = MutableStateFlow(SearchUiState.Initial)
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
@@ -64,7 +67,10 @@ class SearchScreenModel(
                     onSuccess = { categories ->
                         _uiState.value = _uiState.value.copy(categories = categories)
                     },
-                    onFailure = { /* Non-critical, just log */ },
+                    onFailure = { error ->
+                        val appError = (error as? AppError) ?: error.toAppError()
+                        logger.w(appError) { "Failed to load categories, continuing" }
+                    },
                 )
         }
     }
@@ -143,11 +149,13 @@ class SearchScreenModel(
                             )
                     },
                     onFailure = { error ->
+                        val appError = error.toAppError()
+                        logger.w(appError) { "Search failed: ${appError::class.simpleName}" }
                         _uiState.value =
                             _uiState.value.copy(
                                 isLoading = false,
                                 isLoadingMore = false,
-                                error = error.toAppError(),
+                                error = appError,
                             )
                     },
                 )

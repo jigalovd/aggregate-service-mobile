@@ -2,6 +2,7 @@ package com.aggregateservice.feature.catalog.domain.usecase
 
 import com.aggregateservice.core.common.model.Location
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.utils.ValidationRule
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
@@ -158,9 +159,9 @@ class SearchProvidersUseCaseTest {
 
             assertTrue(result.isFailure)
             val error = result.exceptionOrNull()
-            assertTrue(error is AppError.ValidationError)
-            assertEquals("page", (error as AppError.ValidationError).field)
-            assertTrue(error.message.contains("1"))
+            assertTrue(error is AppError.FormValidation)
+            assertEquals("page", (error as AppError.FormValidation).field)
+            assertEquals(ValidationRule.TooLow, (error as AppError.FormValidation).rule)
         }
 
     @Test
@@ -172,8 +173,8 @@ class SearchProvidersUseCaseTest {
 
             assertTrue(result.isFailure)
             val error = result.exceptionOrNull()
-            assertTrue(error is AppError.ValidationError)
-            assertEquals("page", (error as AppError.ValidationError).field)
+            assertTrue(error is AppError.FormValidation)
+            assertEquals("page", (error as AppError.FormValidation).field)
         }
 
     @Test
@@ -185,8 +186,8 @@ class SearchProvidersUseCaseTest {
 
             assertTrue(result.isFailure)
             val error = result.exceptionOrNull()
-            assertTrue(error is AppError.ValidationError)
-            assertEquals("pageSize", (error as AppError.ValidationError).field)
+            assertTrue(error is AppError.FormValidation)
+            assertEquals("pageSize", (error as AppError.FormValidation).field)
         }
 
     @Test
@@ -198,9 +199,9 @@ class SearchProvidersUseCaseTest {
 
             assertTrue(result.isFailure)
             val error = result.exceptionOrNull()
-            assertTrue(error is AppError.ValidationError)
-            assertEquals("pageSize", (error as AppError.ValidationError).field)
-            assertTrue(error.message.contains("100"))
+            assertTrue(error is AppError.FormValidation)
+            assertEquals("pageSize", (error as AppError.FormValidation).field)
+            assertEquals(ValidationRule.TooHigh, (error as AppError.FormValidation).rule)
         }
 
     @Test
@@ -239,8 +240,8 @@ class SearchProvidersUseCaseTest {
 
             assertTrue(result.isFailure)
             val error = result.exceptionOrNull()
-            assertTrue(error is AppError.ValidationError)
-            assertEquals("radiusKm", (error as AppError.ValidationError).field)
+            assertTrue(error is AppError.FormValidation)
+            assertEquals("radiusKm", (error as AppError.FormValidation).field)
         }
 
     @Test
@@ -257,8 +258,8 @@ class SearchProvidersUseCaseTest {
 
             assertTrue(result.isFailure)
             val error = result.exceptionOrNull()
-            assertTrue(error is AppError.ValidationError)
-            assertEquals("radiusKm", (error as AppError.ValidationError).field)
+            assertTrue(error is AppError.FormValidation)
+            assertEquals("radiusKm", (error as AppError.FormValidation).field)
         }
 
     @Test

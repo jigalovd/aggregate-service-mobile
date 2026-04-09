@@ -2,6 +2,8 @@ package com.aggregateservice.feature.booking.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import co.touchlab.kermit.Logger
+import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.booking.domain.model.BookingStatus
 import com.aggregateservice.feature.booking.domain.usecase.CancelBookingUseCase
 import com.aggregateservice.feature.booking.domain.usecase.GetClientBookingsUseCase
@@ -26,6 +28,7 @@ import kotlinx.coroutines.launch
 class BookingHistoryScreenModel(
     private val getClientBookingsUseCase: GetClientBookingsUseCase,
     private val cancelBookingUseCase: CancelBookingUseCase,
+    private val logger: Logger,
 ) : ScreenModel {
     private val _uiState = MutableStateFlow(BookingHistoryUiState.Loading)
     val uiState: StateFlow<BookingHistoryUiState> = _uiState.asStateFlow()
@@ -49,12 +52,12 @@ class BookingHistoryScreenModel(
                     }
                 },
                 onFailure = { error ->
+                    val appError =
+                        error as? AppError
+                            ?: AppError.UnknownError(throwable = error, message = error.message)
+                    logger.w(appError) { "Failed to load bookings: ${appError::class.simpleName}" }
                     _uiState.update {
-                        BookingHistoryUiState.error(
-                            error as? com.aggregateservice.core.network.AppError
-                                ?: com.aggregateservice.core.network.AppError
-                                    .UnknownError(throwable = error, message = error.message),
-                        )
+                        BookingHistoryUiState.error(appError)
                     }
                 },
             )
@@ -102,13 +105,12 @@ class BookingHistoryScreenModel(
                     }
                 },
                 onFailure = { error ->
+                    val appError =
+                        error as? AppError
+                            ?: AppError.UnknownError(throwable = error, message = error.message)
+                    logger.w(appError) { "Failed to cancel booking: ${appError::class.simpleName}" }
                     _uiState.update {
-                        it.copy(
-                            error =
-                                error as? com.aggregateservice.core.network.AppError
-                                    ?: com.aggregateservice.core.network.AppError
-                                        .UnknownError(throwable = error, message = error.message),
-                        )
+                        it.copy(error = appError)
                     }
                 },
             )

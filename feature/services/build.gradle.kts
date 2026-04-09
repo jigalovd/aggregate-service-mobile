@@ -18,6 +18,9 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.kotlinx.datetime)
 
+            // Logging
+            implementation(libs.kermit)
+
             // Koin Compose for koinInject() in @Composable functions
             implementation(libs.koin.compose)
 

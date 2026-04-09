@@ -1,6 +1,7 @@
 package com.aggregateservice.feature.booking.domain.usecase
 
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.utils.ValidationRule
 import com.aggregateservice.feature.booking.domain.model.BookingService
 import com.aggregateservice.feature.booking.domain.repository.BookingRepository
 
@@ -24,9 +25,9 @@ class GetBookingServicesUseCase(
     suspend operator fun invoke(providerId: String): Result<List<BookingService>> {
         if (providerId.isBlank()) {
             return Result.failure(
-                AppError.ValidationError(
+                AppError.FormValidation(
                     field = "providerId",
-                    message = "Provider ID cannot be empty",
+                    rule = ValidationRule.Required,
                 ),
             )
         }

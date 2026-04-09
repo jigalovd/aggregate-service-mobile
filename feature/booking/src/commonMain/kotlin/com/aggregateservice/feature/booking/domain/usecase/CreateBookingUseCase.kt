@@ -3,6 +3,7 @@
 package com.aggregateservice.feature.booking.domain.usecase
 
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.utils.ValidationRule
 import com.aggregateservice.feature.booking.domain.model.Booking
 import com.aggregateservice.feature.booking.domain.repository.BookingRepository
 import kotlinx.datetime.Instant
@@ -39,19 +40,19 @@ class CreateBookingUseCase(
         // Validation: providerId
         if (providerId.isBlank()) {
             return Result.failure(
-                AppError.ValidationError("providerId", "Provider ID is required"),
+                AppError.FormValidation("providerId", ValidationRule.Required),
             )
         }
 
         // Validation: serviceIds
         if (serviceIds.isEmpty()) {
             return Result.failure(
-                AppError.ValidationError("serviceIds", "At least one service is required"),
+                AppError.FormValidation("serviceIds", ValidationRule.NotEmpty),
             )
         }
         if (serviceIds.size > MAX_SERVICES) {
             return Result.failure(
-                AppError.ValidationError("serviceIds", "Maximum $MAX_SERVICES services allowed"),
+                AppError.FormValidation("serviceIds", ValidationRule.TooHigh, mapOf("max" to MAX_SERVICES)),
             )
         }
 
@@ -63,9 +64,10 @@ class CreateBookingUseCase(
             )
         if (startTime < minBookingTime) {
             return Result.failure(
-                AppError.ValidationError(
+                AppError.FormValidation(
                     "startTime",
-                    "Cannot book less than $MIN_BOOKING_NOTICE_HOURS hours in advance",
+                    ValidationRule.TooLow,
+                    mapOf("min" to MIN_BOOKING_NOTICE_HOURS),
                 ),
             )
         }
@@ -77,7 +79,7 @@ class CreateBookingUseCase(
             )
         if (startTime > maxAdvanceTime) {
             return Result.failure(
-                AppError.ValidationError("startTime", "Cannot book more than $MAX_ADVANCE_DAYS days in advance"),
+                AppError.FormValidation("startTime", ValidationRule.TooHigh, mapOf("max" to MAX_ADVANCE_DAYS)),
             )
         }
 

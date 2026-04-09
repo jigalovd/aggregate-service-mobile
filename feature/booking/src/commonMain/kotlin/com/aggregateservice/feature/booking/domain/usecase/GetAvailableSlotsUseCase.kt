@@ -3,6 +3,7 @@
 package com.aggregateservice.feature.booking.domain.usecase
 
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.utils.ValidationRule
 import com.aggregateservice.feature.booking.domain.model.TimeSlot
 import com.aggregateservice.feature.booking.domain.repository.BookingRepository
 import kotlinx.datetime.LocalDate
@@ -42,14 +43,14 @@ class GetAvailableSlotsUseCase(
         // Validation: providerId
         if (providerId.isBlank()) {
             return Result.failure(
-                AppError.ValidationError("providerId", "Provider ID is required"),
+                AppError.FormValidation("providerId", ValidationRule.Required),
             )
         }
 
         // Validation: serviceIds
         if (serviceIds.isEmpty()) {
             return Result.failure(
-                AppError.ValidationError("serviceIds", "At least one service is required"),
+                AppError.FormValidation("serviceIds", ValidationRule.NotEmpty),
             )
         }
 
@@ -57,7 +58,7 @@ class GetAvailableSlotsUseCase(
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         if (date < today) {
             return Result.failure(
-                AppError.ValidationError("date", "Cannot get slots for past dates"),
+                AppError.FormValidation("date", ValidationRule.InvalidFormat),
             )
         }
 

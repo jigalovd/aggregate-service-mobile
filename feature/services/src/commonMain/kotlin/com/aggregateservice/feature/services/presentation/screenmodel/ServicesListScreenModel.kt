@@ -2,6 +2,7 @@ package com.aggregateservice.feature.services.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import co.touchlab.kermit.Logger
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.services.domain.model.ProviderService
@@ -28,6 +29,7 @@ import kotlinx.coroutines.launch
 class ServicesListScreenModel(
     private val getServicesUseCase: GetServicesUseCase,
     private val deleteServiceUseCase: DeleteServiceUseCase,
+    private val logger: Logger,
 ) : ScreenModel {
 
     private val _uiState = MutableStateFlow(ServicesListUiState.Loading)
@@ -50,8 +52,10 @@ class ServicesListScreenModel(
                     }
                 },
                 onFailure = { error ->
+                    val appError = error.toAppError()
+                    logger.w(appError) { "Failed to load services: ${appError::class.simpleName}" }
                     _uiState.update {
-                        ServicesListUiState.error(error.toAppError())
+                        ServicesListUiState.error(appError)
                     }
                 },
             )
@@ -94,11 +98,13 @@ class ServicesListScreenModel(
                     }
                 },
                 onFailure = { error ->
+                    val appError = error.toAppError()
+                    logger.w(appError) { "Failed to delete service: ${appError::class.simpleName}" }
                     _uiState.update { state ->
                         state.copy(
                             serviceToDelete = null,
                             isDeleting = false,
-                            error = error.toAppError(),
+                            error = appError,
                         )
                     }
                 },

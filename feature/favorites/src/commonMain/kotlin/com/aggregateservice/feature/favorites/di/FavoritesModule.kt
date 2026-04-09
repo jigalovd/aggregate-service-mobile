@@ -1,5 +1,6 @@
 package com.aggregateservice.feature.favorites.di
 
+import co.touchlab.kermit.Logger
 import com.aggregateservice.feature.favorites.data.api.FavoritesApiService
 import com.aggregateservice.feature.favorites.data.repository.FavoritesRepositoryImpl
 import com.aggregateservice.feature.favorites.domain.repository.FavoritesRepository
@@ -36,5 +37,6 @@ val favoritesModule =
         factoryOf(::IsFavoriteUseCase)
 
         // ScreenModels (Presentation layer)
+        factory<Logger> { Logger.withTag("Favorites") }
         factoryOf(::FavoritesScreenModel)
     }

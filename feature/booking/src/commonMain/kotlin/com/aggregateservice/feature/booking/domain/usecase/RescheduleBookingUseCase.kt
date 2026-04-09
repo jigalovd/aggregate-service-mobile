@@ -3,6 +3,7 @@
 package com.aggregateservice.feature.booking.domain.usecase
 
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.utils.ValidationRule
 import com.aggregateservice.feature.booking.domain.model.Booking
 import com.aggregateservice.feature.booking.domain.repository.BookingRepository
 import kotlinx.datetime.Instant
@@ -36,7 +37,7 @@ class RescheduleBookingUseCase(
         // Validation: bookingId
         if (bookingId.isBlank()) {
             return Result.failure(
-                AppError.ValidationError("bookingId", "Booking ID is required"),
+                AppError.FormValidation("bookingId", ValidationRule.Required),
             )
         }
 
@@ -44,7 +45,7 @@ class RescheduleBookingUseCase(
         val now = Clock.System.now()
         if (newStartTime <= now) {
             return Result.failure(
-                AppError.ValidationError("newStartTime", "New start time must be in the future"),
+                AppError.FormValidation("newStartTime", ValidationRule.InvalidFormat),
             )
         }
 
@@ -60,9 +61,10 @@ class RescheduleBookingUseCase(
 
         if (now > minRescheduleTime) {
             return Result.failure(
-                AppError.ValidationError(
+                AppError.FormValidation(
                     "startTime",
-                    "Cannot reschedule booking less than $RESCHEDULE_WINDOW_HOURS hours before start time",
+                    ValidationRule.TooLow,
+                    mapOf("min" to RESCHEDULE_WINDOW_HOURS),
                 ),
             )
         }

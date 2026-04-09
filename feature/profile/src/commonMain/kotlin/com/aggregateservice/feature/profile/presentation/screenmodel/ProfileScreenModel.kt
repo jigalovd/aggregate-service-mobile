@@ -3,6 +3,7 @@ package com.aggregateservice.feature.profile.presentation.screenmodel
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import cafe.adriel.voyager.navigator.Navigator
+import co.touchlab.kermit.Logger
 import com.aggregateservice.core.auth.contract.LogoutUseCase
 import com.aggregateservice.core.navigation.CatalogNavigator
 import com.aggregateservice.core.network.toAppError
@@ -33,6 +34,7 @@ class ProfileScreenModel(
     private val updateProfileUseCase: UpdateProfileUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val catalogNavigator: CatalogNavigator,
+    private val logger: Logger,
 ) : ScreenModel {
     private val _uiState = MutableStateFlow(ProfileUiState.Loading)
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
@@ -60,8 +62,10 @@ class ProfileScreenModel(
                     }
                 },
                 onFailure = { error ->
+                    val appError = error.toAppError()
+                    logger.w(appError) { "Failed to load profile: ${appError::class.simpleName}" }
                     _uiState.update {
-                        ProfileUiState.error(error.toAppError())
+                        ProfileUiState.error(appError)
                     }
                 },
             )
@@ -166,10 +170,12 @@ class ProfileScreenModel(
                     }
                 },
                 onFailure = { error ->
+                    val appError = error.toAppError()
+                    logger.w(appError) { "Failed to update profile: ${appError::class.simpleName}" }
                     _uiState.update {
                         it.copy(
                             isSaving = false,
-                            error = error.toAppError(),
+                            error = appError,
                         )
                     }
                 },

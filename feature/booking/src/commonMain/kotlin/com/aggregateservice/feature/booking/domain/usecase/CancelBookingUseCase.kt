@@ -3,6 +3,7 @@
 package com.aggregateservice.feature.booking.domain.usecase
 
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.utils.ValidationRule
 import com.aggregateservice.feature.booking.domain.model.Booking
 import com.aggregateservice.feature.booking.domain.repository.BookingRepository
 import kotlin.time.Clock
@@ -35,7 +36,7 @@ class CancelBookingUseCase(
         // Validation: bookingId
         if (bookingId.isBlank()) {
             return Result.failure(
-                AppError.ValidationError("bookingId", "Booking ID is required"),
+                AppError.FormValidation("bookingId", ValidationRule.Required),
             )
         }
 
@@ -48,9 +49,10 @@ class CancelBookingUseCase(
         // Validation: booking must be cancellable status
         if (!booking.status.isCancellable) {
             return Result.failure(
-                AppError.ValidationError(
+                AppError.FormValidation(
                     "status",
-                    "Booking in status '${booking.status}' cannot be cancelled",
+                    ValidationRule.InvalidValue,
+                    mapOf("status" to booking.status.name),
                 ),
             )
         }
@@ -61,9 +63,10 @@ class CancelBookingUseCase(
 
         if (now > minCancelTime) {
             return Result.failure(
-                AppError.ValidationError(
+                AppError.FormValidation(
                     "startTime",
-                    "Cannot cancel booking less than $CANCEL_WINDOW_HOURS hours before start time",
+                    ValidationRule.TooLow,
+                    mapOf("min" to CANCEL_WINDOW_HOURS),
                 ),
             )
         }

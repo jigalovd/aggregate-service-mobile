@@ -244,9 +244,9 @@ class SafeApiCallRealTest {
             // Assert
             assertTrue(result.isFailure, "Result should be a failure")
             val error = result.exceptionOrNull()
-            assertTrue(error is AppError.ValidationError, "Error should be ValidationError")
-            val validationError = error as AppError.ValidationError
-            assertEquals("email", validationError.field)
+            assertTrue(error is AppError.ApiValidationError, "Error should be ApiValidationError")
+            val validationError = error as AppError.ApiValidationError
+            assertEquals("body.email", validationError.field)
             assertEquals("field required", validationError.message)
         }
 
