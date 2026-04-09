@@ -2,7 +2,10 @@ package com.aggregateservice.feature.reviews.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import co.touchlab.kermit.Logger
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.network.toAppError
+import com.aggregateservice.core.utils.ValidationRule
 import com.aggregateservice.feature.reviews.domain.usecase.CanReviewBookingUseCase
 import com.aggregateservice.feature.reviews.domain.usecase.CreateReviewUseCase
 import com.aggregateservice.feature.reviews.domain.usecase.GetProviderReviewsUseCase
@@ -21,6 +24,7 @@ import kotlinx.coroutines.launch
 class ReviewsScreenModel(
     private val getProviderReviewsUseCase: GetProviderReviewsUseCase,
     private val getReviewStatsUseCase: GetReviewStatsUseCase,
+    private val logger: Logger,
 ) : ScreenModel {
     private val _uiState = MutableStateFlow(ReviewsUiState())
     val uiState: StateFlow<ReviewsUiState> = _uiState.asStateFlow()
@@ -122,6 +126,7 @@ class ReviewsScreenModel(
 class WriteReviewScreenModel(
     private val canReviewBookingUseCase: CanReviewBookingUseCase,
     private val createReviewUseCase: CreateReviewUseCase,
+    private val logger: Logger,
 ) : ScreenModel {
     private val _uiState = MutableStateFlow(WriteReviewUiState.Checking)
     val uiState: StateFlow<WriteReviewUiState> = _uiState.asStateFlow()
@@ -142,16 +147,27 @@ class WriteReviewScreenModel(
                         it.copy(
                             isChecking = false,
                             canReview = canReview,
-                            error = if (!canReview) "Вы уже оставили отзыв для этого бронирования" else null,
+                            error =
+                                if (!canReview) {
+                                    AppError.DomainError(
+                                        code = "REVIEW_ALREADY_EXISTS",
+                                        message = "You have already reviewed this booking",
+                                        details = emptyMap(),
+                                    )
+                                } else {
+                                    null
+                                },
                         )
                     }
                 },
                 onFailure = { error ->
+                    val appError = (error as? AppError) ?: error.toAppError()
+                    logger.w(appError) { "Failed to check review eligibility: ${appError::class.simpleName}" }
                     _uiState.update {
                         it.copy(
                             isChecking = false,
                             canReview = false,
-                            error = error.message ?: "Не удалось проверить возможность отзыва",
+                            error = appError,
                         )
                     }
                 },
@@ -170,7 +186,14 @@ class WriteReviewScreenModel(
     fun submitReview() {
         val state = _uiState.value
         if (!state.isValid) {
-            _uiState.update { it.copy(error = "Пожалуйста, выберите рейтинг") }
+            _uiState.update {
+                it.copy(
+                    error = AppError.FormValidation(
+                        field = "rating",
+                        rule = ValidationRule.Required,
+                    ),
+                )
+            }
             return
         }
 
@@ -186,10 +209,12 @@ class WriteReviewScreenModel(
                     _uiState.update { it.copy(isSubmitting = false, isSuccess = true) }
                 },
                 onFailure = { error ->
+                    val appError = (error as? AppError) ?: error.toAppError()
+                    logger.w(appError) { "Failed to submit review: ${appError::class.simpleName}" }
                     _uiState.update {
                         it.copy(
                             isSubmitting = false,
-                            error = error.message ?: "Не удалось отправить отзыв",
+                            error = appError,
                         )
                     }
                 },

@@ -2,6 +2,7 @@ package com.aggregateservice.feature.booking.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.booking.domain.model.BookingService
 import com.aggregateservice.feature.booking.domain.usecase.GetBookingServicesUseCase
 import com.aggregateservice.feature.booking.presentation.model.SelectServiceUiState
@@ -48,9 +49,8 @@ class SelectServiceScreenModel(
                 onFailure = { error ->
                     _uiState.update {
                         SelectServiceUiState.error(
-                            error as? com.aggregateservice.core.network.AppError
-                                ?: com.aggregateservice.core.network.AppError
-                                    .UnknownError(throwable = error, message = error.message),
+                            error as? AppError
+                                ?: AppError.UnknownError(throwable = error, message = error.message),
                         )
                     }
                 },
@@ -75,9 +75,21 @@ class SelectServiceScreenModel(
             } else {
                 val hasNonCombinableSelected = currentSelected.any { !it.isCombinable }
                 if (hasNonCombinableSelected) {
-                    state.copy(nonCombinableError = "Некомбинируемые услуги нельзя выбрать вместе с другими")
+                    state.copy(
+                        nonCombinableError = AppError.DomainError(
+                            code = "NON_COMBINABLE_SERVICES",
+                            message = "These services cannot be combined with other services",
+                            details = emptyMap(),
+                        ),
+                    )
                 } else if (!service.isCombinable && currentSelected.isNotEmpty()) {
-                    state.copy(nonCombinableError = "Некомбинируемые услуги нельзя выбрать вместе с другими")
+                    state.copy(
+                        nonCombinableError = AppError.DomainError(
+                            code = "NON_COMBINABLE_SERVICES",
+                            message = "These services cannot be combined with other services",
+                            details = emptyMap(),
+                        ),
+                    )
                 } else {
                     currentSelected.add(service)
                     state.copy(selectedServices = currentSelected.toList(), nonCombinableError = null)

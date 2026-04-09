@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
+import com.aggregateservice.core.network.toUserMessage
 import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.feature.reviews.domain.usecase.CreateReviewUseCase
 import com.aggregateservice.feature.reviews.presentation.model.WriteReviewUiState
@@ -58,7 +59,8 @@ fun WriteReviewDialog(
             }
             !state.canReview -> {
                 CannotReviewContent(
-                    error = state.error ?: i18nProvider[StringKey.Reviews.NO_REVIEWS],
+                    error = state.error?.toUserMessage(i18nProvider)
+                        ?: i18nProvider[StringKey.Reviews.NO_REVIEWS],
                     onDismiss = onDismiss,
                     i18nProvider = i18nProvider,
                 )
@@ -228,7 +230,7 @@ private fun WriteReviewContent(
         // Error message
         if (state.error != null) {
             Text(
-                text = state.error,
+                text = state.error?.toUserMessage(i18nProvider) ?: "",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.error,
             )

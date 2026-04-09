@@ -8,6 +8,8 @@ import com.aggregateservice.core.auth.contract.SignInUseCase
 import com.aggregateservice.core.auth.state.AuthState
 import com.aggregateservice.core.firebase.AuthProviderApi
 import com.aggregateservice.core.firebase.PlatformAuthContext
+import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.network.toAppError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,13 +40,13 @@ class LoginScreenModel(
         _uiState.value =
             _uiState.value.copy(
                 isLoading = false,
-                errorMessage = message,
+                error = AppError.UnknownError(message = message),
             )
     }
 
     fun signIn(context: PlatformAuthContext) {
         screenModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             logger.d { "signIn() started" }
 
             val result = authProviderApi.signInWithGoogle(context)
@@ -59,20 +61,22 @@ class LoginScreenModel(
                             _uiState.value = _uiState.value.copy(isLoading = false)
                         },
                         onFailure = {
+                            val appError = (it as? AppError) ?: it.toAppError()
                             _uiState.value =
                                 _uiState.value.copy(
                                     isLoading = false,
-                                    errorMessage = it.message,
+                                    error = appError,
                                 )
                         },
                     )
                 },
                 onFailure = {
+                    val appError = (it as? AppError) ?: it.toAppError()
                     logger.w(it) { "Firebase auth failed" }
                     _uiState.value =
                         _uiState.value.copy(
                             isLoading = false,
-                            errorMessage = it.message,
+                            error = appError,
                         )
                 },
             )

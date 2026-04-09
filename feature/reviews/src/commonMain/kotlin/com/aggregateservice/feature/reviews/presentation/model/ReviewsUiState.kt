@@ -46,7 +46,7 @@ data class WriteReviewUiState(
     val isChecking: Boolean = true,
     val canReview: Boolean = false,
     val isSubmitting: Boolean = false,
-    val error: String? = null,
+    val error: AppError? = null,
     val isSuccess: Boolean = false,
 ) {
     val isValid: Boolean

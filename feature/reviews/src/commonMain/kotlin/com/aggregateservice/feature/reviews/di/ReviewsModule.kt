@@ -1,5 +1,6 @@
 package com.aggregateservice.feature.reviews.di
 
+import co.touchlab.kermit.Logger
 import com.aggregateservice.feature.reviews.data.api.ReviewsApiService
 import com.aggregateservice.feature.reviews.data.repository.ReviewsRepositoryImpl
 import com.aggregateservice.feature.reviews.domain.repository.ReviewsRepository
@@ -38,6 +39,7 @@ val reviewsModule =
         factoryOf(::CreateReviewUseCase)
 
         // ScreenModels (Presentation layer)
+        factory<Logger> { Logger.withTag("Reviews") }
         factoryOf(::ReviewsScreenModel)
         factoryOf(::WriteReviewScreenModel)
     }

@@ -33,6 +33,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
+import com.aggregateservice.core.network.toUserMessage
 import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.feature.booking.domain.model.BookingService
 import com.aggregateservice.feature.booking.presentation.screenmodel.SelectServiceScreenModel
@@ -140,7 +141,7 @@ fun SelectServiceScreenContent(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = uiState.nonCombinableError ?: "",
+                        text = uiState.nonCombinableError?.toUserMessage(i18nProvider) ?: "",
                         color = MaterialTheme.colorScheme.error,
                     )
                 }

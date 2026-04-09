@@ -30,6 +30,7 @@ import com.aggregateservice.core.auth.contract.SignInUseCase
 import com.aggregateservice.core.firebase.AuthProviderApi
 import com.aggregateservice.core.firebase.PlatformAuthContext
 import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.network.toUserMessage
 import com.aggregateservice.core.i18n.StringKey
 import co.touchlab.kermit.Logger
 import com.aggregateservice.feature.auth.presentation.model.LoginScreenModel
@@ -106,10 +107,10 @@ class LoginScreen : Screen {
                         }
                     }
 
-                    uiState.errorMessage?.let { error ->
+                    uiState.error?.let { error ->
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = error,
+                            text = error.toUserMessage(i18nProvider),
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodySmall,
                         )
