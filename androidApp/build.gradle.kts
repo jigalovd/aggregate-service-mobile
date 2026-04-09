@@ -11,20 +11,23 @@ plugins {
 // ============================================================
 val apiBaseUrl = project.findProperty("api.base.url") as String? ?: "https://api.dev.aggregateservice.com"
 
-val envConfig = mapOf(
-    "debug" to mapOf(
-        "API_BASE_URL" to apiBaseUrl,
-        "ENVIRONMENT" to "DEV",
-        "DEBUG" to "true",
-        "ENABLE_LOGGING" to "true"
-    ),
-    "release" to mapOf(
-        "API_BASE_URL" to apiBaseUrl,
-        "ENVIRONMENT" to "STAGING",
-        "DEBUG" to "false",
-        "ENABLE_LOGGING" to "false"
+val envConfig =
+    mapOf(
+        "debug" to
+            mapOf(
+                "API_BASE_URL" to apiBaseUrl,
+                "ENVIRONMENT" to "DEV",
+                "DEBUG" to "true",
+                "ENABLE_LOGGING" to "true",
+            ),
+        "release" to
+            mapOf(
+                "API_BASE_URL" to apiBaseUrl,
+                "ENVIRONMENT" to "STAGING",
+                "DEBUG" to "false",
+                "ENABLE_LOGGING" to "false",
+            ),
     )
-)
 
 // Helper function to apply BuildConfig fields
 fun com.android.build.api.dsl.DefaultConfig.buildConfigFromMap(config: Map<String, String>) {
@@ -51,13 +54,6 @@ android {
     // Enable BuildConfig generation
     buildFeatures {
         buildConfig = true
-    }
-
-    // Add centralized assets directory (logback.xml)
-    sourceSets {
-        getByName("main") {
-            assets.srcDirs("../config/logging")
-        }
     }
 
     defaultConfig {
@@ -94,11 +90,6 @@ android {
     }
 }
 
-// ============================================================
-// Logback configuration from centralized location
-// Using Android sourceSets instead of Copy task for configuration cache compatibility
-// ============================================================
-
 kotlin {
     sourceSets {
         maybeCreate("androidMain").dependencies {
@@ -122,9 +113,8 @@ kotlin {
             implementation(libs.voyager.screenModel)
             implementation(libs.voyager.transitions)
 
-            // Logging - SLF4J + Logback for Android
-            implementation(libs.slf4j.api)
-            implementation(libs.logback.android)
+            // Logging - Kermit via core:logging module
+            implementation(project(":core:logging"))
         }
     }
 }
