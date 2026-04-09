@@ -252,18 +252,18 @@ fun parseValidationError(errorBody: ErrorResponse): AppError {
         val validationErrors = errorBody.details?.errors
         val firstError = validationErrors?.firstOrNull()
         if (firstError != null) {
-            AppError.ValidationError(
+            AppError.ApiValidationError(
                 field = firstError.field ?: "unknown",
                 message = firstError.message ?: "Validation error",
             )
         } else {
-            AppError.ValidationError(
+            AppError.ApiValidationError(
                 field = "unknown",
                 message = errorBody.message ?: "Validation error",
             )
         }
     } catch (e: Exception) {
-        AppError.ValidationError(
+        AppError.ApiValidationError(
             field = "unknown",
             message = errorBody.message ?: "Validation error",
         )
