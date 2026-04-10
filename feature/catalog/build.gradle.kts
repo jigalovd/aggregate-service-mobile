@@ -47,6 +47,7 @@ kotlin {
             implementation(kotlin("test"))
             implementation(libs.mockk)
             implementation(libs.koin.test)
+            implementation(libs.ktor.client.mock)
         }
     }
 }

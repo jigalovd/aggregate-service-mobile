@@ -72,6 +72,7 @@ class CatalogScreenModelTest {
             searchProvidersUseCase = createSearchProvidersUseCase(),
             getCategoriesUseCase = createGetCategoriesUseCase(),
             locationProvider = locationProvider,
+            locationCache = com.aggregateservice.feature.catalog.presentation.cache.LocationCache(),
             logger = Logger.withTag("Test"),
         )
     }
