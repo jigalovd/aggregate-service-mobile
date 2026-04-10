@@ -14,6 +14,7 @@ import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters.SortBy
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters.SortOrder
+import com.aggregateservice.feature.catalog.presentation.cache.LocationCache
 import com.aggregateservice.feature.catalog.domain.usecase.GetCategoriesUseCase
 import com.aggregateservice.feature.catalog.domain.usecase.SearchProvidersUseCase
 import com.aggregateservice.feature.catalog.presentation.model.CatalogUiState
@@ -75,6 +76,7 @@ class CatalogScreenModel(
     private val searchProvidersUseCase: SearchProvidersUseCase,
     private val getCategoriesUseCase: GetCategoriesUseCase,
     private val locationProvider: LocationProvider,
+    private val locationCache: LocationCache,
     private val logger: Logger,
 ) : ScreenModel {
     // UI State
@@ -82,8 +84,29 @@ class CatalogScreenModel(
     val uiState: StateFlow<CatalogUiState> = _uiState.asStateFlow()
 
     init {
+        // Restore cached location (survives ScreenModel recreation)
+        locationCache.lastKnownLocation?.let { loc ->
+            _uiState.value =
+                _uiState.value.copy(
+                    userLocation = loc,
+                    filters =
+                        _uiState.value.filters.copy(
+                            latitude = loc.latitude,
+                            longitude = loc.longitude,
+                            radiusKm = DEFAULT_RADIUS_KM,
+                        ),
+                )
+        }
         loadCategories()
-        requestLocationAndSearch()
+
+        if (locationCache.lastKnownLocation != null) {
+            // Fast path: cached location → search immediately
+            searchProviders()
+            refreshLocationInBackground()
+        } else {
+            // Slow path (first app launch only): wait for GPS → single API request
+            requestLocationAndSearch()
+        }
     }
 
     /**
@@ -343,6 +366,61 @@ class CatalogScreenModel(
             } catch (e: Exception) {
                 logger.w(e) { "Location request failed, falling back to non-geo search" }
                 searchProviders()
+            }
+        }
+    }
+
+    /**
+     * Refreshes GPS location in background and re-searches if location changed significantly.
+     * Only called when LocationCache already has a location (fast path).
+     */
+    private fun refreshLocationInBackground() {
+        screenModelScope.launch {
+            try {
+                val status = locationProvider.requestPermission()
+
+                when (status) {
+                    is LocationPermissionStatus.Granted -> {
+                        val locationResult = locationProvider.getCurrentLocation(LocationAccuracy.MEDIUM)
+                        locationResult.fold(
+                            onSuccess = { location ->
+                                val currentLoc = _uiState.value.userLocation
+                                val locationChanged = currentLoc == null ||
+                                    currentLoc.distanceTo(location) >
+                                        SearchFilters.LOCATION_CHANGE_THRESHOLD_KM
+
+                                locationCache.update(location)
+
+                                _uiState.value =
+                                    _uiState.value.copy(
+                                        userLocation = location,
+                                        filters =
+                                            _uiState.value.filters.copy(
+                                                latitude = location.latitude,
+                                                longitude = location.longitude,
+                                                radiusKm = DEFAULT_RADIUS_KM,
+                                            ),
+                                    )
+
+                                if (locationChanged) {
+                                    searchProviders()
+                                }
+                            },
+                            onFailure = { error ->
+                                val appError = (error as? AppError) ?: error.toAppError()
+                                logger.w(appError) { "Failed to get location, using cached" }
+                            },
+                        )
+                    }
+                    is LocationPermissionStatus.Denied,
+                    is LocationPermissionStatus.DeniedPermanently,
+                    is LocationPermissionStatus.Unknown,
+                    -> {
+                        logger.i { "Location permission denied, using cached/default coordinates" }
+                    }
+                }
+            } catch (e: Exception) {
+                logger.w(e) { "Background location refresh failed" }
             }
         }
     }

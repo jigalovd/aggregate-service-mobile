@@ -66,7 +66,7 @@ val catalogModule =
         single { LocationCache() }
 
         // ScreenModels (Presentation layer)
-        factory { CatalogScreenModel(get(), get(), get(), Logger.withTag("Catalog")) }
+        factory { CatalogScreenModel(get(), get(), get(), get(), Logger.withTag("Catalog")) }
         factory {
             ProviderDetailScreenModel(
                 getProviderDetailsUseCase = get(),
