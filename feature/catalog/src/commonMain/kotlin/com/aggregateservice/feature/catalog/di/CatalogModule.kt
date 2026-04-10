@@ -11,6 +11,7 @@ import com.aggregateservice.feature.catalog.domain.usecase.GetProviderDetailsUse
 import com.aggregateservice.feature.catalog.domain.usecase.GetProviderServicesUseCase
 import com.aggregateservice.feature.catalog.domain.usecase.SearchProvidersUseCase
 import com.aggregateservice.feature.catalog.navigation.CatalogNavigatorImpl
+import com.aggregateservice.feature.catalog.presentation.cache.LocationCache
 import com.aggregateservice.feature.catalog.presentation.screenmodel.CatalogScreenModel
 import com.aggregateservice.feature.catalog.presentation.screenmodel.ProviderDetailScreenModel
 import com.aggregateservice.feature.catalog.presentation.screenmodel.SearchScreenModel
@@ -60,6 +61,9 @@ val catalogModule =
         factoryOf(::GetProviderDetailsUseCase)
         factoryOf(::GetProviderServicesUseCase)
         factoryOf(::GetCategoriesUseCase)
+
+        // Location cache — presentation singleton, survives ScreenModel recreation
+        single { LocationCache() }
 
         // ScreenModels (Presentation layer)
         factory { CatalogScreenModel(get(), get(), get(), Logger.withTag("Catalog")) }
