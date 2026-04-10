@@ -119,7 +119,8 @@ class BookingConfirmationScreenModel(
             val slotsResult =
                 getAvailableSlotsUseCase(
                     providerId = currentState.providerId,
-                    date = date,
+                    fromDate = date,
+                    toDate = date,
                     serviceIds = serviceIds,
                 )
 
