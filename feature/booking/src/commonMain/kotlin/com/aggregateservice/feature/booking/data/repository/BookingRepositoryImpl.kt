@@ -94,10 +94,11 @@ class BookingRepositoryImpl(
 
     override suspend fun getAvailableSlots(
         providerId: String,
-        date: LocalDate,
+        fromDate: LocalDate,
+        toDate: LocalDate,
         serviceIds: List<String>,
     ): Result<List<TimeSlot>> {
-        return apiService.getAvailableSlots(providerId, date, serviceIds).fold(
+        return apiService.getAvailableSlots(providerId, fromDate, toDate, serviceIds).fold(
             onSuccess = { dtos -> Result.success(BookingMapper.toDomainSlots(dtos)) },
             onFailure = { error -> Result.failure(error) },
         )

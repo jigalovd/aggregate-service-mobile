@@ -137,7 +137,8 @@ class BookingApiService(
      */
     suspend fun getAvailableSlots(
         providerId: String,
-        date: LocalDate,
+        fromDate: LocalDate,
+        toDate: LocalDate,
         serviceIds: List<String>,
     ): Result<List<TimeSlotDto>> {
         return safeApiCall<List<TimeSlotDto>> {
@@ -145,8 +146,11 @@ class BookingApiService(
                 contentType(ContentType.Application.Json)
                 url {
                     parameters.append("providerId", providerId)
-                    parameters.append("date", date.toString())
-                    serviceIds.forEach { parameters.append("serviceIds", it) }
+                    parameters.append("fromDate", fromDate.toString())
+                    parameters.append("toDate", toDate.toString())
+                    if (serviceIds.isNotEmpty()) {
+                        parameters.append("serviceIds", serviceIds.joinToString(","))
+                    }
                 }
             }
         }

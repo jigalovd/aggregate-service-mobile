@@ -93,13 +93,15 @@ interface BookingRepository {
      * Получает доступные временные слоты для бронирования.
      *
      * @param providerId ID мастера
-     * @param date Дата для поиска слотов
+     * @param fromDate Начальная дата диапазона
+     * @param toDate Конечная дата диапазона
      * @param serviceIds Список ID услуг (для вычисления длительности)
      * @return Result со списком доступных слотов
      */
     suspend fun getAvailableSlots(
         providerId: String,
-        date: LocalDate,
+        fromDate: LocalDate,
+        toDate: LocalDate,
         serviceIds: List<String>,
     ): Result<List<TimeSlot>>
 
