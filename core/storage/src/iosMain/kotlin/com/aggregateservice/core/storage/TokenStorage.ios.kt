@@ -47,6 +47,33 @@ private fun createIosDataStore(): DataStore<Preferences> {
  * **Note:** iOS DataStore requires additional setup.
  * This implementation uses the iOS-specific file path.
  */
+
+/**
+ * Create DataStore for location persistence on iOS.
+ *
+ * **File location:** `~/Library/Application Support/location_preferences.preferences_pb`
+ */
+fun createLocationDataStore(): DataStore<Preferences> {
+    val documentDirectory: NSURL = requireNotNull(
+        NSFileManager.defaultManager.URLForDirectory(
+            directory = NSDocumentDirectory,
+            inDomain = NSUserDomainMask,
+            appropriateForURL = null,
+            create = true,
+            error = null,
+        ),
+    ) { "Failed to resolve iOS document directory for location preferences" }
+
+    val preferencesFile =
+        documentDirectory
+            .URLByAppendingPathComponent("location_preferences")
+            .URLByAppendingPathExtension("preferences_pb")
+
+    return preferenceDataStoreFile(
+        path = requireNotNull(preferencesFile.path) { "Failed to resolve location preferences file path" },
+    )
+}
+
 actual fun createTokenStorage(): TokenStorage {
     val dataStore = createIosDataStore()
     return TokenStorageImpl(

@@ -36,6 +36,10 @@ kotlin {
             // LocationProvider for geo-based provider search
             implementation(project(":core:location"))
 
+            // Location persistence via DataStore
+            implementation(project(":core:storage"))
+            implementation(libs.androidx.datastore.preferences)
+
             // Shared Location type
             implementation(project(":core:common"))
 

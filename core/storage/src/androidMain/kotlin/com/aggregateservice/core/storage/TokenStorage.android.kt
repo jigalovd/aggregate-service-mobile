@@ -16,6 +16,21 @@ private val Context.authDataStore: DataStore<Preferences> by preferencesDataStor
     name = "auth_preferences",
 )
 
+// Extension to create location DataStore
+private val Context.locationDataStore: DataStore<Preferences> by preferencesDataStore(
+    name = "location_preferences",
+)
+
+/**
+ * Create DataStore for location persistence on Android.
+ *
+ * **Usage in Koin:**
+ * ```kotlin
+ * single<DataStore<Preferences>>(named("location")) { createLocationDataStore(androidContext()) }
+ * ```
+ */
+fun createLocationDataStore(context: Context): DataStore<Preferences> = context.locationDataStore
+
 /**
  * Create [TokenStorage] for Android platform.
  *
