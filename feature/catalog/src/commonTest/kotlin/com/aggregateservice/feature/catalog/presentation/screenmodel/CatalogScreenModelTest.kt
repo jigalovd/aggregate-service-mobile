@@ -7,6 +7,7 @@ import com.aggregateservice.core.location.LocationProviderFactory
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
+import com.aggregateservice.feature.catalog.presentation.cache.LocationCache
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.model.SearchResult
 import com.aggregateservice.feature.catalog.domain.model.Service
@@ -51,6 +52,7 @@ class CatalogScreenModelTest {
      * On Android: requires setActivity() to be called first
      */
     private lateinit var locationProvider: LocationProvider
+    private lateinit var locationCache: LocationCache
 
     @BeforeTest
     fun setup() {
@@ -60,6 +62,7 @@ class CatalogScreenModelTest {
 
         // Create LocationProvider via factory
         locationProvider = LocationProviderFactory.create()
+        locationCache = LocationCache()
     }
 
     @AfterTest
@@ -72,7 +75,7 @@ class CatalogScreenModelTest {
             searchProvidersUseCase = createSearchProvidersUseCase(),
             getCategoriesUseCase = createGetCategoriesUseCase(),
             locationProvider = locationProvider,
-            locationCache = com.aggregateservice.feature.catalog.presentation.cache.LocationCache(),
+            locationCache = locationCache,
             logger = Logger.withTag("Test"),
         )
     }
