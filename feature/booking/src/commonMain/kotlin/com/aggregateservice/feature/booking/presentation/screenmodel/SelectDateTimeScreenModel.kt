@@ -21,16 +21,6 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.todayIn
 import kotlin.time.Clock
 
-/**
- * ScreenModel для экрана выбора даты и времени.
- *
- * **Responsibilities:**
- * - Загрузка доступных слотов для мастера
- * - Управление выбором даты
- * - Управление выбором временного слота
- *
- * @property getAvailableSlotsUseCase UseCase для загрузки слотов
- */
 class SelectDateTimeScreenModel(
     private val getAvailableSlotsUseCase: GetAvailableSlotsUseCase,
     private val logger: Logger,
@@ -38,45 +28,43 @@ class SelectDateTimeScreenModel(
     private val _uiState = MutableStateFlow(SelectDateTimeUiState.Initial)
     val uiState: StateFlow<SelectDateTimeUiState> = _uiState.asStateFlow()
 
-    /**
-     * Загружает доступные слоты для мастера на определённую дату.
-     *
-     * @param providerId ID мастера
-     * @param serviceIds Список ID услуг (для вычисления длительности)
-     */
     fun loadAvailableSlots(providerId: String, serviceIds: List<String>) {
+        if (_uiState.value.isLoading) {
+            return
+        }
+
         screenModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
 
-            // Загружаем слоты на BOOKING_HORIZON_DAYS дней
-            val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
-            val allSlots = mutableListOf<com.aggregateservice.feature.booking.domain.model.TimeSlot>()
+            try {
+                val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+                val horizonDays = SelectDateTimeUiState.BOOKING_HORIZON_DAYS - 1
+                val endDate = today.plus(horizonDays, DateTimeUnit.DAY)
 
-            for (i in 0 until SelectDateTimeUiState.BOOKING_HORIZON_DAYS) {
-                val date = today.plus(i, DateTimeUnit.DAY)
-                getAvailableSlotsUseCase(providerId, date, serviceIds).fold(
-                    onSuccess = { slots -> allSlots.addAll(slots) },
+                getAvailableSlotsUseCase(providerId, today, endDate, serviceIds).fold(
+                    onSuccess = { slots ->
+                        _uiState.update {
+                            SelectDateTimeUiState(
+                                availableSlots = slots,
+                                isLoading = false,
+                            )
+                        }
+                    },
                     onFailure = { error ->
                         val appError = (error as? AppError) ?: error.toAppError()
-                        logger.w(appError) { "Failed to load slots for day, continuing" }
+                        logger.w(appError) { "Failed to load slots" }
+                        _uiState.update {
+                            it.copy(isLoading = false, error = appError)
+                        }
                     },
                 )
-            }
-
-            _uiState.update {
-                SelectDateTimeUiState(
-                    availableSlots = allSlots,
-                    isLoading = false,
-                )
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isLoading = false) }
+                throw e
             }
         }
     }
 
-    /**
-     * Выбирает дату.
-     *
-     * @param date Выбранная дата
-     */
     fun selectDate(date: LocalDate) {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val maxDate = today.plus(SelectDateTimeUiState.BOOKING_HORIZON_DAYS, DateTimeUnit.DAY)
@@ -85,26 +73,18 @@ class SelectDateTimeScreenModel(
         _uiState.update { state ->
             state.copy(
                 selectedDate = date,
-                selectedSlot = null, // Reset slot when date changes
+                selectedSlot = null,
                 bookingHorizonVisible = isBeyondHorizon,
             )
         }
     }
 
-    /**
-     * Выбирает временной слот.
-     *
-     * @param slot Выбранный слот
-     */
     fun selectSlot(slot: com.aggregateservice.feature.booking.domain.model.TimeSlot) {
         _uiState.update { state ->
             state.copy(selectedSlot = slot)
         }
     }
 
-    /**
-     * Очищает ошибку.
-     */
     fun clearError() {
         _uiState.update { state ->
             state.copy(error = null)
