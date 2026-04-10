@@ -10,7 +10,8 @@ import com.aggregateservice.feature.profile.presentation.screen.ProfileScreen
  * Sealed class representing bottom navigation items.
  *
  * Each item has a title, icon identifier, and associated Screen.
- * Screen instances are cached to ensure ScreenModel state persists across tab switches.
+ * Note: navigator.replace() destroys ScreenModels on tab switch.
+ * Repository-level caching compensates for ScreenModel recreation.
  */
 sealed class BottomNavItem(
     val title: String,
