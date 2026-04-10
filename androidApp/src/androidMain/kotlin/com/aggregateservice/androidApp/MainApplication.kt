@@ -15,10 +15,12 @@ import com.aggregateservice.feature.favorites.di.favoritesModule
 import com.aggregateservice.feature.profile.di.profileModule
 import com.aggregateservice.feature.reviews.di.reviewsModule
 import com.aggregateservice.feature.services.di.servicesModule
+import io.ktor.client.HttpClient
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
+import org.koin.core.qualifier.named
 
 class MainApplication : Application() {
     override fun onCreate() {
@@ -44,6 +46,11 @@ class MainApplication : Application() {
                 favoritesModule,
                 reviewsModule,
             )
+
+            // Pre-warm heavy Koin singletons so first Compose composition
+            // doesn't trigger their creation (~200-400ms each).
+            koin.get<HttpClient>(named("auth"))
+            koin.get<HttpClient>()
         }
     }
 
