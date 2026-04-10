@@ -8,6 +8,7 @@ import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.presentation.cache.LocationCache
+import com.aggregateservice.feature.catalog.domain.repository.LocationRepository
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.model.SearchResult
 import com.aggregateservice.feature.catalog.domain.model.Service
@@ -33,6 +34,14 @@ import kotlin.test.assertTrue
  * Note: LocationProvider is an expect class with platform-specific implementations.
  * This test uses LocationProviderFactory to create instances.
  */
+
+private class FakeLocationRepository : LocationRepository {
+    private var saved: Location? = null
+    override suspend fun getSavedLocation(): Location? = saved
+    override suspend fun saveLocation(location: Location) { saved = location }
+    override suspend fun clearSavedLocation() { saved = null }
+}
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class CatalogScreenModelTest {
     private val testDispatcher = StandardTestDispatcher()
@@ -62,7 +71,7 @@ class CatalogScreenModelTest {
 
         // Create LocationProvider via factory
         locationProvider = LocationProviderFactory.create()
-        locationCache = LocationCache()
+        locationCache = LocationCache(FakeLocationRepository())
     }
 
     @AfterTest
