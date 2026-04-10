@@ -48,11 +48,11 @@ class SelectDateTimeScreenModel(
         screenModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
 
-            // Загружаем слоты на ближайшие 7 дней
+            // Загружаем слоты на BOOKING_HORIZON_DAYS дней
             val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
             val allSlots = mutableListOf<com.aggregateservice.feature.booking.domain.model.TimeSlot>()
 
-            for (i in 0..6) {
+            for (i in 0 until SelectDateTimeUiState.BOOKING_HORIZON_DAYS) {
                 val date = today.plus(i, DateTimeUnit.DAY)
                 getAvailableSlotsUseCase(providerId, date, serviceIds).fold(
                     onSuccess = { slots -> allSlots.addAll(slots) },
