@@ -72,6 +72,9 @@ data class SearchFilters(
     }
 
     companion object {
+        /** Minimum distance (km) between locations to trigger a re-search. */
+        const val LOCATION_CHANGE_THRESHOLD_KM = 1.0
+
         /**
          * Пустые фильтры (по умолчанию).
          */
