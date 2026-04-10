@@ -84,28 +84,33 @@ class CatalogScreenModel(
     val uiState: StateFlow<CatalogUiState> = _uiState.asStateFlow()
 
     init {
-        // Restore cached location (survives ScreenModel recreation)
-        locationCache.lastKnownLocation?.let { loc ->
-            _uiState.value =
-                _uiState.value.copy(
-                    userLocation = loc,
-                    filters =
-                        _uiState.value.filters.copy(
-                            latitude = loc.latitude,
-                            longitude = loc.longitude,
-                            radiusKm = DEFAULT_RADIUS_KM,
-                        ),
-                )
-        }
         loadCategories()
 
-        if (locationCache.lastKnownLocation != null) {
-            // Fast path: cached location → search immediately
-            searchProviders()
-            refreshLocationInBackground()
-        } else {
-            // Slow path (first app launch only): wait for GPS → single API request
-            requestLocationAndSearch()
+        // Location-dependent work: restore persisted location, then decide path
+        screenModelScope.launch {
+            locationCache.restore()
+
+            locationCache.lastKnownLocation?.let { loc ->
+                _uiState.value =
+                    _uiState.value.copy(
+                        userLocation = loc,
+                        filters =
+                            _uiState.value.filters.copy(
+                                latitude = loc.latitude,
+                                longitude = loc.longitude,
+                                radiusKm = DEFAULT_RADIUS_KM,
+                            ),
+                    )
+            }
+
+            if (locationCache.lastKnownLocation != null) {
+                // Fast path: persisted or cached location -> search immediately
+                searchProviders()
+                refreshLocationInBackground()
+            } else {
+                // Slow path: no location at all -> wait for GPS
+                requestLocationAndSearch()
+            }
         }
     }
 
@@ -348,6 +353,7 @@ class CatalogScreenModel(
                                                 radiusKm = DEFAULT_RADIUS_KM,
                                             ),
                                     )
+                                locationCache.update(location)
                             },
                             onFailure = { error ->
                                 val appError = (error as? AppError) ?: error.toAppError()
