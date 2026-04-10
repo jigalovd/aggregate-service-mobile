@@ -1,5 +1,6 @@
 package com.aggregateservice.core.common.model
 
+import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.pow
@@ -39,12 +40,12 @@ data class Location(
      */
     fun distanceTo(other: Location): Double {
         val earthRadiusKm = 6371.0
-        val latDistance = Math.toRadians(other.latitude - latitude)
-        val lonDistance = Math.toRadians(other.longitude - longitude)
+        val latDistance = (other.latitude - latitude) * PI / 180.0
+        val lonDistance = (other.longitude - longitude) * PI / 180.0
         val a =
             sin(latDistance / 2).pow(2.0) +
-                cos(Math.toRadians(latitude)) *
-                cos(Math.toRadians(other.latitude)) *
+                cos(latitude * PI / 180.0) *
+                cos(other.latitude * PI / 180.0) *
                 sin(lonDistance / 2).pow(2.0)
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
         return earthRadiusKm * c
