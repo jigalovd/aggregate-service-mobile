@@ -6,6 +6,7 @@ import co.touchlab.kermit.Logger
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.core.favorites_api.FavoritesToggle
+import com.aggregateservice.feature.catalog.domain.repository.CatalogRepository
 import com.aggregateservice.feature.catalog.domain.usecase.GetProviderDetailsUseCase
 import com.aggregateservice.feature.catalog.domain.usecase.GetProviderServicesUseCase
 import com.aggregateservice.feature.catalog.presentation.model.ProviderDetailUiState
@@ -35,6 +36,7 @@ class ProviderDetailScreenModel(
     private val getProviderDetailsUseCase: GetProviderDetailsUseCase,
     private val getProviderServicesUseCase: GetProviderServicesUseCase,
     private val favoritesToggle: FavoritesToggle,
+    private val catalogRepository: CatalogRepository,
     private val logger: Logger,
 ) : ScreenModel {
     // UI State
@@ -164,6 +166,8 @@ class ProviderDetailScreenModel(
             result.fold(
                 onSuccess = {
                     _uiState.value = currentState.copy(isFavorite = !currentState.isFavorite)
+                    // Invalidate catalog cache — favorite status changed
+                    catalogRepository.invalidateCache()
                 },
                 onFailure = { error ->
                     val appError = error.toAppError()
@@ -216,7 +220,7 @@ class ProviderDetailScreenModel(
      */
     fun retry() {
         providerId?.let { id ->
-            loadingId = null // Reset so retry works
+            loadingId = id // Set so stale-request guard passes
             loadProviderDetails(id)
             loadProviderServices(id)
         }

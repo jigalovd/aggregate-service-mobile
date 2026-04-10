@@ -72,6 +72,7 @@ val catalogModule =
                 getProviderDetailsUseCase = get(),
                 getProviderServicesUseCase = get(),
                 favoritesToggle = get(),
+                catalogRepository = get(),
                 logger = Logger.withTag("Catalog"),
             )
         }

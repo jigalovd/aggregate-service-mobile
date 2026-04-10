@@ -104,6 +104,7 @@ class ProviderDetailScreenModelTest {
                 com.aggregateservice.feature.catalog.domain.usecase
                     .GetProviderServicesUseCase(repository),
             favoritesToggle = mockFavoritesToggle,
+            catalogRepository = repository,
             logger = Logger.withTag("Test"),
         )
     }
