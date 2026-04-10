@@ -19,49 +19,42 @@ import kotlin.time.Clock
  * - Уже забронированных слотов
  * - Длительности выбранных услуг
  *
- * **Usage:**
- * ```kotlin
- * val slots = getAvailableSlotsUseCase(
- *     providerId = "provider-123",
- *     date = LocalDate(2026, 3, 25),
- *     serviceIds = listOf("service-1", "service-2")
- * )
- * slots.fold(
- *     onSuccess = { availableSlots -> showTimeSlots(availableSlots) },
- *     onFailure = { error -> showError(error) }
- * )
- * ```
+ * Поддерживает запрос слотов на диапазон дат (batch loading).
  */
 class GetAvailableSlotsUseCase(
     private val repository: BookingRepository,
 ) {
     suspend operator fun invoke(
         providerId: String,
-        date: LocalDate,
+        fromDate: LocalDate,
+        toDate: LocalDate,
         serviceIds: List<String>,
     ): Result<List<TimeSlot>> {
-        // Validation: providerId
         if (providerId.isBlank()) {
             return Result.failure(
                 AppError.FormValidation("providerId", ValidationRule.Required),
             )
         }
 
-        // Validation: serviceIds
         if (serviceIds.isEmpty()) {
             return Result.failure(
                 AppError.FormValidation("serviceIds", ValidationRule.NotEmpty),
             )
         }
 
-        // Validation: date not in the past
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
-        if (date < today) {
+        if (fromDate < today) {
             return Result.failure(
-                AppError.FormValidation("date", ValidationRule.InvalidFormat),
+                AppError.FormValidation("fromDate", ValidationRule.InvalidFormat),
             )
         }
 
-        return repository.getAvailableSlots(providerId, date, serviceIds)
+        if (toDate < fromDate) {
+            return Result.failure(
+                AppError.FormValidation("toDate", ValidationRule.InvalidFormat),
+            )
+        }
+
+        return repository.getAvailableSlots(providerId, fromDate, toDate, serviceIds)
     }
 }
