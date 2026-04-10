@@ -75,6 +75,8 @@ class SearchScreenModelTest {
 
                 override suspend fun searchServices(query: String, filters: SearchFilters): Result<SearchResult<Service>> =
                     Result.success(SearchResult.empty())
+
+                override fun invalidateCache() { /* no-op for tests */ }
             }
 
         return SearchScreenModel(

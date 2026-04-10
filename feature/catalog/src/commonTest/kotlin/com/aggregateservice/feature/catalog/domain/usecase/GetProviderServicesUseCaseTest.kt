@@ -325,5 +325,7 @@ class GetProviderServicesUseCaseTest {
         ): Result<SearchResult<Service>> {
             return Result.success(SearchResult.empty())
         }
+
+        override fun invalidateCache() { /* no-op for tests */ }
     }
 }

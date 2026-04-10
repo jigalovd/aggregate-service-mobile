@@ -300,5 +300,7 @@ class GetProviderDetailsUseCaseTest {
         ): Result<SearchResult<com.aggregateservice.feature.catalog.domain.model.Service>> {
             return Result.success(SearchResult.empty())
         }
+
+        override fun invalidateCache() { /* no-op for tests */ }
     }
 }

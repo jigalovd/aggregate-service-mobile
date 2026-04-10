@@ -82,4 +82,10 @@ interface CatalogRepository {
         query: String,
         filters: SearchFilters = SearchFilters.Empty,
     ): Result<SearchResult<Service>>
+
+    /**
+     * Invalidates cached data (providers, services, search results).
+     * Call after mutations that change provider data (favorite toggle, review submission).
+     */
+    fun invalidateCache()
 }

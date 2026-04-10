@@ -17,7 +17,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -102,6 +102,8 @@ class CatalogScreenModelTest {
 
                     override suspend fun searchServices(query: String, filters: SearchFilters): Result<SearchResult<Service>> =
                         Result.success(SearchResult.empty())
+
+                    override fun invalidateCache() { /* no-op for tests */ }
                 },
         )
     }
@@ -129,6 +131,8 @@ class CatalogScreenModelTest {
 
                     override suspend fun searchServices(query: String, filters: SearchFilters): Result<SearchResult<Service>> =
                         Result.success(SearchResult.empty())
+
+                    override fun invalidateCache() { /* no-op for tests */ }
                 },
         )
     }
