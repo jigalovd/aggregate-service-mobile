@@ -6,6 +6,7 @@ import com.aggregateservice.feature.catalog.data.mapper.ProviderMapper
 import com.aggregateservice.feature.catalog.data.mapper.ServiceMapper
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
+import com.aggregateservice.feature.catalog.domain.model.ProviderDetailData
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.model.SearchResult
 import com.aggregateservice.feature.catalog.domain.model.Service
@@ -117,6 +118,28 @@ class CatalogRepositoryImpl(
                 Result.success(provider)
             },
             onFailure = { error: Throwable ->
+                Result.failure(error)
+            },
+        )
+    }
+
+    override suspend fun getProviderDetail(providerId: String): Result<ProviderDetailData> {
+        val result = apiService.getProviderDetail(providerId)
+
+        return result.fold(
+            onSuccess = { compositeDto ->
+                val provider = ProviderMapper.toDomain(compositeDto.provider)
+                val services = compositeDto.services.map { ServiceMapper.toDomain(it) }
+                providerCache.put(providerId, provider)
+                Result.success(
+                    ProviderDetailData(
+                        provider = provider,
+                        services = services,
+                        isFavorite = compositeDto.isFavorite,
+                    ),
+                )
+            },
+            onFailure = { error ->
                 Result.failure(error)
             },
         )

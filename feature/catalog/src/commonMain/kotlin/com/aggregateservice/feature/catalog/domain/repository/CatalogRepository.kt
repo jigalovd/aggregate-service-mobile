@@ -2,6 +2,7 @@ package com.aggregateservice.feature.catalog.domain.repository
 
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
+import com.aggregateservice.feature.catalog.domain.model.ProviderDetailData
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.model.SearchResult
 import com.aggregateservice.feature.catalog.domain.model.Service
@@ -34,6 +35,14 @@ interface CatalogRepository {
      * @return Result с Provider при успехе, или AppError при ошибке
      */
     suspend fun getProviderById(providerId: String): Result<Provider>
+
+    /**
+     * Composite: provider + services + favorite status in one request.
+     *
+     * @param providerId ID мастера
+     * @return Result with ProviderDetailData (provider, services, isFavorite)
+     */
+    suspend fun getProviderDetail(providerId: String): Result<ProviderDetailData>
 
     /**
      * Получает список всех категорий услуг.

@@ -6,6 +6,7 @@ import com.aggregateservice.feature.catalog.data.dto.CategoryDto
 import com.aggregateservice.feature.catalog.data.dto.ProviderDto
 import com.aggregateservice.feature.catalog.data.dto.ServiceDto
 import com.aggregateservice.feature.catalog.data.dto.request.ProviderSearchRequestDto
+import com.aggregateservice.feature.catalog.data.dto.response.ProviderCompositeDto
 import com.aggregateservice.feature.catalog.data.dto.response.ProviderSearchResponseDto
 import com.aggregateservice.feature.catalog.data.dto.response.ServiceListResponseDto
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
@@ -87,6 +88,19 @@ class CatalogApiService(
     }
 
     /**
+     * Composite: provider + services + favorite status in one request.
+     *
+     * **Endpoint:** GET /api/v1/catalog/providers/{id}/detail
+     */
+    suspend fun getProviderDetail(providerId: String): Result<ProviderCompositeDto> {
+        return safeApiCall<ProviderCompositeDto> {
+            client.get("/api/v1/catalog/providers/$providerId/detail") {
+                contentType(ContentType.Application.Json)
+            }
+        }
+    }
+
+    /**
      * Получение списка категорий.
      *
      * **Endpoint:** GET /api/v1/catalog/categories
@@ -123,7 +137,7 @@ class CatalogApiService(
     suspend fun getProviderServices(
         providerId: String,
         categoryId: String?,
-    ): Result<ServiceListResponseDto> {
+    ): Result<List<ServiceDto>> {
         return safeApiCall<ServiceListResponseDto> {
             client.get("/api/v1/catalog/providers/$providerId/services") {
                 contentType(ContentType.Application.Json)
@@ -131,7 +145,7 @@ class CatalogApiService(
                     url { parameters.append("categoryId", it.toString()) }
                 }
             }
-        }
+        }.mapCatching { response -> response.services }
     }
 
     /**
