@@ -69,18 +69,18 @@ object ProfileScreen : Screen {
 
         // Observe auth state reactively
         val authState by authStateProvider.authState.collectAsState()
-        val isAuthenticated = authState is AuthState.Authenticated
 
         // Navigate to login screen when not authenticated
-        LaunchedEffect(isAuthenticated) {
-            if (!isAuthenticated) {
+        // Use push (not replaceAll) so LoginScreen can pop back here after login
+        LaunchedEffect(authState) {
+            if (authState !is AuthState.Authenticated) {
                 navigator.push(authNavigator.createLoginScreen())
             }
         }
 
-        // Load profile when authenticated
-        LaunchedEffect(isAuthenticated) {
-            if (isAuthenticated) {
+        // Load profile only when authenticated
+        LaunchedEffect(authState) {
+            if (authState is AuthState.Authenticated) {
                 screenModel.loadProfile()
             }
         }
