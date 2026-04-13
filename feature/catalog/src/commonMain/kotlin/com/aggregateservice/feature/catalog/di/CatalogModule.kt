@@ -9,8 +9,6 @@ import com.aggregateservice.feature.catalog.data.repository.LocationRepositoryIm
 import com.aggregateservice.feature.catalog.domain.repository.CatalogRepository
 import com.aggregateservice.feature.catalog.domain.repository.LocationRepository
 import com.aggregateservice.feature.catalog.domain.usecase.GetCategoriesUseCase
-import com.aggregateservice.feature.catalog.domain.usecase.GetProviderDetailsUseCase
-import com.aggregateservice.feature.catalog.domain.usecase.GetProviderServicesUseCase
 import com.aggregateservice.feature.catalog.domain.usecase.SearchProvidersUseCase
 import com.aggregateservice.feature.catalog.navigation.CatalogNavigatorImpl
 import com.aggregateservice.feature.catalog.presentation.cache.LocationCache
@@ -59,8 +57,6 @@ val catalogModule =
 
         // UseCases (Domain layer)
         factoryOf(::SearchProvidersUseCase)
-        factoryOf(::GetProviderDetailsUseCase)
-        factoryOf(::GetProviderServicesUseCase)
         factoryOf(::GetCategoriesUseCase)
 
         // Location persistence (domain interface → DataStore impl)
