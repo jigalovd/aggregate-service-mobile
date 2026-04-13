@@ -3,12 +3,9 @@ package com.aggregateservice.feature.catalog.presentation.screenmodel
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import co.touchlab.kermit.Logger
-import com.aggregateservice.core.network.AppError
 import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.core.favorites_api.FavoritesToggle
 import com.aggregateservice.feature.catalog.domain.repository.CatalogRepository
-import com.aggregateservice.feature.catalog.domain.usecase.GetProviderDetailsUseCase
-import com.aggregateservice.feature.catalog.domain.usecase.GetProviderServicesUseCase
 import com.aggregateservice.feature.catalog.presentation.model.ProviderDetailUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,82 +15,55 @@ import kotlinx.coroutines.launch
 /**
  * ScreenModel для экрана деталей мастера (Presentation слой).
  *
- * **Architecture:**
- * - ScreenModel (Voyager) = ViewModel в MVVM архитектуре
- * - Хранит UI state
- * - Обрабатывает пользовательские действия (intents)
- * - Вызывает UseCases из Domain слоя
+ * Использует composite endpoint /providers/{id}/detail для загрузки
+ * provider + services + is_favorite в одном HTTP запросе вместо трёх.
  *
- * **UDF Pattern:** Unidirectional Data Flow
- * - UI отображает state
- * - UI отправляет intents (события)
- * - ScreenModel обрабатывает intents и обновляет state
+ * Фильтрация по категориям — клиентская (in-memory).
  *
- * @property getProviderDetailsUseCase UseCase для получения деталей мастера
- * @property getProviderServicesUseCase UseCase для получения услуг мастера
+ * @property catalogRepository Repository с composite getProviderDetail()
+ * @property favoritesToggle Для добавления/удаления из избранного
  */
 class ProviderDetailScreenModel(
-    private val getProviderDetailsUseCase: GetProviderDetailsUseCase,
-    private val getProviderServicesUseCase: GetProviderServicesUseCase,
-    private val favoritesToggle: FavoritesToggle,
     private val catalogRepository: CatalogRepository,
+    private val favoritesToggle: FavoritesToggle,
     private val logger: Logger,
 ) : ScreenModel {
-    // UI State
     private val _uiState = MutableStateFlow<ProviderDetailUiState>(ProviderDetailUiState.Loading)
     val uiState: StateFlow<ProviderDetailUiState> = _uiState.asStateFlow()
 
-    // Provider ID для загрузки
     private var providerId: String? = null
-
-    // Loading ID guard для предотвращения race conditions
     private var loadingId: String? = null
 
-    /**
-     * Инициализирует ScreenModel с ID мастера.
-     *
-     * **Intent:** Экран открыт с providerId
-     *
-     * @param id ID мастера
-     */
     fun initialize(id: String) {
-        if (providerId == id) return // Already loaded
-        if (loadingId == id) return // Loading already in progress for this id
+        if (providerId == id) return
+        if (loadingId == id) return
 
         loadingId = id
         providerId = id
-        loadProviderDetails(id)
-        loadProviderServices(id)
+        loadProviderDetail(id)
     }
 
-    /**
-     * Загружает детали мастера.
-     *
-     * **Intent:** Пользователь открыл экран или потянул для обновления
-     */
-    private fun loadProviderDetails(id: String) {
+    private fun loadProviderDetail(id: String) {
         _uiState.value = ProviderDetailUiState.Loading
 
         screenModelScope.launch {
-            getProviderDetailsUseCase(id)
+            catalogRepository.getProviderDetail(id)
                 .fold(
-                    onSuccess = { provider ->
-                        // Check that we're still loading the same provider (race condition guard)
+                    onSuccess = { detail ->
                         if (loadingId != id) return@launch
-
-                        val isFavorite = favoritesToggle.isFavorite(id).getOrElse { false }
-                        _uiState.value =
-                            _uiState.value.copy(
-                                provider = provider,
-                                isLoading = false,
-                                error = null,
-                                isFavorite = isFavorite,
-                            )
+                        _uiState.value = _uiState.value.copy(
+                            provider = detail.provider,
+                            services = detail.services,
+                            isFavorite = detail.isFavorite ?: false,
+                            isLoading = false,
+                            isLoadingServices = false,
+                            error = null,
+                        )
                     },
                     onFailure = { error ->
                         if (loadingId != id) return@launch
                         val appError = error.toAppError()
-                        logger.w(appError) { "Failed to load provider details: ${appError::class.simpleName}" }
+                        logger.w(appError) { "Failed to load provider detail: ${appError::class.simpleName}" }
                         _uiState.value = ProviderDetailUiState.error(appError)
                     },
                 )
@@ -101,56 +71,13 @@ class ProviderDetailScreenModel(
     }
 
     /**
-     * Загружает услуги мастера.
-     *
-     * **Intent:** Пользователь открыл экран или изменил фильтр категории
-     */
-    private fun loadProviderServices(id: String, categoryId: String? = null) {
-        _uiState.value = _uiState.value.copy(isLoadingServices = true)
-
-        screenModelScope.launch {
-            getProviderServicesUseCase(id, categoryId)
-                .fold(
-                    onSuccess = { services ->
-                        _uiState.value =
-                            _uiState.value.copy(
-                                services = services,
-                                isLoadingServices = false,
-                            )
-                    },
-                    onFailure = { error ->
-                        val appError = (error as? AppError) ?: error.toAppError()
-                        logger.w(appError) { "Failed to load provider services, continuing" }
-                        _uiState.value =
-                            _uiState.value.copy(
-                                isLoadingServices = false,
-                            )
-                    },
-                )
-        }
-    }
-
-    /**
-     * Обновляет выбранную категорию для фильтрации услуг.
-     *
-     * **Intent:** Пользователь выбрал категорию в фильтре
-     *
-     * @param categoryId ID категории или null для всех услуг
+     * Обновляет выбранную категорию (клиентская фильтрация).
+     * Услуги загружены в памяти, дополнительный API вызов не нужен.
      */
     fun onCategorySelected(categoryId: String?) {
         _uiState.value = _uiState.value.copy(selectedCategoryId = categoryId)
-
-        // Перезагружаем услуги с фильтром
-        providerId?.let { id ->
-            loadProviderServices(id, categoryId)
-        }
     }
 
-    /**
-     * Переключает статус избранного.
-     *
-     * **Intent:** Пользователь нажал кнопку "В избранное"
-     */
     fun onFavoriteToggle() {
         val currentState = _uiState.value
         val providerId = currentState.provider?.id ?: return
@@ -166,38 +93,24 @@ class ProviderDetailScreenModel(
             result.fold(
                 onSuccess = {
                     _uiState.value = currentState.copy(isFavorite = !currentState.isFavorite)
-                    // Invalidate catalog cache — favorite status changed
                     catalogRepository.invalidateCache()
                 },
                 onFailure = { error ->
                     val appError = error.toAppError()
                     logger.w(appError) { "Favorite toggle failed: ${appError::class.simpleName}" }
-                    _uiState.value =
-                        currentState.copy(
-                            error = appError,
-                        )
+                    _uiState.value = currentState.copy(error = appError)
                 },
             )
         }
     }
 
-    /**
-     * Обновляет данные (pull-to-refresh).
-     *
-     * **Intent:** Пользователь потянул для обновления
-     */
     fun onRefresh() {
         providerId?.let { id ->
-            loadProviderDetails(id)
-            loadProviderServices(id, _uiState.value.selectedCategoryId)
+            loadingId = id
+            loadProviderDetail(id)
         }
     }
 
-    /**
-     * Очищает ошибку.
-     *
-     * **Intent:** Пользователь закрыл error dialog
-     */
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
     }
@@ -213,16 +126,10 @@ class ProviderDetailScreenModel(
         _uiState.value = _uiState.value.copy(selectedServiceIds = newSelection)
     }
 
-    /**
-     * Повторяет загрузку после ошибки.
-     *
-     * **Intent:** Пользователь нажал "Повторить" на экране ошибки
-     */
     fun retry() {
         providerId?.let { id ->
-            loadingId = id // Set so stale-request guard passes
-            loadProviderDetails(id)
-            loadProviderServices(id)
+            loadingId = id
+            loadProviderDetail(id)
         }
     }
 }

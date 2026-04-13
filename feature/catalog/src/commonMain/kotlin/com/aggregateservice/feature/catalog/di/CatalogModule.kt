@@ -39,10 +39,8 @@ import org.koin.dsl.module
  *         └── CatalogRepository
  *
  * ProviderDetailScreenModel
- *   ├── GetProviderDetailsUseCase
- *   │     └── CatalogRepository
- *   └── GetProviderServicesUseCase
- *         └── CatalogRepository
+ *   ├── CatalogRepository.getProviderDetail() (composite: 1 HTTP call)
+ *   └── FavoritesToggle (add/remove only)
  * ```
  *
  * **Important:** Все зависимости разрешаются через Koin DI container.
@@ -75,10 +73,8 @@ val catalogModule =
         factory { CatalogScreenModel(get(), get(), get(), get(), Logger.withTag("Catalog")) }
         factory {
             ProviderDetailScreenModel(
-                getProviderDetailsUseCase = get(),
-                getProviderServicesUseCase = get(),
-                favoritesToggle = get(),
                 catalogRepository = get(),
+                favoritesToggle = get(),
                 logger = Logger.withTag("Catalog"),
             )
         }
