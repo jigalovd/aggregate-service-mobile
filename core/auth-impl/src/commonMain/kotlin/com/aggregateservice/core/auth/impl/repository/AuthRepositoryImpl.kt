@@ -41,7 +41,7 @@ class AuthRepositoryImpl(
         }
 
     override suspend fun refreshToken(): Result<RefreshTokenResponse> =
-        safeApiCall {
+        safeApiCall<RefreshTokenResponse> {
             val refreshToken = tokenStorage.getRefreshTokenSync()
             authClient.post("/api/v1/auth/refresh") {
                 contentType(ContentType.Application.Json)
