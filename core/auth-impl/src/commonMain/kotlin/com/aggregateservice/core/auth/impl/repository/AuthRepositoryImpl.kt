@@ -49,6 +49,8 @@ class AuthRepositoryImpl(
                     setBody(mapOf("refresh_token" to refreshToken))
                 }
             }
+        }.onSuccess { response ->
+            response.refreshToken?.let { tokenStorage.saveRefreshToken(it) }
         }
 
     override suspend fun logout() {
