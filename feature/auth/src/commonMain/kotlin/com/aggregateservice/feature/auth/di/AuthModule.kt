@@ -21,7 +21,6 @@ import com.aggregateservice.core.auth.impl.usecase.SignInUseCaseImpl
 import com.aggregateservice.core.config.AppConfig
 import com.aggregateservice.core.firebase.AuthProviderApi
 import com.aggregateservice.core.network.createHttpClient
-import co.touchlab.kermit.Logger
 import com.aggregateservice.core.storage.TokenStorage
 import com.aggregateservice.feature.auth.AuthNavigatorImpl
 import io.ktor.client.HttpClient
@@ -38,6 +37,7 @@ val authModule =
             AuthRepositoryImpl(
                 httpClient = get(),
                 authClient = get(named("auth")),
+                tokenStorage = get(),
             )
         }
         single { AuthStateMachine(get(), get(), get()) }
@@ -115,7 +115,4 @@ val authModule =
 
         // AuthNavigator (presentation)
         singleOf(::AuthNavigatorImpl) bind AuthNavigator::class
-
-        // Logger for feature modules
-        factory<Logger> { Logger.withTag("Auth") }
     }
