@@ -17,9 +17,6 @@ import kotlinx.coroutines.flow.map
  * - Thread-safe operations
  * - Encrypted storage on Android (via DataStore)
  *
- * **Note:** Refresh token is stored in HTTP-only cookie on iOS.
- * This storage only manages the access token on all platforms.
- *
  * @see BACKEND_API_REFERENCE.md секция 3.1 "JWT токены"
  */
 interface TokenStorage {
@@ -45,6 +42,20 @@ interface TokenStorage {
     suspend fun saveAccessToken(token: String)
 
     /**
+     * Get the current refresh token synchronously.
+     *
+     * @return Refresh token or null if not found
+     */
+    suspend fun getRefreshTokenSync(): String?
+
+    /**
+     * Save the refresh token.
+     *
+     * @param token Refresh token to save
+     */
+    suspend fun saveRefreshToken(token: String)
+
+    /**
      * Clear all stored tokens (logout).
      */
     suspend fun clearTokens()
@@ -55,9 +66,7 @@ interface TokenStorage {
  *
  * **Storage keys:**
  * - `KEY_ACCESS_TOKEN`: JWT access token (15 min expiration)
- *
- * **Note:** Refresh token is stored in HTTP-only cookie by the backend.
- * We don't need to manage it on the client side.
+ * - `KEY_REFRESH_TOKEN`: JWT refresh token
  *
  * @param dataStore DataStore Preferences instance
  */
@@ -66,6 +75,7 @@ class TokenStorageImpl(
 ) : TokenStorage {
     companion object {
         private val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
+        private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
     }
 
     override fun getAccessToken(): Flow<String?> =
@@ -82,9 +92,19 @@ class TokenStorageImpl(
         }
     }
 
+    override suspend fun getRefreshTokenSync(): String? =
+        dataStore.data.map { preferences -> preferences[REFRESH_TOKEN_KEY] }.first()
+
+    override suspend fun saveRefreshToken(token: String) {
+        dataStore.edit { preferences ->
+            preferences[REFRESH_TOKEN_KEY] = token
+        }
+    }
+
     override suspend fun clearTokens() {
         dataStore.edit { preferences ->
             preferences.remove(ACCESS_TOKEN_KEY)
+            preferences.remove(REFRESH_TOKEN_KEY)
         }
     }
 }
