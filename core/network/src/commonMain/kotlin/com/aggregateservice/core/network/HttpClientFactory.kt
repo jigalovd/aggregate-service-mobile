@@ -102,7 +102,6 @@ fun createHttpClient(
             url {
                 protocol = if (isHttps) URLProtocol.HTTPS else URLProtocol.HTTP
                 this.host = host
-                parameters.append("api_version", apiVersion)
             }
         }
     }

@@ -37,13 +37,17 @@ class CatalogRepositoryImpl(
     )
 
     // Private cache key generator — keeps domain model clean
-    private fun SearchFilters.toCacheKey(): String =
-        "${page}_${pageSize}_" +
+    // GPS coordinates rounded to 3 decimals (~111m) to avoid cache misses on GPS drift
+    private fun SearchFilters.toCacheKey(): String {
+        val latKey = latitude?.let { "%.3f".format(it) } ?: "N"
+        val lonKey = longitude?.let { "%.3f".format(it) } ?: "N"
+        return "${page}_${pageSize}_" +
             "${categoryIds.sorted().joinToString(",")}_" +
-            "${latitude ?: "N"}_${longitude ?: "N"}_${radiusKm ?: "N"}_" +
+            "${latKey}_${lonKey}_${radiusKm ?: "N"}_" +
             "${sortBy}_${sortOrder}_" +
             "${minRating ?: "N"}_${isVerified ?: "N"}_" +
             "${query ?: "N"}"
+    }
 
     private fun <T> MutableMap<String, CacheEntry<T>>.getIfFresh(key: String, ttlMs: Long): T? {
         val entry = this[key] ?: return null
@@ -158,8 +162,8 @@ class CatalogRepositoryImpl(
         val result = apiService.getProviderServices(providerId, categoryId)
 
         return result.fold(
-            onSuccess = { response ->
-                val domainServices = response.services.map { ServiceMapper.toDomain(it) }
+            onSuccess = { services ->
+                val domainServices = services.map { ServiceMapper.toDomain(it) }
                 servicesCache.put(cacheKey, domainServices)
                 Result.success(domainServices)
             },
