@@ -3,7 +3,7 @@ package com.aggregateservice.core.auth.impl.repository
 import com.aggregateservice.core.auth.impl.repository.dto.AuthResponse
 import com.aggregateservice.core.auth.impl.repository.dto.UserResponse
 import com.aggregateservice.core.auth.state.VerifyResult
-import com.aggregateservice.core.storage.TokenStorage
+import com.aggregateservice.core.storage.TokenStore
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -12,8 +12,6 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlin.test.BeforeTest
@@ -26,11 +24,11 @@ import kotlin.test.assertTrue
 class AuthRepositoryImplTest {
     private val json = Json { ignoreUnknownKeys = true }
     private lateinit var repository: AuthRepositoryImpl
-    private lateinit var tokenStorage: FakeTokenStorage
+    private lateinit var tokenStore: FakeTokenStore
 
     @BeforeTest
     fun setup() {
-        tokenStorage = FakeTokenStorage()
+        tokenStore = FakeTokenStore()
         val mockEngine =
             MockEngine { request ->
                 when {
@@ -70,7 +68,7 @@ class AuthRepositoryImplTest {
             AuthRepositoryImpl(
                 httpClient = httpClient,
                 authClient = httpClient,
-                tokenStorage = tokenStorage,
+                tokenStore = tokenStore,
             )
     }
 
@@ -94,31 +92,32 @@ class AuthRepositoryImplTest {
         }
 
     @Test
-    fun `verifyFirebaseToken saves refresh_token to TokenStorage`() =
+    fun `verifyFirebaseToken saves tokens to TokenStore`() =
         runTest {
-            assertNull(tokenStorage.savedRefreshToken)
+            assertNull(tokenStore.savedRefreshToken)
             repository.verifyFirebaseToken("google", "firebase-token")
-            assertEquals("test-refresh-token", tokenStorage.savedRefreshToken)
+            assertEquals("test-refresh-token", tokenStore.savedRefreshToken)
+            assertEquals("test-token", tokenStore.savedAccessToken)
         }
 }
 
-class FakeTokenStorage : TokenStorage {
+class FakeTokenStore : TokenStore {
+    var savedAccessToken: String? = null
+        private set
     var savedRefreshToken: String? = null
         private set
 
-    override fun getAccessToken(): Flow<String?> = flowOf(null)
+    override suspend fun getAccessToken(): String? = savedAccessToken
 
-    override suspend fun getAccessTokenSync(): String? = null
+    override suspend fun getRefreshToken(): String? = savedRefreshToken
 
-    override suspend fun saveAccessToken(token: String) = Unit
-
-    override suspend fun getRefreshTokenSync(): String? = null
-
-    override suspend fun saveRefreshToken(token: String) {
-        savedRefreshToken = token
+    override suspend fun saveTokens(accessToken: String, refreshToken: String) {
+        savedAccessToken = accessToken
+        savedRefreshToken = refreshToken
     }
 
     override suspend fun clearTokens() {
+        savedAccessToken = null
         savedRefreshToken = null
     }
 }

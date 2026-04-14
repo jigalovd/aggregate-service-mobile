@@ -10,6 +10,9 @@ import com.aggregateservice.feature.booking.domain.model.Booking
 import com.aggregateservice.feature.booking.domain.model.BookingService
 import com.aggregateservice.feature.booking.domain.model.TimeSlot
 import com.aggregateservice.feature.booking.domain.repository.BookingRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 
@@ -97,8 +100,8 @@ class BookingRepositoryImpl(
         fromDate: LocalDate,
         toDate: LocalDate,
         serviceIds: List<String>,
-    ): Result<List<TimeSlot>> {
-        return apiService.getAvailableSlots(providerId, fromDate, toDate, serviceIds).fold(
+    ): Result<List<TimeSlot>> = withContext(Dispatchers.IO) {
+        apiService.getAvailableSlots(providerId, fromDate, toDate, serviceIds).fold(
             onSuccess = { dtos -> Result.success(BookingMapper.toDomainSlots(dtos)) },
             onFailure = { error -> Result.failure(error) },
         )

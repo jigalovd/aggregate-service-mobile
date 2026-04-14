@@ -44,7 +44,7 @@ class LoginScreen : Screen {
         val signInUseCase: SignInUseCase = koinInject()
         val authStateProvider: AuthStateProvider = koinInject()
         val authProviderApi: AuthProviderApi = koinInject()
-        val logger: Logger = koinInject()
+        val logger = Logger.withTag("Auth")
         val screenModel =
             rememberScreenModel {
                 LoginScreenModel(signInUseCase, authStateProvider, authProviderApi, logger)

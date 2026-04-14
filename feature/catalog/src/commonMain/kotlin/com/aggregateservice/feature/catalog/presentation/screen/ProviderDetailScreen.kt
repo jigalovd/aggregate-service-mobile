@@ -463,7 +463,7 @@ fun SelectedServicesBar(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
-                    text = "$selectedCount services",
+                    text = i18nProvider.get(StringKey.Plurals.SERVICES_COUNT, selectedCount),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Text(
@@ -474,7 +474,7 @@ fun SelectedServicesBar(
             }
             Spacer(modifier = Modifier.height(Spacing.XS))
             Text(
-                text = "$totalDurationMinutes min",
+                text = i18nProvider.get(StringKey.Plurals.MINUTES, totalDurationMinutes),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

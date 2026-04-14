@@ -3,6 +3,11 @@
     {
       "id": "s1a2b3c4-d5e6-7890-abcd-ef1234567890",
       "category_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "category_name": {
+        "ru": "Стрижка и укладка",
+        "he": "תספורת ועיצוב",
+        "en": "Haircut and Styling"
+      },
       "title": {
         "ru": "Женская стрижка",
         "he": "תספורת נשים",
@@ -27,6 +32,11 @@
     {
       "id": "s2b3c4d5-e6f7-8901-bcde-f23456789012",
       "category_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "category_name": {
+        "ru": "Стрижка и укладка",
+        "he": "תספורת ועיצוב",
+        "en": "Haircut and Styling"
+      },
       "title": {
         "ru": "Мужская стрижка",
         "he": "תספורת גברים",
@@ -51,6 +61,11 @@
     {
       "id": "s3c4d5e6-f7a8-9012-cdef-345678901234",
       "category_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "category_name": {
+        "ru": "Стрижка и укладка",
+        "he": "תספורת ועיצוב",
+        "en": "Haircut and Styling"
+      },
       "title": {
         "ru": "Покраска волос",
         "he": "צביעת שיער",

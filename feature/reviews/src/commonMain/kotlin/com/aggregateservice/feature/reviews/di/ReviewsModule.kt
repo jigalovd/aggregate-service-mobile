@@ -39,7 +39,6 @@ val reviewsModule =
         factoryOf(::CreateReviewUseCase)
 
         // ScreenModels (Presentation layer)
-        factory<Logger> { Logger.withTag("Reviews") }
-        factoryOf(::ReviewsScreenModel)
-        factoryOf(::WriteReviewScreenModel)
+        factory { ReviewsScreenModel(get(), get(), Logger.withTag("Reviews")) }
+        factory { WriteReviewScreenModel(get(), get(), Logger.withTag("Reviews")) }
     }

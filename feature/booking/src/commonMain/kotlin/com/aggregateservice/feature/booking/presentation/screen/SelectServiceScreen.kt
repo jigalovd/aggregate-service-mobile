@@ -67,12 +67,14 @@ data class SelectServiceScreen(
             uiState = uiState,
             onServiceToggle = screenModel::toggleServiceSelection,
             onContinue = {
-                val selectedIds = uiState.selectedServices.map { it.id }
+                val selected = uiState.selectedServices
+                val selectedIds = selected.map { it.id }
                 navigator.push(
                     SelectDateTimeScreen(
                         providerId = providerId,
                         providerName = providerName,
                         serviceIds = selectedIds,
+                        services = selected,
                     ),
                 )
             },

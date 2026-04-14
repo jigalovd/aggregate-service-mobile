@@ -14,11 +14,13 @@ fun initLogging(context: Context, enableLogging: Boolean) {
     val writers = mutableListOf<LogWriter>(LogcatWriter())
 
     if (enableLogging) {
+        val logsDir = context.filesDir.resolve("logs")
+        logsDir.mkdirs()
         writers.add(
             RollingFileLogWriter(
                 RollingFileLogWriterConfig(
                     logFileName = "aggregate-service",
-                    logFilePath = Path(context.filesDir.resolve("logs").path),
+                    logFilePath = Path(logsDir.path),
                     rollOnSize = 10 * 1024 * 1024,
                     maxLogFiles = 7,
                     logTag = true,

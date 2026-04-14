@@ -17,7 +17,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -30,27 +29,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aggregateservice.core.i18n.I18nProvider
+import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.core.theme.Spacing
+import com.aggregateservice.feature.booking.domain.model.TimeSlot
+import com.aggregateservice.feature.booking.presentation.model.RescheduleSheetState
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-
-data class RescheduleSheetState(
-    val selectedDate: LocalDate? = null,
-    val slots: List<com.aggregateservice.feature.booking.domain.model.TimeSlot> = emptyList(),
-    val selectedSlot: com.aggregateservice.feature.booking.domain.model.TimeSlot? = null,
-    val isLoading: Boolean = false,
-    val error: com.aggregateservice.core.network.AppError? = null,
-)
+import kotlinx.datetime.plus
+import kotlinx.datetime.todayIn
+import kotlin.time.Clock
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun RescheduleBottomSheet(
     providerId: String,
     state: RescheduleSheetState,
+    i18nProvider: I18nProvider,
     onDateSelected: (LocalDate) -> Unit,
-    onSlotSelected: (com.aggregateservice.feature.booking.domain.model.TimeSlot) -> Unit,
+    onSlotSelected: (TimeSlot) -> Unit,
     onSubmit: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -68,20 +66,19 @@ fun RescheduleBottomSheet(
                 .padding(Spacing.MD),
         ) {
             Text(
-                text = "Reschedule booking",
+                text = i18nProvider[StringKey.Booking.RESCHEDULE_TITLE],
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
             )
 
             Spacer(modifier = Modifier.height(Spacing.MD))
 
-            // Date picker — next 30 days
             DateSelector(
                 selectedDate = state.selectedDate,
                 onDateSelected = onDateSelected,
+                i18nProvider = i18nProvider,
             )
 
-            // Slots grid
             if (state.isLoading) {
                 Box(
                     modifier = Modifier.fillMaxWidth().height(100.dp),
@@ -91,12 +88,15 @@ fun RescheduleBottomSheet(
                 }
             } else if (state.error != null) {
                 Text(
-                    text = state.error!!.message ?: "Error loading slots",
+                    text = i18nProvider[StringKey.Booking.ERROR_LOADING_SLOTS],
                     color = MaterialTheme.colorScheme.error,
                 )
             } else if (state.slots.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(Spacing.MD))
-                Text("Available times:", style = MaterialTheme.typography.titleSmall)
+                Text(
+                    text = i18nProvider[StringKey.Scheduling.AVAILABLE_SLOTS],
+                    style = MaterialTheme.typography.titleSmall,
+                )
                 Spacer(modifier = Modifier.height(Spacing.SM))
 
                 FlowRow(
@@ -110,35 +110,40 @@ fun RescheduleBottomSheet(
                         ) {
                             Text(
                                 text = slot.formattedStartTime,
-                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                                color = if (isSelected) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface
+                                },
                             )
                         }
                     }
                 }
             } else if (state.selectedDate != null) {
                 Spacer(modifier = Modifier.height(Spacing.SM))
-                Text("No available slots", style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    text = i18nProvider[StringKey.Scheduling.NO_SLOTS_AVAILABLE],
+                    style = MaterialTheme.typography.bodyMedium,
+                )
             }
 
-            // Optional reason
             Spacer(modifier = Modifier.height(Spacing.MD))
             TextField(
                 value = reason,
                 onValueChange = { reason = it },
-                label = { Text("Reason (optional)") },
+                label = { Text(i18nProvider[StringKey.Booking.REASON_OPTIONAL]) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
             )
 
             Spacer(modifier = Modifier.height(Spacing.MD))
 
-            // Submit button
             Button(
                 onClick = { onSubmit(reason) },
                 enabled = state.selectedSlot != null,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Reschedule")
+                Text(i18nProvider[StringKey.Booking.RESCHEDULE])
             }
 
             Spacer(modifier = Modifier.height(Spacing.LG))
@@ -147,30 +152,37 @@ fun RescheduleBottomSheet(
 }
 
 @Composable
-fun DateSelector(
+private fun DateSelector(
     selectedDate: LocalDate?,
     onDateSelected: (LocalDate) -> Unit,
+    i18nProvider: I18nProvider,
 ) {
-    val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+    val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
     Column {
-        Text("Select date:", style = MaterialTheme.typography.titleSmall)
+        Text(
+            text = i18nProvider[StringKey.Scheduling.SELECT_DATE],
+            style = MaterialTheme.typography.titleSmall,
+        )
         Spacer(modifier = Modifier.height(Spacing.SM))
 
-        // Show next 7 days as quick options
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(Spacing.SM),
             verticalArrangement = Arrangement.spacedBy(Spacing.SM),
         ) {
-            (0..6).forEach { offset ->
-                val date = today.plus(kotlinx.datetime.DatePeriod(days = offset))
+            (0..29).forEach { offset ->
+                val date = today.plus(offset, DateTimeUnit.DAY)
                 val isSelected = selectedDate == date
                 OutlinedButton(
                     onClick = { onDateSelected(date) },
                 ) {
                     Text(
-                        text = "${date.dayOfMonth}.${date.monthNumber}",
-                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                        text = "${date.day}.${date.monthNumber}",
+                        color = if (isSelected) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        },
                     )
                 }
             }

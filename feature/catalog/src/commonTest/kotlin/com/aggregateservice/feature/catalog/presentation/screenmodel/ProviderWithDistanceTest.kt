@@ -3,7 +3,7 @@ package com.aggregateservice.feature.catalog.presentation.screenmodel
 import com.aggregateservice.core.common.model.Location
 import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.domain.model.WorkingHours
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

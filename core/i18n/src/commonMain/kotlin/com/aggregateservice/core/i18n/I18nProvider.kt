@@ -198,6 +198,12 @@ object StringKey {
         const val SELECT_SLOT = "booking_select_slot"
         const val SELECT_DATE_TO_SEE = "booking_select_date_to_see"
         const val BOOK_SELECTED = "booking_book_selected"
+        const val RESCHEDULE_TITLE = "booking_reschedule_title"
+        const val RESCHEDULE = "booking_reschedule"
+        const val REASON_OPTIONAL = "booking_reason_optional"
+        const val ERROR_LOADING_SLOTS = "booking_error_loading_slots"
+        const val TOTAL = "booking_total"
+        const val DISMISS = "booking_dismiss"
 
         // Booking statuses
         const val STATUS_PENDING = "booking_status_pending"

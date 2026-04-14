@@ -34,6 +34,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.core.theme.Spacing
+import com.aggregateservice.feature.booking.domain.model.BookingService
 import com.aggregateservice.feature.booking.domain.model.TimeSlot
 import com.aggregateservice.feature.booking.presentation.screenmodel.BookingConfirmationScreenModel
 import kotlinx.datetime.Instant
@@ -55,6 +56,7 @@ data class BookingConfirmationScreen(
     val serviceIds: List<String>,
     val selectedDate: String,
     val slotStartTime: String,
+    val services: List<BookingService> = emptyList(),
 ) : Screen {
     @Composable
     override fun Content() {
@@ -76,11 +78,14 @@ data class BookingConfirmationScreen(
             screenModel.initialize(
                 providerId = providerId,
                 providerName = providerName,
-                services = emptyList(),
+                services = services,
                 selectedDate = LocalDate.parse(selectedDate),
                 selectedSlot = slot,
             )
-            screenModel.loadServices(providerId, serviceIds)
+            // Fallback: load from API only when services not passed through navigation
+            if (services.isEmpty()) {
+                screenModel.loadServices(providerId, serviceIds)
+            }
         }
 
         BookingConfirmationScreenContent(
@@ -91,8 +96,9 @@ data class BookingConfirmationScreen(
             onSubmit = screenModel::submitBooking,
             onBack = { navigator.pop() },
             onDone = {
-                // Navigate to booking history or home
+                val bookingId = uiState.booking?.id ?: return@BookingConfirmationScreenContent
                 navigator.popUntilRoot()
+                navigator.push(BookingDetailScreen(bookingId))
             },
         )
     }

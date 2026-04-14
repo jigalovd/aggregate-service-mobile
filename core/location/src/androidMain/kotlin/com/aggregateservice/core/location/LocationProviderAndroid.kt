@@ -1,6 +1,7 @@
 package com.aggregateservice.core.location
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
@@ -55,6 +56,7 @@ actual class LocationProvider actual constructor() {
             }
     }
 
+    @SuppressLint("MissingPermission")
     actual suspend fun getCurrentLocation(accuracy: LocationAccuracy): Result<Location> {
         val locationResult = withTimeoutOrNull(5_000L) {
             suspendCancellableCoroutine { continuation ->

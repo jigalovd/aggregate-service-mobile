@@ -3,8 +3,8 @@ package com.aggregateservice.core.auth.impl.state
 import com.aggregateservice.core.auth.contract.RefreshTokenUseCase
 import com.aggregateservice.core.auth.impl.repository.AuthRepository
 import com.aggregateservice.core.auth.impl.repository.dto.UserResponse
-import com.aggregateservice.core.auth.impl.token.TokenManager
 import com.aggregateservice.core.auth.state.AuthState
+import com.aggregateservice.core.storage.TokenStore
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -15,17 +15,17 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class AuthStateMachineTest {
-    private lateinit var tokenManager: TokenManager
+    private lateinit var tokenStore: TokenStore
     private lateinit var repository: AuthRepository
     private lateinit var refreshTokenUseCase: RefreshTokenUseCase
     private lateinit var stateMachine: AuthStateMachine
 
     @BeforeTest
     fun setup() {
-        tokenManager = mockk(relaxed = true)
+        tokenStore = mockk(relaxed = true)
         repository = mockk(relaxed = true)
         refreshTokenUseCase = mockk(relaxed = true)
-        stateMachine = AuthStateMachine(tokenManager, repository, refreshTokenUseCase)
+        stateMachine = AuthStateMachine(tokenStore, repository, refreshTokenUseCase)
     }
 
     @Test
@@ -37,7 +37,7 @@ class AuthStateMachineTest {
     @Test
     fun `initialize with no token emits Guest`() =
         runTest {
-            coEvery { tokenManager.getAccessToken() } returns null
+            coEvery { tokenStore.getAccessToken() } returns null
             stateMachine.initialize()
             assertIs<AuthState.Guest>(stateMachine.state.value)
         }
@@ -45,7 +45,7 @@ class AuthStateMachineTest {
     @Test
     fun `initialize with valid token emits Authenticated`() =
         runTest {
-            coEvery { tokenManager.getAccessToken() } returns "valid-token"
+            coEvery { tokenStore.getAccessToken() } returns "valid-token"
             coEvery { repository.getCurrentUser() } returns
                 Result.success(
                     UserResponse(id = "user-1", email = "test@example.com"),
@@ -59,7 +59,7 @@ class AuthStateMachineTest {
     @Test
     fun `initialize with expired token attempts refresh and retries`() =
         runTest {
-            coEvery { tokenManager.getAccessToken() } returns "expired-token"
+            coEvery { tokenStore.getAccessToken() } returns "expired-token"
             coEvery { repository.getCurrentUser() } returns Result.failure(Exception("Unauthorized"))
             coEvery { refreshTokenUseCase() } returns Result.success("new-token")
             // Second call to getCurrentUser succeeds with new token
@@ -81,28 +81,27 @@ class AuthStateMachineTest {
     @Test
     fun `initialize with expired token emits Guest when refresh also fails`() =
         runTest {
-            coEvery { tokenManager.getAccessToken() } returns "expired-token"
+            coEvery { tokenStore.getAccessToken() } returns "expired-token"
             coEvery { repository.getCurrentUser() } returns Result.failure(Exception("Unauthorized"))
             coEvery { refreshTokenUseCase() } returns Result.failure(Exception("Refresh failed"))
 
             stateMachine.initialize()
             assertIs<AuthState.Guest>(stateMachine.state.value)
-            coVerify(exactly = 1) { tokenManager.clearTokens() }
         }
 
     @Test
-    fun `emitGuest emits Guest and clears tokens`() =
+    fun `emitGuest emits Guest without clearing tokens`() =
         runTest {
             stateMachine.emitGuest()
             assertIs<AuthState.Guest>(stateMachine.state.value)
-            coVerify { tokenManager.clearTokens() }
+            // emitGuest does NOT clear tokens — only logout does
+            coVerify(exactly = 0) { tokenStore.clearTokens() }
         }
 
     @Test
-    fun `signIn sets token and emits Authenticated`() =
+    fun `signIn emits Authenticated`() =
         runTest {
             stateMachine.signIn(
-                accessToken = "new-token",
                 userId = "user-2",
                 email = "new@example.com",
                 roles = setOf("client"),
@@ -114,6 +113,5 @@ class AuthStateMachineTest {
             assertEquals("new@example.com", state.email)
             assertEquals(setOf("client"), state.roles)
             assertEquals("client", state.currentRole)
-            coVerify { tokenManager.setTokens("new-token") }
         }
 }

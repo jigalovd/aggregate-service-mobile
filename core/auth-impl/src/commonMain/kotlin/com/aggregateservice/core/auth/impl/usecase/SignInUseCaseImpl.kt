@@ -16,7 +16,6 @@ class SignInUseCaseImpl(
             onSuccess = { verifyResult ->
                 val authenticated = verifyResult as VerifyResult.Authenticated
                 authStateMachine.signIn(
-                    accessToken = authenticated.accessToken,
                     userId = authenticated.userId,
                     email = authenticated.email,
                     roles = authenticated.roles,

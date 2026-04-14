@@ -116,6 +116,7 @@ kotlin {
 
             // Logging - Kermit via core:logging module
             implementation(project(":core:logging"))
+            implementation("uk.uuid.slf4j:slf4j-android:2.0.16-0")
         }
     }
 }

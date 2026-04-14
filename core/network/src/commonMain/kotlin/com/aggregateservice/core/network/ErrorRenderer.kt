@@ -7,8 +7,9 @@ fun AppError.toUserMessage(i18n: I18nProvider): String =
     when (this) {
         is AppError.FormValidation -> {
             val key = "validation.${rule.name.lowercase()}"
-            val params = parameters + ("field" to field)
-            i18n.get(key, *params.values.toTypedArray())
+            val templateArgs = parameters.values.toTypedArray()
+            val templateMessage = i18n.get(key, *templateArgs)
+            "$field: $templateMessage"
         }
 
         is AppError.NetworkError -> message

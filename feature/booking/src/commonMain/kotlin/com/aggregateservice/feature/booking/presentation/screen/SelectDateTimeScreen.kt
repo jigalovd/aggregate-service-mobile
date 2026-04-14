@@ -40,6 +40,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.core.theme.Spacing
+import com.aggregateservice.feature.booking.domain.model.BookingService
 import com.aggregateservice.feature.booking.domain.model.TimeSlot
 import com.aggregateservice.feature.booking.presentation.screenmodel.SelectDateTimeScreenModel
 import kotlinx.datetime.DateTimeUnit
@@ -61,6 +62,7 @@ data class SelectDateTimeScreen(
     val providerId: String,
     val providerName: String,
     val serviceIds: List<String>,
+    val services: List<BookingService> = emptyList(),
 ) : Screen {
     @Composable
     override fun Content() {
@@ -90,6 +92,7 @@ data class SelectDateTimeScreen(
                                 serviceIds = serviceIds,
                                 selectedDate = date.toString(),
                                 slotStartTime = slot.startTime.toString(),
+                                services = services,
                             ),
                         )
                     }

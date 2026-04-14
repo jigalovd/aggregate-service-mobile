@@ -1,30 +1,33 @@
 package com.aggregateservice.feature.booking.data.dto
 
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
  * DTO для response API услуг при бронировании (GET /providers/{id}/services).
  *
- * **Feature Isolation:** Собственный DTO для booking, не зависит от catalog.
- * Содержит только поля, необходимые для бронирования.
+ * Соответствует backend PublicProviderServiceItemResponse.
+ * Содержит i18n-поля (Map<String, String>) для title/description,
+ * которые маппятся в плоские строки в ServiceMapper.
  *
- * @property id Уникальный идентификатор услуги
- * @property name Название услуги
- * @property description Описание услуги
- * @property price Цена услуги
- * @property currency Код валюты
+ * @property id Уникальный идентификатор ProviderService
+ * @property titleMap Название услуги (i18n map: {ru, he, en})
+ * @property descriptionMap Описание услуги (i18n map)
+ * @property priceInCents Цена услуги (base_price из backend)
  * @property durationMinutes Длительность в минутах
  */
 @Serializable
 data class ServiceDto(
     val id: String,
-    val name: String,
-    val description: String? = null,
-    val price: Double,
-    val currency: String = "ILS",
-    @SerialName("durationMinutes")
-    val durationMinutes: Int,
-    @SerialName("isCombinable")
-    val isCombinable: Boolean = true,
+    val providerId: String? = null,
+    @SerialName("category_id") val categoryId: String,
+    @SerialName("category_name") val categoryNameMap: Map<String, String>,
+    @SerialName("title") val titleMap: Map<String, String>,
+    @SerialName("description") val descriptionMap: Map<String, String>? = null,
+    @SerialName("base_price") val priceInCents: Int,
+    @SerialName("duration_minutes") val durationMinutes: Int,
+    @SerialName("is_active") val isActive: Boolean = true,
+    @SerialName("is_combinable") val isCombinable: Boolean = true,
+    @SerialName("created_at") val createdAt: Instant,
 )

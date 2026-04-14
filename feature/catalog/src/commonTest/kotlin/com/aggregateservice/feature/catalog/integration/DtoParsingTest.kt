@@ -279,4 +279,17 @@ class DtoParsingTest {
         assertEquals(8000, dto.services[1].priceInCents)
         assertEquals(35000, dto.services[2].priceInCents)
     }
+
+    // ========== Provider Services Endpoint Tests ==========
+
+    @Test
+    fun `provider services response parses with services wrapper`() {
+        val jsonString = loadFixture("provider_services_response.json")
+        val dto = json.decodeFromString<ServiceListResponseDto>(jsonString)
+
+        assertNotNull(dto.services)
+        assertEquals(2, dto.services.size)
+        assertEquals(2, dto.total)
+        assertEquals("s1a2b3c4-d5e6-7890-abcd-ef1234567890", dto.services[0].id)
+    }
 }

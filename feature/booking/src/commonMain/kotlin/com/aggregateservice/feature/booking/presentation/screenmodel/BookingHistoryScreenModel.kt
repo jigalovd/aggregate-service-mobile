@@ -26,6 +26,7 @@ class BookingHistoryScreenModel(
     private val pageSize: Int = GetClientBookingsUseCase.DEFAULT_PAGE_SIZE
     var hasMore: Boolean = true
         private set
+    private var isLoadingMore: Boolean = false
 
     fun loadBookings() {
         currentPage = 1
@@ -62,7 +63,8 @@ class BookingHistoryScreenModel(
     }
 
     fun loadMore() {
-        if (!hasMore || _uiState.value.isLoading) return
+        if (!hasMore || isLoadingMore) return
+        isLoadingMore = true
         currentPage++
 
         screenModelScope.launch {
@@ -85,6 +87,7 @@ class BookingHistoryScreenModel(
                     logger.w(appError) { "Failed to load more bookings" }
                 },
             )
+            isLoadingMore = false
         }
     }
 

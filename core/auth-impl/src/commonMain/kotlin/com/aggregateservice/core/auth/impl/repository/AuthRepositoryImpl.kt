@@ -5,7 +5,7 @@ import com.aggregateservice.core.auth.impl.repository.dto.RefreshTokenResponse
 import com.aggregateservice.core.auth.impl.repository.dto.UserResponse
 import com.aggregateservice.core.auth.state.VerifyResult
 import com.aggregateservice.core.network.safeApiCall
-import com.aggregateservice.core.storage.TokenStorage
+import com.aggregateservice.core.storage.TokenStore
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -18,7 +18,7 @@ import kotlinx.serialization.Serializable
 class AuthRepositoryImpl(
     private val httpClient: HttpClient,
     private val authClient: HttpClient,
-    private val tokenStorage: TokenStorage,
+    private val tokenStore: TokenStore,
 ) : AuthRepository {
     override suspend fun verifyFirebaseToken(
         provider: String,
@@ -30,7 +30,7 @@ class AuthRepositoryImpl(
                 setBody(FirebaseVerifyRequest(firebaseToken = token, provider = provider))
             }
         }.map { response: AuthResponse ->
-            response.refreshToken?.let { tokenStorage.saveRefreshToken(it) }
+            response.refreshToken?.let { tokenStore.saveTokens(response.accessToken, it) }
             VerifyResult.Authenticated(
                 accessToken = response.accessToken,
                 userId = response.user.id,
@@ -42,7 +42,7 @@ class AuthRepositoryImpl(
 
     override suspend fun refreshToken(): Result<RefreshTokenResponse> =
         safeApiCall<RefreshTokenResponse> {
-            val refreshToken = tokenStorage.getRefreshTokenSync()
+            val refreshToken = tokenStore.getRefreshToken()
             authClient.post("/api/v1/auth/refresh") {
                 contentType(ContentType.Application.Json)
                 if (refreshToken != null) {
@@ -50,7 +50,10 @@ class AuthRepositoryImpl(
                 }
             }
         }.onSuccess { response ->
-            response.refreshToken?.let { tokenStorage.saveRefreshToken(it) }
+            val newRefresh = response.refreshToken
+            if (newRefresh != null) {
+                tokenStore.saveTokens(response.accessToken, newRefresh)
+            }
         }
 
     override suspend fun logout() {

@@ -46,11 +46,15 @@ import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.feature.booking.domain.model.Booking
 import com.aggregateservice.feature.booking.domain.model.BookingStatus
+import com.aggregateservice.feature.booking.domain.model.TimeSlot
 import com.aggregateservice.feature.booking.presentation.component.RescheduleBottomSheet
+import com.aggregateservice.feature.booking.presentation.model.BookingDetailUiState
+import com.aggregateservice.feature.booking.presentation.model.RescheduleSheetState
 import com.aggregateservice.feature.booking.presentation.screenmodel.BookingDetailScreenModel
 import kotlinx.coroutines.launch
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.koinInject
-import org.koin.core.parameter.parametersOf
 
 data class BookingDetailScreen(
     val bookingId: String,
@@ -58,7 +62,7 @@ data class BookingDetailScreen(
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val screenModel = koinScreenModel<BookingDetailScreenModel> { parametersOf() }
+        val screenModel = koinScreenModel<BookingDetailScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
         val i18nProvider: I18nProvider = koinInject()
 
@@ -87,14 +91,14 @@ data class BookingDetailScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookingDetailScreenContent(
-    uiState: com.aggregateservice.feature.booking.presentation.model.BookingDetailUiState,
-    rescheduleState: com.aggregateservice.feature.booking.presentation.component.RescheduleSheetState,
+    uiState: BookingDetailUiState,
+    rescheduleState: RescheduleSheetState,
     i18nProvider: I18nProvider,
     onBackClick: () -> Unit,
     onCancelClick: (String) -> Unit,
     onRetry: () -> Unit,
     onLoadSlots: (String, kotlinx.datetime.LocalDate, List<String>) -> Unit,
-    onSelectSlot: (com.aggregateservice.feature.booking.domain.model.TimeSlot) -> Unit,
+    onSelectSlot: (TimeSlot) -> Unit,
     onSubmitReschedule: (String) -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -105,7 +109,7 @@ fun BookingDetailScreenContent(
     LaunchedEffect(uiState.cancelError) {
         uiState.cancelError?.let { error ->
             scope.launch {
-                snackbarHostState.showSnackbar(error.message ?: "Error")
+                snackbarHostState.showSnackbar(error.message ?: i18nProvider[StringKey.ERROR])
             }
         }
     }
@@ -139,7 +143,7 @@ fun BookingDetailScreenContent(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = uiState.error!!.message ?: "Error",
+                            text = uiState.error!!.message ?: i18nProvider[StringKey.ERROR],
                             style = MaterialTheme.typography.bodyMedium,
                         )
                         Spacer(modifier = Modifier.height(Spacing.MD))
@@ -165,7 +169,7 @@ fun BookingDetailScreenContent(
                         shape = MaterialTheme.shapes.small,
                     ) {
                         Text(
-                            text = booking.status.name,
+                            text = statusLabel(booking.status, i18nProvider),
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
                             style = MaterialTheme.typography.labelMedium,
                         )
@@ -229,7 +233,7 @@ fun BookingDetailScreenContent(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                             ) {
                                 Text(
-                                    text = "Total",
+                                    text = i18nProvider[StringKey.Booking.TOTAL],
                                     fontWeight = FontWeight.Bold,
                                 )
                                 Text(
@@ -267,7 +271,7 @@ fun BookingDetailScreenContent(
                                     onClick = { showRescheduleSheet = true },
                                     modifier = Modifier.weight(1f),
                                 ) {
-                                    Text("Reschedule")
+                                    Text(i18nProvider[StringKey.Booking.RESCHEDULE])
                                 }
                             }
                             if (booking.canCancel) {
@@ -309,7 +313,7 @@ fun BookingDetailScreenContent(
             },
             dismissButton = {
                 OutlinedButton(onClick = { showCancelDialog = false }) {
-                    Text("Cancel")
+                    Text(i18nProvider[StringKey.Booking.DISMISS])
                 }
             },
         )
@@ -322,6 +326,7 @@ fun BookingDetailScreenContent(
             RescheduleBottomSheet(
                 providerId = booking.providerId,
                 state = rescheduleState,
+                i18nProvider = i18nProvider,
                 onDateSelected = { date ->
                     onLoadSlots(booking.providerId, date, booking.items.map { it.serviceId })
                 },
@@ -347,7 +352,19 @@ private fun statusColor(status: BookingStatus): androidx.compose.ui.graphics.Col
         BookingStatus.NO_SHOW -> androidx.compose.ui.graphics.Color(0xFFFF5722)
     }
 
+private fun statusLabel(status: BookingStatus, i18nProvider: I18nProvider): String =
+    when (status) {
+        BookingStatus.PENDING -> i18nProvider[StringKey.Booking.STATUS_PENDING]
+        BookingStatus.CONFIRMED -> i18nProvider[StringKey.Booking.STATUS_CONFIRMED]
+        BookingStatus.IN_PROGRESS -> i18nProvider[StringKey.Booking.STATUS_IN_PROGRESS]
+        BookingStatus.COMPLETED -> i18nProvider[StringKey.Booking.STATUS_COMPLETED]
+        BookingStatus.CANCELLED -> i18nProvider[StringKey.Booking.STATUS_CANCELLED]
+        BookingStatus.EXPIRED -> i18nProvider[StringKey.Booking.STATUS_EXPIRED]
+        BookingStatus.NO_SHOW -> i18nProvider[StringKey.Booking.STATUS_NO_SHOW]
+    }
+
 private fun formatBookingDateTime(booking: Booking): String {
-    val start = booking.startTime.toString().replace("T", " ").take(16)
-    return start
+    val instant = booking.startTime
+    val dateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+    return "${dateTime.year}-${dateTime.monthNumber.toString().padStart(2, '0')}-${dateTime.dayOfMonth.toString().padStart(2, '0')} ${dateTime.hour.toString().padStart(2, '0')}:${dateTime.minute.toString().padStart(2, '0')}"
 }

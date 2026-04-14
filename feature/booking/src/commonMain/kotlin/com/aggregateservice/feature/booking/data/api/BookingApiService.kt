@@ -5,6 +5,7 @@ import com.aggregateservice.feature.booking.data.dto.BookingDto
 import com.aggregateservice.feature.booking.data.dto.CancelRequest
 import com.aggregateservice.feature.booking.data.dto.CreateBookingRequest
 import com.aggregateservice.feature.booking.data.dto.RescheduleRequest
+import com.aggregateservice.feature.booking.data.dto.ServiceListResponseDto
 import com.aggregateservice.feature.booking.data.dto.ServiceDto
 import com.aggregateservice.feature.booking.data.dto.TimeSlotDto
 import io.ktor.client.HttpClient
@@ -165,10 +166,10 @@ class BookingApiService(
      * вместо зависимости от feature:catalog.
      */
     suspend fun getProviderServices(providerId: String): Result<List<ServiceDto>> {
-        return safeApiCall<List<ServiceDto>> {
+        return safeApiCall<ServiceListResponseDto> {
             client.get("/api/v1/catalog/providers/$providerId/services") {
                 contentType(ContentType.Application.Json)
             }
-        }
+        }.map { it.services }
     }
 }

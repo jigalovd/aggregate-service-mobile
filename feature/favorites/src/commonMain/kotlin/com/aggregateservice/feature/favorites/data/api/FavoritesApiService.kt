@@ -1,6 +1,7 @@
 package com.aggregateservice.feature.favorites.data.api
 
 import com.aggregateservice.core.network.safeApiCall
+import com.aggregateservice.feature.favorites.data.dto.FavoriteCheckResponseDto
 import com.aggregateservice.feature.favorites.data.dto.FavoritesListResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
@@ -72,10 +73,10 @@ class FavoritesApiService(
      * **Endpoint:** GET /api/v1/catalog/favorites/{providerId}/check
      */
     suspend fun isFavorite(providerId: String): Result<Boolean> {
-        return safeApiCall<Boolean> {
+        return safeApiCall<FavoriteCheckResponseDto> {
             client.get("/api/v1/catalog/favorites/$providerId/check") {
                 contentType(ContentType.Application.Json)
             }
-        }
+        }.mapCatching { response -> response.isFavorite }
     }
 }

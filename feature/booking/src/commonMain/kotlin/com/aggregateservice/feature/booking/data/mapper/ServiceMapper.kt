@@ -6,7 +6,7 @@ import com.aggregateservice.feature.booking.domain.model.BookingService
 /**
  * Маппер для преобразования ServiceDto → BookingService.
  *
- * **Feature Isolation:** Преобразует DTO в собственную модель booking.
+ * Извлекает плоские строки из i18n-полей DTO (priority: ru → he → en).
  */
 object ServiceMapper {
     /**
@@ -15,10 +15,12 @@ object ServiceMapper {
     fun toDomain(dto: ServiceDto): BookingService =
         BookingService(
             id = dto.id,
-            name = dto.name,
-            description = dto.description,
-            price = dto.price,
-            currency = dto.currency,
+            name = dto.titleMap["ru"] ?: dto.titleMap["he"] ?: dto.titleMap["en"] ?: "",
+            description = dto.descriptionMap?.let {
+                it["ru"] ?: it["he"] ?: it["en"]
+            },
+            price = dto.priceInCents.toDouble(),
+            currency = "ILS",
             durationMinutes = dto.durationMinutes,
             isCombinable = dto.isCombinable,
         )

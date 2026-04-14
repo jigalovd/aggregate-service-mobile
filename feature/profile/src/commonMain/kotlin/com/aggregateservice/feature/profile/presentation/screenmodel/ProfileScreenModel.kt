@@ -39,10 +39,6 @@ class ProfileScreenModel(
     private val _uiState = MutableStateFlow(ProfileUiState.Loading)
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
-    init {
-        loadProfile()
-    }
-
     /**
      * Loads the user profile.
      */

@@ -156,7 +156,7 @@ suspend inline fun <reified T : Any> safeApiCall(
                     Result.failure(
                         httpCodeToAppError(
                             code = response.status.value,
-                            message = errorBody.message ?: "Unknown error",
+                            message = errorBody.message ?: errorBody.detail ?: "Unknown error",
                         ),
                     )
                 }
@@ -196,6 +196,7 @@ suspend inline fun <reified T : Any> safeApiCall(
 data class ErrorResponse(
     val error: String? = null,
     val message: String? = null,
+    val detail: String? = null,
     val details: ErrorDetails? = null,
     @SerialName("error_id")
     val errorId: String? = null,

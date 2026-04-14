@@ -34,6 +34,5 @@ val profileModule =
         factoryOf(::UpdateProfileUseCase)
 
         // ScreenModels (Presentation layer)
-        factory<Logger> { Logger.withTag("Profile") }
-        factoryOf(::ProfileScreenModel)
+        factory { ProfileScreenModel(get(), get(), get(), get(), Logger.withTag("Profile")) }
     }

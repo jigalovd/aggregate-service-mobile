@@ -138,34 +138,44 @@ fun AppBottomNavHost(
         ) { paddingValues ->
             // Content with search button overlaid at bottom
             Box(modifier = Modifier.fillMaxSize()) {
-                currentScreen.Content()
+                // Apply Scaffold paddingValues so child screens account for NavigationBar height
+                Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+                    currentScreen.Content()
+                }
 
-                // Search button above bottom nav (per UI-02: triggers modal bottom sheet)
-                // Round light blue button - positioned at bottom end
-                Box(
-                    modifier =
-                        Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(end = 16.dp, bottom = 80.dp) // above nav bar
-                            .size(48.dp)
-                            .background(
-                                androidx.compose.ui.graphics
-                                    .Color(0xFFADD8E6),
-                                CircleShape,
-                            ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    IconButton(
-                        onClick = { showSearchSheet = true },
-                        modifier = Modifier.fillMaxSize(),
+                // Search FAB — only on tab screens, hidden on detail/pushed screens
+                val isTabScreen =
+                    bottomNavItems.any { it.screen::class.simpleName == currentScreen::class.simpleName }
+
+                if (isTabScreen) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(
+                                    end = 16.dp,
+                                    bottom = paddingValues.calculateBottomPadding() + 16.dp,
+                                )
+                                .size(48.dp)
+                                .background(
+                                    androidx.compose.ui.graphics
+                                        .Color(0xFFADD8E6),
+                                    CircleShape,
+                                ),
+                        contentAlignment = Alignment.Center,
                     ) {
-                        Icon(
-                            Icons.Default.Search,
-                            contentDescription = "Search",
-                            tint =
-                                androidx.compose.ui.graphics
-                                    .Color(0xFF333333),
-                        )
+                        IconButton(
+                            onClick = { showSearchSheet = true },
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
+                            Icon(
+                                Icons.Default.Search,
+                                contentDescription = "Search",
+                                tint =
+                                    androidx.compose.ui.graphics
+                                        .Color(0xFF333333),
+                            )
+                        }
                     }
                 }
             }

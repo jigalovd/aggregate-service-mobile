@@ -2,6 +2,7 @@ package com.aggregateservice.feature.booking.presentation.screen
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,8 +15,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -32,6 +37,7 @@ import com.aggregateservice.core.i18n.StringKey
 import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.feature.booking.domain.model.Booking
 import com.aggregateservice.feature.booking.domain.model.BookingStatus
+import com.aggregateservice.feature.booking.presentation.model.BookingHistoryUiState
 import com.aggregateservice.feature.booking.presentation.screenmodel.BookingHistoryScreenModel
 import org.koin.compose.koinInject
 
@@ -71,7 +77,7 @@ object BookingHistoryScreen : Screen {
 @Composable
 fun BookingHistoryScreenContent(
     i18nProvider: I18nProvider,
-    uiState: com.aggregateservice.feature.booking.presentation.model.BookingHistoryUiState,
+    uiState: BookingHistoryUiState,
     hasMore: Boolean,
     onRefresh: () -> Unit,
     onLoadMore: () -> Unit,
@@ -137,7 +143,7 @@ fun BookingHistoryScreenContent(
             }
 
             else -> {
-                androidx.compose.material3.pulltorefresh.PullToRefreshBox(
+                PullToRefreshBox(
                     isRefreshing = uiState.isRefreshing,
                     onRefresh = onRefresh,
                     modifier = Modifier.padding(paddingValues),
@@ -192,7 +198,7 @@ fun BookingHistoryScreenContent(
                         // Load more indicator
                         if (hasMore) {
                             item {
-                                androidx.compose.runtime.LaunchedEffect(Unit) { onLoadMore() }
+                                LaunchedEffect(Unit) { onLoadMore() }
                                 Box(
                                     modifier = Modifier.fillMaxWidth().padding(Spacing.MD),
                                     contentAlignment = Alignment.Center,
@@ -248,7 +254,7 @@ fun BookingCard(
             // Price and duration
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
                     text = booking.formattedTotalPrice,
@@ -264,7 +270,7 @@ fun BookingCard(
             // Cancel button (if applicable)
             if (onCancel != null && booking.canCancel) {
                 Spacer(modifier = Modifier.height(Spacing.SM))
-                androidx.compose.material3.TextButton(onClick = onCancel) {
+                TextButton(onClick = onCancel) {
                     Text(
                         text = i18nProvider[StringKey.Booking.CANCEL],
                         color = MaterialTheme.colorScheme.error,
@@ -288,7 +294,7 @@ fun StatusChip(status: BookingStatus, i18nProvider: I18nProvider) {
             BookingStatus.NO_SHOW -> i18nProvider[StringKey.Booking.STATUS_NO_SHOW] to MaterialTheme.colorScheme.errorContainer
         }
 
-    androidx.compose.material3.Surface(
+    Surface(
         color = color,
         shape = MaterialTheme.shapes.small,
     ) {

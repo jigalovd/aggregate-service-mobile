@@ -39,7 +39,6 @@ val servicesModule = module {
     factoryOf(::DeleteServiceUseCase)
 
     // ScreenModels (Presentation layer)
-    factory<Logger> { Logger.withTag("Services") }
-    factoryOf(::ServicesListScreenModel)
-    factoryOf(::ServiceFormScreenModel)
+    factory { ServicesListScreenModel(get(), get(), Logger.withTag("Services")) }
+    factory { ServiceFormScreenModel(get(), get(), get(), Logger.withTag("Services")) }
 }

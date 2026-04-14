@@ -2,6 +2,7 @@ package com.aggregateservice.feature.booking.presentation.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import co.touchlab.kermit.Logger
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.booking.domain.model.BookingService
 import com.aggregateservice.feature.booking.domain.usecase.GetBookingServicesUseCase
@@ -24,6 +25,7 @@ import kotlinx.coroutines.launch
  */
 class SelectServiceScreenModel(
     private val getBookingServicesUseCase: GetBookingServicesUseCase,
+    private val logger: Logger,
 ) : ScreenModel {
     private val _uiState = MutableStateFlow(SelectServiceUiState.Loading)
     val uiState: StateFlow<SelectServiceUiState> = _uiState.asStateFlow()
@@ -47,12 +49,10 @@ class SelectServiceScreenModel(
                     }
                 },
                 onFailure = { error ->
-                    _uiState.update {
-                        SelectServiceUiState.error(
-                            error as? AppError
-                                ?: AppError.UnknownError(throwable = error, message = error.message),
-                        )
-                    }
+                    val appError = error as? AppError
+                        ?: AppError.UnknownError(throwable = error, message = error.message)
+                    logger.w(appError) { "loadServices failed: ${appError::class.simpleName}" }
+                    _uiState.update { SelectServiceUiState.error(appError) }
                 },
             )
         }
