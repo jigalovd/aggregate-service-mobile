@@ -6,9 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 
 /**
- * Android implementation of [createTokenStorage].
- *
- * Uses DataStore Preferences with Android-specific configuration.
+ * Android platform-specific DataStore creation.
  */
 
 // Extension to create DataStore
@@ -23,26 +21,15 @@ private val Context.locationDataStore: DataStore<Preferences> by preferencesData
 
 /**
  * Create DataStore for location persistence on Android.
- *
- * **Usage in Koin:**
- * ```kotlin
- * single<DataStore<Preferences>>(named("location")) { createLocationDataStore(androidContext()) }
- * ```
  */
 fun createLocationDataStore(context: Context): DataStore<Preferences> = context.locationDataStore
 
 /**
- * Create [TokenStorage] for Android platform.
+ * Create [TokenStore] for Android platform.
  *
- * **Note:** This function requires Android Context.
- * It's meant to be called from Koin module with androidContext().
- *
- * **Usage in Koin:**
- * ```kotlin
- * single<TokenStorage> { createTokenStorage(androidContext()) }
- * ```
+ * Requires Android Context — call from Koin with androidContext().
  */
-fun createTokenStorage(context: Context): TokenStorage =
-    TokenStorageImpl(
+fun createTokenStore(context: Context): TokenStore =
+    TokenStoreImpl(
         dataStore = context.authDataStore,
     )

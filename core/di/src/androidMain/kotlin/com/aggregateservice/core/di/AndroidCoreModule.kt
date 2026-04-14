@@ -1,8 +1,8 @@
 package com.aggregateservice.core.di
 
-import com.aggregateservice.core.storage.TokenStorage
+import com.aggregateservice.core.storage.TokenStore
 import com.aggregateservice.core.storage.createLocationDataStore
-import com.aggregateservice.core.storage.createTokenStorage
+import com.aggregateservice.core.storage.createTokenStore
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import io.ktor.client.engine.HttpClientEngine
@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit
 
 val androidCoreModule =
     module {
-        single<TokenStorage> { createTokenStorage(androidContext()) }
+        single<TokenStore> { createTokenStore(androidContext()) }
 
         single<HttpClientEngine> {
             OkHttp.create {
