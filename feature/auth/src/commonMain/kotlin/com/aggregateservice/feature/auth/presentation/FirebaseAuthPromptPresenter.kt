@@ -1,7 +1,6 @@
 package com.aggregateservice.feature.auth.presentation
 
 import com.aggregateservice.core.auth.contract.AuthPromptTrigger
-import com.aggregateservice.core.auth.contract.AuthProvider
 import com.aggregateservice.core.auth.impl.gate.AuthPromptPresenter
 import com.aggregateservice.core.auth.impl.gate.AuthPromptResult
 import com.aggregateservice.core.firebase.AuthProviderApi

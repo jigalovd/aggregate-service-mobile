@@ -1,10 +1,10 @@
 package com.aggregateservice.core.di
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import com.aggregateservice.core.storage.TokenStore
 import com.aggregateservice.core.storage.createLocationDataStore
 import com.aggregateservice.core.storage.createTokenStore
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import org.koin.android.ext.koin.androidContext

@@ -12,7 +12,6 @@ class AuthGateImpl(
     private val signInUseCase: SignInUseCase,
     private val authPromptPresenter: AuthPromptPresenter,
 ) : AuthGate {
-
     override suspend fun <T> run(trigger: AuthPromptTrigger, action: suspend () -> T): Result<T> {
         return when (val state = authStateProvider.authState.value) {
             is AuthState.Authenticated -> runCatching { action() }
@@ -26,8 +25,9 @@ class AuthGateImpl(
         trigger: AuthPromptTrigger,
         action: suspend () -> T,
     ): Result<T> {
-        val provider = authPromptPresenter.prompt(trigger)
-            ?: return Result.failure(Exception("Sign-in cancelled"))
+        val provider =
+            authPromptPresenter.prompt(trigger)
+                ?: return Result.failure(Exception("Sign-in cancelled"))
 
         val signInResult = signInUseCase(provider.provider, provider.idToken)
         return if (signInResult.isSuccess) {
