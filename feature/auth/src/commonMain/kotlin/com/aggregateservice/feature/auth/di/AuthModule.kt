@@ -1,5 +1,6 @@
 package com.aggregateservice.feature.auth.di
 
+import com.aggregateservice.core.auth.contract.AuthGate
 import com.aggregateservice.core.auth.contract.AuthNavigator
 import com.aggregateservice.core.auth.contract.AuthStateProvider
 import com.aggregateservice.core.auth.contract.InitializeAuthUseCase
@@ -8,11 +9,11 @@ import com.aggregateservice.core.auth.contract.ObserveAuthStateUseCase
 import com.aggregateservice.core.auth.contract.RefreshTokenUseCase
 import com.aggregateservice.core.auth.contract.SignInUseCase
 import com.aggregateservice.core.auth.impl.AuthStateProviderImpl
+import com.aggregateservice.core.auth.impl.gate.AuthGateImpl
+import com.aggregateservice.core.auth.impl.gate.AuthPromptPresenter
 import com.aggregateservice.core.auth.impl.repository.AuthRepository
 import com.aggregateservice.core.auth.impl.repository.AuthRepositoryImpl
 import com.aggregateservice.core.auth.impl.state.AuthStateMachine
-import com.aggregateservice.core.auth.impl.token.TokenManager
-import com.aggregateservice.core.auth.impl.token.TokenManagerImpl
 import com.aggregateservice.core.auth.impl.usecase.InitializeAuthUseCaseImpl
 import com.aggregateservice.core.auth.impl.usecase.LogoutUseCaseImpl
 import com.aggregateservice.core.auth.impl.usecase.ObserveAuthStateUseCaseImpl
@@ -21,8 +22,9 @@ import com.aggregateservice.core.auth.impl.usecase.SignInUseCaseImpl
 import com.aggregateservice.core.config.AppConfig
 import com.aggregateservice.core.firebase.AuthProviderApi
 import com.aggregateservice.core.network.createHttpClient
-import com.aggregateservice.core.storage.TokenStorage
+import com.aggregateservice.core.storage.TokenStore
 import com.aggregateservice.feature.auth.AuthNavigatorImpl
+import com.aggregateservice.feature.auth.presentation.FirebaseAuthPromptPresenter
 import io.ktor.client.HttpClient
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
@@ -32,23 +34,19 @@ import org.koin.dsl.module
 val authModule =
     module {
         // Core:auth-impl components
-        single<TokenManager> { TokenManagerImpl(get<TokenStorage>()) }
+        single { AuthStateMachine(get<TokenStore>(), get(), get()) }
         single<AuthRepository> {
             AuthRepositoryImpl(
                 httpClient = get(),
-                authClient = get(named("auth")),
-                tokenStorage = get(),
+                authClient = get(named("unauth")),
+                tokenStore = get(),
             )
         }
-        single { AuthStateMachine(get(), get(), get()) }
 
-        // Auth-specific client WITHOUT Bearer plugin.
-        // Used for verify/refresh requests to prevent BearerAuthProvider internal
-        // mutex deadlock: refreshTokens lambda → repository.refreshToken() → same client
-        // → 401 → Bearer tries to acquire mutex again → DEADLOCK.
-        // This client shares the same HttpClientEngine (OkHttp) and has HttpCookies
-        // so the refresh token cookie from verify is available for refresh requests.
-        single<HttpClient>(named("auth")) {
+        // UnauthClient — no Bearer plugin.
+        // Used for Guest requests (catalog) and Auth Ops (verify, refresh).
+        // Shares same config as main client but without auth callbacks.
+        single<HttpClient>(named("unauth")) {
             val config = get<AppConfig>()
             createHttpClient(
                 engine = get(),
@@ -60,20 +58,20 @@ val authModule =
             )
         }
 
-        // Main HttpClient with Bearer auth plugin.
-        // Used for all authenticated API calls (profiles, bookings, etc.)
-        // refreshTokens lambda uses authClient (above) for refresh requests → no deadlock.
+        // MainClient — with Bearer auth plugin.
+        // Used for all authenticated API calls.
+        // refreshTokens lambda uses unauth client → no deadlock.
         single<HttpClient> {
             val koin = getKoin()
             val config = get<AppConfig>()
-            val tokenManager = get<TokenManager>()
+            val tokenStore = get<TokenStore>()
             createHttpClient(
                 engine = get(),
                 apiBaseUrl = config.apiBaseUrl,
                 apiVersion = config.apiVersion,
                 enableLogging = config.enableLogging,
                 loadTokens = {
-                    tokenManager.getAccessToken()?.let {
+                    tokenStore.getAccessToken()?.let {
                         io.ktor.client.plugins.auth.providers
                             .BearerTokens(accessToken = it, refreshToken = "")
                     }
@@ -95,15 +93,30 @@ val authModule =
                 authStateMachine = get(),
                 platformSignOut = { get<AuthProviderApi>().signOut() },
                 repository = get(),
+                tokenStore = get(),
             )
         }
         singleOf(::ObserveAuthStateUseCaseImpl) bind ObserveAuthStateUseCase::class
         singleOf(::SignInUseCaseImpl) bind SignInUseCase::class
         single<RefreshTokenUseCase> {
             RefreshTokenUseCaseImpl(
-                tokenManager = get(),
+                tokenStore = get(),
                 repository = get(),
                 onRefreshFailed = { get<AuthStateMachine>().emitGuest() },
+            )
+        }
+
+        // AuthGate
+        single<AuthGate> {
+            AuthGateImpl(
+                authStateProvider = get(),
+                signInUseCase = get(),
+                authPromptPresenter = get(),
+            )
+        }
+        single<AuthPromptPresenter> {
+            FirebaseAuthPromptPresenter(
+                authProviderApi = get(),
             )
         }
 

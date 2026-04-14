@@ -49,7 +49,7 @@ class MainApplication : Application() {
 
             // Pre-warm heavy Koin singletons so first Compose composition
             // doesn't trigger their creation (~200-400ms each).
-            koin.get<HttpClient>(named("auth"))
+            koin.get<HttpClient>(named("unauth"))
             koin.get<HttpClient>()
         }
     }
