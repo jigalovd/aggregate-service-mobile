@@ -1,7 +1,7 @@
 package com.aggregateservice.core.auth.impl.network
 
 import com.aggregateservice.core.auth.contract.RefreshTokenUseCase
-import com.aggregateservice.core.auth.impl.token.TokenManager
+import com.aggregateservice.core.storage.TokenStore
 import io.ktor.client.plugins.auth.providers.BearerTokens
 
 data class AuthLambdas(
@@ -10,12 +10,12 @@ data class AuthLambdas(
 )
 
 fun createAuthLambdas(
-    tokenManager: TokenManager,
+    tokenStore: TokenStore,
     refreshTokenUseCase: RefreshTokenUseCase,
 ): AuthLambdas {
     return AuthLambdas(
         loadTokens = {
-            tokenManager.getAccessToken()?.let { BearerTokens(accessToken = it, refreshToken = "") }
+            tokenStore.getAccessToken()?.let { BearerTokens(accessToken = it, refreshToken = "") }
         },
         refreshTokens = {
             val result = refreshTokenUseCase()
