@@ -72,3 +72,6 @@ config/detekt/
 /secrets.properties.template
 /.opencode/
 /gradle/wrapper/
+
+# repowise API keys (local)
+.repowise/.env
