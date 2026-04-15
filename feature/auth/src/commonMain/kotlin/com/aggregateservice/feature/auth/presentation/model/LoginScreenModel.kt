@@ -58,7 +58,8 @@ class LoginScreenModel(
                     logger.d { "signInUseCase returned, success=${signInResult.isSuccess}" }
                     signInResult.fold(
                         onSuccess = {
-                            _uiState.value = _uiState.value.copy(isLoading = false)
+                            // isLoading не сбрасывается — спиннер остаётся до navigator.pop(),
+                            // чтобы избежать моргания кнопки "Войти с Google"
                         },
                         onFailure = {
                             val appError = (it as? AppError) ?: it.toAppError()

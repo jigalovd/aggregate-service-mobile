@@ -29,10 +29,6 @@ class SelectDateTimeScreenModel(
     val uiState: StateFlow<SelectDateTimeUiState> = _uiState.asStateFlow()
 
     fun loadAvailableSlots(providerId: String, serviceIds: List<String>) {
-        if (_uiState.value.isLoading) {
-            return
-        }
-
         screenModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
 

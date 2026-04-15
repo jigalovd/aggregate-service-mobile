@@ -75,7 +75,7 @@ data class SelectDateTimeUiState(
         /**
          * Начальное состояние.
          */
-        val Initial = SelectDateTimeUiState()
+        val Initial = SelectDateTimeUiState(isLoading = true)
 
         /**
          * Максимальное количество дней для бронирования вперед.
