@@ -31,7 +31,6 @@ class CatalogRepositoryImpl(
     private val apiService: CatalogApiService,
     private val timeSource: TimeSource = TimeSource.Monotonic,
 ) : CatalogRepository {
-
     private data class CacheEntry<T>(
         val value: T,
         val timestamp: TimeMark,
@@ -89,12 +88,13 @@ class CatalogRepositoryImpl(
         return result.fold(
             onSuccess = { response ->
                 val domainProviders = response.providers.map { ProviderMapper.toDomain(it) }
-                val searchResult = SearchResult(
-                    items = domainProviders,
-                    totalCount = response.total,
-                    totalPages = (response.total + response.limit - 1) / response.limit,
-                    currentPage = filters.page,
-                )
+                val searchResult =
+                    SearchResult(
+                        items = domainProviders,
+                        totalCount = response.total,
+                        totalPages = (response.total + response.limit - 1) / response.limit,
+                        currentPage = filters.page,
+                    )
                 searchCache.put(cacheKey, searchResult)
                 Result.success(searchResult)
             },
@@ -226,9 +226,9 @@ class CatalogRepositoryImpl(
     }
 
     companion object {
-        private const val CATEGORIES_TTL_MS = 30 * 60 * 1000L  // 30 minutes
-        private const val SEARCH_TTL_MS = 2 * 60 * 1000L       // 2 minutes
-        private const val PROVIDER_TTL_MS = 5 * 60 * 1000L     // 5 minutes
-        private const val SERVICES_TTL_MS = 5 * 60 * 1000L     // 5 minutes
+        private const val CATEGORIES_TTL_MS = 30 * 60 * 1000L // 30 minutes
+        private const val SEARCH_TTL_MS = 2 * 60 * 1000L // 2 minutes
+        private const val PROVIDER_TTL_MS = 5 * 60 * 1000L // 5 minutes
+        private const val SERVICES_TTL_MS = 5 * 60 * 1000L // 5 minutes
     }
 }

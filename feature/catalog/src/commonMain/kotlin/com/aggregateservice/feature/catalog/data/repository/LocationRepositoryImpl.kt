@@ -16,7 +16,6 @@ import com.aggregateservice.feature.catalog.domain.repository.LocationRepository
 class LocationRepositoryImpl(
     private val dataStore: DataStore<Preferences>,
 ) : LocationRepository {
-
     override suspend fun getSavedLocation(): Location? {
         val lat = dataStore.getFirst(KEY_LAT) ?: return null
         val lon = dataStore.getFirst(KEY_LON) ?: return null

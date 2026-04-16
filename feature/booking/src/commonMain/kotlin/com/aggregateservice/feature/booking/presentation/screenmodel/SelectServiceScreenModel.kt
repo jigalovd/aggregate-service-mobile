@@ -49,8 +49,9 @@ class SelectServiceScreenModel(
                     }
                 },
                 onFailure = { error ->
-                    val appError = error as? AppError
-                        ?: AppError.UnknownError(throwable = error, message = error.message)
+                    val appError =
+                        error as? AppError
+                            ?: AppError.UnknownError(throwable = error, message = error.message)
                     logger.w(appError) { "loadServices failed: ${appError::class.simpleName}" }
                     _uiState.update { SelectServiceUiState.error(appError) }
                 },
@@ -76,19 +77,21 @@ class SelectServiceScreenModel(
                 val hasNonCombinableSelected = currentSelected.any { !it.isCombinable }
                 if (hasNonCombinableSelected) {
                     state.copy(
-                        nonCombinableError = AppError.DomainError(
-                            code = "NON_COMBINABLE_SERVICES",
-                            message = "These services cannot be combined with other services",
-                            details = emptyMap(),
-                        ),
+                        nonCombinableError =
+                            AppError.DomainError(
+                                code = "NON_COMBINABLE_SERVICES",
+                                message = "These services cannot be combined with other services",
+                                details = emptyMap(),
+                            ),
                     )
                 } else if (!service.isCombinable && currentSelected.isNotEmpty()) {
                     state.copy(
-                        nonCombinableError = AppError.DomainError(
-                            code = "NON_COMBINABLE_SERVICES",
-                            message = "These services cannot be combined with other services",
-                            details = emptyMap(),
-                        ),
+                        nonCombinableError =
+                            AppError.DomainError(
+                                code = "NON_COMBINABLE_SERVICES",
+                                message = "These services cannot be combined with other services",
+                                details = emptyMap(),
+                            ),
                     )
                 } else {
                     currentSelected.add(service)

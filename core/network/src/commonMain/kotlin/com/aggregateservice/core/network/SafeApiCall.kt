@@ -68,52 +68,62 @@ suspend inline fun <reified T : Any> safeApiCall(
 
                 HttpStatusCode.Conflict -> {
                     val body = response.bodyAsText()
-                    val appError = try {
-                        val errorResponse = Json.decodeFromString<ErrorResponse>(body)
-                        if (errorResponse.error == "FIREBASE_LINK_REQUIRED") {
-                            AppError.FirebaseLinkRequired(
-                                firebaseToken = errorResponse.details?.errors?.firstOrNull()?.message ?: "",
-                                email = errorResponse.message ?: "",
-                                firebaseUid = "",
-                                provider = "",
-                                message = errorResponse.message ?: "Firebase link required",
-                            )
-                        } else {
-                            AppError.Conflict(
-                                message = errorResponse.message ?: "Conflict",
-                                errorId = errorResponse.errorId,
-                            )
-                        }
-                    } catch (_: Exception) {
+                    val appError =
                         try {
-                            val detailResponse = Json.decodeFromString<DetailErrorResponse>(body)
-                            AppError.Conflict(message = detailResponse.detail, errorId = null)
+                            val errorResponse = Json.decodeFromString<ErrorResponse>(body)
+                            if (errorResponse.error == "FIREBASE_LINK_REQUIRED") {
+                                AppError.FirebaseLinkRequired(
+                                    firebaseToken =
+                                        errorResponse.details
+                                            ?.errors
+                                            ?.firstOrNull()
+                                            ?.message ?: "",
+                                    email = errorResponse.message ?: "",
+                                    firebaseUid = "",
+                                    provider = "",
+                                    message = errorResponse.message ?: "Firebase link required",
+                                )
+                            } else {
+                                AppError.Conflict(
+                                    message = errorResponse.message ?: "Conflict",
+                                    errorId = errorResponse.errorId,
+                                )
+                            }
                         } catch (_: Exception) {
-                            AppError.Conflict(message = body, errorId = null)
+                            try {
+                                val detailResponse = Json.decodeFromString<DetailErrorResponse>(body)
+                                AppError.Conflict(message = detailResponse.detail, errorId = null)
+                            } catch (_: Exception) {
+                                AppError.Conflict(message = body, errorId = null)
+                            }
                         }
-                    }
                     Result.failure(appError)
                 }
 
                 HttpStatusCode.Locked -> {
                     val errorBody = response.body<ErrorResponse>()
-                    val lockUntil = errorBody.details?.errors?.firstOrNull()?.message
-                        ?: errorBody.message ?: "unknown"
+                    val lockUntil =
+                        errorBody.details
+                            ?.errors
+                            ?.firstOrNull()
+                            ?.message
+                            ?: errorBody.message ?: "unknown"
                     Result.failure(AppError.AccountLocked(until = lockUntil))
                 }
 
                 HttpStatusCode.UnprocessableEntity -> {
                     val body = response.bodyAsText()
-                    val errorResponse = try {
-                        Json.decodeFromString<ErrorResponse>(body)
-                    } catch (_: Exception) {
-                        return Result.failure(
-                            AppError.ApiValidationError(
-                                field = "unknown",
-                                message = body,
-                            ),
-                        )
-                    }
+                    val errorResponse =
+                        try {
+                            Json.decodeFromString<ErrorResponse>(body)
+                        } catch (_: Exception) {
+                            return Result.failure(
+                                AppError.ApiValidationError(
+                                    field = "unknown",
+                                    message = body,
+                                ),
+                            )
+                        }
 
                     if (errorResponse.error != null) {
                         Result.failure(
@@ -203,7 +213,9 @@ data class ErrorResponse(
 )
 
 @Serializable
-data class DetailErrorResponse(val detail: String)
+data class DetailErrorResponse(
+    val detail: String,
+)
 
 @Serializable
 data class ErrorDetails(

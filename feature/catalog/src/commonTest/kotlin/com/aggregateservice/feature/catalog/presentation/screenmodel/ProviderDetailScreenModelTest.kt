@@ -2,6 +2,7 @@ package com.aggregateservice.feature.catalog.presentation.screenmodel
 
 import co.touchlab.kermit.Logger
 import com.aggregateservice.core.common.model.Location
+import com.aggregateservice.core.favorites_api.FavoritesToggle
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.DaySchedule
@@ -11,14 +12,12 @@ import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.model.SearchResult
 import com.aggregateservice.feature.catalog.domain.model.Service
 import com.aggregateservice.feature.catalog.domain.model.WorkingHours
-import com.aggregateservice.core.favorites_api.FavoritesToggle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlin.time.Clock
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -27,6 +26,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Clock
 
 /**
  * Tests for ProviderDetailScreenModel using functional mocks.

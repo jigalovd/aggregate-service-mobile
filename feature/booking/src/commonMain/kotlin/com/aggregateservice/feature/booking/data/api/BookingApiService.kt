@@ -5,8 +5,8 @@ import com.aggregateservice.feature.booking.data.dto.BookingDto
 import com.aggregateservice.feature.booking.data.dto.CancelRequest
 import com.aggregateservice.feature.booking.data.dto.CreateBookingRequest
 import com.aggregateservice.feature.booking.data.dto.RescheduleRequest
-import com.aggregateservice.feature.booking.data.dto.ServiceListResponseDto
 import com.aggregateservice.feature.booking.data.dto.ServiceDto
+import com.aggregateservice.feature.booking.data.dto.ServiceListResponseDto
 import com.aggregateservice.feature.booking.data.dto.TimeSlotDto
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -95,8 +95,8 @@ class BookingApiService(
      *
      * **Endpoint:** PATCH /bookings/{id}/confirm
      */
-    suspend fun confirmBooking(bookingId: String): Result<BookingDto> {
-        return safeApiCall<BookingDto> {
+    suspend fun confirmBooking(bookingId: String): Result<Unit> {
+        return safeApiCall<Unit> {
             client.patch("/api/v1/bookings/$bookingId/confirm") {
                 contentType(ContentType.Application.Json)
             }
@@ -108,8 +108,8 @@ class BookingApiService(
      *
      * **Endpoint:** PATCH /bookings/{id}/cancel
      */
-    suspend fun cancelBooking(bookingId: String, request: CancelRequest): Result<BookingDto> {
-        return safeApiCall<BookingDto> {
+    suspend fun cancelBooking(bookingId: String, request: CancelRequest): Result<Unit> {
+        return safeApiCall<Unit> {
             client.patch("/api/v1/bookings/$bookingId/cancel") {
                 contentType(ContentType.Application.Json)
                 setBody(request)
@@ -122,8 +122,8 @@ class BookingApiService(
      *
      * **Endpoint:** PATCH /bookings/{id}/reschedule
      */
-    suspend fun rescheduleBooking(bookingId: String, request: RescheduleRequest): Result<BookingDto> {
-        return safeApiCall<BookingDto> {
+    suspend fun rescheduleBooking(bookingId: String, request: RescheduleRequest): Result<Unit> {
+        return safeApiCall<Unit> {
             client.patch("/api/v1/bookings/$bookingId/reschedule") {
                 contentType(ContentType.Application.Json)
                 setBody(request)

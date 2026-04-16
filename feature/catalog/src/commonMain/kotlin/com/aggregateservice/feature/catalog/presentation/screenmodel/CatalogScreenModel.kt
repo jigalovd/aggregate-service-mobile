@@ -14,9 +14,9 @@ import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters.SortBy
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters.SortOrder
-import com.aggregateservice.feature.catalog.presentation.cache.LocationCache
 import com.aggregateservice.feature.catalog.domain.usecase.GetCategoriesUseCase
 import com.aggregateservice.feature.catalog.domain.usecase.SearchProvidersUseCase
+import com.aggregateservice.feature.catalog.presentation.cache.LocationCache
 import com.aggregateservice.feature.catalog.presentation.model.CatalogUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -391,8 +391,9 @@ class CatalogScreenModel(
                         locationResult.fold(
                             onSuccess = { location ->
                                 val currentLoc = _uiState.value.userLocation
-                                val locationChanged = currentLoc == null ||
-                                    currentLoc.distanceTo(location) >
+                                val locationChanged =
+                                    currentLoc == null ||
+                                        currentLoc.distanceTo(location) >
                                         SearchFilters.LOCATION_CHANGE_THRESHOLD_KM
 
                                 locationCache.update(location)

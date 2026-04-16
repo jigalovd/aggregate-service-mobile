@@ -40,14 +40,15 @@ class CatalogRepositoryCacheTest {
     }
 
     private fun createClient(json: String): HttpClient {
-        val engine = MockEngine { _ ->
-            apiCallCount++
-            respond(
-                content = ByteReadChannel(json),
-                status = HttpStatusCode.OK,
-                headers = headersOf("Content-Type", "application/json"),
-            )
-        }
+        val engine =
+            MockEngine { _ ->
+                apiCallCount++
+                respond(
+                    content = ByteReadChannel(json),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf("Content-Type", "application/json"),
+                )
+            }
         return HttpClient(engine) {
             install(ContentNegotiation) {
                 json(Json { ignoreUnknownKeys = true })
@@ -126,111 +127,119 @@ class CatalogRepositoryCacheTest {
     }"""
 
     @Test
-    fun `getCategories returns cached result on second call within TTL`() = runTest {
-        val client = createClient(categoriesJson)
-        val apiService = CatalogApiService(client)
-        val repository = CatalogRepositoryImpl(apiService)
+    fun `getCategories returns cached result on second call within TTL`() =
+        runTest {
+            val client = createClient(categoriesJson)
+            val apiService = CatalogApiService(client)
+            val repository = CatalogRepositoryImpl(apiService)
 
-        val result1 = repository.getCategories(null)
-        assertEquals(1, apiCallCount)
-        assertTrue(result1.isSuccess)
-        assertEquals(1, result1.getOrThrow().size)
+            val result1 = repository.getCategories(null)
+            assertEquals(1, apiCallCount)
+            assertTrue(result1.isSuccess)
+            assertEquals(1, result1.getOrThrow().size)
 
-        val result2 = repository.getCategories(null)
-        assertEquals(1, apiCallCount) // No additional API call
-        assertEquals(result1.getOrThrow().first().id, result2.getOrThrow().first().id)
-    }
-
-    @Test
-    fun `getCategories misses cache for different parentId`() = runTest {
-        val client = createClient(categoriesJson)
-        val apiService = CatalogApiService(client)
-        val repository = CatalogRepositoryImpl(apiService)
-
-        repository.getCategories(null)
-        assertEquals(1, apiCallCount)
-
-        repository.getCategories("parent-1")
-        assertEquals(2, apiCallCount)
-    }
+            val result2 = repository.getCategories(null)
+            assertEquals(1, apiCallCount) // No additional API call
+            assertEquals(result1.getOrThrow().first().id, result2.getOrThrow().first().id)
+        }
 
     @Test
-    fun `getProviderById returns cached result on second call`() = runTest {
-        val client = createClient(providerJson)
-        val apiService = CatalogApiService(client)
-        val repository = CatalogRepositoryImpl(apiService)
+    fun `getCategories misses cache for different parentId`() =
+        runTest {
+            val client = createClient(categoriesJson)
+            val apiService = CatalogApiService(client)
+            val repository = CatalogRepositoryImpl(apiService)
 
-        repository.getProviderById("prov-1")
-        assertEquals(1, apiCallCount)
+            repository.getCategories(null)
+            assertEquals(1, apiCallCount)
 
-        repository.getProviderById("prov-1")
-        assertEquals(1, apiCallCount)
-    }
-
-    @Test
-    fun `getProviderById misses cache for different id`() = runTest {
-        val client = createClient(providerJson)
-        val apiService = CatalogApiService(client)
-        val repository = CatalogRepositoryImpl(apiService)
-
-        repository.getProviderById("prov-1")
-        assertEquals(1, apiCallCount)
-
-        repository.getProviderById("prov-2")
-        assertEquals(2, apiCallCount)
-    }
+            repository.getCategories("parent-1")
+            assertEquals(2, apiCallCount)
+        }
 
     @Test
-    fun `searchProviders returns cached result for same filters`() = runTest {
-        val client = createClient(searchResponseJson)
-        val apiService = CatalogApiService(client)
-        val repository = CatalogRepositoryImpl(apiService)
+    fun `getProviderById returns cached result on second call`() =
+        runTest {
+            val client = createClient(providerJson)
+            val apiService = CatalogApiService(client)
+            val repository = CatalogRepositoryImpl(apiService)
 
-        repository.searchProviders(SearchFilters(page = 1))
-        assertEquals(1, apiCallCount)
+            repository.getProviderById("prov-1")
+            assertEquals(1, apiCallCount)
 
-        repository.searchProviders(SearchFilters(page = 1))
-        assertEquals(1, apiCallCount)
-    }
-
-    @Test
-    fun `searchProviders misses cache for different filters`() = runTest {
-        val client = createClient(searchResponseJson)
-        val apiService = CatalogApiService(client)
-        val repository = CatalogRepositoryImpl(apiService)
-
-        repository.searchProviders(SearchFilters(page = 1))
-        assertEquals(1, apiCallCount)
-
-        repository.searchProviders(SearchFilters(page = 2))
-        assertEquals(2, apiCallCount)
-    }
+            repository.getProviderById("prov-1")
+            assertEquals(1, apiCallCount)
+        }
 
     @Test
-    fun `getProviderServices returns cached result on second call`() = runTest {
-        val client = createClient(servicesJson)
-        val apiService = CatalogApiService(client)
-        val repository = CatalogRepositoryImpl(apiService)
+    fun `getProviderById misses cache for different id`() =
+        runTest {
+            val client = createClient(providerJson)
+            val apiService = CatalogApiService(client)
+            val repository = CatalogRepositoryImpl(apiService)
 
-        repository.getProviderServices("prov-1", null)
-        assertEquals(1, apiCallCount)
+            repository.getProviderById("prov-1")
+            assertEquals(1, apiCallCount)
 
-        repository.getProviderServices("prov-1", null)
-        assertEquals(1, apiCallCount)
-    }
+            repository.getProviderById("prov-2")
+            assertEquals(2, apiCallCount)
+        }
 
     @Test
-    fun `invalidateCache clears provider and search caches`() = runTest {
-        val client = createClient(providerJson)
-        val apiService = CatalogApiService(client)
-        val repository = CatalogRepositoryImpl(apiService)
+    fun `searchProviders returns cached result for same filters`() =
+        runTest {
+            val client = createClient(searchResponseJson)
+            val apiService = CatalogApiService(client)
+            val repository = CatalogRepositoryImpl(apiService)
 
-        repository.getProviderById("prov-1")
-        assertEquals(1, apiCallCount)
+            repository.searchProviders(SearchFilters(page = 1))
+            assertEquals(1, apiCallCount)
 
-        repository.invalidateCache()
+            repository.searchProviders(SearchFilters(page = 1))
+            assertEquals(1, apiCallCount)
+        }
 
-        repository.getProviderById("prov-1")
-        assertEquals(2, apiCallCount) // Cache was invalidated
-    }
+    @Test
+    fun `searchProviders misses cache for different filters`() =
+        runTest {
+            val client = createClient(searchResponseJson)
+            val apiService = CatalogApiService(client)
+            val repository = CatalogRepositoryImpl(apiService)
+
+            repository.searchProviders(SearchFilters(page = 1))
+            assertEquals(1, apiCallCount)
+
+            repository.searchProviders(SearchFilters(page = 2))
+            assertEquals(2, apiCallCount)
+        }
+
+    @Test
+    fun `getProviderServices returns cached result on second call`() =
+        runTest {
+            val client = createClient(servicesJson)
+            val apiService = CatalogApiService(client)
+            val repository = CatalogRepositoryImpl(apiService)
+
+            repository.getProviderServices("prov-1", null)
+            assertEquals(1, apiCallCount)
+
+            repository.getProviderServices("prov-1", null)
+            assertEquals(1, apiCallCount)
+        }
+
+    @Test
+    fun `invalidateCache clears provider and search caches`() =
+        runTest {
+            val client = createClient(providerJson)
+            val apiService = CatalogApiService(client)
+            val repository = CatalogRepositoryImpl(apiService)
+
+            repository.getProviderById("prov-1")
+            assertEquals(1, apiCallCount)
+
+            repository.invalidateCache()
+
+            repository.getProviderById("prov-1")
+            assertEquals(2, apiCallCount) // Cache was invalidated
+        }
 }

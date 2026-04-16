@@ -1,7 +1,6 @@
 package com.aggregateservice.feature.favorites.integration
 
 import com.aggregateservice.feature.favorites.data.dto.FavoriteCheckResponseDto
-import com.aggregateservice.feature.favorites.data.dto.FavoriteDto
 import com.aggregateservice.feature.favorites.data.dto.FavoritesListResponseDto
 import kotlinx.serialization.json.Json
 import kotlin.test.Test

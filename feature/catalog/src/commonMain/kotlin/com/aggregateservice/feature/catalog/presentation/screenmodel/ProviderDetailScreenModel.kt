@@ -3,8 +3,8 @@ package com.aggregateservice.feature.catalog.presentation.screenmodel
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import co.touchlab.kermit.Logger
-import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.core.favorites_api.FavoritesToggle
+import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.catalog.domain.repository.CatalogRepository
 import com.aggregateservice.feature.catalog.presentation.model.ProviderDetailUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,18 +47,20 @@ class ProviderDetailScreenModel(
         _uiState.value = ProviderDetailUiState.Loading
 
         screenModelScope.launch {
-            catalogRepository.getProviderDetail(id)
+            catalogRepository
+                .getProviderDetail(id)
                 .fold(
                     onSuccess = { detail ->
                         if (loadingId != id) return@launch
-                        _uiState.value = _uiState.value.copy(
-                            provider = detail.provider,
-                            services = detail.services,
-                            isFavorite = detail.isFavorite ?: false,
-                            isLoading = false,
-                            isLoadingServices = false,
-                            error = null,
-                        )
+                        _uiState.value =
+                            _uiState.value.copy(
+                                provider = detail.provider,
+                                services = detail.services,
+                                isFavorite = detail.isFavorite ?: false,
+                                isLoading = false,
+                                isLoadingServices = false,
+                                error = null,
+                            )
                     },
                     onFailure = { error ->
                         if (loadingId != id) return@launch

@@ -166,7 +166,11 @@ fun ProviderDetailScreenContent(
                     selectedCount = uiState.selectedServiceIds.size,
                     totalPrice = uiState.totalPrice,
                     totalDurationMinutes = uiState.totalDurationMinutes,
-                    currency = uiState.selectedServices.firstOrNull()?.price?.currency ?: "ILS",
+                    currency =
+                        uiState.selectedServices
+                            .firstOrNull()
+                            ?.price
+                            ?.currency ?: "ILS",
                     onBookClick = onBookSelected,
                     i18nProvider = i18nProvider,
                 )

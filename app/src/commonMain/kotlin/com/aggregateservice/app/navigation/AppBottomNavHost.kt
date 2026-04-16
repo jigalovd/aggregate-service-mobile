@@ -155,8 +155,7 @@ fun AppBottomNavHost(
                                 .padding(
                                     end = 16.dp,
                                     bottom = paddingValues.calculateBottomPadding() + 16.dp,
-                                )
-                                .size(48.dp)
+                                ).size(48.dp)
                                 .background(
                                     androidx.compose.ui.graphics
                                         .Color(0xFFADD8E6),

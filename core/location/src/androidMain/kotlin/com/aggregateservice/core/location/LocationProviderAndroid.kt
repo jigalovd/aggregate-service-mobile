@@ -58,69 +58,70 @@ actual class LocationProvider actual constructor() {
 
     @SuppressLint("MissingPermission")
     actual suspend fun getCurrentLocation(accuracy: LocationAccuracy): Result<Location> {
-        val locationResult = withTimeoutOrNull(5_000L) {
-            suspendCancellableCoroutine { continuation ->
-                if (!continuation.isActive) return@suspendCancellableCoroutine
+        val locationResult =
+            withTimeoutOrNull(5_000L) {
+                suspendCancellableCoroutine { continuation ->
+                    if (!continuation.isActive) return@suspendCancellableCoroutine
 
-                val client = fusedClient
-                if (client == null) {
-                    continuation.resume(Result.failure(Exception("Activity not set. Call setActivity() first.")))
-                    return@suspendCancellableCoroutine
-                }
-
-                val priority =
-                    when (accuracy) {
-                        LocationAccuracy.HIGH -> Priority.PRIORITY_HIGH_ACCURACY
-                        LocationAccuracy.MEDIUM -> Priority.PRIORITY_BALANCED_POWER_ACCURACY
-                        LocationAccuracy.LOW -> Priority.PRIORITY_LOW_POWER
+                    val client = fusedClient
+                    if (client == null) {
+                        continuation.resume(Result.failure(Exception("Activity not set. Call setActivity() first.")))
+                        return@suspendCancellableCoroutine
                     }
 
-                try {
-                    val cancellationSignal = android.os.CancellationSignal()
-
-                    client
-                        .getCurrentLocation(priority, null)
-                        .addOnSuccessListener { androidLocation ->
-                            if (continuation.isActive) {
-                                if (androidLocation != null) {
-                                    continuation.resume(
-                                        Result.success(
-                                            Location(
-                                                latitude = androidLocation.latitude,
-                                                longitude = androidLocation.longitude,
-                                                address = "",
-                                                city = "",
-                                                postalCode = null,
-                                                country = null,
-                                            ),
-                                        ),
-                                    )
-                                } else {
-                                    continuation.resume(
-                                        Result.failure(Exception("Location is null")),
-                                    )
-                                }
-                            }
-                        }.addOnFailureListener { e ->
-                            if (continuation.isActive) {
-                                continuation.resume(Result.failure(e))
-                            }
+                    val priority =
+                        when (accuracy) {
+                            LocationAccuracy.HIGH -> Priority.PRIORITY_HIGH_ACCURACY
+                            LocationAccuracy.MEDIUM -> Priority.PRIORITY_BALANCED_POWER_ACCURACY
+                            LocationAccuracy.LOW -> Priority.PRIORITY_LOW_POWER
                         }
 
-                    continuation.invokeOnCancellation {
-                        cancellationSignal.cancel()
-                    }
-                } catch (e: SecurityException) {
-                    if (continuation.isActive) {
-                        continuation.resume(Result.failure(e))
-                    }
-                } catch (e: Exception) {
-                    if (continuation.isActive) {
-                        continuation.resume(Result.failure(e))
+                    try {
+                        val cancellationSignal = android.os.CancellationSignal()
+
+                        client
+                            .getCurrentLocation(priority, null)
+                            .addOnSuccessListener { androidLocation ->
+                                if (continuation.isActive) {
+                                    if (androidLocation != null) {
+                                        continuation.resume(
+                                            Result.success(
+                                                Location(
+                                                    latitude = androidLocation.latitude,
+                                                    longitude = androidLocation.longitude,
+                                                    address = "",
+                                                    city = "",
+                                                    postalCode = null,
+                                                    country = null,
+                                                ),
+                                            ),
+                                        )
+                                    } else {
+                                        continuation.resume(
+                                            Result.failure(Exception("Location is null")),
+                                        )
+                                    }
+                                }
+                            }.addOnFailureListener { e ->
+                                if (continuation.isActive) {
+                                    continuation.resume(Result.failure(e))
+                                }
+                            }
+
+                        continuation.invokeOnCancellation {
+                            cancellationSignal.cancel()
+                        }
+                    } catch (e: SecurityException) {
+                        if (continuation.isActive) {
+                            continuation.resume(Result.failure(e))
+                        }
+                    } catch (e: Exception) {
+                        if (continuation.isActive) {
+                            continuation.resume(Result.failure(e))
+                        }
                     }
                 }
             }
-        }
 
         return locationResult
             ?: Result.failure(Exception("Location request timed out after 5 seconds"))

@@ -16,9 +16,10 @@ object ServiceMapper {
         BookingService(
             id = dto.id,
             name = dto.titleMap["ru"] ?: dto.titleMap["he"] ?: dto.titleMap["en"] ?: "",
-            description = dto.descriptionMap?.let {
-                it["ru"] ?: it["he"] ?: it["en"]
-            },
+            description =
+                dto.descriptionMap?.let {
+                    it["ru"] ?: it["he"] ?: it["en"]
+                },
             price = dto.priceInCents.toDouble(),
             currency = "ILS",
             durationMinutes = dto.durationMinutes,

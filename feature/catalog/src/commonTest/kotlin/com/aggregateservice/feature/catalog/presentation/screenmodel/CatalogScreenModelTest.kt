@@ -7,19 +7,18 @@ import com.aggregateservice.core.location.LocationProviderFactory
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
-import com.aggregateservice.feature.catalog.presentation.cache.LocationCache
-import com.aggregateservice.feature.catalog.domain.repository.LocationRepository
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.model.SearchResult
 import com.aggregateservice.feature.catalog.domain.model.Service
 import com.aggregateservice.feature.catalog.domain.model.WorkingHours
+import com.aggregateservice.feature.catalog.domain.repository.LocationRepository
+import com.aggregateservice.feature.catalog.presentation.cache.LocationCache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlin.time.Clock
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -27,6 +26,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Clock
 
 /**
  * Tests for CatalogScreenModel using functional mocks.
@@ -37,9 +37,16 @@ import kotlin.test.assertTrue
 
 private class FakeLocationRepository : LocationRepository {
     private var saved: Location? = null
+
     override suspend fun getSavedLocation(): Location? = saved
-    override suspend fun saveLocation(location: Location) { saved = location }
-    override suspend fun clearSavedLocation() { saved = null }
+
+    override suspend fun saveLocation(location: Location) {
+        saved = location
+    }
+
+    override suspend fun clearSavedLocation() {
+        saved = null
+    }
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)

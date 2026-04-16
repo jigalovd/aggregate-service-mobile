@@ -155,11 +155,12 @@ fun BookingDetailScreenContent(
             }
             uiState.booking != null -> {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .verticalScroll(rememberScrollState())
-                        .padding(Spacing.MD),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                            .verticalScroll(rememberScrollState())
+                            .padding(Spacing.MD),
                 ) {
                     val booking = uiState.booking
 
@@ -343,13 +344,27 @@ fun BookingDetailScreenContent(
 
 private fun statusColor(status: BookingStatus): androidx.compose.ui.graphics.Color =
     when (status) {
-        BookingStatus.PENDING -> androidx.compose.ui.graphics.Color(0xFFFFA000)
-        BookingStatus.CONFIRMED -> androidx.compose.ui.graphics.Color(0xFF4CAF50)
-        BookingStatus.IN_PROGRESS -> androidx.compose.ui.graphics.Color(0xFF2196F3)
-        BookingStatus.COMPLETED -> androidx.compose.ui.graphics.Color(0xFF9E9E9E)
-        BookingStatus.CANCELLED -> androidx.compose.ui.graphics.Color(0xFFF44336)
-        BookingStatus.EXPIRED -> androidx.compose.ui.graphics.Color(0xFF9E9E9E)
-        BookingStatus.NO_SHOW -> androidx.compose.ui.graphics.Color(0xFFFF5722)
+        BookingStatus.PENDING ->
+            androidx.compose.ui.graphics
+                .Color(0xFFFFA000)
+        BookingStatus.CONFIRMED ->
+            androidx.compose.ui.graphics
+                .Color(0xFF4CAF50)
+        BookingStatus.IN_PROGRESS ->
+            androidx.compose.ui.graphics
+                .Color(0xFF2196F3)
+        BookingStatus.COMPLETED ->
+            androidx.compose.ui.graphics
+                .Color(0xFF9E9E9E)
+        BookingStatus.CANCELLED ->
+            androidx.compose.ui.graphics
+                .Color(0xFFF44336)
+        BookingStatus.EXPIRED ->
+            androidx.compose.ui.graphics
+                .Color(0xFF9E9E9E)
+        BookingStatus.NO_SHOW ->
+            androidx.compose.ui.graphics
+                .Color(0xFFFF5722)
     }
 
 private fun statusLabel(status: BookingStatus, i18nProvider: I18nProvider): String =

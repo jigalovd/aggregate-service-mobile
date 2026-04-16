@@ -69,7 +69,10 @@ class BookingRepositoryImpl(
 
     override suspend fun confirmBooking(bookingId: String): Result<Booking> {
         return apiService.confirmBooking(bookingId).fold(
-            onSuccess = { dto -> Result.success(BookingMapper.toDomain(dto)) },
+            onSuccess = {
+                getBookingById(bookingId).getOrNull()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Failed to re-fetch booking"))
+            },
             onFailure = { error -> Result.failure(error) },
         )
     }
@@ -78,7 +81,10 @@ class BookingRepositoryImpl(
         val request = CancelRequest(cancellationReason = reason)
 
         return apiService.cancelBooking(bookingId, request).fold(
-            onSuccess = { dto -> Result.success(BookingMapper.toDomain(dto)) },
+            onSuccess = {
+                getBookingById(bookingId).getOrNull()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Failed to re-fetch booking"))
+            },
             onFailure = { error -> Result.failure(error) },
         )
     }
@@ -90,7 +96,10 @@ class BookingRepositoryImpl(
         val request = RescheduleRequest(newStartTime = newStartTime)
 
         return apiService.rescheduleBooking(bookingId, request).fold(
-            onSuccess = { dto -> Result.success(BookingMapper.toDomain(dto)) },
+            onSuccess = {
+                getBookingById(bookingId).getOrNull()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Failed to re-fetch booking"))
+            },
             onFailure = { error -> Result.failure(error) },
         )
     }
@@ -100,12 +109,13 @@ class BookingRepositoryImpl(
         fromDate: LocalDate,
         toDate: LocalDate,
         serviceIds: List<String>,
-    ): Result<List<TimeSlot>> = withContext(Dispatchers.IO) {
-        apiService.getAvailableSlots(providerId, fromDate, toDate, serviceIds).fold(
-            onSuccess = { dtos -> Result.success(BookingMapper.toDomainSlots(dtos)) },
-            onFailure = { error -> Result.failure(error) },
-        )
-    }
+    ): Result<List<TimeSlot>> =
+        withContext(Dispatchers.IO) {
+            apiService.getAvailableSlots(providerId, fromDate, toDate, serviceIds).fold(
+                onSuccess = { dtos -> Result.success(BookingMapper.toDomainSlots(dtos)) },
+                onFailure = { error -> Result.failure(error) },
+            )
+        }
 
     override suspend fun getProviderServices(providerId: String): Result<List<BookingService>> {
         return apiService.getProviderServices(providerId).fold(

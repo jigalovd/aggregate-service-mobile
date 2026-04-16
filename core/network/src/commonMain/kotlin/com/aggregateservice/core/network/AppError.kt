@@ -6,7 +6,6 @@ sealed class AppError(
     override val message: String? = null,
     override val cause: Throwable? = null,
 ) : Exception(message, cause) {
-
     data class NetworkError(
         val code: Int,
         override val message: String,

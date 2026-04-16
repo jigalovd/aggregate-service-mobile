@@ -1,9 +1,9 @@
 package com.aggregateservice.core.logging
 
 import android.content.Context
-import co.touchlab.kermit.Logger
 import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.LogcatWriter
+import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
 import co.touchlab.kermit.io.RollingFileLogWriter
 import co.touchlab.kermit.io.RollingFileLogWriterConfig
