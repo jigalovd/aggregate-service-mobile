@@ -2,8 +2,8 @@
 
 package com.aggregateservice.feature.booking.domain.model
 
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlin.time.Clock
 
 /**
  * Доменная модель бронирования.

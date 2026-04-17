@@ -24,6 +24,9 @@ kotlin {
             // i18n for localized strings
             implementation(project(":core:i18n"))
 
+            // Generated API models (DTOs)
+            implementation(project(":core:api-models"))
+
             // Auth contracts (AuthStateProvider, AuthNavigator, LogoutUseCase)
             implementation(project(":core:auth-api"))
         }

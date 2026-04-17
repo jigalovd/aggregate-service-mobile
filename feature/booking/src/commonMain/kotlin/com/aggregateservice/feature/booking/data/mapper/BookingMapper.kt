@@ -1,85 +1,64 @@
 package com.aggregateservice.feature.booking.data.mapper
 
-import com.aggregateservice.feature.booking.data.dto.BookingDto
-import com.aggregateservice.feature.booking.data.dto.BookingItemDto
-import com.aggregateservice.feature.booking.data.dto.TimeSlotDto
+import com.aggregateservice.core.api.models.BookingAvailableSlotResponse
+import com.aggregateservice.core.api.models.BookingItemResponse
+import com.aggregateservice.core.api.models.BookingResponse
 import com.aggregateservice.feature.booking.domain.model.Booking
 import com.aggregateservice.feature.booking.domain.model.BookingItem
 import com.aggregateservice.feature.booking.domain.model.BookingStatus
 import com.aggregateservice.feature.booking.domain.model.TimeSlot
 
 /**
- * Mapper для преобразования DTO в Domain модели.
+ * Mapper для преобразования сгенерированных API DTO в Domain модели.
  *
- * **Architecture:**
- * - Data layer использует этот mapper для конвертации
- * - Domain layer не зависит от DTO
- * - Однонаправленный поток: DTO -> Domain
+ * Источник истины: OpenAPI spec (core:api-models).
  */
 object BookingMapper {
-    /**
-     * Преобразует BookingDto в Booking domain model.
-     */
-    fun toDomain(dto: BookingDto): Booking =
+    fun toDomain(dto: BookingResponse): Booking =
         Booking(
             id = dto.id,
             providerId = dto.providerId,
-            providerName = dto.providerName,
+            providerName = dto.providerName ?: "",
             clientId = dto.clientId,
             startTime = dto.startTime,
             endTime = dto.endTime,
             status = parseStatus(dto.status),
-            items = dto.items.map { toDomain(it) },
-            totalPrice = dto.totalPrice,
+            items = (dto.items ?: emptyList()).map { toDomain(it) },
+            totalPrice = dto.totalPrice ?: 0.0,
             totalDurationMinutes = dto.totalDurationMinutes,
-            currency = dto.currency,
+            currency = dto.currency ?: "ILS",
             notes = dto.notes,
             createdAt = dto.createdAt,
             updatedAt = dto.updatedAt,
         )
 
-    /**
-     * Преобразует BookingItemDto в BookingItem domain model.
-     */
-    private fun toDomain(dto: BookingItemDto): BookingItem =
+    private fun toDomain(dto: BookingItemResponse): BookingItem =
         BookingItem(
             id = dto.id,
             serviceId = dto.serviceId,
             serviceName = dto.serviceName,
             price = dto.price,
-            currency = dto.currency,
+            currency = dto.currency ?: "ILS",
             durationMinutes = dto.durationMinutes,
         )
 
-    /**
-     * Преобразует TimeSlotDto в TimeSlot domain model.
-     */
-    fun toDomain(dto: TimeSlotDto): TimeSlot =
+    fun toDomain(dto: BookingAvailableSlotResponse): TimeSlot =
         TimeSlot(
             startTime = dto.startTime,
             endTime = dto.endTime,
-            isAvailable = dto.isAvailable,
+            isAvailable = dto.isAvailable ?: true,
             providerId = dto.providerId,
         )
 
-    /**
-     * Преобразует список BookingDto в список Booking.
-     */
-    fun toDomainList(dtos: List<BookingDto>): List<Booking> = dtos.map { toDomain(it) }
+    fun toDomainList(dtos: List<BookingResponse>): List<Booking> = dtos.map { toDomain(it) }
 
-    /**
-     * Преобразует список TimeSlotDto в список TimeSlot.
-     */
-    fun toDomainSlots(dtos: List<TimeSlotDto>): List<TimeSlot> = dtos.map { toDomain(it) }
+    fun toDomainSlots(dtos: List<BookingAvailableSlotResponse>): List<TimeSlot> = dtos.map { toDomain(it) }
 
-    /**
-     * Парсит строковый статус в enum BookingStatus.
-     */
     private fun parseStatus(status: String): BookingStatus {
         return try {
             BookingStatus.valueOf(status.uppercase())
-        } catch (e: IllegalArgumentException) {
-            BookingStatus.PENDING // Default fallback
+        } catch (_: IllegalArgumentException) {
+            BookingStatus.PENDING
         }
     }
 }

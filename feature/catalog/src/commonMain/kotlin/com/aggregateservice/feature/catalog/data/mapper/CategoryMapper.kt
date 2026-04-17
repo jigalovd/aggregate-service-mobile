@@ -1,25 +1,34 @@
 package com.aggregateservice.feature.catalog.data.mapper
-import com.aggregateservice.feature.catalog.data.dto.CategoryDto
+
+import com.aggregateservice.core.api.models.CategoryResponse
+import com.aggregateservice.core.api.models.I18nStringSchema
 import com.aggregateservice.feature.catalog.domain.model.Category
 
 /**
- * Mapper для преобразования CategoryDto в Category.
+ * Mapper for converting CategoryResponse (generated DTO) to Category domain model.
  */
 object CategoryMapper {
     /**
-     * Преобразует CategoryDto в Category.
-     * Извлекает локализованное имя (ru -> he -> en -> first available).
+     * Converts CategoryResponse to Category.
+     * Extracts localized name using priority: ru -> he -> en.
      *
-     * @param dto DTO из API
+     * @param dto Generated DTO from API
      * @return Domain model
      */
-    fun toDomain(dto: CategoryDto): Category =
+    fun toDomain(dto: CategoryResponse): Category =
         Category(
             id = dto.id,
-            name = dto.name["ru"] ?: dto.name["he"] ?: dto.name["en"] ?: dto.name.values.firstOrNull() ?: "",
-            icon = dto.icon,
+            name = dto.name.localized(),
+            icon = dto.iconUrl,
             parentId = dto.parentId,
-            isActive = dto.isActive,
-            sortOrder = dto.sortOrder,
+            isActive = dto.isActive ?: true,
+            sortOrder = dto.sortOrder ?: 0,
         )
 }
+
+/**
+ * Extension to extract a localized string from I18nStringSchema.
+ * Priority: ru -> he -> en
+ */
+internal fun I18nStringSchema.localized(): String =
+    ru.ifBlank { he.ifBlank { en } }

@@ -76,3 +76,6 @@ config/detekt/
 # repowise API keys (local)
 .repowise/.env
 /.repowise/
+
+# OpenAPI Generator
+.openapi/generated/

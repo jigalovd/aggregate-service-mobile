@@ -1,74 +1,50 @@
 package com.aggregateservice.feature.catalog.data.mapper
 
+import com.aggregateservice.core.api.models.ProviderResponse
 import com.aggregateservice.core.common.model.Location
-import com.aggregateservice.feature.catalog.data.dto.DayScheduleDto
-import com.aggregateservice.feature.catalog.data.dto.ProviderDto
-import com.aggregateservice.feature.catalog.data.dto.WorkingHoursDto
-import com.aggregateservice.feature.catalog.domain.model.DaySchedule
 import com.aggregateservice.feature.catalog.domain.model.Provider
-import com.aggregateservice.feature.catalog.domain.model.WorkingHours
 
 /**
- * Mapper для преобразования ProviderDto в Provider.
+ * Mapper for converting ProviderResponse (generated DTO) to Provider domain model.
  *
- * **Important:** Mapper НЕ должен зависеть от platform-специфичного кода.
+ * **Important:** Mapper must NOT depend on platform-specific code.
+ *
+ * Note: The generated ProviderResponse does not include photos, city, postalCode,
+ * country, categories, servicesCount, or workingHours. These fields default to
+ * empty/zero values. For the full provider detail, use ProviderDetailResponse
+ * which includes services and favorite status.
  */
 object ProviderMapper {
     /**
-     * Преобразует ProviderDto в Provider.
+     * Converts ProviderResponse to Provider.
      *
-     * @param dto DTO из API
+     * @param dto Generated DTO from API
      * @return Domain model
      */
-    fun toDomain(dto: ProviderDto): Provider =
+    fun toDomain(dto: ProviderResponse): Provider =
         Provider(
             id = dto.id,
             userId = dto.userId,
-            businessName = dto.businessName,
-            description = dto.description,
-            logoUrl = dto.logoUrl,
-            photos = dto.photos,
-            rating = dto.rating,
-            reviewCount = dto.reviewCount,
+            businessName = dto.displayName,
+            description = dto.bio,
+            logoUrl = dto.avatarUrl,
+            photos = emptyList(),
+            rating = dto.ratingCached,
+            reviewCount = dto.reviewsCount,
             location =
                 Location(
                     latitude = dto.location?.lat ?: 0.0,
                     longitude = dto.location?.lon ?: 0.0,
                     address = dto.address ?: "",
-                    city = dto.city ?: "",
-                    postalCode = dto.postalCode,
-                    country = dto.country,
+                    city = "",
+                    postalCode = null,
+                    country = null,
                 ),
-            workingHours = dto.workingHours?.toDomain() ?: WorkingHours(),
-            isVerified = dto.isVerified,
-            isActive = dto.isActive,
+            workingHours = com.aggregateservice.feature.catalog.domain.model.WorkingHours(),
+            isVerified = dto.isVerified ?: false,
+            isActive = dto.isActive ?: true,
             createdAt = dto.createdAt,
-            categories = dto.categories.map { CategoryMapper.toDomain(it) },
-            servicesCount = dto.servicesCount,
-        )
-
-    /**
-     * Преобразует WorkingHoursDto в WorkingHours.
-     */
-    private fun WorkingHoursDto.toDomain(): WorkingHours =
-        WorkingHours(
-            monday = monday?.toDomain(),
-            tuesday = tuesday?.toDomain(),
-            wednesday = wednesday?.toDomain(),
-            thursday = thursday?.toDomain(),
-            friday = friday?.toDomain(),
-            saturday = saturday?.toDomain(),
-            sunday = sunday?.toDomain(),
-        )
-
-    /**
-     * Преобразует DayScheduleDto в DaySchedule.
-     */
-    private fun DayScheduleDto.toDomain(): DaySchedule =
-        DaySchedule(
-            openTime = openTime,
-            closeTime = closeTime,
-            breakStart = breakStart,
-            breakEnd = breakEnd,
+            categories = emptyList(),
+            servicesCount = 0,
         )
 }

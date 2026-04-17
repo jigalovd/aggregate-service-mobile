@@ -21,6 +21,7 @@ dependencyResolutionManagement {
 }
 
 // Core modules
+include(":core:api-models")
 include(":core:network")
 include(":core:storage")
 include(":core:theme")

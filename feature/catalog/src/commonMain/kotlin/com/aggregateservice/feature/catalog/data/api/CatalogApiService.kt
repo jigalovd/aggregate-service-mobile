@@ -1,14 +1,15 @@
 package com.aggregateservice.feature.catalog.data.api
 
+import com.aggregateservice.core.api.models.CategoryListResponse
+import com.aggregateservice.core.api.models.CategoryResponse
+import com.aggregateservice.core.api.models.ProviderDetailResponse
+import com.aggregateservice.core.api.models.ProviderListResponse
+import com.aggregateservice.core.api.models.ProviderResponse
+import com.aggregateservice.core.api.models.ProviderSearchRequest
+import com.aggregateservice.core.api.models.PublicProviderServiceItemResponse
+import com.aggregateservice.core.api.models.PublicProviderServicesResponse
+import com.aggregateservice.core.api.models.ServiceResponse
 import com.aggregateservice.core.network.safeApiCall
-import com.aggregateservice.feature.catalog.data.dto.CategoriesResponseDto
-import com.aggregateservice.feature.catalog.data.dto.CategoryDto
-import com.aggregateservice.feature.catalog.data.dto.ProviderDto
-import com.aggregateservice.feature.catalog.data.dto.ServiceDto
-import com.aggregateservice.feature.catalog.data.dto.request.ProviderSearchRequestDto
-import com.aggregateservice.feature.catalog.data.dto.response.ProviderCompositeDto
-import com.aggregateservice.feature.catalog.data.dto.response.ProviderSearchResponseDto
-import com.aggregateservice.feature.catalog.data.dto.response.ServiceListResponseDto
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -18,36 +19,36 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
 /**
- * API сервис для Catalog Feature.
+ * API service for Catalog Feature.
  *
  * **Responsibilities:**
- * - Выполнение HTTP запросов к Backend API
- * - Сериализация/десериализация DTO
- * - Возврат Result с DTO или ошибкой
+ * - Execute HTTP requests to Backend API
+ * - Serialize/deserialize generated DTOs from :core:api-models
+ * - Return Result with generated DTO type or error
  *
- * **Important:** Использует Ktor и никаких Android зависимостей.
+ * **Important:** Uses Ktor and no Android dependencies.
  *
- * @property client HTTP клиент (Ktor)
+ * @property client HTTP client (Ktor)
  */
 class CatalogApiService(
     private val client: HttpClient,
 ) {
     /**
-     * Поиск мастеров по фильтрам.
+     * Search providers by filters.
      *
      * **Endpoint:** POST /api/v1/catalog/providers/search
      *
-     * Если геолокация недоступна, используем дефолтные координаты Haifa (32.8, 35.0)
-     * согласно iOS stub паттерну — это позволяет получить релевантных провайдеров
+     * If geolocation is unavailable, defaults to Haifa coordinates (32.8, 35.0)
+     * following the iOS stub pattern to get relevant providers.
      */
-    suspend fun searchProviders(filters: SearchFilters): Result<ProviderSearchResponseDto> {
-        return safeApiCall<ProviderSearchResponseDto> {
+    suspend fun searchProviders(filters: SearchFilters): Result<ProviderListResponse> {
+        return safeApiCall<ProviderListResponse> {
             // Default to Haifa coordinates when geo not available
             val lat = filters.latitude ?: HAIFA_LAT
             val lon = filters.longitude ?: HAIFA_LON
 
-            val requestDto =
-                ProviderSearchRequestDto(
+            val request =
+                ProviderSearchRequest(
                     lat = lat,
                     lon = lon,
                     radiusKm = filters.radiusKm ?: DEFAULT_RADIUS_KM,
@@ -63,7 +64,7 @@ class CatalogApiService(
                 )
             client.post("/api/v1/catalog/providers/search") {
                 contentType(ContentType.Application.Json)
-                setBody(requestDto)
+                setBody(request)
             }
         }
     }
@@ -75,12 +76,12 @@ class CatalogApiService(
     }
 
     /**
-     * Получение мастера по ID.
+     * Get provider by ID.
      *
      * **Endpoint:** GET /api/v1/catalog/providers/{id}
      */
-    suspend fun getProviderById(providerId: String): Result<ProviderDto> {
-        return safeApiCall<ProviderDto> {
+    suspend fun getProviderById(providerId: String): Result<ProviderResponse> {
+        return safeApiCall<ProviderResponse> {
             client.get("/api/v1/catalog/providers/$providerId") {
                 contentType(ContentType.Application.Json)
             }
@@ -92,8 +93,8 @@ class CatalogApiService(
      *
      * **Endpoint:** GET /api/v1/catalog/providers/{id}/detail
      */
-    suspend fun getProviderDetail(providerId: String): Result<ProviderCompositeDto> {
-        return safeApiCall<ProviderCompositeDto> {
+    suspend fun getProviderDetail(providerId: String): Result<ProviderDetailResponse> {
+        return safeApiCall<ProviderDetailResponse> {
             client.get("/api/v1/catalog/providers/$providerId/detail") {
                 contentType(ContentType.Application.Json)
             }
@@ -101,12 +102,12 @@ class CatalogApiService(
     }
 
     /**
-     * Получение списка категорий.
+     * Get list of categories.
      *
      * **Endpoint:** GET /api/v1/catalog/categories
      */
-    suspend fun getCategories(parentId: String?): Result<CategoriesResponseDto> {
-        return safeApiCall<CategoriesResponseDto> {
+    suspend fun getCategories(parentId: String?): Result<CategoryListResponse> {
+        return safeApiCall<CategoryListResponse> {
             client.get("/api/v1/catalog/categories") {
                 contentType(ContentType.Application.Json)
                 parentId?.let {
@@ -117,12 +118,12 @@ class CatalogApiService(
     }
 
     /**
-     * Получение категории по ID.
+     * Get category by ID.
      *
      * **Endpoint:** GET /api/v1/catalog/categories/{id}
      */
-    suspend fun getCategoryById(categoryId: String): Result<CategoryDto> {
-        return safeApiCall<CategoryDto> {
+    suspend fun getCategoryById(categoryId: String): Result<CategoryResponse> {
+        return safeApiCall<CategoryResponse> {
             client.get("/api/v1/catalog/categories/$categoryId") {
                 contentType(ContentType.Application.Json)
             }
@@ -130,15 +131,15 @@ class CatalogApiService(
     }
 
     /**
-     * Получение услуг мастера.
+     * Get provider services.
      *
      * **Endpoint:** GET /api/v1/catalog/providers/{providerId}/services
      */
     suspend fun getProviderServices(
         providerId: String,
         categoryId: String?,
-    ): Result<List<ServiceDto>> {
-        return safeApiCall<ServiceListResponseDto> {
+    ): Result<List<PublicProviderServiceItemResponse>> {
+        return safeApiCall<PublicProviderServicesResponse> {
             client.get("/api/v1/catalog/providers/$providerId/services") {
                 contentType(ContentType.Application.Json)
                 categoryId?.let {
@@ -149,12 +150,12 @@ class CatalogApiService(
     }
 
     /**
-     * Получение услуги по ID.
+     * Get service by ID.
      *
      * **Endpoint:** GET /api/v1/catalog/services/{id}
      */
-    suspend fun getServiceById(serviceId: String): Result<ServiceDto> {
-        return safeApiCall<ServiceDto> {
+    suspend fun getServiceById(serviceId: String): Result<ServiceResponse> {
+        return safeApiCall<ServiceResponse> {
             client.get("/api/v1/catalog/services/$serviceId") {
                 contentType(ContentType.Application.Json)
             }
@@ -162,15 +163,15 @@ class CatalogApiService(
     }
 
     /**
-     * Поиск услуг.
+     * Search services.
      *
      * **Endpoint:** GET /api/v1/catalog/services/search
      */
     suspend fun searchServices(
         query: String,
         filters: SearchFilters,
-    ): Result<List<ServiceDto>> {
-        return safeApiCall<List<ServiceDto>> {
+    ): Result<List<ServiceResponse>> {
+        return safeApiCall<List<ServiceResponse>> {
             client.get("/api/v1/catalog/services/search") {
                 contentType(ContentType.Application.Json)
                 url {

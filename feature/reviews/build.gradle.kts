@@ -26,6 +26,9 @@ kotlin {
 
             // i18n for localized strings
             implementation(project(":core:i18n"))
+
+            // Generated API models from OpenAPI spec
+            implementation(project(":core:api-models"))
         }
 
         maybeCreate("androidMain").dependencies {

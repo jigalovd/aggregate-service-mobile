@@ -1,8 +1,9 @@
 package com.aggregateservice.feature.favorites.data.api
 
+import com.aggregateservice.core.api.models.FavoriteCheckResponse
+import com.aggregateservice.core.api.models.FavoriteListResponse
+import com.aggregateservice.core.api.models.FavoriteRequest
 import com.aggregateservice.core.network.safeApiCall
-import com.aggregateservice.feature.favorites.data.dto.FavoriteCheckResponseDto
-import com.aggregateservice.feature.favorites.data.dto.FavoritesListResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -32,8 +33,8 @@ class FavoritesApiService(
      *
      * **Endpoint:** GET /api/v1/catalog/favorites
      */
-    suspend fun getFavorites(): Result<FavoritesListResponseDto> {
-        return safeApiCall<FavoritesListResponseDto> {
+    suspend fun getFavorites(): Result<FavoriteListResponse> {
+        return safeApiCall<FavoriteListResponse> {
             client.get("/api/v1/catalog/favorites") {
                 contentType(ContentType.Application.Json)
             }
@@ -49,7 +50,7 @@ class FavoritesApiService(
         return safeApiCall<Unit> {
             client.post("/api/v1/catalog/favorites") {
                 contentType(ContentType.Application.Json)
-                setBody(mapOf("provider_id" to providerId))
+                setBody(FavoriteRequest(providerId = providerId))
             }
         }
     }
@@ -73,7 +74,7 @@ class FavoritesApiService(
      * **Endpoint:** GET /api/v1/catalog/favorites/{providerId}/check
      */
     suspend fun isFavorite(providerId: String): Result<Boolean> {
-        return safeApiCall<FavoriteCheckResponseDto> {
+        return safeApiCall<FavoriteCheckResponse> {
             client.get("/api/v1/catalog/favorites/$providerId/check") {
                 contentType(ContentType.Application.Json)
             }

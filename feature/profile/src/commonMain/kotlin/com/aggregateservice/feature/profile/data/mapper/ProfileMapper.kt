@@ -1,33 +1,33 @@
 package com.aggregateservice.feature.profile.data.mapper
 
-import com.aggregateservice.feature.profile.data.dto.ProfileDto
-import com.aggregateservice.feature.profile.data.dto.UpdateProfileRequestDto
+import com.aggregateservice.core.api.models.ProfileResponse
+import com.aggregateservice.core.api.models.ProfileUpdate
 import com.aggregateservice.feature.profile.domain.model.Profile
 import com.aggregateservice.feature.profile.domain.model.UpdateProfileRequest
 
 /**
- * Mapper for converting between Profile DTOs and Domain models.
+ * Mapper for converting between Profile API models and Domain models.
  */
 object ProfileMapper {
     /**
-     * Converts DTO to domain model.
+     * Converts API response to domain model.
      */
-    fun toDomain(dto: ProfileDto): Profile =
+    fun toDomain(response: ProfileResponse): Profile =
         Profile(
-            id = dto.id,
-            userId = dto.userId,
-            fullName = dto.fullName,
-            phone = dto.phone,
-            avatarUrl = dto.avatarUrl,
-            noShowCount = dto.noShowCount,
-            noShowRate = dto.noShowRate,
+            id = response.id,
+            userId = response.userId,
+            fullName = response.fullName,
+            phone = response.phone,
+            avatarUrl = response.avatarUrl,
+            noShowCount = response.noShowCount ?: 0,
+            noShowRate = response.noShowRate ?: 0.0,
         )
 
     /**
-     * Converts domain UpdateProfileRequest to DTO.
+     * Converts domain UpdateProfileRequest to API request model.
      */
-    fun toDto(request: UpdateProfileRequest): UpdateProfileRequestDto =
-        UpdateProfileRequestDto(
+    fun toApiRequest(request: UpdateProfileRequest): ProfileUpdate =
+        ProfileUpdate(
             fullName = request.fullName,
             phone = request.phone,
         )

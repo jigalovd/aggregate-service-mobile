@@ -1,49 +1,55 @@
 package com.aggregateservice.feature.reviews.data.mapper
 
-import com.aggregateservice.feature.reviews.data.dto.CanReviewResponseDto
-import com.aggregateservice.feature.reviews.data.dto.ProviderReplyDto
-import com.aggregateservice.feature.reviews.data.dto.ReviewDto
-import com.aggregateservice.feature.reviews.data.dto.ReviewStatsDto
-import com.aggregateservice.feature.reviews.domain.model.ProviderReply
+import com.aggregateservice.core.api.models.CanReviewResponse
+import com.aggregateservice.core.api.models.ReviewResponse
+import com.aggregateservice.core.api.models.ReviewStatsResponse
 import com.aggregateservice.feature.reviews.domain.model.Review
 import com.aggregateservice.feature.reviews.domain.model.ReviewStats
 
 /**
- * Mapper for converting DTOs to Domain models.
+ * Mapper for converting generated API DTOs to Domain models.
+ *
+ * Source of truth: OpenAPI spec (core:api-models).
  */
 object ReviewMapper {
-    fun toDomain(dto: ReviewDto): Review =
+    /**
+     * Maps a generated [ReviewResponse] to a domain [Review].
+     *
+     * Note: The generated [ReviewResponse] does not include providerName, clientName,
+     * or providerReply fields from the API. These are defaulted to empty/null until
+     * the OpenAPI spec is updated to include them.
+     */
+    fun toDomain(dto: ReviewResponse): Review =
         Review(
             id = dto.id,
             bookingId = dto.bookingId,
             providerId = dto.providerId,
-            providerName = dto.providerName,
+            providerName = "",
             clientId = dto.clientId,
-            clientName = dto.clientName,
+            clientName = "",
             rating = dto.rating,
             comment = dto.comment,
-            providerReply = dto.providerReply?.toDomain(),
+            providerReply = null,
             createdAt = dto.createdAt,
         )
 
-    fun toDomain(dto: ReviewStatsDto): ReviewStats =
+    /**
+     * Maps a generated [ReviewStatsResponse] to a domain [ReviewStats].
+     *
+     * Note: The generated [ReviewStatsResponse] does not include providerId or
+     * ratingDistribution. providerId must be provided by the caller and
+     * ratingDistribution is defaulted to an empty map until the OpenAPI spec
+     * is updated to include it.
+     */
+    fun toDomain(dto: ReviewStatsResponse, providerId: String): ReviewStats =
         ReviewStats(
-            providerId = dto.providerId,
+            providerId = providerId,
             averageRating = dto.averageRating,
-            totalReviews = dto.totalReviews,
-            ratingDistribution =
-                dto.ratingDistribution
-                    .mapKeys { it.key.toIntOrNull() ?: 0 }
-                    .filterKeys { it in 1..5 },
+            totalReviews = dto.totalCount,
+            ratingDistribution = emptyMap(),
         )
 
-    fun toDomain(dto: CanReviewResponseDto): Boolean = dto.canReview
+    fun toDomain(dto: CanReviewResponse): Boolean = dto.canReview
 
-    private fun ProviderReplyDto.toDomain(): ProviderReply =
-        ProviderReply(
-            text = text,
-            createdAt = createdAt,
-        )
-
-    fun toDomain(dtos: List<ReviewDto>): List<Review> = dtos.map { toDomain(it) }
+    fun toDomain(dtos: List<ReviewResponse>): List<Review> = dtos.map { toDomain(it) }
 }

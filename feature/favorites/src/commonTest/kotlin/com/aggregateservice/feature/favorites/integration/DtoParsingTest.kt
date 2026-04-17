@@ -1,7 +1,7 @@
 package com.aggregateservice.feature.favorites.integration
 
-import com.aggregateservice.feature.favorites.data.dto.FavoriteCheckResponseDto
-import com.aggregateservice.feature.favorites.data.dto.FavoritesListResponseDto
+import com.aggregateservice.core.api.models.FavoriteCheckResponse
+import com.aggregateservice.core.api.models.FavoriteListResponse
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -50,7 +50,7 @@ class DtoParsingTest {
     @Test
     fun `favorites_response parses correctly`() {
         val jsonString = loadFixture("favorites_response.json")
-        val dto = json.decodeFromString<FavoritesListResponseDto>(jsonString)
+        val dto = json.decodeFromString<FavoriteListResponse>(jsonString)
 
         assertNotNull(dto.favorites)
         assertEquals(1, dto.favorites.size)
@@ -62,7 +62,7 @@ class DtoParsingTest {
     @Test
     fun `favorite dto fields populate correctly`() {
         val jsonString = loadFixture("favorites_response.json")
-        val dto = json.decodeFromString<FavoritesListResponseDto>(jsonString)
+        val dto = json.decodeFromString<FavoriteListResponse>(jsonString)
 
         val favorite = dto.favorites[0]
         assertEquals("f1a2b3c4-d5e6-7890-abcd-ef1234567890", favorite.id)
@@ -74,7 +74,7 @@ class DtoParsingTest {
     @Test
     fun `favorite provider nested dto fields populate correctly`() {
         val jsonString = loadFixture("favorites_response.json")
-        val dto = json.decodeFromString<FavoritesListResponseDto>(jsonString)
+        val dto = json.decodeFromString<FavoriteListResponse>(jsonString)
 
         val provider = dto.favorites[0].provider
         assertEquals("p1a2b3c4-d5e6-7890-abcd-ef1234567890", provider.id)
@@ -85,14 +85,14 @@ class DtoParsingTest {
         assertEquals(127, provider.reviewsCount)
         assertEquals("123 Herzl Street, Tel Aviv", provider.address)
         assertEquals("Professional hair and beauty services with 10 years of experience", provider.bio)
-        assertTrue(provider.isVerified)
-        assertTrue(provider.isActive)
+        assertTrue(provider.isVerified ?: false)
+        assertTrue(provider.isActive ?: true)
     }
 
     @Test
     fun `favorite check response parses correctly when not favorite`() {
         val jsonString = loadFixture("favorite_check_response.json")
-        val dto = json.decodeFromString<FavoriteCheckResponseDto>(jsonString)
+        val dto = json.decodeFromString<FavoriteCheckResponse>(jsonString)
 
         assertFalse(dto.isFavorite)
         assertNull(dto.favoriteId)
@@ -101,7 +101,7 @@ class DtoParsingTest {
     @Test
     fun `favorite check response parses correctly when favorite`() {
         val jsonString = """{"is_favorite": true, "favorite_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"}"""
-        val dto = json.decodeFromString<FavoriteCheckResponseDto>(jsonString)
+        val dto = json.decodeFromString<FavoriteCheckResponse>(jsonString)
 
         assertTrue(dto.isFavorite)
         assertEquals("a1b2c3d4-e5f6-7890-abcd-ef1234567890", dto.favoriteId)

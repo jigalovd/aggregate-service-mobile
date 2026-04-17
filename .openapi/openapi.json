@@ -1,0 +1,6013 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Beauty Service API",
+    "description": "Aggregate Service API — платформа бронирования услуг мастеров (b2c marketplace).",
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Development"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "Root"
+        ],
+        "summary": "Root",
+        "description": "Serve the frontend-stub HTML page.",
+        "operationId": "get_root",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/verify-email": {
+      "get": {
+        "tags": [
+          "Root"
+        ],
+        "summary": "Verify Email Page",
+        "description": "Serve the email verification page.",
+        "operationId": "get_verify_email",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Health Check",
+        "description": "Health check endpoint.",
+        "operationId": "get_health",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Get Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics/pool": {
+      "get": {
+        "tags": [
+          "Metrics"
+        ],
+        "summary": "Get Pool Metrics",
+        "description": "Get database connection pool metrics.\n\nReturns pool utilization, checkout count, and other stats.\nRequires admin role in production.",
+        "operationId": "get_pool_metrics",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Pool Metrics"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Get Current User",
+        "operationId": "get_auth_me",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Refresh Token",
+        "description": "Refresh access token.\n\nReads refresh token from HTTP-only cookie (preferred) or request body (fallback).\nReturns new access token in body. New refresh token is set in HTTP-only cookie.",
+        "operationId": "post_auth_refresh",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/RefreshTokenRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Data"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Logout",
+        "operationId": "post_auth_logout",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/users/me/roles": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get User Roles",
+        "operationId": "get_users_roles",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRolesResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Add User Role",
+        "operationId": "post_users_roles",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddRoleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextSwitchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Remove User Role",
+        "operationId": "delete_users_roles",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveRoleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextSwitchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/users/me/context": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get Current Context",
+        "operationId": "get_users_context",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Set Current Context",
+        "description": "Switch user context to a different role with full token invalidation.",
+        "operationId": "put_users_context",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetContextRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextSwitchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/profiles/me": {
+      "get": {
+        "tags": [
+          "profiles"
+        ],
+        "summary": "Get Profile",
+        "description": "Get current user profile, creating if not exists.\n\nArgs:\n    current_user: Authenticated user context\n    profile_service: Profile service instance\n\nReturns:\n    ProfileResponse with profile data",
+        "operationId": "get_profiles_me",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "profiles"
+        ],
+        "summary": "Update Profile",
+        "operationId": "patch_profiles_me",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/catalog/categories": {
+      "get": {
+        "tags": [
+          "catalog",
+          "catalog"
+        ],
+        "summary": "Get Categories",
+        "operationId": "get_catalog_categories",
+        "parameters": [
+          {
+            "name": "parent_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by parent category",
+              "title": "Parent Id"
+            },
+            "description": "Filter by parent category"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/categories/{category_id}": {
+      "get": {
+        "tags": [
+          "catalog",
+          "catalog"
+        ],
+        "summary": "Get Category",
+        "operationId": "get_catalog_categories_by_id",
+        "parameters": [
+          {
+            "name": "category_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Category Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/services": {
+      "get": {
+        "tags": [
+          "catalog",
+          "catalog"
+        ],
+        "summary": "Get Services",
+        "operationId": "get_catalog_services",
+        "parameters": [
+          {
+            "name": "category_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by category",
+              "title": "Category Id"
+            },
+            "description": "Filter by category"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/services/{service_id}": {
+      "get": {
+        "tags": [
+          "catalog",
+          "catalog"
+        ],
+        "summary": "Get Service",
+        "operationId": "get_catalog_services_by_id",
+        "parameters": [
+          {
+            "name": "service_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Service Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/providers/search": {
+      "post": {
+        "tags": [
+          "catalog",
+          "catalog"
+        ],
+        "summary": "Search Providers",
+        "operationId": "post_catalog_providers_search",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProviderSearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/providers/{provider_id}": {
+      "get": {
+        "tags": [
+          "catalog",
+          "catalog"
+        ],
+        "summary": "Get Provider",
+        "operationId": "get_catalog_providers_by_id",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/providers/{provider_id}/detail": {
+      "get": {
+        "tags": [
+          "catalog",
+          "catalog"
+        ],
+        "summary": "Get Provider Detail",
+        "description": "Composite endpoint for provider detail page.\n\nReturns provider + services + favorite status in one request.\nReplaces 3 separate API calls from the mobile client.\nFavorite status is included only when authenticated.",
+        "operationId": "get_catalog_providers_detail",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDetailResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/providers/{provider_id}/services": {
+      "get": {
+        "tags": [
+          "catalog",
+          "catalog"
+        ],
+        "summary": "Get Provider Services",
+        "description": "Get active services for a provider (public endpoint).\n\nReturns only active services with i18n title/description and category info.\n200: Provider found (with services or empty list)\n404: Provider not found",
+        "operationId": "get_catalog_providers_services",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicProviderServicesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/favorites": {
+      "post": {
+        "tags": [
+          "catalog",
+          "catalog"
+        ],
+        "summary": "Add Favorite",
+        "operationId": "post_catalog_favorites",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FavoriteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavoriteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "catalog",
+          "catalog"
+        ],
+        "summary": "Get Favorites",
+        "operationId": "get_catalog_favorites",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavoriteListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/favorites/{provider_id}": {
+      "delete": {
+        "tags": [
+          "catalog",
+          "catalog"
+        ],
+        "summary": "Remove Favorite",
+        "operationId": "delete_catalog_favorites",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/favorites/{provider_id}/check": {
+      "get": {
+        "tags": [
+          "catalog",
+          "catalog"
+        ],
+        "summary": "Check Favorite",
+        "description": "Check if provider is in user's favorites.",
+        "operationId": "get_catalog_favorites_check",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavoriteCheckResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/providers/search/availability": {
+      "post": {
+        "tags": [
+          "catalog-search",
+          "catalog"
+        ],
+        "summary": "Search providers by time availability",
+        "description": "Find providers who have available slots within the specified time window\n    and offer all the requested services.\n\n    Results can be sorted by:\n    - rating: Highest rated providers first (default)\n    - price: Lowest total price first",
+        "operationId": "post_catalog_search_availability",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AvailabilitySearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilitySearchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/services/cart/validate": {
+      "post": {
+        "tags": [
+          "catalog-cart",
+          "catalog"
+        ],
+        "summary": "Validate cart services",
+        "description": "Pre-validate selected services before booking.\n\n    Returns:\n    - is_valid: Whether all services can be booked together\n    - is_combinable: Whether all services are combinable\n    - services: List of services with details\n    - totals: Total duration and price\n    - warnings: Any validation warnings",
+        "operationId": "post_catalog_cart_validate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CartValidateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartValidateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/providers/portfolio": {
+      "post": {
+        "tags": [
+          "portfolio",
+          "portfolio"
+        ],
+        "summary": "Upload portfolio image",
+        "description": "Upload an image to provider's portfolio. Max 50 images per provider.",
+        "operationId": "post_portfolio_upload",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_post_portfolio_upload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioUploadResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "portfolio",
+          "portfolio"
+        ],
+        "summary": "Get my portfolio",
+        "description": "Get all portfolio images for the current provider.",
+        "operationId": "get_portfolio_list",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/providers/{provider_id}/portfolio": {
+      "get": {
+        "tags": [
+          "portfolio",
+          "portfolio"
+        ],
+        "summary": "Get provider portfolio (public)",
+        "description": "Get all portfolio images for a specific provider. Public endpoint.",
+        "operationId": "get_portfolio_public",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Provider Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/providers/portfolio/{portfolio_id}": {
+      "delete": {
+        "tags": [
+          "portfolio",
+          "portfolio"
+        ],
+        "summary": "Delete portfolio image",
+        "description": "Delete an image from provider's portfolio.",
+        "operationId": "delete_portfolio_item",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "portfolio_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Portfolio Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bookings": {
+      "post": {
+        "tags": [
+          "bookings",
+          "bookings"
+        ],
+        "summary": "Create a new booking",
+        "description": "Creates a new booking request for a provider in PENDING status.\n\n    **Business Rules:**\n    - Client role required\n    - Start time must be in future\n    - Slot must be available (no conflicts)\n    - Max 30 days in advance\n    - Min 1 service, max 10 services\n    - All services must belong to provider\n\n    **Status Flow:**\n    - New booking → PENDING\n    - Provider confirms → CONFIRMED\n    - Or expires after 24 hours → EXPIRED\n\n    **Security:**\n    - User ID from JWT token (SEC-001)\n    - Role-based access control\n    - Rate limited to 10 per hour per IP",
+        "operationId": "post_bookings",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookingCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Booking created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingResponse"
+                },
+                "example": {
+                  "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                  "status": "PENDING",
+                  "provider_id": "550e8400-e29b-41d4-a716-446655440000",
+                  "client_id": "123e4567-e89b-12d3-a456-426614174000",
+                  "start_time": "2026-03-07T14:00:00Z",
+                  "end_time": "2026-03-07T15:30:00Z",
+                  "total_price": 150.0,
+                  "total_duration_minutes": 90
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid booking data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Only clients can create bookings"
+          },
+          "409": {
+            "description": "Slot not available"
+          },
+          "422": {
+            "description": "Business validation error"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/bookings/{booking_id}": {
+      "get": {
+        "tags": [
+          "bookings",
+          "bookings"
+        ],
+        "summary": "Get booking details",
+        "description": "Returns full information about a booking.\n\n    **Security:**\n    - Client or Provider only (ownership validation)\n    - User ID from JWT token (SEC-001)",
+        "operationId": "get_booking_by_id",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Booking Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Booking details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Booking not found"
+          },
+          "403": {
+            "description": "Access denied"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bookings/provider/{provider_id}": {
+      "get": {
+        "tags": [
+          "bookings",
+          "bookings"
+        ],
+        "summary": "Get Provider Bookings",
+        "operationId": "get_bookings_provider",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Provider Id"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by booking status",
+              "title": "Status"
+            },
+            "description": "Filter by booking status"
+          },
+          {
+            "name": "from_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter bookings from this date",
+              "title": "From Date"
+            },
+            "description": "Filter bookings from this date"
+          },
+          {
+            "name": "to_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter bookings until this date",
+              "title": "To Date"
+            },
+            "description": "Filter bookings until this date"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookingResponse"
+                  },
+                  "title": "Response Get Bookings Provider"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bookings/client/me": {
+      "get": {
+        "tags": [
+          "bookings",
+          "bookings"
+        ],
+        "summary": "Get Client Bookings",
+        "operationId": "get_bookings_client",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by booking status",
+              "title": "Status"
+            },
+            "description": "Filter by booking status"
+          },
+          {
+            "name": "from_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter bookings from this date",
+              "title": "From Date"
+            },
+            "description": "Filter bookings from this date"
+          },
+          {
+            "name": "to_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter bookings until this date",
+              "title": "To Date"
+            },
+            "description": "Filter bookings until this date"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookingResponse"
+                  },
+                  "title": "Response Get Bookings Client"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bookings/{booking_id}/confirm": {
+      "patch": {
+        "tags": [
+          "bookings",
+          "bookings"
+        ],
+        "summary": "Confirm booking (Provider only)",
+        "description": "Confirms a booking, changing status from PENDING to CONFIRMED.\n\n    **Business Rules:**\n    - Provider role required\n    - Status must be PENDING\n    - Only provider who owns the booking\n    - Sets confirmed_at and confirmed_by\n\n    **Notifications:**\n    - Email sent to client (future)",
+        "operationId": "patch_booking_confirm",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Booking Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Booking confirmed"
+          },
+          "403": {
+            "description": "Only providers can confirm bookings"
+          },
+          "409": {
+            "description": "Booking already confirmed or cancelled"
+          },
+          "422": {
+            "description": "Cannot confirm booking in current status"
+          }
+        }
+      }
+    },
+    "/api/v1/bookings/{booking_id}/cancel": {
+      "patch": {
+        "tags": [
+          "bookings",
+          "bookings"
+        ],
+        "summary": "Cancel booking",
+        "description": "Cancels a booking with business rule validation.\n\n    **Cancellation Policy:**\n    - **Client:** min 2 hours before start_time\n    - **Provider:** can cancel anytime (log.log reason)\n    - Status must be PENDING or CONFIRMED\n    - Sets cancelled_at, cancelled_by, cancellation_reason\n\n    **Notifications:**\n    - Email sent to other party (future)",
+        "operationId": "patch_booking_cancel",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Booking Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookingCancel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Booking cancelled"
+          },
+          "403": {
+            "description": "Cancellation too late (client)"
+          },
+          "409": {
+            "description": "Booking already cancelled"
+          },
+          "422": {
+            "description": "Cannot cancel booking in current status"
+          }
+        }
+      }
+    },
+    "/api/v1/bookings/{booking_id}/reschedule": {
+      "patch": {
+        "tags": [
+          "bookings",
+          "bookings"
+        ],
+        "summary": "Reschedule booking",
+        "description": "Reschedules a booking to a new time.\n\n    **Rescheduling Policy:**\n    - **Client:** min 2 hours before start_time\n    - **Provider:** can reschedule anytime\n    - Status must be CONFIRMED\n    - Max 3 reschedules per booking\n    - New slot must be available\n\n    **Database:**\n    - Creates record in booking_reschedule_history\n    - Increments reschedule_count",
+        "operationId": "patch_booking_reschedule",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Booking Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookingReschedule"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Booking rescheduled"
+          },
+          "403": {
+            "description": "Rescheduling too late (client)"
+          },
+          "409": {
+            "description": "New slot not available"
+          },
+          "422": {
+            "description": "Max reschedules exceeded (3)"
+          }
+        }
+      }
+    },
+    "/api/v1/bookings/{booking_id}/complete": {
+      "patch": {
+        "tags": [
+          "bookings",
+          "bookings"
+        ],
+        "summary": "Complete booking (Provider only)",
+        "description": "Marks a booking as COMPLETED.\n\n    **Business Rules:**\n    - Provider role required\n    - Status must be CONFIRMED\n    - Only after end_time has passed\n    - Enables review creation for client\n\n    **Next Steps:**\n    - Client can create review\n    - Provider's stats updated",
+        "operationId": "patch_booking_complete",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Booking Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Booking completed"
+          },
+          "403": {
+            "description": "Only providers can complete bookings"
+          },
+          "422": {
+            "description": "Cannot complete booking in current status"
+          }
+        }
+      }
+    },
+    "/api/v1/bookings/{booking_id}/no-show": {
+      "patch": {
+        "tags": [
+          "bookings",
+          "bookings"
+        ],
+        "summary": "Mark booking as no-show (Provider only)",
+        "description": "Marks a booking as NO_SHOW when client doesn't appear.\n\n    **Business Rules:**\n    - Provider role required\n    - Status must be CONFIRMED or IN_PROGRESS\n    - Only the booking's provider can mark no-show\n    - Records no_show_marked_at/by timestamps\n\n    **Impact:**\n    - Booking status → NO_SHOW\n    - Client's no_show_count incremented (Phase 2)\n    - May affect client's Trust Score (Phase 2)\n\n    **Security:**\n    - Provider ownership validated\n    - User ID from JWT (SEC-001)",
+        "operationId": "patch_booking_no_show",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Booking Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Booking marked as no-show"
+          },
+          "403": {
+            "description": "Only the booking's provider can mark no-show"
+          },
+          "404": {
+            "description": "Booking not found"
+          },
+          "422": {
+            "description": "Cannot mark no-show in current status"
+          }
+        }
+      }
+    },
+    "/api/v1/bookings/slots": {
+      "get": {
+        "tags": [
+          "bookings",
+          "bookings"
+        ],
+        "summary": "Get available slots",
+        "description": "Returns list of available slots for a provider on a specific date or date range.\n\n    **Slot Generation:**\n    - Based on provider's schedule rules (weekday + time range)\n    - Slot duration = sum of service durations or explicit override\n    - Excludes: past slots, booked slots, non-working days\n\n    **Query Parameters:**\n    - `providerId`: UUID of the provider (providers.id)\n    - `fromDate`: Required. Start date (YYYY-MM-DD)\n    - `toDate`: Optional. End date (YYYY-MM-DD). Defaults to fromDate (single day).\n    - `serviceIds`: Comma-separated service UUIDs for duration calculation\n    - `duration_minutes`: Override slot duration (optional)\n\n    **Rate Limit:** 30 requests per minute per IP",
+        "operationId": "get_booking_slots",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "providerId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Provider ID",
+              "title": "Providerid"
+            },
+            "description": "Provider ID"
+          },
+          {
+            "name": "fromDate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Start date (YYYY-MM-DD)",
+              "title": "Fromdate"
+            },
+            "description": "Start date (YYYY-MM-DD)"
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "End date (YYYY-MM-DD), defaults to fromDate",
+              "title": "Todate"
+            },
+            "description": "End date (YYYY-MM-DD), defaults to fromDate"
+          },
+          {
+            "name": "serviceIds",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated service IDs",
+              "default": "",
+              "title": "Serviceids"
+            },
+            "description": "Comma-separated service IDs"
+          },
+          {
+            "name": "duration_minutes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 15
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Override slot duration",
+              "title": "Duration Minutes"
+            },
+            "description": "Override slot duration"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of available slots",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookingAvailableSlotResponse"
+                  },
+                  "title": "Response Get Booking Slots"
+                },
+                "example": [
+                  {
+                    "start_time": "2026-03-07T09:00:00Z",
+                    "end_time": "2026-03-07T10:30:00Z",
+                    "is_available": true,
+                    "provider_id": "uuid-here"
+                  }
+                ]
+              }
+            }
+          },
+          "404": {
+            "description": "Provider not found"
+          },
+          "422": {
+            "description": "Invalid parameters"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      }
+    },
+    "/api/v1/bookings/{booking_id}/can-review": {
+      "get": {
+        "tags": [
+          "bookings",
+          "bookings"
+        ],
+        "summary": "Check if booking can be reviewed",
+        "description": "Check if client can review a booking.",
+        "operationId": "get_booking_can_review",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Booking Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CanReviewResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/schedule-rules": {
+      "post": {
+        "tags": [
+          "schedule-rules",
+          "schedule-rules"
+        ],
+        "summary": "Create Schedule Rule",
+        "operationId": "post_schedule_rule",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduleRuleCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduleRuleResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/schedule-rules/{rule_id}": {
+      "get": {
+        "tags": [
+          "schedule-rules",
+          "schedule-rules"
+        ],
+        "summary": "Get Schedule Rule",
+        "operationId": "get_schedule_rule",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "rule_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Rule Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduleRuleResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "schedule-rules",
+          "schedule-rules"
+        ],
+        "summary": "Update Schedule Rule",
+        "operationId": "put_schedule_rule",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "rule_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Rule Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduleRuleCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduleRuleResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "schedule-rules",
+          "schedule-rules"
+        ],
+        "summary": "Delete Schedule Rule",
+        "operationId": "delete_schedule_rule",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "rule_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Rule Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/schedule-rules/provider/{provider_id}": {
+      "get": {
+        "tags": [
+          "schedule-rules",
+          "schedule-rules"
+        ],
+        "summary": "Get Provider Schedule Rules",
+        "operationId": "get_schedule_rules_provider",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Provider Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ScheduleRuleResponse"
+                  },
+                  "title": "Response Get Schedule Rules Provider"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/providers/services": {
+      "post": {
+        "tags": [
+          "provider-services",
+          "provider-services"
+        ],
+        "summary": "Create Provider Service",
+        "operationId": "post_provider_services",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProviderServiceCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderServiceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "provider-services",
+          "provider-services"
+        ],
+        "summary": "Get Provider Services",
+        "operationId": "get_provider_services",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "is_active",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by active status",
+              "title": "Is Active"
+            },
+            "description": "Filter by active status"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderServiceListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/providers/services/{provider_service_id}": {
+      "get": {
+        "tags": [
+          "provider-services",
+          "provider-services"
+        ],
+        "summary": "Get Provider Service",
+        "operationId": "get_provider_service_by_id",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "provider_service_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Provider Service Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderServiceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "provider-services",
+          "provider-services"
+        ],
+        "summary": "Update Provider Service",
+        "operationId": "patch_provider_service",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "provider_service_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Provider Service Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProviderServiceUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderServiceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "provider-services",
+          "provider-services"
+        ],
+        "summary": "Delete Provider Service",
+        "description": "Delete provider service.\n\nUses ActiveBookingCheckerProtocol for cross-feature communication\nwith Booking feature (ARCH-004 compliance).",
+        "operationId": "delete_provider_service",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "provider_service_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Provider Service Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reviews": {
+      "post": {
+        "tags": [
+          "reviews"
+        ],
+        "summary": "Create a review",
+        "description": "Create a new review for a completed booking.\n\n* **booking_id**: ID of the completed booking\n* **rating**: Rating from 1 to 5\n* **comment**: Optional review comment (max 2000 chars)\n* **service_ids**: Optional list of service IDs being reviewed\n\nNote: provider_id is automatically extracted from the booking.",
+        "operationId": "post_review",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/reviews/{review_id}": {
+      "get": {
+        "tags": [
+          "reviews"
+        ],
+        "summary": "Get a review",
+        "description": "Get a review by ID.",
+        "operationId": "get_review",
+        "parameters": [
+          {
+            "name": "review_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Review Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "reviews"
+        ],
+        "summary": "Update a review",
+        "description": "Update an existing review.\n\nOnly the review author can update the review.",
+        "operationId": "patch_review",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "review_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Review Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "reviews"
+        ],
+        "summary": "Delete a review",
+        "description": "Delete a review (soft delete).\n\nOnly the review author can delete the review.",
+        "operationId": "delete_review",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "review_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Review Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reviews/provider/{provider_id}": {
+      "get": {
+        "tags": [
+          "reviews"
+        ],
+        "summary": "Get provider reviews",
+        "description": "Get all reviews for a provider with rating statistics.\n\nprovider_id: providers.id from catalog",
+        "operationId": "get_reviews_provider",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Provider Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderReviewsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reviews/stats/provider/{provider_id}": {
+      "get": {
+        "tags": [
+          "reviews"
+        ],
+        "summary": "Get provider review statistics",
+        "description": "Get aggregated review statistics for a provider.\n\nprovider_id: providers.id from catalog",
+        "operationId": "get_reviews_stats",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewStatsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/provider/verify": {
+      "post": {
+        "tags": [
+          "firebase-auth",
+          "auth-provider"
+        ],
+        "summary": "Verify Firebase",
+        "description": "Verify Firebase token and authenticate or require linking.\n\nAndroid flow:\n1. User signs in with Google/Apple via Firebase SDK\n2. App receives Firebase token\n3. App calls this endpoint\n4. Backend verifies token and either:\n   - Creates new user and returns tokens (201)\n   - Returns existing user tokens (200)\n   - Returns link_required if email exists (200)",
+        "operationId": "post_firebase_verify",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FirebaseVerifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "New user created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/AuthResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/LinkRequiredResponse"
+                    }
+                  ],
+                  "title": "Response Post Firebase Verify"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "User authenticated or link required"
+          },
+          "409": {
+            "description": "Firebase already linked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/provider/link": {
+      "post": {
+        "tags": [
+          "firebase-auth",
+          "auth-provider"
+        ],
+        "summary": "Link Firebase",
+        "description": "Link Firebase account to existing user with password verification.\n\nAndroid flow (after verify returns link_required):\n1. App shows \"Enter password\" dialog\n2. User enters password\n3. App calls this endpoint with {firebase_token, password}\n4. Backend verifies password and links Firebase account\n5. Backend returns tokens",
+        "operationId": "post_firebase_link",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FirebaseLinkRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Account linked successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials"
+          },
+          "409": {
+            "description": "Firebase already linked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/provider/unlink": {
+      "delete": {
+        "tags": [
+          "firebase-auth",
+          "auth-provider"
+        ],
+        "summary": "Unlink Firebase",
+        "description": "Unlink Firebase account from user.\n\nUser must have at least one auth method remaining (password or other Firebase).",
+        "operationId": "delete_firebase_unlink",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FirebaseUnlinkRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Firebase account unlinked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Cannot unlink last auth method"
+          },
+          "404": {
+            "description": "Firebase account not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/provider/accounts": {
+      "get": {
+        "tags": [
+          "firebase-auth",
+          "auth-provider"
+        ],
+        "summary": "List Firebase Accounts",
+        "description": "List all Firebase accounts linked to current user.",
+        "operationId": "get_firebase_accounts",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FirebaseAccountsDTO"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AddRoleRequest": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "client",
+              "provider"
+            ],
+            "title": "Role"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role"
+        ],
+        "title": "AddRoleRequest",
+        "description": "Add role to user request schema."
+      },
+      "AuthResponse": {
+        "properties": {
+          "response_type": {
+            "type": "string",
+            "const": "already_linked",
+            "title": "Response Type",
+            "default": "already_linked"
+          },
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "refresh_token": {
+            "type": "string",
+            "title": "Refresh Token"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "refresh_token",
+          "user"
+        ],
+        "title": "AuthResponse",
+        "description": "Authentication response schema."
+      },
+      "AvailabilitySearchRequest": {
+        "properties": {
+          "start_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start Time",
+            "description": "Start of search window"
+          },
+          "end_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End Time",
+            "description": "End of search window"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "maximum": 480.0,
+            "minimum": 15.0,
+            "title": "Duration Minutes",
+            "description": "Required duration in minutes"
+          },
+          "service_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Service Ids",
+            "description": "Services to book"
+          },
+          "sort_by": {
+            "type": "string",
+            "pattern": "^(rating|price)$",
+            "title": "Sort By",
+            "description": "Sort by rating or price",
+            "default": "rating"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start_time",
+          "end_time",
+          "duration_minutes",
+          "service_ids"
+        ],
+        "title": "AvailabilitySearchRequest"
+      },
+      "AvailabilitySearchResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ProviderWithSlotResponse"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "total"
+        ],
+        "title": "AvailabilitySearchResponse"
+      },
+      "Body_post_portfolio_upload": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File",
+            "description": "Image file (JPEG, PNG, WEBP)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_post_portfolio_upload"
+      },
+      "BookingAvailableSlotResponse": {
+        "properties": {
+          "start_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start Time"
+          },
+          "end_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End Time"
+          },
+          "is_available": {
+            "type": "boolean",
+            "title": "Is Available",
+            "description": "Доступность слота",
+            "default": true
+          },
+          "provider_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Provider Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start_time",
+          "end_time",
+          "provider_id"
+        ],
+        "title": "BookingAvailableSlotResponse"
+      },
+      "BookingCancel": {
+        "properties": {
+          "cancellation_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cancellation Reason",
+            "description": "Причина отмены"
+          }
+        },
+        "type": "object",
+        "title": "BookingCancel"
+      },
+      "BookingCreate": {
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Provider Id",
+            "description": "Provider ID (providers.id from catalog)"
+          },
+          "start_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start Time",
+            "description": "Время начала"
+          },
+          "service_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Service Ids",
+            "description": "Список услуг"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes",
+            "description": "Заметки к бронированию"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider_id",
+          "start_time",
+          "service_ids"
+        ],
+        "title": "BookingCreate"
+      },
+      "BookingItemResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "booking_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Booking Id"
+          },
+          "service_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Service Id"
+          },
+          "service_name": {
+            "type": "string",
+            "title": "Service Name"
+          },
+          "price": {
+            "type": "number",
+            "title": "Price"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency",
+            "default": "ILS"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "title": "Duration Minutes"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "booking_id",
+          "service_id",
+          "service_name",
+          "price",
+          "duration_minutes",
+          "created_at"
+        ],
+        "title": "BookingItemResponse"
+      },
+      "BookingReschedule": {
+        "properties": {
+          "new_start_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "New Start Time",
+            "description": "Новое время начала"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason",
+            "description": "Причина переноса"
+          }
+        },
+        "type": "object",
+        "required": [
+          "new_start_time"
+        ],
+        "title": "BookingReschedule"
+      },
+      "BookingResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "provider_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Provider Id"
+          },
+          "provider_name": {
+            "type": "string",
+            "title": "Provider Name",
+            "default": ""
+          },
+          "client_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Client Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "start_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start Time"
+          },
+          "end_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End Time"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "total_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Price"
+          },
+          "total_duration_minutes": {
+            "type": "integer",
+            "title": "Total Duration Minutes"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency",
+            "default": "ILS"
+          },
+          "reschedule_count": {
+            "type": "integer",
+            "title": "Reschedule Count"
+          },
+          "confirmed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confirmed At"
+          },
+          "confirmed_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confirmed By"
+          },
+          "cancelled_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cancelled At"
+          },
+          "cancelled_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cancelled By"
+          },
+          "cancellation_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cancellation Reason"
+          },
+          "expired_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expired At"
+          },
+          "no_show_marked_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "No Show Marked At"
+          },
+          "no_show_marked_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "No Show Marked By"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BookingItemResponse"
+            },
+            "type": "array",
+            "title": "Items",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "provider_id",
+          "client_id",
+          "status",
+          "start_time",
+          "end_time",
+          "notes",
+          "total_price",
+          "total_duration_minutes",
+          "reschedule_count",
+          "confirmed_at",
+          "confirmed_by",
+          "cancelled_at",
+          "cancelled_by",
+          "cancellation_reason",
+          "expired_at",
+          "no_show_marked_at",
+          "no_show_marked_by",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "BookingResponse"
+      },
+      "CanReviewResponse": {
+        "properties": {
+          "can_review": {
+            "type": "boolean",
+            "title": "Can Review"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "can_review"
+        ],
+        "title": "CanReviewResponse",
+        "description": "Response for checking if booking can be reviewed."
+      },
+      "CartServiceResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "base_price": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Price"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "title": "Duration Minutes"
+          },
+          "is_combinable": {
+            "type": "boolean",
+            "title": "Is Combinable"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "base_price",
+          "duration_minutes",
+          "is_combinable"
+        ],
+        "title": "CartServiceResponse"
+      },
+      "CartTotalsResponse": {
+        "properties": {
+          "total_duration_minutes": {
+            "type": "integer",
+            "title": "Total Duration Minutes"
+          },
+          "total_price": {
+            "type": "integer",
+            "title": "Total Price"
+          },
+          "services_count": {
+            "type": "integer",
+            "title": "Services Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_duration_minutes",
+          "total_price",
+          "services_count"
+        ],
+        "title": "CartTotalsResponse"
+      },
+      "CartValidateRequest": {
+        "properties": {
+          "service_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Service Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "service_ids"
+        ],
+        "title": "CartValidateRequest"
+      },
+      "CartValidateResponse": {
+        "properties": {
+          "is_valid": {
+            "type": "boolean",
+            "title": "Is Valid"
+          },
+          "is_combinable": {
+            "type": "boolean",
+            "title": "Is Combinable"
+          },
+          "services": {
+            "items": {
+              "$ref": "#/components/schemas/CartServiceResponse"
+            },
+            "type": "array",
+            "title": "Services"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/CartTotalsResponse"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/CartWarningResponse"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "is_valid",
+          "is_combinable",
+          "services",
+          "totals",
+          "warnings"
+        ],
+        "title": "CartValidateResponse"
+      },
+      "CartWarningResponse": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "service_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Service Id"
+          },
+          "service_title": {
+            "type": "string",
+            "title": "Service Title"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "service_id",
+          "service_title",
+          "message"
+        ],
+        "title": "CartWarningResponse"
+      },
+      "CatalogAvailableSlotResponse": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start",
+          "end"
+        ],
+        "title": "CatalogAvailableSlotResponse"
+      },
+      "CategoryListResponse": {
+        "properties": {
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/CategoryResponse"
+            },
+            "type": "array",
+            "title": "Categories"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "categories",
+          "total"
+        ],
+        "title": "CategoryListResponse"
+      },
+      "CategoryResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          },
+          "name": {
+            "$ref": "#/components/schemas/I18nStringSchema"
+          },
+          "icon_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon Url"
+          },
+          "sort_order": {
+            "type": "integer",
+            "title": "Sort Order",
+            "default": 0
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "CategoryResponse"
+      },
+      "ContextSwitchResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message",
+          "access_token"
+        ],
+        "title": "ContextSwitchResponse",
+        "description": "Context switch response schema with new access token.\n\nNote: refresh_token is set via HTTP-only cookie, not returned in body."
+      },
+      "ErrorResponse": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "status": {
+            "type": "integer",
+            "title": "Status"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          },
+          "instance": {
+            "type": "string",
+            "title": "Instance"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "title",
+          "status",
+          "detail",
+          "instance"
+        ],
+        "title": "ErrorResponse",
+        "description": "RFC 7807 Problem Details error response."
+      },
+      "FavoriteCheckResponse": {
+        "properties": {
+          "is_favorite": {
+            "type": "boolean",
+            "title": "Is Favorite"
+          },
+          "favorite_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Favorite Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "is_favorite"
+        ],
+        "title": "FavoriteCheckResponse",
+        "description": "Response for checking if provider is in favorites."
+      },
+      "FavoriteListResponse": {
+        "properties": {
+          "favorites": {
+            "items": {
+              "$ref": "#/components/schemas/FavoriteResponse"
+            },
+            "type": "array",
+            "title": "Favorites"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "favorites",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "FavoriteListResponse"
+      },
+      "FavoriteRequest": {
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Provider Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider_id"
+        ],
+        "title": "FavoriteRequest"
+      },
+      "FavoriteResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "provider_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Provider Id"
+          },
+          "provider": {
+            "$ref": "#/components/schemas/ProviderResponse"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "provider_id",
+          "provider",
+          "created_at"
+        ],
+        "title": "FavoriteResponse"
+      },
+      "FirebaseAccountDTO": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "linked_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Linked At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider",
+          "email",
+          "linked_at"
+        ],
+        "title": "FirebaseAccountDTO",
+        "description": "DTO for Firebase account response."
+      },
+      "FirebaseAccountsDTO": {
+        "properties": {
+          "accounts": {
+            "items": {
+              "$ref": "#/components/schemas/FirebaseAccountDTO"
+            },
+            "type": "array",
+            "title": "Accounts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "accounts"
+        ],
+        "title": "FirebaseAccountsDTO",
+        "description": "DTO for list of Firebase accounts response."
+      },
+      "FirebaseLinkRequest": {
+        "properties": {
+          "firebase_token": {
+            "type": "string",
+            "title": "Firebase Token",
+            "description": "Firebase ID token"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Password",
+            "description": "User password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "firebase_token",
+          "password"
+        ],
+        "title": "FirebaseLinkRequest",
+        "description": "Request schema for Firebase account linking."
+      },
+      "FirebaseUnlinkRequest": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "google.com",
+              "apple.com",
+              "phone"
+            ],
+            "title": "Provider",
+            "description": "Provider to unlink"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider"
+        ],
+        "title": "FirebaseUnlinkRequest",
+        "description": "Request schema for Firebase account unlinking."
+      },
+      "FirebaseVerifyRequest": {
+        "properties": {
+          "firebase_token": {
+            "type": "string",
+            "title": "Firebase Token",
+            "description": "Firebase ID token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "firebase_token"
+        ],
+        "title": "FirebaseVerifyRequest",
+        "description": "Request schema for Firebase token verification."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "I18nStringSchema": {
+        "properties": {
+          "ru": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0,
+            "title": "Ru"
+          },
+          "he": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0,
+            "title": "He"
+          },
+          "en": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0,
+            "title": "En"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ru",
+          "he",
+          "en"
+        ],
+        "title": "I18nStringSchema"
+      },
+      "LinkRequiredResponse": {
+        "properties": {
+          "response_type": {
+            "type": "string",
+            "const": "link_required",
+            "title": "Response Type",
+            "default": "link_required"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Password verification required to link Firebase account"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "firebase_uid": {
+            "type": "string",
+            "title": "Firebase Uid"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "firebase_uid",
+          "provider"
+        ],
+        "title": "LinkRequiredResponse",
+        "description": "Response when email exists but Firebase is not linked."
+      },
+      "LocationSchema": {
+        "properties": {
+          "lat": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Lat"
+          },
+          "lon": {
+            "type": "number",
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Lon"
+          }
+        },
+        "type": "object",
+        "required": [
+          "lat",
+          "lon"
+        ],
+        "title": "LocationSchema"
+      },
+      "MessageResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "MessageResponse",
+        "description": "Simple message response schema."
+      },
+      "PortfolioItemResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image Url"
+          },
+          "thumbnail_url": {
+            "type": "string",
+            "title": "Thumbnail Url"
+          },
+          "uploaded_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Uploaded At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "image_url",
+          "thumbnail_url",
+          "uploaded_at"
+        ],
+        "title": "PortfolioItemResponse"
+      },
+      "PortfolioListResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PortfolioItemResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "PortfolioListResponse"
+      },
+      "PortfolioUploadResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image Url"
+          },
+          "thumbnail_url": {
+            "type": "string",
+            "title": "Thumbnail Url"
+          },
+          "uploaded_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Uploaded At"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Image uploaded successfully"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "image_url",
+          "thumbnail_url",
+          "uploaded_at"
+        ],
+        "title": "PortfolioUploadResponse"
+      },
+      "ProfileResponse": {
+        "properties": {
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\+\\d{10,15}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "avatar_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Url"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "no_show_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "No Show Count",
+            "description": "Number of no-show marks",
+            "default": 0
+          },
+          "no_show_rate": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "No Show Rate",
+            "description": "No-show rate (0.0-1.0)",
+            "default": 0.0
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ProfileResponse",
+        "description": "Profile response schema."
+      },
+      "ProfileUpdate": {
+        "properties": {
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\+\\d{10,15}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "avatar_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Url"
+          }
+        },
+        "type": "object",
+        "title": "ProfileUpdate",
+        "description": "Profile update schema."
+      },
+      "ProviderDetailResponse": {
+        "properties": {
+          "provider": {
+            "$ref": "#/components/schemas/ProviderResponse"
+          },
+          "services": {
+            "items": {
+              "$ref": "#/components/schemas/PublicProviderServiceItemResponse"
+            },
+            "type": "array",
+            "title": "Services"
+          },
+          "is_favorite": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Favorite"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider",
+          "services"
+        ],
+        "title": "ProviderDetailResponse",
+        "description": "Composite response for provider detail page.\n\nCombines provider info + services + favorite status in a single request,\nreplacing 3 separate API calls from the mobile client."
+      },
+      "ProviderListResponse": {
+        "properties": {
+          "providers": {
+            "items": {
+              "$ref": "#/components/schemas/ProviderResponse"
+            },
+            "type": "array",
+            "title": "Providers"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "providers",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "ProviderListResponse"
+      },
+      "ProviderResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "bio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bio"
+          },
+          "avatar_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Url"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LocationSchema"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "rating_cached": {
+            "type": "number",
+            "maximum": 5.0,
+            "minimum": 0.0,
+            "title": "Rating Cached"
+          },
+          "reviews_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Reviews Count"
+          },
+          "is_verified": {
+            "type": "boolean",
+            "title": "Is Verified",
+            "default": false
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": true
+          },
+          "distance_km": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distance Km"
+          },
+          "auto_accept_bookings": {
+            "type": "boolean",
+            "title": "Auto Accept Bookings",
+            "description": "Auto-accept all bookings",
+            "default": false
+          },
+          "allow_rescheduling": {
+            "type": "boolean",
+            "title": "Allow Rescheduling",
+            "description": "Allow clients to reschedule",
+            "default": true
+          },
+          "min_booking_notice_hours": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Min Booking Notice Hours",
+            "description": "Minimum hours before booking",
+            "default": 2
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "display_name",
+          "rating_cached",
+          "reviews_count",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ProviderResponse"
+      },
+      "ProviderReviewsResponse": {
+        "properties": {
+          "reviews": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewResponse"
+            },
+            "type": "array",
+            "title": "Reviews"
+          },
+          "average_rating": {
+            "type": "number",
+            "title": "Average Rating"
+          },
+          "total_count": {
+            "type": "integer",
+            "title": "Total Count"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reviews",
+          "average_rating",
+          "total_count",
+          "limit",
+          "offset"
+        ],
+        "title": "ProviderReviewsResponse",
+        "description": "Schema for provider reviews with rating stats."
+      },
+      "ProviderSearchRequest": {
+        "properties": {
+          "lat": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Lat",
+            "description": "Latitude"
+          },
+          "lon": {
+            "type": "number",
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Lon",
+            "description": "Longitude"
+          },
+          "radius_km": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.1,
+            "title": "Radius Km",
+            "description": "Search radius in km",
+            "default": 10.0
+          },
+          "category_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Id"
+          },
+          "service_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Service Id"
+          },
+          "price_min": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Min",
+            "description": "Min price in cents"
+          },
+          "price_max": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Max",
+            "description": "Max price in cents"
+          },
+          "sort_by": {
+            "type": "string",
+            "pattern": "^(distance|rating)$",
+            "title": "Sort By",
+            "default": "distance"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "default": 20
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Offset",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "lat",
+          "lon"
+        ],
+        "title": "ProviderSearchRequest"
+      },
+      "ProviderServiceCreateRequest": {
+        "properties": {
+          "service_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Service Id"
+          },
+          "custom_price": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Custom Price",
+            "description": "Custom price in cents"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "service_id"
+        ],
+        "title": "ProviderServiceCreateRequest"
+      },
+      "ProviderServiceListResponse": {
+        "properties": {
+          "services": {
+            "items": {
+              "$ref": "#/components/schemas/ProviderServiceResponse"
+            },
+            "type": "array",
+            "title": "Services"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "services",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "ProviderServiceListResponse"
+      },
+      "ProviderServiceResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "provider_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Provider Id"
+          },
+          "service_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Service Id"
+          },
+          "custom_price": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Custom Price"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": true
+          },
+          "service": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ServiceResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "provider_id",
+          "service_id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ProviderServiceResponse"
+      },
+      "ProviderServiceUpdateRequest": {
+        "properties": {
+          "custom_price": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Custom Price",
+            "description": "Custom price in cents"
+          },
+          "is_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Active"
+          }
+        },
+        "type": "object",
+        "title": "ProviderServiceUpdateRequest"
+      },
+      "ProviderWithSlotResponse": {
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Provider Id"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "avatar_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Url"
+          },
+          "rating": {
+            "type": "number",
+            "title": "Rating"
+          },
+          "reviews_count": {
+            "type": "integer",
+            "title": "Reviews Count"
+          },
+          "available_slot": {
+            "$ref": "#/components/schemas/CatalogAvailableSlotResponse"
+          },
+          "total_price": {
+            "type": "integer",
+            "title": "Total Price"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider_id",
+          "display_name",
+          "avatar_url",
+          "rating",
+          "reviews_count",
+          "available_slot",
+          "total_price"
+        ],
+        "title": "ProviderWithSlotResponse"
+      },
+      "PublicProviderServiceItemResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "providerId": {
+            "type": "null",
+            "title": "Providerid"
+          },
+          "category_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Category Id"
+          },
+          "category_name": {
+            "$ref": "#/components/schemas/I18nStringSchema"
+          },
+          "title": {
+            "$ref": "#/components/schemas/I18nStringSchema"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/I18nStringSchema"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "base_price": {
+            "type": "integer",
+            "title": "Base Price"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "title": "Duration Minutes"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "category_id",
+          "category_name",
+          "title",
+          "base_price",
+          "duration_minutes",
+          "is_active",
+          "created_at"
+        ],
+        "title": "PublicProviderServiceItemResponse",
+        "description": "Public response schema for a single provider service - mobile-aligned."
+      },
+      "PublicProviderServicesResponse": {
+        "properties": {
+          "services": {
+            "items": {
+              "$ref": "#/components/schemas/PublicProviderServiceItemResponse"
+            },
+            "type": "array",
+            "title": "Services"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "services",
+          "total"
+        ],
+        "title": "PublicProviderServicesResponse",
+        "description": "Response schema for provider services list."
+      },
+      "RefreshTokenRequest": {
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Refresh Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "refresh_token"
+        ],
+        "title": "RefreshTokenRequest",
+        "description": "Refresh token request schema."
+      },
+      "RemoveRoleRequest": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "client",
+              "provider"
+            ],
+            "title": "Role"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role"
+        ],
+        "title": "RemoveRoleRequest",
+        "description": "Remove role from user request schema."
+      },
+      "ReviewCreate": {
+        "properties": {
+          "booking_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Booking Id"
+          },
+          "rating": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Rating",
+            "description": "Rating from 1 to 5"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          },
+          "service_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Service Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "booking_id",
+          "rating"
+        ],
+        "title": "ReviewCreate",
+        "description": "Schema for creating a review."
+      },
+      "ReviewResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "booking_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Booking Id"
+          },
+          "client_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Client Id"
+          },
+          "provider_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Provider Id"
+          },
+          "rating": {
+            "type": "integer",
+            "title": "Rating"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "is_verified": {
+            "type": "boolean",
+            "title": "Is Verified"
+          },
+          "service_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Service Ids"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "booking_id",
+          "client_id",
+          "provider_id",
+          "rating",
+          "comment",
+          "status",
+          "is_verified",
+          "service_ids",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ReviewResponse",
+        "description": "Schema for review response."
+      },
+      "ReviewStatsResponse": {
+        "properties": {
+          "average_rating": {
+            "type": "number",
+            "title": "Average Rating"
+          },
+          "total_count": {
+            "type": "integer",
+            "title": "Total Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "average_rating",
+          "total_count"
+        ],
+        "title": "ReviewStatsResponse",
+        "description": "Response for provider review statistics."
+      },
+      "ReviewUpdate": {
+        "properties": {
+          "rating": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 5.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          }
+        },
+        "type": "object",
+        "title": "ReviewUpdate",
+        "description": "Schema for updating a review."
+      },
+      "RoleResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "RoleResponse",
+        "description": "Role response schema."
+      },
+      "ScheduleRuleCreate": {
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Provider Id",
+            "description": "ID мастера"
+          },
+          "weekday": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weekday",
+            "description": "День недели (0=Понедельник, 1-6)"
+          },
+          "specific_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Specific Date",
+            "description": "Конкретная дата"
+          },
+          "start_time": {
+            "type": "string",
+            "format": "time",
+            "title": "Start Time",
+            "description": "Время начала"
+          },
+          "end_time": {
+            "type": "string",
+            "format": "time",
+            "title": "End Time",
+            "description": "Время окончания"
+          },
+          "is_working_day": {
+            "type": "boolean",
+            "title": "Is Working Day",
+            "description": "Рабочий день или выходной",
+            "default": true
+          },
+          "slot_duration_minutes": {
+            "type": "integer",
+            "exclusiveMinimum": 1.0,
+            "title": "Slot Duration Minutes",
+            "description": "Длительность слота в минутах",
+            "default": 30
+          },
+          "break_duration_minutes": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Break Duration Minutes",
+            "description": "Длительность перерыва в минутах",
+            "default": 0
+          },
+          "valid_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid From",
+            "description": "Действует с"
+          },
+          "valid_to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid To",
+            "description": "Действует до"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider_id",
+          "start_time",
+          "end_time"
+        ],
+        "title": "ScheduleRuleCreate"
+      },
+      "ScheduleRuleResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "provider_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Provider Id"
+          },
+          "weekday": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weekday"
+          },
+          "specific_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Specific Date"
+          },
+          "start_time": {
+            "type": "string",
+            "format": "time",
+            "title": "Start Time"
+          },
+          "end_time": {
+            "type": "string",
+            "format": "time",
+            "title": "End Time"
+          },
+          "is_working_day": {
+            "type": "boolean",
+            "title": "Is Working Day"
+          },
+          "slot_duration_minutes": {
+            "type": "integer",
+            "title": "Slot Duration Minutes"
+          },
+          "break_duration_minutes": {
+            "type": "integer",
+            "title": "Break Duration Minutes"
+          },
+          "valid_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid From"
+          },
+          "valid_to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid To"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "provider_id",
+          "weekday",
+          "specific_date",
+          "start_time",
+          "end_time",
+          "is_working_day",
+          "slot_duration_minutes",
+          "break_duration_minutes",
+          "valid_from",
+          "valid_to",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ScheduleRuleResponse"
+      },
+      "ServiceListResponse": {
+        "properties": {
+          "services": {
+            "items": {
+              "$ref": "#/components/schemas/ServiceResponse"
+            },
+            "type": "array",
+            "title": "Services"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "services",
+          "total"
+        ],
+        "title": "ServiceListResponse"
+      },
+      "ServiceResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "category_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Category Id"
+          },
+          "title": {
+            "$ref": "#/components/schemas/I18nStringSchema"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/I18nStringSchema"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "base_price": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Price"
+          },
+          "price_min": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Min"
+          },
+          "price_max": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Max"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency",
+            "default": "ILS"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "title": "Duration Minutes"
+          },
+          "is_combinable": {
+            "type": "boolean",
+            "title": "Is Combinable",
+            "default": true
+          },
+          "is_price_variable": {
+            "type": "boolean",
+            "title": "Is Price Variable",
+            "default": false
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "category_id",
+          "title",
+          "duration_minutes",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ServiceResponse"
+      },
+      "SetContextRequest": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "client",
+              "provider"
+            ],
+            "title": "Role"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role"
+        ],
+        "title": "SetContextRequest",
+        "description": "Set current context role request schema."
+      },
+      "UserResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "is_verified": {
+            "type": "boolean",
+            "title": "Is Verified"
+          },
+          "roles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Roles"
+          },
+          "current_role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Role"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "is_active",
+          "is_verified",
+          "roles",
+          "created_at"
+        ],
+        "title": "UserResponse",
+        "description": "User response schema."
+      },
+      "UserRolesResponse": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "roles": {
+            "items": {
+              "$ref": "#/components/schemas/RoleResponse"
+            },
+            "type": "array",
+            "title": "Roles"
+          },
+          "current_role": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoleResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "roles"
+        ],
+        "title": "UserRolesResponse",
+        "description": "User roles response schema."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Enter JWT token from login or refresh"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "auth",
+      "description": "JWT аутентификация"
+    },
+    {
+      "name": "firebase-auth",
+      "description": "Firebase аутентификация (Google/Apple/Phone)"
+    },
+    {
+      "name": "users",
+      "description": "Роли и контекст пользователя"
+    },
+    {
+      "name": "profiles",
+      "description": "Профили пользователей"
+    },
+    {
+      "name": "catalog",
+      "description": "Каталог услуг и провайдеров"
+    },
+    {
+      "name": "catalog-search",
+      "description": "Поиск провайдеров по каталогу"
+    },
+    {
+      "name": "catalog-cart",
+      "description": "Валидация корзины"
+    },
+    {
+      "name": "portfolio",
+      "description": "Портфолио провайдеров"
+    },
+    {
+      "name": "provider-services",
+      "description": "Услуги провайдера (управление)"
+    },
+    {
+      "name": "bookings",
+      "description": "Бронирования"
+    },
+    {
+      "name": "schedule-rules",
+      "description": "Расписание и слоты"
+    },
+    {
+      "name": "reviews",
+      "description": "Отзывы и рейтинги"
+    },
+    {
+      "name": "system",
+      "description": "Системные endpoint'ы"
+    }
+  ]
+}

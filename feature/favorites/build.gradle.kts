@@ -37,6 +37,9 @@ kotlin {
 
             // Favorites API (FavoritesToggle interface)
             implementation(project(":core:favorites-api"))
+
+            // API models (generated from OpenAPI spec)
+            implementation(project(":core:api-models"))
         }
 
         maybeCreate("androidMain").dependencies {

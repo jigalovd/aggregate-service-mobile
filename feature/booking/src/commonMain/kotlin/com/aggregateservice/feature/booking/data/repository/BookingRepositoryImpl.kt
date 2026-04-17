@@ -1,9 +1,9 @@
 package com.aggregateservice.feature.booking.data.repository
 
+import com.aggregateservice.core.api.models.BookingCancel
+import com.aggregateservice.core.api.models.BookingCreate
+import com.aggregateservice.core.api.models.BookingReschedule
 import com.aggregateservice.feature.booking.data.api.BookingApiService
-import com.aggregateservice.feature.booking.data.dto.CancelRequest
-import com.aggregateservice.feature.booking.data.dto.CreateBookingRequest
-import com.aggregateservice.feature.booking.data.dto.RescheduleRequest
 import com.aggregateservice.feature.booking.data.mapper.BookingMapper
 import com.aggregateservice.feature.booking.data.mapper.ServiceMapper
 import com.aggregateservice.feature.booking.domain.model.Booking
@@ -36,7 +36,7 @@ class BookingRepositoryImpl(
         notes: String?,
     ): Result<Booking> {
         val request =
-            CreateBookingRequest(
+            BookingCreate(
                 providerId = providerId,
                 serviceIds = serviceIds,
                 startTime = startTime,
@@ -78,7 +78,7 @@ class BookingRepositoryImpl(
     }
 
     override suspend fun cancelBooking(bookingId: String, reason: String?): Result<Booking> {
-        val request = CancelRequest(cancellationReason = reason)
+        val request = BookingCancel(cancellationReason = reason)
 
         return apiService.cancelBooking(bookingId, request).fold(
             onSuccess = {
@@ -93,7 +93,7 @@ class BookingRepositoryImpl(
         bookingId: String,
         newStartTime: Instant,
     ): Result<Booking> {
-        val request = RescheduleRequest(newStartTime = newStartTime)
+        val request = BookingReschedule(newStartTime = newStartTime)
 
         return apiService.rescheduleBooking(bookingId, request).fold(
             onSuccess = {

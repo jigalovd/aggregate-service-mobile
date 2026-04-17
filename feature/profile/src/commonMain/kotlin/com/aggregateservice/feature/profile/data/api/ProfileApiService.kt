@@ -1,8 +1,8 @@
 package com.aggregateservice.feature.profile.data.api
 
+import com.aggregateservice.core.api.models.ProfileResponse
+import com.aggregateservice.core.api.models.ProfileUpdate
 import com.aggregateservice.core.network.safeApiCall
-import com.aggregateservice.feature.profile.data.dto.ProfileDto
-import com.aggregateservice.feature.profile.data.dto.UpdateProfileRequestDto
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
@@ -30,8 +30,8 @@ class ProfileApiService(
      * **Endpoint:** GET /api/v1/profiles/me
      * **Auth:** Requires valid access token (handled by Ktor Auth Plugin)
      */
-    suspend fun getProfile(): Result<ProfileDto> {
-        return safeApiCall<ProfileDto> {
+    suspend fun getProfile(): Result<ProfileResponse> {
+        return safeApiCall<ProfileResponse> {
             client.get("/api/v1/profiles/me") {
                 contentType(ContentType.Application.Json)
             }
@@ -44,8 +44,8 @@ class ProfileApiService(
      * **Endpoint:** PATCH /api/v1/profiles/me
      * **Auth:** Requires valid access token (handled by Ktor Auth Plugin)
      */
-    suspend fun updateProfile(request: UpdateProfileRequestDto): Result<ProfileDto> {
-        return safeApiCall<ProfileDto> {
+    suspend fun updateProfile(request: ProfileUpdate): Result<ProfileResponse> {
+        return safeApiCall<ProfileResponse> {
             client.patch("/api/v1/profiles/me") {
                 contentType(ContentType.Application.Json)
                 setBody(request)

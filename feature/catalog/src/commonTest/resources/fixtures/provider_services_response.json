@@ -3,9 +3,9 @@
     {
       "id": "s1a2b3c4-d5e6-7890-abcd-ef1234567890",
       "category_id": "c1a2b3c4-d5e6-7890-abcd-ef1234567890",
-      "category_name": {"ru": "Стрижка", "en": "Haircut"},
-      "title": {"ru": "Женская стрижка", "en": "Women's haircut"},
-      "description": {"ru": "Профессиональная стрижка", "en": "Professional haircut"},
+      "category_name": {"ru": "Стрижка", "he": "", "en": "Haircut"},
+      "title": {"ru": "Женская стрижка", "he": "", "en": "Women's haircut"},
+      "description": {"ru": "Профессиональная стрижка", "he": "", "en": "Professional haircut"},
       "base_price": 5000,
       "duration_minutes": 60,
       "is_active": true,
@@ -15,8 +15,8 @@
     {
       "id": "a2b3c4d5-e6f7-8901-abcd-ef1234567890",
       "category_id": "c1a2b3c4-d5e6-7890-abcd-ef1234567890",
-      "category_name": {"ru": "Стрижка", "en": "Haircut"},
-      "title": {"ru": "Мужская стрижка", "en": "Men's haircut"},
+      "category_name": {"ru": "Стрижка", "he": "", "en": "Haircut"},
+      "title": {"ru": "Мужская стрижка", "he": "", "en": "Men's haircut"},
       "description": null,
       "base_price": 3000,
       "duration_minutes": 30,

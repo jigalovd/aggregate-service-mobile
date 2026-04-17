@@ -27,7 +27,7 @@ class ProfileRepositoryImpl(
     }
 
     override suspend fun updateProfile(request: UpdateProfileRequest): Result<Profile> {
-        val requestDto = ProfileMapper.toDto(request)
+        val requestDto = ProfileMapper.toApiRequest(request)
 
         return apiService.updateProfile(requestDto).fold(
             onSuccess = { dto -> Result.success(ProfileMapper.toDomain(dto)) },

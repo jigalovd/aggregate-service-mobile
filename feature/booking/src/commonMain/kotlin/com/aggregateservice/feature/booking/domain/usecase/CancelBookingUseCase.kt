@@ -6,7 +6,7 @@ import com.aggregateservice.core.network.AppError
 import com.aggregateservice.core.utils.ValidationRule
 import com.aggregateservice.feature.booking.domain.model.Booking
 import com.aggregateservice.feature.booking.domain.repository.BookingRepository
-import kotlin.time.Clock
+import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.hours
 
 /**

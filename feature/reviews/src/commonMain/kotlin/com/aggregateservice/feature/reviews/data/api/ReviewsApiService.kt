@@ -1,10 +1,10 @@
 package com.aggregateservice.feature.reviews.data.api
 
+import com.aggregateservice.core.api.models.CanReviewResponse
+import com.aggregateservice.core.api.models.ReviewCreate
+import com.aggregateservice.core.api.models.ReviewResponse
+import com.aggregateservice.core.api.models.ReviewStatsResponse
 import com.aggregateservice.core.network.safeApiCall
-import com.aggregateservice.feature.reviews.data.dto.CanReviewResponseDto
-import com.aggregateservice.feature.reviews.data.dto.CreateReviewRequest
-import com.aggregateservice.feature.reviews.data.dto.ReviewDto
-import com.aggregateservice.feature.reviews.data.dto.ReviewStatsDto
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
@@ -33,7 +33,7 @@ class ReviewsApiService(
         providerId: String,
         page: Int,
         pageSize: Int,
-    ): Result<List<ReviewDto>> =
+    ): Result<List<ReviewResponse>> =
         safeApiCall {
             client.get("$REVIEWS_PATH/provider/$providerId") {
                 contentType(ContentType.Application.Json)
@@ -42,21 +42,21 @@ class ReviewsApiService(
             }
         }
 
-    suspend fun getReviewStats(providerId: String): Result<ReviewStatsDto> =
+    suspend fun getReviewStats(providerId: String): Result<ReviewStatsResponse> =
         safeApiCall {
             client.get("$REVIEWS_PATH/stats/provider/$providerId") {
                 contentType(ContentType.Application.Json)
             }
         }
 
-    suspend fun canReviewBooking(bookingId: String): Result<CanReviewResponseDto> =
+    suspend fun canReviewBooking(bookingId: String): Result<CanReviewResponse> =
         safeApiCall {
             client.get("$BOOKINGS_PATH/$bookingId/can-review") {
                 contentType(ContentType.Application.Json)
             }
         }
 
-    suspend fun createReview(request: CreateReviewRequest): Result<ReviewDto> =
+    suspend fun createReview(request: ReviewCreate): Result<ReviewResponse> =
         safeApiCall {
             client.post(REVIEWS_PATH) {
                 contentType(ContentType.Application.Json)

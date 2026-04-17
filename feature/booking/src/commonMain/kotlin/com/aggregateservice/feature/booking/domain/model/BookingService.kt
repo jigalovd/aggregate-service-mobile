@@ -15,7 +15,7 @@ package com.aggregateservice.feature.booking.domain.model
  * @property id Уникальный идентификатор услуги
  * @property name Название услуги
  * @property description Описание услуги
- * @property price Цена в минимальных единицах (агоротах/центах)
+ * @property price Цена в основных единицах валюты (шекелях/рублях)
  * @property currency Код валюты (ILS, USD, RUB)
  * @property durationMinutes Длительность в минутах
  */

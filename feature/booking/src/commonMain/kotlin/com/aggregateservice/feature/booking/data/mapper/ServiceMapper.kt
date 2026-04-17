@@ -1,34 +1,29 @@
 package com.aggregateservice.feature.booking.data.mapper
 
-import com.aggregateservice.feature.booking.data.dto.ServiceDto
+import com.aggregateservice.core.api.models.I18nStringSchema
+import com.aggregateservice.core.api.models.PublicProviderServiceItemResponse
 import com.aggregateservice.feature.booking.domain.model.BookingService
 
 /**
- * Маппер для преобразования ServiceDto → BookingService.
+ * Маппер для преобразования PublicProviderServiceItemResponse → BookingService.
  *
- * Извлекает плоские строки из i18n-полей DTO (priority: ru → he → en).
+ * Извлекает плоские строки из I18nStringSchema (priority: ru → he → en).
  */
 object ServiceMapper {
-    /**
-     * Преобразует DTO в доменную модель.
-     */
-    fun toDomain(dto: ServiceDto): BookingService =
+    fun toDomain(dto: PublicProviderServiceItemResponse): BookingService =
         BookingService(
             id = dto.id,
-            name = dto.titleMap["ru"] ?: dto.titleMap["he"] ?: dto.titleMap["en"] ?: "",
-            description =
-                dto.descriptionMap?.let {
-                    it["ru"] ?: it["he"] ?: it["en"]
-                },
-            price = dto.priceInCents.toDouble(),
+            name = dto.title.localized(),
+            description = dto.description?.localized(),
+            price = dto.basePrice / 100.0,
             currency = "ILS",
             durationMinutes = dto.durationMinutes,
-            isCombinable = dto.isCombinable,
+            isCombinable = true,
         )
 
-    /**
-     * Преобразует список DTO в список доменных моделей.
-     */
-    fun toDomain(dtos: List<ServiceDto>): List<BookingService> =
+    fun toDomain(dtos: List<PublicProviderServiceItemResponse>): List<BookingService> =
         dtos.map { toDomain(it) }
+
+    private fun I18nStringSchema.localized(): String =
+        ru.ifBlank { he.ifBlank { en } }
 }

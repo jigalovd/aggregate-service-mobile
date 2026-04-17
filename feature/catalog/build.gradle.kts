@@ -43,6 +43,9 @@ kotlin {
             // Shared Location type
             implementation(project(":core:common"))
 
+            // Generated API models (DTOs with @Serializable)
+            implementation(project(":core:api-models"))
+
             // Favorites API for checking/managing favorite status on provider detail
             implementation(project(":core:favorites-api"))
         }
