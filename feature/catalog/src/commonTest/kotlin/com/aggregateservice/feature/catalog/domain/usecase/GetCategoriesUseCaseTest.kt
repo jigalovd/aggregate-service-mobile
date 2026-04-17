@@ -3,6 +3,7 @@ package com.aggregateservice.feature.catalog.domain.usecase
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
+import com.aggregateservice.feature.catalog.domain.model.ProviderDetailData
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.model.SearchResult
 import com.aggregateservice.feature.catalog.domain.repository.CatalogRepository
@@ -260,6 +261,10 @@ class GetCategoriesUseCaseTest {
         }
 
         override suspend fun getServiceById(serviceId: String): Result<com.aggregateservice.feature.catalog.domain.model.Service> {
+            return Result.failure(AppError.NotFound)
+        }
+
+        override suspend fun getProviderDetail(providerId: String): Result<ProviderDetailData> {
             return Result.failure(AppError.NotFound)
         }
 

@@ -1,7 +1,7 @@
 package com.aggregateservice.feature.favorites.di
 
 import co.touchlab.kermit.Logger
-import com.aggregateservice.core.favorites_api.FavoritesToggle
+import com.aggregateservice.core.favoritesApi.FavoritesToggle
 import com.aggregateservice.feature.favorites.data.adapter.FavoritesToggleAdapter
 import com.aggregateservice.feature.favorites.data.api.FavoritesApiService
 import com.aggregateservice.feature.favorites.data.repository.FavoritesRepositoryImpl

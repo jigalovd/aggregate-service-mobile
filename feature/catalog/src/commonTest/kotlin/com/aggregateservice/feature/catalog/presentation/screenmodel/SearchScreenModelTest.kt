@@ -5,6 +5,7 @@ import com.aggregateservice.core.common.model.Location
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
+import com.aggregateservice.feature.catalog.domain.model.ProviderDetailData
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.model.SearchResult
 import com.aggregateservice.feature.catalog.domain.model.Service
@@ -71,6 +72,9 @@ class SearchScreenModelTest {
                     Result.success(emptyList())
 
                 override suspend fun getServiceById(serviceId: String): Result<Service> =
+                    Result.failure(AppError.NotFound)
+
+                override suspend fun getProviderDetail(providerId: String): Result<ProviderDetailData> =
                     Result.failure(AppError.NotFound)
 
                 override suspend fun searchServices(query: String, filters: SearchFilters): Result<SearchResult<Service>> =

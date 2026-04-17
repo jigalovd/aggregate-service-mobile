@@ -2,12 +2,13 @@ package com.aggregateservice.feature.catalog.presentation.screenmodel
 
 import co.touchlab.kermit.Logger
 import com.aggregateservice.core.common.model.Location
-import com.aggregateservice.core.favorites_api.FavoritesToggle
+import com.aggregateservice.core.favoritesApi.FavoritesToggle
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.DaySchedule
 import com.aggregateservice.feature.catalog.domain.model.Price
 import com.aggregateservice.feature.catalog.domain.model.Provider
+import com.aggregateservice.feature.catalog.domain.model.ProviderDetailData
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.model.SearchResult
 import com.aggregateservice.feature.catalog.domain.model.Service
@@ -26,7 +27,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlin.time.Clock
+import kotlinx.datetime.Instant
 
 /**
  * Tests for ProviderDetailScreenModel using functional mocks.
@@ -44,8 +45,12 @@ class ProviderDetailScreenModelTest {
     private var getCategoriesBehavior: suspend (String?) -> Result<List<Category>> =
         { Result.success(emptyList()) }
 
+    private var getProviderDetailBehavior: suspend (String) -> Result<ProviderDetailData> =
+        { Result.failure(AppError.NotFound) }
+
     private var providerInvokeCount = 0
     private var servicesInvokeCount = 0
+    private var getProviderDetailInvokeCount = 0
     private var lastCategoryId: String? = null
 
     private lateinit var mockFavoritesToggle: MockFavoritesToggle
@@ -55,6 +60,7 @@ class ProviderDetailScreenModelTest {
         Dispatchers.setMain(testDispatcher)
         providerInvokeCount = 0
         servicesInvokeCount = 0
+        getProviderDetailInvokeCount = 0
         lastCategoryId = null
         mockFavoritesToggle = MockFavoritesToggle()
     }
@@ -90,6 +96,11 @@ class ProviderDetailScreenModelTest {
                 override suspend fun getServiceById(serviceId: String): Result<Service> =
                     Result.failure(AppError.NotFound)
 
+                override suspend fun getProviderDetail(providerId: String): Result<ProviderDetailData> {
+                    getProviderDetailInvokeCount++
+                    return getProviderDetailBehavior(providerId)
+                }
+
                 override suspend fun searchServices(query: String, filters: SearchFilters): Result<SearchResult<Service>> =
                     Result.success(SearchResult.empty())
 
@@ -97,14 +108,8 @@ class ProviderDetailScreenModelTest {
             }
 
         return ProviderDetailScreenModel(
-            getProviderDetailsUseCase =
-                com.aggregateservice.feature.catalog.domain.usecase
-                    .GetProviderDetailsUseCase(repository),
-            getProviderServicesUseCase =
-                com.aggregateservice.feature.catalog.domain.usecase
-                    .GetProviderServicesUseCase(repository),
-            favoritesToggle = mockFavoritesToggle,
             catalogRepository = repository,
+            favoritesToggle = mockFavoritesToggle,
             logger = Logger.withTag("Test"),
         )
     }
@@ -130,8 +135,7 @@ class ProviderDetailScreenModelTest {
             val provider = createTestProvider()
             val services = createTestServices(3)
 
-            getProviderByIdBehavior = { Result.success(provider) }
-            getProviderServicesBehavior = { _, _ -> Result.success(services) }
+            getProviderDetailBehavior = { Result.success(ProviderDetailData(provider, services, false)) }
 
             val screenModel = createScreenModel()
             screenModel.initialize("provider-123")
@@ -147,8 +151,7 @@ class ProviderDetailScreenModelTest {
     fun `initialize should not reload if same providerId`() =
         runTest {
             val provider = createTestProvider()
-            getProviderByIdBehavior = { Result.success(provider) }
-            getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
+            getProviderDetailBehavior = { Result.success(ProviderDetailData(provider, emptyList(), false)) }
 
             val screenModel = createScreenModel()
             screenModel.initialize("provider-123")
@@ -171,13 +174,16 @@ class ProviderDetailScreenModelTest {
             // Track call order
             val callOrder = mutableListOf<String>()
 
-            getProviderByIdBehavior = { id ->
+            getProviderDetailBehavior = { id ->
                 callOrder.add(id)
                 // provider-1 is slow (simulated delay), provider-2 is fast
                 kotlinx.coroutines.delay(if (id == "provider-1") 100 else 0)
-                if (id == "provider-1") Result.success(provider1) else Result.success(provider2)
+                if (id == "provider-1") {
+                    Result.success(ProviderDetailData(provider1, emptyList(), false))
+                } else {
+                    Result.success(ProviderDetailData(provider2, emptyList(), false))
+                }
             }
-            getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
 
             val screenModel = createScreenModel()
 
@@ -206,14 +212,17 @@ class ProviderDetailScreenModelTest {
 
             val callOrder = mutableListOf<String>()
 
-            getProviderByIdBehavior = { id ->
+            getProviderDetailBehavior = { id ->
                 callOrder.add(id)
                 if (id == "provider-1") {
                     kotlinx.coroutines.delay(100)
                 }
-                if (id == "provider-1") Result.success(provider1) else Result.success(provider2)
+                if (id == "provider-1") {
+                    Result.success(ProviderDetailData(provider1, emptyList(), false))
+                } else {
+                    Result.success(ProviderDetailData(provider2, emptyList(), false))
+                }
             }
-            getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
 
             val screenModel = createScreenModel()
 
@@ -230,8 +239,7 @@ class ProviderDetailScreenModelTest {
     @Test
     fun `initialize should set error on failure`() =
         runTest {
-            getProviderByIdBehavior = { Result.failure(AppError.NetworkError(404, "Not Found")) }
-            getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
+            getProviderDetailBehavior = { Result.failure(AppError.NetworkError(404, "Not Found")) }
 
             val screenModel = createScreenModel()
             screenModel.initialize("provider-123")
@@ -250,30 +258,24 @@ class ProviderDetailScreenModelTest {
             val provider = createTestProvider()
             val services = createTestServices(3)
 
-            getProviderByIdBehavior = { Result.success(provider) }
-            getProviderServicesBehavior = { _, _ -> Result.success(services) }
+            getProviderDetailBehavior = { Result.success(ProviderDetailData(provider, services, false)) }
 
             val screenModel = createScreenModel()
             screenModel.initialize("provider-123")
             testDispatcher.scheduler.advanceUntilIdle()
-
-            val filteredServices = listOf(createTestService("service-1", "cat-1"))
-            getProviderServicesBehavior = { _, _ -> Result.success(filteredServices) }
 
             screenModel.onCategorySelected("cat-1")
             testDispatcher.scheduler.advanceUntilIdle()
 
             val state = screenModel.uiState.value
             assertEquals("cat-1", state.selectedCategoryId)
-            assertEquals("cat-1", lastCategoryId)
         }
 
     @Test
     fun `onCategorySelected with null should clear filter`() =
         runTest {
             val provider = createTestProvider()
-            getProviderByIdBehavior = { Result.success(provider) }
-            getProviderServicesBehavior = { _, _ -> Result.success(createTestServices(3)) }
+            getProviderDetailBehavior = { Result.success(ProviderDetailData(provider, createTestServices(3), false)) }
 
             val screenModel = createScreenModel()
             screenModel.initialize("provider-123")
@@ -284,7 +286,6 @@ class ProviderDetailScreenModelTest {
 
             val state = screenModel.uiState.value
             assertNull(state.selectedCategoryId)
-            assertNull(lastCategoryId)
         }
 
     // ========== Favorite Toggle Tests ==========
@@ -292,25 +293,22 @@ class ProviderDetailScreenModelTest {
     @Test
     fun `initialize should load isFavorite status`() =
         runTest {
-            mockFavoritesToggle.isFavoriteResult = Result.success(true)
-            getProviderByIdBehavior = { Result.success(createTestProvider()) }
-            getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
+            val provider = createTestProvider()
+            getProviderDetailBehavior = { Result.success(ProviderDetailData(provider, emptyList(), true)) }
 
             val screenModel = createScreenModel()
             screenModel.initialize("provider-123")
             testDispatcher.scheduler.advanceUntilIdle()
 
             assertTrue(screenModel.uiState.value.isFavorite)
-            assertEquals(1, mockFavoritesToggle.isFavoriteCallCount)
         }
 
     @Test
     fun `onFavoriteToggle should call addFavoriteUseCase when not favorite`() =
         runTest {
-            mockFavoritesToggle.isFavoriteResult = Result.success(false)
+            val provider = createTestProvider()
             mockFavoritesToggle.addFavoriteResult = Result.success(Unit)
-            getProviderByIdBehavior = { Result.success(createTestProvider()) }
-            getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
+            getProviderDetailBehavior = { Result.success(ProviderDetailData(provider, emptyList(), false)) }
 
             val screenModel = createScreenModel()
             screenModel.initialize("provider-123")
@@ -328,10 +326,9 @@ class ProviderDetailScreenModelTest {
     @Test
     fun `onFavoriteToggle should call removeFavoriteUseCase when favorite`() =
         runTest {
-            mockFavoritesToggle.isFavoriteResult = Result.success(true)
+            val provider = createTestProvider()
             mockFavoritesToggle.removeFavoriteResult = Result.success(Unit)
-            getProviderByIdBehavior = { Result.success(createTestProvider()) }
-            getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
+            getProviderDetailBehavior = { Result.success(ProviderDetailData(provider, emptyList(), true)) }
 
             val screenModel = createScreenModel()
             screenModel.initialize("provider-123")
@@ -349,10 +346,9 @@ class ProviderDetailScreenModelTest {
     @Test
     fun `onFavoriteToggle should not flip state on API error`() =
         runTest {
-            mockFavoritesToggle.isFavoriteResult = Result.success(false)
+            val provider = createTestProvider()
             mockFavoritesToggle.addFavoriteResult = Result.failure(RuntimeException("API error"))
-            getProviderByIdBehavior = { Result.success(createTestProvider()) }
-            getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
+            getProviderDetailBehavior = { Result.success(ProviderDetailData(provider, emptyList(), false)) }
 
             val screenModel = createScreenModel()
             screenModel.initialize("provider-123")
@@ -373,21 +369,18 @@ class ProviderDetailScreenModelTest {
     fun `onRefresh should reload provider and services`() =
         runTest {
             val provider = createTestProvider()
-            getProviderByIdBehavior = { Result.success(provider) }
-            getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
+            getProviderDetailBehavior = { Result.success(ProviderDetailData(provider, emptyList(), false)) }
 
             val screenModel = createScreenModel()
             screenModel.initialize("provider-123")
             testDispatcher.scheduler.advanceUntilIdle()
 
-            val initialProviderCount = providerInvokeCount
-            val initialServicesCount = servicesInvokeCount
+            val initialCount = getProviderDetailInvokeCount
 
             screenModel.onRefresh()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            assertTrue(providerInvokeCount > initialProviderCount)
-            assertTrue(servicesInvokeCount > initialServicesCount)
+            assertTrue(getProviderDetailInvokeCount > initialCount)
         }
 
     // ========== Retry Tests ==========
@@ -395,8 +388,7 @@ class ProviderDetailScreenModelTest {
     @Test
     fun `retry should reload after error`() =
         runTest {
-            getProviderByIdBehavior = { Result.failure(AppError.NetworkError(500, "Error")) }
-            getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
+            getProviderDetailBehavior = { Result.failure(AppError.NetworkError(500, "Error")) }
 
             val screenModel = createScreenModel()
             screenModel.initialize("provider-123")
@@ -405,7 +397,7 @@ class ProviderDetailScreenModelTest {
             assertTrue(screenModel.uiState.value.error != null)
 
             // Now succeed
-            getProviderByIdBehavior = { Result.success(createTestProvider()) }
+            getProviderDetailBehavior = { Result.success(ProviderDetailData(createTestProvider(), emptyList(), false)) }
 
             screenModel.retry()
             testDispatcher.scheduler.advanceUntilIdle()
@@ -419,8 +411,7 @@ class ProviderDetailScreenModelTest {
     @Test
     fun `clearError should remove error from state`() =
         runTest {
-            getProviderByIdBehavior = { Result.failure(AppError.NetworkError(500, "Error")) }
-            getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
+            getProviderDetailBehavior = { Result.failure(AppError.NetworkError(500, "Error")) }
 
             val screenModel = createScreenModel()
             screenModel.initialize("provider-123")
@@ -439,8 +430,7 @@ class ProviderDetailScreenModelTest {
     fun `isLoaded should return true when provider is loaded`() =
         runTest {
             val provider = createTestProvider()
-            getProviderByIdBehavior = { Result.success(provider) }
-            getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
+            getProviderDetailBehavior = { Result.success(ProviderDetailData(provider, emptyList(), false)) }
 
             val screenModel = createScreenModel()
             screenModel.initialize("provider-123")
@@ -460,8 +450,7 @@ class ProviderDetailScreenModelTest {
                     createTestService("s3", "cat-1"),
                 )
 
-            getProviderByIdBehavior = { Result.success(provider) }
-            getProviderServicesBehavior = { _, _ -> Result.success(services) }
+            getProviderDetailBehavior = { Result.success(ProviderDetailData(provider, services, false)) }
 
             val screenModel = createScreenModel()
             screenModel.initialize("provider-123")
@@ -480,8 +469,7 @@ class ProviderDetailScreenModelTest {
             val provider = createTestProvider()
             val services = createTestServices(5)
 
-            getProviderByIdBehavior = { Result.success(provider) }
-            getProviderServicesBehavior = { _, _ -> Result.success(services) }
+            getProviderDetailBehavior = { Result.success(ProviderDetailData(provider, services, false)) }
 
             val screenModel = createScreenModel()
             screenModel.initialize("provider-123")
@@ -499,8 +487,7 @@ class ProviderDetailScreenModelTest {
                     monday = DaySchedule(openTime = "09:00", closeTime = "18:00"),
                 )
             val provider = createTestProvider(workingHours = workingHours)
-            getProviderByIdBehavior = { Result.success(provider) }
-            getProviderServicesBehavior = { _, _ -> Result.success(emptyList()) }
+            getProviderDetailBehavior = { Result.success(ProviderDetailData(provider, emptyList(), false)) }
 
             val screenModel = createScreenModel()
             screenModel.initialize("provider-123")
@@ -531,7 +518,7 @@ class ProviderDetailScreenModelTest {
                 ),
             workingHours = workingHours,
             isVerified = true,
-            createdAt = Clock.System.now(),
+            createdAt = Instant.fromEpochMilliseconds(0),
             categories = listOf(Category(id = "cat-1", name = "Haircut")),
         )
     }
@@ -552,7 +539,7 @@ class ProviderDetailScreenModelTest {
             description = "Description for $id",
             price = Price(amount = 100.0, currency = "ILS"),
             durationMinutes = 30,
-            createdAt = Clock.System.now(),
+            createdAt = Instant.fromEpochMilliseconds(0),
         )
     }
 }

@@ -5,6 +5,7 @@ import com.aggregateservice.core.utils.ValidationRule
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Price
 import com.aggregateservice.feature.catalog.domain.model.Provider
+import com.aggregateservice.feature.catalog.domain.model.ProviderDetailData
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.model.SearchResult
 import com.aggregateservice.feature.catalog.domain.model.Service
@@ -316,6 +317,10 @@ class GetProviderServicesUseCaseTest {
         }
 
         override suspend fun getServiceById(serviceId: String): Result<Service> {
+            return Result.failure(AppError.NotFound)
+        }
+
+        override suspend fun getProviderDetail(providerId: String): Result<ProviderDetailData> {
             return Result.failure(AppError.NotFound)
         }
 

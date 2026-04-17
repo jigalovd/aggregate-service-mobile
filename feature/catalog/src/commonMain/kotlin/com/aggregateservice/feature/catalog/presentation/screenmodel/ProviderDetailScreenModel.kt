@@ -3,7 +3,7 @@ package com.aggregateservice.feature.catalog.presentation.screenmodel
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import co.touchlab.kermit.Logger
-import com.aggregateservice.core.favorites_api.FavoritesToggle
+import com.aggregateservice.core.favoritesApi.FavoritesToggle
 import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.catalog.domain.repository.CatalogRepository
 import com.aggregateservice.feature.catalog.presentation.model.ProviderDetailUiState

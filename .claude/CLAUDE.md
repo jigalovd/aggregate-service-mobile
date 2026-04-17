@@ -11,14 +11,20 @@
 > (documentation, ownership, history, decisions). **Always verify against
 > actual source files before making changes** — the index may be stale.
 
-Last indexed: 2026-04-17 (commit 1b6104f). Confidence: 100%.
+Last indexed: 2026-04-17 (commit 872d727). Confidence: 100%.
 ### Architecture
-repo is a Kotlin-centric project designed as a multi-platform application (likely leveraging Kotlin Multiplatform). With over 33,000 lines of code, the project focuses on providing a modular service architecture, as evidenced by its feature-based directory structure (feature/auth, feature/catalog). The codebase is actively maintained with high churn in navigation and dependency injection modules, indicating ongoing feature development and architectural refinement. *   **Primary Language:** Kotlin (91.6%)
-*   **Platform Support:** Android (via androidApp), with common modules shared across platforms.
+The repo repository is a Kotlin-centric project designed as a cross-platform application (likely leveraging Kotlin Multiplatform). With over 33,000 lines of code across 286 files, the project maintains a clean structure with zero circular dependencies, indicating a well-decoupled codebase. The project is heavily integrated with modern development tooling, including automated workflows, OpenAPI specifications for API management, and structured documentation for AI-assisted development (Claude/MCP). *   **Primary Language:** Kotlin (91.6%)
+*   **Documentation & Config:** Markdown, YAML, TOML, JSON
+*   **Platform Support:** Android (via androidApp), Cross-platform (via commonMain)
+*   **Tooling & Infrastructure:**
+    *   **API Management:** OpenAPI (via openapitools.json)
+    *   **Linting/Quality:** Detekt
+    *   **CI/CD:** GitHub Actions
+    *   **AI Integration:** MCP (Model Context Protocol) and Claude-specific configuration files for automated reviews and documentation sync.
 ### Key Modules
 | Module | Purpose | Owner |
 |--------|---------|-------|
-| `feature` | The feature module serves as the primary collection of functional domains within | — |
+| `feature` | The feature module acts as the central hub for the application's core business f | — |
 | `core` | The core module serves as the foundational architectural layer for the aggregate | — |
 | `iosApp` | The iosApp module serves as the primary iOS client implementation for the projec | — |
 | `androidApp` | The androidApp module serves as the primary Android-specific entry point for the | — |
@@ -30,11 +36,11 @@ repo is a Kotlin-centric project designed as a multi-platform application (likel
 **Infra:** Gradle### Hotspots (High Churn)
 | File | Churn | 90d Commits | Owner |
 |------|-------|-------------|-------|
-| `core/i18n/src/commonMain/kotlin/com/aggregateservice/core/i18n/Strings.kt` | 99.7th %ile | 11 | Dima |
-| `feature/catalog/src/commonMain/kotlin/com/aggregateservice/feature/catalog/presentation/screen/ProviderDetailScreen.kt` | 99.4th %ile | 19 | Dima |
-| `feature/auth/src/commonMain/kotlin/com/aggregateservice/feature/auth/data/repository/AuthRepositoryImpl.kt` | 99.3th %ile | 11 | Dima |
-| `feature/catalog/src/commonTest/kotlin/com/aggregateservice/feature/catalog/presentation/screenmodel/ProviderDetailScreenModelTest.kt` | 99.1th %ile | 9 | Dima |
-| `core/network/src/commonTest/kotlin/com/aggregateservice/core/network/SafeApiCallRealTest.kt` | 98.8th %ile | 6 | Dima |
+| `core/i18n/src/commonMain/kotlin/com/aggregateservice/core/i18n/Strings.kt` | 100.0th %ile | 11 | Dima |
+| `feature/catalog/src/commonMain/kotlin/com/aggregateservice/feature/catalog/presentation/screen/ProviderDetailScreen.kt` | 99.8th %ile | 19 | Dima |
+| `feature/catalog/src/commonTest/kotlin/com/aggregateservice/feature/catalog/presentation/screenmodel/ProviderDetailScreenModelTest.kt` | 99.6th %ile | 9 | Dima |
+| `core/network/src/commonTest/kotlin/com/aggregateservice/core/network/SafeApiCallRealTest.kt` | 99.3th %ile | 6 | Dima |
+| `app/src/commonMain/kotlin/com/aggregateservice/app/navigation/AppBottomNavHost.kt` | 99.1th %ile | 20 | Dima |
 
 ### Repowise MCP Tools
 

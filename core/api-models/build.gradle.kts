@@ -4,6 +4,14 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinSerialization)
+    id("org.jlleitschuh.gradle.ktlint")
+}
+
+ktlint {
+    filter {
+        // Exclude generated API models from ktlint checks
+        exclude("**/com/aggregateservice/core/api/models/**")
+    }
 }
 
 android {

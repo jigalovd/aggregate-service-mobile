@@ -26,6 +26,9 @@ kotlin {
 
             // i18n for localized strings
             implementation(project(":core:i18n"))
+
+            // Generated API models (DTOs with @Serializable)
+            implementation(project(":core:api-models"))
         }
     }
 }

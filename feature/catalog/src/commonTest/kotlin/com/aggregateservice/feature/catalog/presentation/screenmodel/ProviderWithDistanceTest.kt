@@ -3,10 +3,10 @@ package com.aggregateservice.feature.catalog.presentation.screenmodel
 import com.aggregateservice.core.common.model.Location
 import com.aggregateservice.feature.catalog.domain.model.Provider
 import com.aggregateservice.feature.catalog.domain.model.WorkingHours
+import kotlinx.datetime.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.time.Clock
 
 /**
  * Tests for ProviderWithDistance distance formatting (UI-05 requirement).
@@ -138,7 +138,7 @@ class ProviderWithDistanceTest {
                 ),
             workingHours = WorkingHours(),
             isVerified = true,
-            createdAt = Clock.System.now(),
+            createdAt = Instant.fromEpochMilliseconds(0),
             categories = emptyList(),
         )
     }

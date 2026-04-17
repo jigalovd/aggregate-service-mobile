@@ -1,5 +1,6 @@
 package com.aggregateservice.feature.services.data.repository
 
+import com.aggregateservice.core.api.models.ProviderServiceResponse
 import com.aggregateservice.feature.services.data.api.ServicesApiService
 import com.aggregateservice.feature.services.data.mapper.ServiceMapper
 import com.aggregateservice.feature.services.domain.model.CreateServiceRequest
@@ -23,15 +24,15 @@ class ServicesRepositoryImpl(
 
     override suspend fun getServices(): Result<List<ProviderService>> {
         return apiService.getServices().fold(
-            onSuccess = { dtos -> Result.success(ServiceMapper.toDomain(dtos)) },
-            onFailure = { error -> Result.failure(error) },
+            onSuccess = { dtos: List<ProviderServiceResponse> -> Result.success(ServiceMapper.toDomain(dtos)) },
+            onFailure = { error: Throwable -> Result.failure(error) },
         )
     }
 
     override suspend fun getServiceById(id: String): Result<ProviderService> {
         return apiService.getServiceById(id).fold(
-            onSuccess = { dto -> Result.success(ServiceMapper.toDomain(dto)) },
-            onFailure = { error -> Result.failure(error) },
+            onSuccess = { dto: ProviderServiceResponse -> Result.success(ServiceMapper.toDomain(dto)) },
+            onFailure = { error: Throwable -> Result.failure(error) },
         )
     }
 
@@ -39,8 +40,8 @@ class ServicesRepositoryImpl(
         val requestDto = ServiceMapper.toDto(request)
 
         return apiService.createService(requestDto).fold(
-            onSuccess = { dto -> Result.success(ServiceMapper.toDomain(dto)) },
-            onFailure = { error -> Result.failure(error) },
+            onSuccess = { dto: ProviderServiceResponse -> Result.success(ServiceMapper.toDomain(dto)) },
+            onFailure = { error: Throwable -> Result.failure(error) },
         )
     }
 
@@ -51,8 +52,8 @@ class ServicesRepositoryImpl(
         val requestDto = ServiceMapper.toDto(request)
 
         return apiService.updateService(id, requestDto).fold(
-            onSuccess = { dto -> Result.success(ServiceMapper.toDomain(dto)) },
-            onFailure = { error -> Result.failure(error) },
+            onSuccess = { dto: ProviderServiceResponse -> Result.success(ServiceMapper.toDomain(dto)) },
+            onFailure = { error: Throwable -> Result.failure(error) },
         )
     }
 

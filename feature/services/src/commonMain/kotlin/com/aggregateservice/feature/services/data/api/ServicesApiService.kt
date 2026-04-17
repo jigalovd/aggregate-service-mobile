@@ -1,9 +1,10 @@
 package com.aggregateservice.feature.services.data.api
 
+import com.aggregateservice.core.api.models.ProviderServiceCreateRequest
+import com.aggregateservice.core.api.models.ProviderServiceListResponse
+import com.aggregateservice.core.api.models.ProviderServiceResponse
+import com.aggregateservice.core.api.models.ProviderServiceUpdateRequest
 import com.aggregateservice.core.network.safeApiCall
-import com.aggregateservice.feature.services.data.dto.CreateServiceRequestDto
-import com.aggregateservice.feature.services.data.dto.ServiceDto
-import com.aggregateservice.feature.services.data.dto.UpdateServiceRequestDto
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -35,12 +36,12 @@ class ServicesApiService(
      *
      * **Endpoint:** GET /api/v1/providers/services
      */
-    suspend fun getServices(): Result<List<ServiceDto>> {
-        return safeApiCall<List<ServiceDto>> {
+    suspend fun getServices(): Result<List<ProviderServiceResponse>> {
+        return safeApiCall<ProviderServiceListResponse> {
             client.get("/api/v1/providers/services") {
                 contentType(ContentType.Application.Json)
             }
-        }
+        }.mapCatching { response -> response.services }
     }
 
     /**
@@ -48,8 +49,8 @@ class ServicesApiService(
      *
      * **Endpoint:** GET /api/v1/providers/services/{id}
      */
-    suspend fun getServiceById(id: String): Result<ServiceDto> {
-        return safeApiCall<ServiceDto> {
+    suspend fun getServiceById(id: String): Result<ProviderServiceResponse> {
+        return safeApiCall<ProviderServiceResponse> {
             client.get("/api/v1/providers/services/$id") {
                 contentType(ContentType.Application.Json)
             }
@@ -61,8 +62,8 @@ class ServicesApiService(
      *
      * **Endpoint:** POST /api/v1/providers/services
      */
-    suspend fun createService(request: CreateServiceRequestDto): Result<ServiceDto> {
-        return safeApiCall<ServiceDto> {
+    suspend fun createService(request: ProviderServiceCreateRequest): Result<ProviderServiceResponse> {
+        return safeApiCall<ProviderServiceResponse> {
             client.post("/api/v1/providers/services") {
                 contentType(ContentType.Application.Json)
                 setBody(request)
@@ -75,8 +76,8 @@ class ServicesApiService(
      *
      * **Endpoint:** PATCH /api/v1/providers/services/{id}
      */
-    suspend fun updateService(id: String, request: UpdateServiceRequestDto): Result<ServiceDto> {
-        return safeApiCall<ServiceDto> {
+    suspend fun updateService(id: String, request: ProviderServiceUpdateRequest): Result<ProviderServiceResponse> {
+        return safeApiCall<ProviderServiceResponse> {
             client.patch("/api/v1/providers/services/$id") {
                 contentType(ContentType.Application.Json)
                 setBody(request)

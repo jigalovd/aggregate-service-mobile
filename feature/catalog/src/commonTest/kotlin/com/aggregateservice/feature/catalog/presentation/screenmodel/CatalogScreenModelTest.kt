@@ -7,6 +7,7 @@ import com.aggregateservice.core.location.LocationProviderFactory
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.catalog.domain.model.Category
 import com.aggregateservice.feature.catalog.domain.model.Provider
+import com.aggregateservice.feature.catalog.domain.model.ProviderDetailData
 import com.aggregateservice.feature.catalog.domain.model.SearchFilters
 import com.aggregateservice.feature.catalog.domain.model.SearchResult
 import com.aggregateservice.feature.catalog.domain.model.Service
@@ -26,7 +27,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlin.time.Clock
+import kotlinx.datetime.Instant
 
 /**
  * Tests for CatalogScreenModel using functional mocks.
@@ -120,6 +121,9 @@ class CatalogScreenModelTest {
                     override suspend fun getServiceById(serviceId: String): Result<Service> =
                         Result.failure(AppError.NotFound)
 
+                    override suspend fun getProviderDetail(providerId: String): Result<ProviderDetailData> =
+                        Result.failure(AppError.NotFound)
+
                     override suspend fun searchServices(query: String, filters: SearchFilters): Result<SearchResult<Service>> =
                         Result.success(SearchResult.empty())
 
@@ -147,6 +151,9 @@ class CatalogScreenModelTest {
                         Result.success(emptyList())
 
                     override suspend fun getServiceById(serviceId: String): Result<Service> =
+                        Result.failure(AppError.NotFound)
+
+                    override suspend fun getProviderDetail(providerId: String): Result<ProviderDetailData> =
                         Result.failure(AppError.NotFound)
 
                     override suspend fun searchServices(query: String, filters: SearchFilters): Result<SearchResult<Service>> =
@@ -434,7 +441,7 @@ class CatalogScreenModelTest {
                         city = "Tel Aviv",
                     ),
                 workingHours = WorkingHours(),
-                createdAt = Clock.System.now(),
+                createdAt = Instant.fromEpochMilliseconds(0),
             )
         }
     }

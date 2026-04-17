@@ -20,6 +20,9 @@ ktlint_standard_class-naming = disabled
 ktlint_standard_function-expression-body = disabled
 ktlint_standard_function-naming = disabled
 
+# Exclude auto-generated API models from ktlint
+排除目录 = **/core/api-models/src/commonMain/kotlin/**
+
 [*.{xml,json,yaml,yml,gradle}]
 charset = utf-8
 end_of_line = lf

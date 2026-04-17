@@ -64,6 +64,8 @@ class CatalogRepositoryCacheTest {
             {
                 "id": "cat-1",
                 "name": {"ru": "Test", "he": "Test", "en": "Test"},
+                "created_at": "2025-01-01T00:00:00Z",
+                "updated_at": "2025-01-01T00:00:00Z",
                 "icon_url": null,
                 "parent_id": null,
                 "sort_order": 1,
@@ -84,7 +86,8 @@ class CatalogRepositoryCacheTest {
         "reviews_count": 10,
         "is_verified": true,
         "is_active": true,
-        "created_at": "2025-01-01T00:00:00Z"
+        "created_at": "2025-01-01T00:00:00Z",
+        "updated_at": "2025-01-01T00:00:00Z"
     }"""
 
     private val searchResponseJson = """{
@@ -100,7 +103,8 @@ class CatalogRepositoryCacheTest {
                 "reviews_count": 10,
                 "is_verified": true,
                 "is_active": true,
-                "created_at": "2025-01-01T00:00:00Z"
+                "created_at": "2025-01-01T00:00:00Z",
+                "updated_at": "2025-01-01T00:00:00Z"
             }
         ],
         "total": 1,

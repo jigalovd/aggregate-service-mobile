@@ -1,6 +1,6 @@
 package com.aggregateservice.feature.favorites.data.adapter
 
-import com.aggregateservice.core.favorites_api.FavoritesToggle
+import com.aggregateservice.core.favoritesApi.FavoritesToggle
 import com.aggregateservice.feature.favorites.domain.usecase.AddFavoriteUseCase
 import com.aggregateservice.feature.favorites.domain.usecase.IsFavoriteUseCase
 import com.aggregateservice.feature.favorites.domain.usecase.RemoveFavoriteUseCase

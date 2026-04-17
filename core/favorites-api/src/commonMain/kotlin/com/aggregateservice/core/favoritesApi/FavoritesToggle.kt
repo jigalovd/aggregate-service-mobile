@@ -1,4 +1,4 @@
-package com.aggregateservice.core.favorites_api
+package com.aggregateservice.core.favoritesApi
 
 interface FavoritesToggle {
     suspend fun isFavorite(providerId: String): Result<Boolean>

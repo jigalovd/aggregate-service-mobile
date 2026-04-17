@@ -1,0 +1,96 @@
+package com.aggregateservice.core.i18n
+
+/**
+ * Authentication string resources.
+ */
+public object AuthStrings {
+    public val EN: Map<String, String> =
+        mapOf(
+            "auth_login" to "Login",
+            "auth_logout" to "Logout",
+            "auth_email" to "Email",
+            "auth_password" to "Password",
+            "auth_confirm_password" to "Confirm password",
+            "auth_email_hint" to "Enter your email",
+            "auth_password_hint" to "Enter your password",
+            "auth_forgot_password" to "Forgot password?",
+            "auth_no_account" to "Don't have an account?",
+            "auth_sign_up" to "Sign Up",
+            "auth_login_success" to "Login successful",
+            "auth_login_error" to "Login failed. Please check your credentials.",
+            "auth_invalid_email" to "Invalid email address",
+            "auth_invalid_password" to "Password must be at least 8 characters",
+            "auth_session_expired" to "Your session has expired. Please login again.",
+            "auth_phone" to "Phone (optional)",
+            "auth_select_role" to "Select role:",
+            "auth_client_role" to "Client (book appointments)",
+            "auth_provider_role" to "Provider (offer services)",
+            "auth_link_account_title" to "Link your account",
+            "auth_link_account_message" to "This email is already registered:",
+            "auth_link_account" to "Link Account",
+            "auth_or_divider" to " or ",
+            "auth_sign_in_title" to "Sign In",
+            "auth_sign_in_subtitle" to "Sign in to access your account",
+            "auth_sign_in_with_google" to "Sign in with Google",
+        )
+
+    public val RU: Map<String, String> =
+        mapOf(
+            "auth_login" to "Войти",
+            "auth_logout" to "Выйти",
+            "auth_email" to "Email",
+            "auth_password" to "Пароль",
+            "auth_confirm_password" to "Подтвердите пароль",
+            "auth_email_hint" to "Введите ваш email",
+            "auth_password_hint" to "Введите ваш пароль",
+            "auth_forgot_password" to "Забыли пароль?",
+            "auth_no_account" to "Нет аккаунта?",
+            "auth_sign_up" to "Регистрация",
+            "auth_login_success" to "Вход выполнен успешно",
+            "auth_login_error" to "Ошибка входа. Проверьте данные.",
+            "auth_invalid_email" to "Некорректный email",
+            "auth_invalid_password" to "Пароль должен быть минимум 8 символов",
+            "auth_session_expired" to "Сессия истекла. Пожалуйста, войдите снова.",
+            "auth_phone" to "Телефон (опционально)",
+            "auth_select_role" to "Выберите роль:",
+            "auth_client_role" to "Клиент (записываться к мастерам)",
+            "auth_provider_role" to "Мастер (предоставлять услуги)",
+            "auth_link_account_title" to "Свяжите ваш аккаунт",
+            "auth_link_account_message" to "Этот email уже зарегистрирован:",
+            "auth_link_account" to "Связать аккаунт",
+            "auth_or_divider" to " или ",
+            "auth_sign_in_title" to "Вход",
+            "auth_sign_in_subtitle" to "Войдите, чтобы получить доступ к аккаунту",
+            "auth_sign_in_with_google" to "Войти с Google",
+        )
+
+    public val HE: Map<String, String> =
+        mapOf(
+            "auth_login" to "התחברות",
+            "auth_logout" to "התנתקות",
+            "auth_email" to "אימייל",
+            "auth_password" to "סיסמה",
+            "auth_confirm_password" to "אימות סיסמה",
+            "auth_email_hint" to "הזן את האימייל שלך",
+            "auth_password_hint" to "הזן את הסיסמה שלך",
+            "auth_forgot_password" to "שכחת סיסמה?",
+            "auth_no_account" to "אין לך חשבון?",
+            "auth_sign_up" to "הרשמה",
+            "auth_login_success" to "התחברות הצליחה",
+            "auth_login_error" to "התחברות נכשלה. בדוק את הפרטים.",
+            "auth_invalid_email" to "כתובת אימייל לא חוקית",
+            "auth_invalid_password" to "הסיסמה חייבת להכיל לפחות 8 תווים",
+            "auth_session_expired" to "הסשן פג. אנא התחבר מחדש.",
+            "auth_phone" to "טלפון (אופציונלי)",
+            "auth_select_role" to "בחר תפקיד:",
+            "auth_client_role" to "לקוח (לקבוע תורים)",
+            "auth_provider_role" to "ספק (להציע שירותים)",
+            "auth_link_account_title" to "קשר את החשבון שלך",
+            "auth_link_account_message" to "כתובת האימייל הזו כבר רשומה:",
+            "auth_link_account" to "קשר חשבון",
+            "auth_or_divider" to " או ",
+            "auth_sign_in_title" to "התחברות",
+            "auth_sign_in_subtitle" to "התחבר כדי לגשת לחשבון שלך",
+            "auth_sign_in_with_google" to "התחבר עם Google",
+        )
+}
