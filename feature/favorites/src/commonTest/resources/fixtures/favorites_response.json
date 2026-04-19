@@ -13,6 +13,8 @@
         "reviews_count": 127,
         "address": "123 Herzl Street, Tel Aviv",
         "bio": "Professional hair and beauty services with 10 years of experience",
+        "created_at": "2024-06-15T10:30:00Z",
+        "updated_at": "2025-03-20T15:45:00Z",
         "is_verified": true,
         "is_active": true
       },

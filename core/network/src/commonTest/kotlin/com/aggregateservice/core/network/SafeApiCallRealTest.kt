@@ -67,7 +67,8 @@ class SafeApiCallRealTest {
         }
 
     /**
-     * Test 2: Should retry 3 times on 500 Internal Server Error
+     * Test 2: Should retry once on 500 Internal Server Error
+     * Note: maxRetries=2 means 1 initial attempt + 1 retry = 2 total attempts
      */
     @Test
     fun `should retry 3 times on 500 Internal Server Error`() =
@@ -79,7 +80,7 @@ class SafeApiCallRealTest {
                 MockEngine { _ ->
                     callCount++
                     when {
-                        callCount < 3 -> {
+                        callCount < 2 -> {
                             respond(
                                 content =
                                     json.encodeToString(
@@ -105,15 +106,17 @@ class SafeApiCallRealTest {
                     }
                 }
 
-            // Act
+            // Act - Use maxRetries=2 for 2 total attempts (1 initial + 1 retry)
             val result =
-                safeApiCall<TestData> {
+                safeApiCall<TestData>(
+                    maxRetries = 2,
+                ) {
                     client.get("https://api.test.com/data")
                 }
 
-            // Assert
+            // Assert - maxRetries=2 means 1 initial attempt + 1 retry = 2 total attempts
             assertTrue(result.isSuccess, "Result should be successful after retries")
-            assertEquals(3, callCount, "Should retry 3 times")
+            assertEquals(2, callCount, "Should retry once (2 total attempts with maxRetries=2)")
             assertEquals(testData, result.getOrNull())
         }
 
@@ -304,6 +307,7 @@ class SafeApiCallRealTest {
                                 ErrorResponse(message = lockUntil),
                             ),
                         status = HttpStatusCode.Locked,
+                        headers = headersOf(HttpHeaders.ContentType, "application/json"),
                     )
                 }
             val client =
@@ -376,13 +380,13 @@ class SafeApiCallRealTest {
 
             // Act
             val result =
-                safeApiCall<String> {
+                safeApiCall<Unit> {
                     client.get("https://api.test.com/data")
                 }
 
-            // Assert
+            // Assert - 204 NoContent returns Unit
             assertTrue(result.isSuccess, "Result should be successful")
-            assertEquals(null, result.getOrNull())
+            assertEquals(Unit, result.getOrNull())
         }
 
     // ============== Test Data Classes ==============

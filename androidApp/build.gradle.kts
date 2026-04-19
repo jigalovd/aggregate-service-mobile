@@ -118,5 +118,26 @@ kotlin {
             implementation(project(":core:logging"))
             implementation("uk.uuid.slf4j:slf4j-android:2.0.16-0")
         }
+
+        // Android unit tests
+        maybeCreate("androidUnitTest").dependencies {
+            implementation(libs.androidx.test.ext.junit)
+            implementation(libs.androidx.test.runner)
+            implementation(libs.robolectric)
+            implementation(libs.compose.ui.test.junit4)
+            implementation(libs.kotlinx.datetime)
+            implementation(project(":app"))
+            implementation(project(":core:common"))
+        }
+
+        // Android instrumented tests
+        maybeCreate("androidInstrumentedTest").dependencies {
+            implementation(libs.androidx.test.ext.junit)
+            implementation(libs.androidx.test.runner)
+            implementation(libs.robolectric)
+            implementation(libs.compose.ui.test.junit4)
+            implementation(libs.kotlinx.datetime)
+            implementation(project(":app"))
+        }
     }
 }

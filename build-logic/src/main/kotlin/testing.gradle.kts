@@ -20,11 +20,16 @@ kotlin {
             implementation(libs.findLibrary("androidx.test.ext.junit").get())
             implementation(libs.findLibrary("androidx.test.runner").get())
             implementation(libs.findLibrary("robolectric").get())
+            implementation(libs.findLibrary("compose.ui.test.junit4").get())
         }
 
-        // iOS tests (simulator only)
-        maybeCreate("iosTest").dependencies {
-            // iOS test dependencies if needed
+        // Android instrumented tests (run on device/emulator or with Robolectric)
+        maybeCreate("androidInstrumentedTest").dependencies {
+            implementation(libs.findLibrary("androidx.test.ext.junit").get())
+            implementation(libs.findLibrary("androidx.test.runner").get())
+            implementation(libs.findLibrary("robolectric").get())
+            implementation(libs.findLibrary("compose.ui.test.junit4").get())
+            implementation(libs.findLibrary("compose.ui.test.manifest").get())
         }
     }
 }
