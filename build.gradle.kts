@@ -75,6 +75,24 @@ subprojects {
     apply(plugin = "org.jetbrains.kotlinx.kover")
 }
 
+tasks.register("jvmTestAll") {
+    group = "verification"
+    description = "Run JVM tests for all modules with JVM target"
+    dependsOn(
+        subprojects.map { project -> project.tasks.matching { it.name == "jvmTest" } }
+    )
+}
+
+tasks.register("koverJvmReportAll") {
+    group = "verification"
+    description = "Generate Kover JVM coverage reports for modules with JVM targets"
+    dependsOn(
+        subprojects.map { project ->
+            project.tasks.matching { it.name == "koverXmlReportJvm" }
+        },
+    )
+}
+
 // Detekt task for all modules
 tasks.register("detektAll") {
     dependsOn(subprojects.map { project -> project.tasks.matching { it.name.startsWith("detekt") } })

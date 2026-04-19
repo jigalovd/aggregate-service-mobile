@@ -12,4 +12,6 @@ interface AuthRepository {
     suspend fun logout()
 
     suspend fun getCurrentUser(): Result<UserResponse>
+
+    suspend fun switchRole(role: String): Result<UserResponse>
 }

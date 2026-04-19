@@ -1,5 +1,6 @@
 package com.aggregateservice.feature.profile.presentation.screenmodel
 
+import app.cash.turbine.test
 import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
 import com.aggregateservice.core.auth.contract.LogoutUseCase
@@ -9,6 +10,7 @@ import com.aggregateservice.feature.profile.domain.model.UpdateProfileRequest
 import com.aggregateservice.feature.profile.domain.repository.ProfileRepository
 import com.aggregateservice.feature.profile.domain.usecase.GetProfileUseCase
 import com.aggregateservice.feature.profile.domain.usecase.UpdateProfileUseCase
+import com.aggregateservice.feature.profile.presentation.model.ProfileUiState
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -28,7 +30,10 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
- * Tests for ProfileScreenModel.
+ * Tests for ProfileScreenModel using Turbine for async StateFlow testing.
+ *
+ * **Key insight:** loadProfile() is called in ProfileScreen via LaunchedEffect,
+ * not automatically in ScreenModel init. Tests must call loadProfile() explicitly.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProfileScreenModelTest {
@@ -62,7 +67,7 @@ class ProfileScreenModelTest {
         // Arrange - set result BEFORE creating ScreenModel
         mockRepository.getProfileResult = Result.success(createTestProfile())
 
-        // Act
+        // Act - create ScreenModel (does NOT auto-load, must call loadProfile())
         val screenModel =
             ProfileScreenModel(
                 getProfileUseCase = getProfileUseCase,
@@ -72,18 +77,17 @@ class ProfileScreenModelTest {
                 logger = Logger.withTag("Test"),
             )
 
-        // Assert - initial state before coroutine completes
+        // Assert - initial state is Loading (before loadProfile is called)
         assertTrue(screenModel.uiState.value.isLoading)
     }
 
     @Test
-    fun `should load profile on init`() =
+    fun `loadProfile should emit loading then success state`() =
         runTest {
-            // Arrange - set result BEFORE creating ScreenModel
+            // Arrange
             val expectedProfile = createTestProfile()
             mockRepository.getProfileResult = Result.success(expectedProfile)
 
-            // Act
             val screenModel =
                 ProfileScreenModel(
                     getProfileUseCase = getProfileUseCase,
@@ -92,22 +96,35 @@ class ProfileScreenModelTest {
                     catalogNavigator = catalogNavigator,
                     logger = Logger.withTag("Test"),
                 )
-            testDispatcher.scheduler.advanceUntilIdle()
 
-            // Assert
-            val state = screenModel.uiState.value
-            assertFalse(state.isLoading)
-            assertEquals(expectedProfile, state.profile)
+            // Act & Assert using Turbine
+            screenModel.uiState.test {
+                // Initial state is loading
+                val initial = awaitItem()
+                assertTrue(initial.isLoading)
+
+                // Call loadProfile and await transitions
+                screenModel.loadProfile()
+                testDispatcher.scheduler.runCurrent()
+
+                // The initial loading state equals the first update from loadProfile,
+                // so StateFlow skips that emission. We await the success state directly.
+                val success = awaitItem()
+                assertFalse(success.isLoading)
+                assertEquals(expectedProfile, success.profile)
+                assertNull(success.error)
+
+                cancelAndIgnoreRemainingEvents()
+            }
         }
 
     @Test
-    fun `should set error state when loading fails`() =
+    fun `loadProfile should emit loading then error state on failure`() =
         runTest {
-            // Arrange - set error result BEFORE creating ScreenModel
+            // Arrange - set error result
             val expectedError = RuntimeException("Network error")
             mockRepository.getProfileResult = Result.failure(expectedError)
 
-            // Act
             val screenModel =
                 ProfileScreenModel(
                     getProfileUseCase = getProfileUseCase,
@@ -116,12 +133,25 @@ class ProfileScreenModelTest {
                     catalogNavigator = catalogNavigator,
                     logger = Logger.withTag("Test"),
                 )
-            testDispatcher.scheduler.advanceUntilIdle()
 
-            // Assert
-            val state = screenModel.uiState.value
-            assertFalse(state.isLoading)
-            assertTrue(state.error != null)
+            // Act & Assert using Turbine
+            screenModel.uiState.test {
+                // Initial state is loading
+                val initial = awaitItem()
+                assertTrue(initial.isLoading)
+
+                // Call loadProfile and await transitions
+                screenModel.loadProfile()
+                testDispatcher.scheduler.runCurrent()
+
+                // The initial loading state equals the first update from loadProfile,
+                // so StateFlow skips that emission. We await the error state directly.
+                val errorState = awaitItem()
+                assertFalse(errorState.isLoading)
+                assertTrue(errorState.error != null)
+
+                cancelAndIgnoreRemainingEvents()
+            }
         }
 
     @Test
@@ -130,6 +160,7 @@ class ProfileScreenModelTest {
             // Arrange
             val profile = createTestProfile(fullName = "Test User", phone = "+1234567890")
             mockRepository.getProfileResult = Result.success(profile)
+
             val screenModel =
                 ProfileScreenModel(
                     getProfileUseCase = getProfileUseCase,
@@ -138,11 +169,31 @@ class ProfileScreenModelTest {
                     catalogNavigator = catalogNavigator,
                     logger = Logger.withTag("Test"),
                 )
-            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Load profile and wait for success
+            screenModel.uiState.test {
+                val initial = awaitItem()
+                assertTrue(initial.isLoading)
+
+                screenModel.loadProfile()
+                testDispatcher.scheduler.runCurrent()
+
+                // Skip loading state
+                val loading = awaitItem()
+                if (loading.isLoading) {
+                    val success = awaitItem()
+                    assertFalse(success.isLoading)
+                    assertEquals(profile, success.profile)
+                } else {
+                    assertFalse(loading.isLoading)
+                    assertEquals(profile, loading.profile)
+                }
+
+                cancelAndIgnoreRemainingEvents()
+            }
 
             // Act
             screenModel.startEditing()
-            testDispatcher.scheduler.advanceUntilIdle()
 
             // Assert
             val state = screenModel.uiState.value
@@ -157,6 +208,7 @@ class ProfileScreenModelTest {
             // Arrange
             val profile = createTestProfile(fullName = "Original", phone = "+1111111111")
             mockRepository.getProfileResult = Result.success(profile)
+
             val screenModel =
                 ProfileScreenModel(
                     getProfileUseCase = getProfileUseCase,
@@ -165,14 +217,25 @@ class ProfileScreenModelTest {
                     catalogNavigator = catalogNavigator,
                     logger = Logger.withTag("Test"),
                 )
-            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Load profile
+            screenModel.uiState.test {
+                val initial = awaitItem()
+                screenModel.loadProfile()
+                testDispatcher.scheduler.runCurrent()
+                // Skip to loaded state
+                if (awaitItem().isLoading) {
+                    awaitItem() // success
+                }
+                cancelAndIgnoreRemainingEvents()
+            }
+
+            // Enter edit mode and modify
             screenModel.startEditing()
             screenModel.onFullNameChanged("Changed")
-            testDispatcher.scheduler.advanceUntilIdle()
 
             // Act
             screenModel.cancelEditing()
-            testDispatcher.scheduler.advanceUntilIdle()
 
             // Assert
             val state = screenModel.uiState.value
@@ -182,7 +245,7 @@ class ProfileScreenModelTest {
         }
 
     @Test
-    fun `onFullNameChanged should update editFullName`() =
+    fun `onFullNameChanged should update editFullName and validate`() =
         runTest {
             // Arrange
             mockRepository.getProfileResult = Result.success(createTestProfile())
@@ -194,11 +257,20 @@ class ProfileScreenModelTest {
                     catalogNavigator = catalogNavigator,
                     logger = Logger.withTag("Test"),
                 )
-            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Load profile
+            screenModel.uiState.test {
+                val initial = awaitItem()
+                screenModel.loadProfile()
+                testDispatcher.scheduler.runCurrent()
+                if (awaitItem().isLoading) {
+                    awaitItem()
+                }
+                cancelAndIgnoreRemainingEvents()
+            }
 
             // Act
             screenModel.onFullNameChanged("New Name")
-            testDispatcher.scheduler.advanceUntilIdle()
 
             // Assert
             assertEquals("New Name", screenModel.uiState.value.editFullName)
@@ -217,11 +289,20 @@ class ProfileScreenModelTest {
                     catalogNavigator = catalogNavigator,
                     logger = Logger.withTag("Test"),
                 )
-            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Load profile
+            screenModel.uiState.test {
+                val initial = awaitItem()
+                screenModel.loadProfile()
+                testDispatcher.scheduler.runCurrent()
+                if (awaitItem().isLoading) {
+                    awaitItem()
+                }
+                cancelAndIgnoreRemainingEvents()
+            }
 
             // Act
             screenModel.onPhoneChanged("+9998887777")
-            testDispatcher.scheduler.advanceUntilIdle()
 
             // Assert
             assertEquals("+9998887777", screenModel.uiState.value.editPhone)
@@ -235,6 +316,7 @@ class ProfileScreenModelTest {
             val updatedProfile = createTestProfile(fullName = "Updated", phone = "+2222222222")
             mockRepository.getProfileResult = Result.success(originalProfile)
             mockRepository.updateProfileResult = Result.success(updatedProfile)
+
             val screenModel =
                 ProfileScreenModel(
                     getProfileUseCase = getProfileUseCase,
@@ -243,22 +325,34 @@ class ProfileScreenModelTest {
                     catalogNavigator = catalogNavigator,
                     logger = Logger.withTag("Test"),
                 )
-            testDispatcher.scheduler.advanceUntilIdle()
 
+            // Load profile and wait for success state
+            screenModel.uiState.test {
+                val initial = awaitItem()
+                assertTrue(initial.isLoading)
+                screenModel.loadProfile()
+                testDispatcher.scheduler.runCurrent()
+                val success = awaitItem()
+                assertFalse(success.isLoading)
+                assertEquals(originalProfile, success.profile)
+                cancelAndIgnoreRemainingEvents()
+            }
+
+            // Enter edit mode
             screenModel.startEditing()
             screenModel.onFullNameChanged("Updated")
             screenModel.onPhoneChanged("+2222222222")
-            testDispatcher.scheduler.advanceUntilIdle()
 
-            // Act
+            // Act - call saveProfile
             screenModel.saveProfile()
-            testDispatcher.scheduler.advanceUntilIdle()
+            testDispatcher.scheduler.runCurrent()
 
-            // Assert
+            // Assert - StateFlow always has latest value
             val state = screenModel.uiState.value
             assertFalse(state.isEditing)
-            assertEquals(updatedProfile, state.profile)
             assertTrue(state.saveSuccess)
+            assertEquals(updatedProfile, state.profile)
+            assertFalse(state.isSaving)
         }
 
     @Test
@@ -268,6 +362,7 @@ class ProfileScreenModelTest {
             val profile = createTestProfile()
             mockRepository.getProfileResult = Result.success(profile)
             mockRepository.updateProfileResult = Result.failure(RuntimeException("Update failed"))
+
             val screenModel =
                 ProfileScreenModel(
                     getProfileUseCase = getProfileUseCase,
@@ -276,28 +371,38 @@ class ProfileScreenModelTest {
                     catalogNavigator = catalogNavigator,
                     logger = Logger.withTag("Test"),
                 )
-            testDispatcher.scheduler.advanceUntilIdle()
 
+            // Load profile and wait for success state
+            screenModel.uiState.test {
+                val initial = awaitItem()
+                assertTrue(initial.isLoading)
+                screenModel.loadProfile()
+                testDispatcher.scheduler.runCurrent()
+                val success = awaitItem()
+                assertFalse(success.isLoading)
+                assertEquals(profile, success.profile)
+                cancelAndIgnoreRemainingEvents()
+            }
+
+            // Enter edit mode
             screenModel.startEditing()
             screenModel.onFullNameChanged("Changed")
-            testDispatcher.scheduler.advanceUntilIdle()
 
-            // Act
+            // Act - call saveProfile
             screenModel.saveProfile()
-            testDispatcher.scheduler.advanceUntilIdle()
+            testDispatcher.scheduler.runCurrent()
 
-            // Assert
+            // Assert - StateFlow always has latest value
             val state = screenModel.uiState.value
-            assertTrue(state.error != null)
             assertFalse(state.saveSuccess)
+            assertTrue(state.error != null)
         }
 
     @Test
     fun `clearError should clear error state`() =
         runTest {
             // Arrange
-            val expectedError = RuntimeException("Error")
-            mockRepository.getProfileResult = Result.failure(expectedError)
+            mockRepository.getProfileResult = Result.failure(RuntimeException("Error"))
             val screenModel =
                 ProfileScreenModel(
                     getProfileUseCase = getProfileUseCase,
@@ -306,11 +411,20 @@ class ProfileScreenModelTest {
                     catalogNavigator = catalogNavigator,
                     logger = Logger.withTag("Test"),
                 )
-            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Load profile to trigger error
+            screenModel.uiState.test {
+                val initial = awaitItem()
+                screenModel.loadProfile()
+                testDispatcher.scheduler.runCurrent()
+                if (awaitItem().isLoading) {
+                    awaitItem() // error state
+                }
+                cancelAndIgnoreRemainingEvents()
+            }
 
             // Act
             screenModel.clearError()
-            testDispatcher.scheduler.advanceUntilIdle()
 
             // Assert
             assertNull(screenModel.uiState.value.error)
@@ -324,6 +438,7 @@ class ProfileScreenModelTest {
             val updatedProfile = createTestProfile(fullName = "Updated")
             mockRepository.getProfileResult = Result.success(profile)
             mockRepository.updateProfileResult = Result.success(updatedProfile)
+
             val screenModel =
                 ProfileScreenModel(
                     getProfileUseCase = getProfileUseCase,
@@ -332,16 +447,32 @@ class ProfileScreenModelTest {
                     catalogNavigator = catalogNavigator,
                     logger = Logger.withTag("Test"),
                 )
-            testDispatcher.scheduler.advanceUntilIdle()
 
+            // Load profile and wait for success state
+            screenModel.uiState.test {
+                val initial = awaitItem()
+                assertTrue(initial.isLoading)
+                screenModel.loadProfile()
+                testDispatcher.scheduler.runCurrent()
+                val success = awaitItem()
+                assertFalse(success.isLoading)
+                assertEquals(profile, success.profile)
+                cancelAndIgnoreRemainingEvents()
+            }
+
+            // Save profile to set saveSuccess
             screenModel.startEditing()
             screenModel.onFullNameChanged("Updated")
+
+            // Call saveProfile and let it complete
             screenModel.saveProfile()
-            testDispatcher.scheduler.advanceUntilIdle()
+            testDispatcher.scheduler.runCurrent()
+
+            // Verify saveSuccess is set
+            assertTrue(screenModel.uiState.value.saveSuccess)
 
             // Act
             screenModel.clearSaveSuccess()
-            testDispatcher.scheduler.advanceUntilIdle()
 
             // Assert
             assertFalse(screenModel.uiState.value.saveSuccess)
@@ -360,13 +491,23 @@ class ProfileScreenModelTest {
                     catalogNavigator = catalogNavigator,
                     logger = Logger.withTag("Test"),
                 )
-            testDispatcher.scheduler.advanceUntilIdle()
 
-            // when
+            // Load profile
+            screenModel.uiState.test {
+                val initial = awaitItem()
+                screenModel.loadProfile()
+                testDispatcher.scheduler.runCurrent()
+                if (awaitItem().isLoading) {
+                    awaitItem()
+                }
+                cancelAndIgnoreRemainingEvents()
+            }
+
+            // Act
             screenModel.logout(mockNavigator)
-            testDispatcher.scheduler.advanceUntilIdle()
+            testDispatcher.scheduler.runCurrent()
 
-            // then
+            // Assert
             coVerify { logoutUseCase() }
             verify { mockNavigator.replace(any()) }
         }

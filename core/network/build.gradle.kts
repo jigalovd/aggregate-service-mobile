@@ -18,14 +18,15 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.logging)
-            implementation(libs.kermit)
-            implementation(libs.kermit.ktor)
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.kotlinx.serialization.json)
         }
 
         maybeCreate("androidMain").dependencies {
             implementation(libs.ktor.client.okhttp)
+            // kermit-ktor has no JVM variant — only for Android/iOS
+            implementation(libs.kermit)
+            implementation(libs.kermit.ktor)
         }
 
         maybeCreate("iosMain").dependencies {

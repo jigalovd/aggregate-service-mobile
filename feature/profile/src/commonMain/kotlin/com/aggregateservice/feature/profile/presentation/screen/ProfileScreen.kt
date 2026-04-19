@@ -53,6 +53,8 @@ import com.aggregateservice.feature.profile.domain.model.Profile
 import com.aggregateservice.feature.profile.presentation.screenmodel.ProfileScreenModel
 import org.koin.compose.koinInject
 
+import com.aggregateservice.core.navigation.RequiredRole
+
 /**
  * Voyager Screen for user profile management.
  */

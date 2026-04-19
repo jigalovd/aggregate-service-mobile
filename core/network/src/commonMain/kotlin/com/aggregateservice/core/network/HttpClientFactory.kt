@@ -1,6 +1,5 @@
 package com.aggregateservice.core.network
 
-import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.HttpTimeout
@@ -29,24 +28,16 @@ private val SENSITIVE_FIELD_PATTERNS =
         Regex(""""Authorization"\s*:\s*"[^"]*"""", RegexOption.IGNORE_CASE),
     )
 
-private fun String.sanitize(): String {
+internal fun String.sanitize(): String {
     var sanitized = this
     SENSITIVE_FIELD_PATTERNS.forEach { pattern ->
         sanitized =
             sanitized.replace(pattern) { matchResult ->
                 val field = matchResult.value.substringBefore(":").trim()
-                """$field: "***""""
+                """$field: "***"""" 
             }
     }
     return sanitized
-}
-
-private class SanitizingKermitLogger(
-    private val delegate: Logger,
-) : io.ktor.client.plugins.logging.Logger {
-    override fun log(message: String) {
-        delegate.d { message.sanitize() }
-    }
 }
 
 fun createHttpClient(
@@ -80,7 +71,7 @@ fun createHttpClient(
 
         if (enableLogging) {
             install(Logging) {
-                logger = SanitizingKermitLogger(Logger.withTag("Http"))
+                logger = PlatformHttpLogger("Http").logger
                 level = LogLevel.HEADERS
                 sanitizeHeader { header -> header == HttpHeaders.Authorization }
             }

@@ -106,6 +106,7 @@ class FakeTokenStore : TokenStore {
         private set
     var savedRefreshToken: String? = null
         private set
+    private var _currentRole: String? = null
 
     override suspend fun getAccessToken(): String? = savedAccessToken
 
@@ -119,5 +120,16 @@ class FakeTokenStore : TokenStore {
     override suspend fun clearTokens() {
         savedAccessToken = null
         savedRefreshToken = null
+        _currentRole = null
+    }
+
+    override suspend fun getCurrentRole(): String? = _currentRole
+
+    override suspend fun saveCurrentRole(role: String?) {
+        _currentRole = role
+    }
+
+    override suspend fun clearCurrentRole() {
+        _currentRole = null
     }
 }

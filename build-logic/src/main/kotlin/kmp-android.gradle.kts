@@ -20,4 +20,11 @@ configure<org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension> {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
         }
     }
+
+    // JVM target for Kover coverage measurement — Kover only instruments JVM bytecode
+    jvm("jvm") {
+        testRuns["test"].executionTask.configure {
+            useJUnit()
+        }
+    }
 }

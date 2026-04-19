@@ -9,6 +9,7 @@ import com.aggregateservice.core.storage.TokenStore
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
@@ -31,6 +32,7 @@ class AuthRepositoryImpl(
             }
         }.map { response: AuthResponse ->
             response.refreshToken?.let { tokenStore.saveTokens(response.accessToken, it) }
+            response.user.currentRole?.let { tokenStore.saveCurrentRole(it) }
             VerifyResult.Authenticated(
                 accessToken = response.accessToken,
                 userId = response.user.id,
@@ -62,11 +64,22 @@ class AuthRepositoryImpl(
                 httpClient.post("/api/v1/auth/logout")
             }
         }
+        tokenStore.clearTokens()
     }
 
     override suspend fun getCurrentUser(): Result<UserResponse> =
         safeApiCall {
             httpClient.get("/api/v1/auth/me")
+        }
+
+    override suspend fun switchRole(role: String): Result<UserResponse> =
+        safeApiCall<UserResponse> {
+            httpClient.put("/api/v1/users/me/context") {
+                contentType(ContentType.Application.Json)
+                setBody(RoleSwitchRequest(role = role))
+            }
+        }.onSuccess { response ->
+            tokenStore.saveCurrentRole(response.currentRole)
         }
 }
 
@@ -75,4 +88,9 @@ data class FirebaseVerifyRequest(
     @SerialName("firebase_token")
     val firebaseToken: String,
     val provider: String,
+)
+
+@Serializable
+data class RoleSwitchRequest(
+    val role: String,
 )

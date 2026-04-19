@@ -14,5 +14,9 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.koin.core)
         }
+
+        maybeCreate("commonTest").dependencies {
+            implementation(libs.mockk)
+        }
     }
 }

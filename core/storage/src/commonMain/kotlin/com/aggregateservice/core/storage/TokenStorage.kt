@@ -7,7 +7,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.first
 
 /**
- * Single source of truth for auth tokens.
+ * Single source of truth for auth tokens and role preference.
  * Pure read/write — no business logic.
  * Written to by Auth Ops only. Read by all contexts.
  */
@@ -19,6 +19,12 @@ interface TokenStore {
     suspend fun saveTokens(accessToken: String, refreshToken: String)
 
     suspend fun clearTokens()
+
+    suspend fun getCurrentRole(): String?
+
+    suspend fun saveCurrentRole(role: String?)
+
+    suspend fun clearCurrentRole()
 }
 
 class TokenStoreImpl(
@@ -27,6 +33,7 @@ class TokenStoreImpl(
     companion object {
         private val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
         private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
+        private val CURRENT_ROLE_KEY = stringPreferencesKey("current_role")
     }
 
     override suspend fun getAccessToken(): String? =
@@ -46,6 +53,26 @@ class TokenStoreImpl(
         dataStore.edit { preferences ->
             preferences.remove(ACCESS_TOKEN_KEY)
             preferences.remove(REFRESH_TOKEN_KEY)
+            preferences.remove(CURRENT_ROLE_KEY)
+        }
+    }
+
+    override suspend fun getCurrentRole(): String? =
+        dataStore.data.first()[CURRENT_ROLE_KEY]
+
+    override suspend fun saveCurrentRole(role: String?) {
+        dataStore.edit { preferences ->
+            if (role != null) {
+                preferences[CURRENT_ROLE_KEY] = role
+            } else {
+                preferences.remove(CURRENT_ROLE_KEY)
+            }
+        }
+    }
+
+    override suspend fun clearCurrentRole() {
+        dataStore.edit { preferences ->
+            preferences.remove(CURRENT_ROLE_KEY)
         }
     }
 }

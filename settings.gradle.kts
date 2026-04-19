@@ -49,6 +49,8 @@ include(":feature:profile")
 include(":feature:favorites")
 include(":feature:schedule")
 include(":feature:reviews")
+include(":feature:provider-dashboard")
+include(":feature:provider-onboarding")
 
 // App module (aggregator)
 include(":app")

@@ -31,5 +31,16 @@ kotlin {
             implementation(libs.findLibrary("compose.ui.test.junit4").get())
             implementation(libs.findLibrary("compose.ui.test.manifest").get())
         }
+
+        // JVM unit tests — for Kover coverage measurement
+        maybeCreate("jvmTest").dependencies {
+            implementation(libs.findLibrary("kotlinx.coroutines.test").get())
+            implementation(libs.findLibrary("mockk").get())
+            implementation(libs.findLibrary("turbine").get())
+            implementation(libs.findLibrary("koin.test").get())
+            implementation(libs.findLibrary("koin.test.junit5").get())
+            // Koin Core is required for DI in JVM tests (koin-core is platform-agnostic)
+            implementation(libs.findLibrary("koin.core").get())
+        }
     }
 }
