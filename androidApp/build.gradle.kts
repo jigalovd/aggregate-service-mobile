@@ -114,6 +114,11 @@ kotlin {
             implementation(libs.voyager.screenModel)
             implementation(libs.voyager.transitions)
 
+            // Provider modules
+            implementation(project(":feature:provider-dashboard"))
+            implementation(project(":feature:provider-onboarding"))
+            implementation(project(":feature:provider-bookings"))
+
             // Logging - Kermit via core:logging module
             implementation(project(":core:logging"))
             implementation("uk.uuid.slf4j:slf4j-android:2.0.16-0")

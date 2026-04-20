@@ -51,6 +51,7 @@ include(":feature:schedule")
 include(":feature:reviews")
 include(":feature:provider-dashboard")
 include(":feature:provider-onboarding")
+include(":feature:provider-bookings")
 
 // App module (aggregator)
 include(":app")

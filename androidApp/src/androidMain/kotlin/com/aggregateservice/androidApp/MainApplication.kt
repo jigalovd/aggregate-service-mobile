@@ -13,6 +13,9 @@ import com.aggregateservice.feature.booking.di.bookingModule
 import com.aggregateservice.feature.catalog.di.catalogModule
 import com.aggregateservice.feature.favorites.di.favoritesModule
 import com.aggregateservice.feature.profile.di.profileModule
+import com.aggregateservice.feature.provider.bookings.di.providerBookingsModule
+import com.aggregateservice.feature.provider.dashboard.di.providerDashboardModule
+import com.aggregateservice.feature.provider.onboarding.di.providerOnboardingModule
 import com.aggregateservice.feature.reviews.di.reviewsModule
 import com.aggregateservice.feature.services.di.servicesModule
 import io.ktor.client.HttpClient
@@ -45,6 +48,9 @@ class MainApplication : Application() {
                 profileModule,
                 favoritesModule,
                 reviewsModule,
+                providerDashboardModule,
+                providerBookingsModule,
+                providerOnboardingModule,
             )
 
             // Pre-warm heavy Koin singletons so first Compose composition
