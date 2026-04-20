@@ -8,6 +8,7 @@ import com.aggregateservice.core.auth.contract.LogoutUseCase
 import com.aggregateservice.core.auth.contract.ObserveAuthStateUseCase
 import com.aggregateservice.core.auth.contract.RefreshTokenUseCase
 import com.aggregateservice.core.auth.contract.SignInUseCase
+import com.aggregateservice.core.auth.contract.SwitchRoleUseCase
 import com.aggregateservice.core.auth.impl.AuthStateProviderImpl
 import com.aggregateservice.core.auth.impl.gate.AuthGateImpl
 import com.aggregateservice.core.auth.impl.gate.AuthPromptPresenter
