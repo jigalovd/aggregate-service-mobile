@@ -105,6 +105,12 @@ val authModule =
                 onRefreshFailed = { get<AuthStateMachine>().emitGuest() },
             )
         }
+        single<SwitchRoleUseCase> {
+            com.aggregateservice.core.auth.impl.usecase.SwitchRoleUseCaseImpl(
+                authStateMachine = get(),
+                repository = get(),
+            )
+        }
 
         // AuthGate
         single<AuthGate> {

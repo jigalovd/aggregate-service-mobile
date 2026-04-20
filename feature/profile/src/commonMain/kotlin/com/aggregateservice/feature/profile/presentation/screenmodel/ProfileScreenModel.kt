@@ -5,6 +5,7 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
 import com.aggregateservice.core.auth.contract.LogoutUseCase
+import com.aggregateservice.core.auth.contract.SwitchRoleUseCase
 import com.aggregateservice.core.navigation.CatalogNavigator
 import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.profile.domain.model.UpdateProfileRequest
@@ -25,15 +26,21 @@ import kotlinx.coroutines.launch
  * - Managing edit mode
  * - Validating form input
  * - Saving profile changes
+ * - Role switching (via SwitchRoleUseCase)
  *
  * @property getProfileUseCase UseCase for loading profile
  * @property updateProfileUseCase UseCase for updating profile
+ * @property logoutUseCase UseCase for logout
+ * @property catalogNavigator Navigator for catalog screen
+ * @property switchRoleUseCase UseCase for role switching (syncs with backend)
+ * @property logger Logger for diagnostics
  */
 class ProfileScreenModel(
     private val getProfileUseCase: GetProfileUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val catalogNavigator: CatalogNavigator,
+    private val switchRoleUseCase: SwitchRoleUseCase,
     private val logger: Logger,
 ) : ScreenModel {
     private val _uiState = MutableStateFlow(ProfileUiState.Loading)
@@ -205,14 +212,21 @@ class ProfileScreenModel(
 
     /**
      * Switches to a different role.
-     * Updates the UI state with the new role.
+     * Delegates to SwitchRoleUseCase which syncs with backend.
      *
      * @param availableRoles All roles the user has
      * @param newRole The role to switch to
      */
     fun switchRole(availableRoles: List<String>, newRole: String) {
-        // Update local UI state immediately for responsive feel
-        _uiState.update { it.copy(currentRole = newRole, roles = availableRoles) }
+        screenModelScope.launch {
+            logger.d { "Switching role from ${_uiState.value.currentRole} to $newRole" }
+            switchRoleUseCase(newRole).onFailure { error ->
+                val appError = error.toAppError()
+                logger.w(appError) { "Failed to switch role: ${appError::class.simpleName}" }
+                _uiState.update { it.copy(error = appError) }
+            }
+            // UI state is updated by AuthStateProvider observing AuthState changes
+        }
     }
 
     private fun validateFullName(value: String): String? {

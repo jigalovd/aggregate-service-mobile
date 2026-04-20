@@ -1,6 +1,7 @@
 package com.aggregateservice.feature.profile.di
 
 import co.touchlab.kermit.Logger
+import com.aggregateservice.core.auth.contract.SwitchRoleUseCase
 import com.aggregateservice.feature.profile.data.api.ProfileApiService
 import com.aggregateservice.feature.profile.data.repository.ProfileRepositoryImpl
 import com.aggregateservice.feature.profile.domain.repository.ProfileRepository
@@ -34,5 +35,5 @@ val profileModule =
         factoryOf(::UpdateProfileUseCase)
 
         // ScreenModels (Presentation layer)
-        factory { ProfileScreenModel(get(), get(), get(), get(), Logger.withTag("Profile")) }
+        factory { ProfileScreenModel(get(), get(), get(), get(), get(), Logger.withTag("Profile")) }
     }

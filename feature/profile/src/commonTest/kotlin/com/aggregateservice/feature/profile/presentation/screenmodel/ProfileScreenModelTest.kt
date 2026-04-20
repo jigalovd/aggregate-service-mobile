@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
 import com.aggregateservice.core.auth.contract.LogoutUseCase
+import com.aggregateservice.core.auth.contract.SwitchRoleUseCase
 import com.aggregateservice.core.navigation.CatalogNavigator
 import com.aggregateservice.feature.profile.domain.model.Profile
 import com.aggregateservice.feature.profile.domain.model.UpdateProfileRequest
@@ -44,6 +45,7 @@ class ProfileScreenModelTest {
     private lateinit var logoutUseCase: LogoutUseCase
     private lateinit var catalogNavigator: CatalogNavigator
     private lateinit var mockNavigator: Navigator
+    private lateinit var switchRoleUseCase: SwitchRoleUseCase
 
     @BeforeTest
     fun setup() {
@@ -54,6 +56,7 @@ class ProfileScreenModelTest {
         logoutUseCase = mockk(relaxed = true)
         catalogNavigator = mockk(relaxed = true)
         mockNavigator = mockk(relaxed = true)
+        switchRoleUseCase = mockk(relaxed = true)
         every { catalogNavigator.createCatalogScreen() } returns mockk(relaxed = true)
     }
 
@@ -74,6 +77,7 @@ class ProfileScreenModelTest {
                 updateProfileUseCase = updateProfileUseCase,
                 logoutUseCase = logoutUseCase,
                 catalogNavigator = catalogNavigator,
+                switchRoleUseCase = switchRoleUseCase,
                 logger = Logger.withTag("Test"),
             )
 
@@ -94,7 +98,8 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
-                    logger = Logger.withTag("Test"),
+                switchRoleUseCase = switchRoleUseCase,
+                logger = Logger.withTag("Test"),
                 )
 
             // Act & Assert using Turbine
@@ -131,7 +136,8 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
-                    logger = Logger.withTag("Test"),
+                switchRoleUseCase = switchRoleUseCase,
+                logger = Logger.withTag("Test"),
                 )
 
             // Act & Assert using Turbine
@@ -167,7 +173,8 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
-                    logger = Logger.withTag("Test"),
+                switchRoleUseCase = switchRoleUseCase,
+                logger = Logger.withTag("Test"),
                 )
 
             // Load profile and wait for success
@@ -215,7 +222,8 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
-                    logger = Logger.withTag("Test"),
+                switchRoleUseCase = switchRoleUseCase,
+                logger = Logger.withTag("Test"),
                 )
 
             // Load profile
@@ -255,7 +263,8 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
-                    logger = Logger.withTag("Test"),
+                switchRoleUseCase = switchRoleUseCase,
+                logger = Logger.withTag("Test"),
                 )
 
             // Load profile
@@ -287,7 +296,8 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
-                    logger = Logger.withTag("Test"),
+                switchRoleUseCase = switchRoleUseCase,
+                logger = Logger.withTag("Test"),
                 )
 
             // Load profile
@@ -323,7 +333,8 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
-                    logger = Logger.withTag("Test"),
+                switchRoleUseCase = switchRoleUseCase,
+                logger = Logger.withTag("Test"),
                 )
 
             // Load profile and wait for success state
@@ -369,7 +380,8 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
-                    logger = Logger.withTag("Test"),
+                switchRoleUseCase = switchRoleUseCase,
+                logger = Logger.withTag("Test"),
                 )
 
             // Load profile and wait for success state
@@ -409,7 +421,8 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
-                    logger = Logger.withTag("Test"),
+                switchRoleUseCase = switchRoleUseCase,
+                logger = Logger.withTag("Test"),
                 )
 
             // Load profile to trigger error
@@ -445,7 +458,8 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
-                    logger = Logger.withTag("Test"),
+                switchRoleUseCase = switchRoleUseCase,
+                logger = Logger.withTag("Test"),
                 )
 
             // Load profile and wait for success state
@@ -489,7 +503,8 @@ class ProfileScreenModelTest {
                     updateProfileUseCase = updateProfileUseCase,
                     logoutUseCase = logoutUseCase,
                     catalogNavigator = catalogNavigator,
-                    logger = Logger.withTag("Test"),
+                switchRoleUseCase = switchRoleUseCase,
+                logger = Logger.withTag("Test"),
                 )
 
             // Load profile
