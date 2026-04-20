@@ -25,9 +25,16 @@ class AuthStateMachine(
             return
         }
 
+        // Load saved role preference from TokenStore first
+        val savedRole = tokenStore.getCurrentRole()
+
         val userResult = repository.getCurrentUser()
         userResult.fold(
-            onSuccess = { user -> populateUser(user) },
+            onSuccess = { user ->
+                // Use saved role if available, otherwise use server-provided role
+                val effectiveRole = savedRole ?: user.currentRole
+                populateUser(user, effectiveRole)
+            },
             onFailure = { tryRefreshOrFail() },
         )
     }
@@ -47,17 +54,34 @@ class AuthStateMachine(
             )
     }
 
+    /**
+     * Switch current role and persist preference to TokenStore.
+     */
+    suspend fun switchRole(newRole: String) {
+        val currentState = _state.value
+        if (currentState !is AuthState.Authenticated) return
+
+        // Update state immediately for responsive UI
+        _state.value = currentState.copy(currentRole = newRole)
+
+        // Persist to TokenStore
+        tokenStore.saveCurrentRole(newRole)
+
+        // Sync with backend (fire-and-forget for now)
+        repository.switchRole(newRole)
+    }
+
     suspend fun emitGuest() {
         _state.value = AuthState.Guest
     }
 
-    private fun populateUser(user: UserResponse) {
+    private fun populateUser(user: UserResponse, currentRole: String? = null) {
         _state.value =
             AuthState.Authenticated(
                 userId = user.id,
                 email = user.email,
                 roles = user.roles.toSet(),
-                currentRole = user.currentRole,
+                currentRole = currentRole ?: user.currentRole,
             )
     }
 

@@ -203,6 +203,18 @@ class ProfileScreenModel(
         }
     }
 
+    /**
+     * Switches to a different role.
+     * Updates the UI state with the new role.
+     *
+     * @param availableRoles All roles the user has
+     * @param newRole The role to switch to
+     */
+    fun switchRole(availableRoles: List<String>, newRole: String) {
+        // Update local UI state immediately for responsive feel
+        _uiState.update { it.copy(currentRole = newRole, roles = availableRoles) }
+    }
+
     private fun validateFullName(value: String): String? {
         return when {
             value.isNotBlank() && value.length > 255 -> "Full name must be at most 255 characters"

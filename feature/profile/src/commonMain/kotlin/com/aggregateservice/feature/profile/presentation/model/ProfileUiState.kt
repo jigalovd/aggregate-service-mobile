@@ -34,12 +34,21 @@ data class ProfileUiState(
     val phoneError: String? = null,
     // Success feedback
     val saveSuccess: Boolean = false,
+    // Role information for multi-role users
+    val currentRole: String? = null,
+    val roles: List<String> = emptyList(),
 ) {
     /**
      * Whether there is a profile loaded.
      */
     val hasProfile: Boolean
         get() = profile != null
+
+    /**
+     * Whether user can switch roles.
+     */
+    val canSwitchRole: Boolean
+        get() = roles.size > 1
 
     /**
      * Whether edit form is valid.

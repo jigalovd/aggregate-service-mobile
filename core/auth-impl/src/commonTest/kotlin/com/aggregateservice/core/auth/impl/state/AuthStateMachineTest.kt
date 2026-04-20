@@ -114,4 +114,56 @@ class AuthStateMachineTest {
             assertEquals(setOf("client"), state.roles)
             assertEquals("client", state.currentRole)
         }
+
+    @Test
+    fun `switchRole updates state and persists to TokenStore`() =
+        runTest {
+            // Setup authenticated state
+            coEvery { tokenStore.getAccessToken() } returns "token"
+            coEvery { tokenStore.getCurrentRole() } returns null
+            coEvery { repository.getCurrentUser() } returns Result.success(
+                UserResponse(id = "user-1", email = "test@example.com", roles = listOf("client", "provider")),
+            )
+
+            stateMachine.initialize()
+            assertIs<AuthState.Authenticated>(stateMachine.state.value)
+
+            // Switch to provider
+            stateMachine.switchRole("provider")
+
+            val state = stateMachine.state.value
+            assertIs<AuthState.Authenticated>(state)
+            assertEquals("provider", state.currentRole)
+
+            coVerify { tokenStore.saveCurrentRole("provider") }
+        }
+
+    @Test
+    fun `initialize uses saved role from TokenStore`() =
+        runTest {
+            coEvery { tokenStore.getAccessToken() } returns "token"
+            coEvery { tokenStore.getCurrentRole() } returns "provider"  // Saved role preference
+            coEvery { repository.getCurrentUser() } returns Result.success(
+                UserResponse(id = "user-1", email = "test@example.com", currentRole = "client"),
+            )
+
+            stateMachine.initialize()
+
+            val state = stateMachine.state.value
+            assertIs<AuthState.Authenticated>(state)
+            // Should use saved role "provider" instead of server-provided "client"
+            assertEquals("provider", state.currentRole)
+        }
+
+    @Test
+    fun `switchRole does nothing when not authenticated`() =
+        runTest {
+            stateMachine.emitGuest()
+            stateMachine.switchRole("provider")
+
+            // State should remain Guest
+            assertIs<AuthState.Guest>(stateMachine.state.value)
+            // saveCurrentRole should NOT be called
+            coVerify(exactly = 0) { tokenStore.saveCurrentRole(any()) }
+        }
 }

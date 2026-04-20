@@ -48,6 +48,8 @@ import com.aggregateservice.core.auth.contract.AuthStateProvider
 import com.aggregateservice.core.auth.state.AuthState
 import com.aggregateservice.core.i18n.I18nProvider
 import com.aggregateservice.core.i18n.StringKey
+import com.aggregateservice.core.navigation.CatalogNavigator
+import com.aggregateservice.core.navigation.ProviderNavigator
 import com.aggregateservice.core.theme.Spacing
 import com.aggregateservice.feature.profile.domain.model.Profile
 import com.aggregateservice.feature.profile.presentation.screenmodel.ProfileScreenModel
@@ -66,6 +68,7 @@ object ProfileScreen : Screen {
         val i18nProvider: I18nProvider = koinInject()
         val authNavigator: AuthNavigator = koinInject()
         val authStateProvider: AuthStateProvider = koinInject()
+        val providerNavigator: ProviderNavigator = koinInject()
         val snackbarHostState = remember { SnackbarHostState() }
         val navigator = LocalNavigator.currentOrThrow
 
@@ -112,6 +115,21 @@ object ProfileScreen : Screen {
             onLogout = {
                 screenModel.logout(navigator)
             },
+            onSwitchRole = { newRole ->
+                val currentState = authState
+                if (currentState is AuthState.Authenticated) {
+                    screenModel.switchRole(currentState.roles.toList(), newRole)
+                }
+            },
+            onSwitchToProvider = {
+                val currentState = authState
+                if (currentState is AuthState.Authenticated) {
+                    screenModel.switchRole(currentState.roles.toList(), "PROVIDER")
+                    providerNavigator.navigateToDashboard(navigator)
+                }
+            },
+            currentRole = (authState as? AuthState.Authenticated)?.currentRole,
+            availableRoles = (authState as? AuthState.Authenticated)?.roles?.toList() ?: emptyList(),
             navigator = navigator,
         )
     }
@@ -131,6 +149,10 @@ fun ProfileScreenContent(
     onRetry: () -> Unit,
     onErrorDismiss: () -> Unit,
     onLogout: () -> Unit,
+    onSwitchRole: (String) -> Unit,
+    onSwitchToProvider: () -> Unit,
+    currentRole: String?,
+    availableRoles: List<String>,
     navigator: cafe.adriel.voyager.navigator.Navigator,
 ) {
     Scaffold(
@@ -195,8 +217,12 @@ fun ProfileScreenContent(
                     } else {
                         ViewProfileInfo(
                             profile = uiState.profile,
+                            currentRole = currentRole,
+                            availableRoles = availableRoles,
                             onEdit = onStartEditing,
                             onLogout = onLogout,
+                            onSwitchRole = onSwitchRole,
+                            onSwitchToProvider = onSwitchToProvider,
                             i18nProvider = i18nProvider,
                         )
                     }
@@ -257,8 +283,12 @@ fun ProfileHeader(profile: Profile) {
 @Composable
 fun ViewProfileInfo(
     profile: Profile,
+    currentRole: String?,
+    availableRoles: List<String>,
     onEdit: () -> Unit,
     onLogout: () -> Unit,
+    onSwitchRole: (String) -> Unit,
+    onSwitchToProvider: () -> Unit,
     i18nProvider: I18nProvider,
 ) {
     Column(
@@ -279,6 +309,15 @@ fun ViewProfileInfo(
             value = profile.phone ?: i18nProvider[StringKey.Profile.NOT_SET],
         )
 
+        // Current role indicator
+        if (currentRole != null) {
+            Spacer(modifier = Modifier.height(Spacing.MD))
+            ProfileInfoRow(
+                label = "Role",
+                value = currentRole.replaceFirstChar { it.uppercase() },
+            )
+        }
+
         Spacer(modifier = Modifier.height(Spacing.LG))
 
         OutlinedButton(
@@ -287,6 +326,32 @@ fun ViewProfileInfo(
         ) {
             Text(i18nProvider[StringKey.Profile.EDIT])
         }
+
+        // Role switch button (if user has multiple roles)
+        if (availableRoles.size > 1) {
+            Spacer(modifier = Modifier.height(Spacing.SM))
+            val otherRole = availableRoles.firstOrNull { it != currentRole }
+            if (otherRole != null) {
+                Button(
+                    onClick = { onSwitchRole(otherRole) },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Switch to ${otherRole.replaceFirstChar { it.uppercase() }}")
+                }
+            }
+        }
+
+        // Switch to Provider button (visible when user has PROVIDER role and is not currently provider)
+        if (availableRoles.contains("PROVIDER") && currentRole != "PROVIDER") {
+            Spacer(modifier = Modifier.height(Spacing.SM))
+            OutlinedButton(
+                onClick = onSwitchToProvider,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Switch to Provider")
+            }
+        }
+
         Spacer(modifier = Modifier.height(Spacing.SM))
         OutlinedButton(
             onClick = onLogout,
