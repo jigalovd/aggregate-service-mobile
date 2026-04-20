@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.aggregateservice.feature.provider.dashboard"
+    namespace = "com.aggregateservice.feature.provider.bookings"
 }
 
 kotlin {
@@ -39,15 +39,8 @@ kotlin {
             // Navigation (RoleGuard)
             implementation(project(":core:navigation"))
 
-            // Booking domain model (BookingStatus) - required dependency
-            // TODO: Add feature:booking back once Clock.System issue is resolved
-            // implementation(project(":feature:booking"))
-
-            // Provider Bookings Screen (required for navigation)
-            implementation(project(":feature:provider-bookings"))
-
-            // Provider Onboarding Screen (required for navigation)
-            implementation(project(":feature:provider-onboarding"))
+            // Core network (AppError, safeApiCall)
+            implementation(project(":core:network"))
         }
 
         maybeCreate("androidMain").dependencies {
