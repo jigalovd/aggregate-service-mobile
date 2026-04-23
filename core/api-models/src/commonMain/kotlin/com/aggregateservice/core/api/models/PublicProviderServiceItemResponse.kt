@@ -59,7 +59,7 @@ data class PublicProviderServiceItemResponse (
 
     @SerialName(value = "created_at") val createdAt: kotlinx.datetime.Instant,
 
-    @SerialName(value = "provider_id") val providerId: kotlin.String? = null,
+    @SerialName(value = "providerId") val providerId: kotlin.String? = null,
 
     @SerialName(value = "description") val description: I18nStringSchema? = null
 

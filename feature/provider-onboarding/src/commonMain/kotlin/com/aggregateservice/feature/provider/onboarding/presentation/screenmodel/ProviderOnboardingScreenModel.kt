@@ -4,7 +4,9 @@ import androidx.compose.runtime.Stable
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import co.touchlab.kermit.Logger
+import com.aggregateservice.core.auth.contract.SwitchRoleUseCase
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.storage.TokenStore
 import com.aggregateservice.feature.provider.onboarding.OnboardingState
 import com.aggregateservice.feature.provider.onboarding.domain.repository.ProviderOnboardingRepository
 import com.aggregateservice.feature.provider.onboarding.presentation.model.OnboardingUiState
@@ -16,6 +18,8 @@ import kotlinx.coroutines.launch
 @Stable
 class ProviderOnboardingScreenModel(
     private val repository: ProviderOnboardingRepository,
+    private val tokenStore: TokenStore,
+    private val switchRoleUseCase: SwitchRoleUseCase,
     private val logger: Logger,
 ) : ScreenModel {
 
@@ -166,7 +170,19 @@ class ProviderOnboardingScreenModel(
                 serviceRadiusKm = _location.value.serviceRadiusKm,
                 categoryIds = _services.value.selectedCategoryIds.toList(),
             ).fold(
-                onSuccess = {
+                onSuccess = { response ->
+                    // Save new access token
+                    val refreshToken = tokenStore.getRefreshToken() ?: ""
+                    tokenStore.saveTokens(
+                        accessToken = response.accessToken,
+                        refreshToken = refreshToken,
+                    )
+
+                    // Switch to PROVIDER role
+                    switchRoleUseCase("PROVIDER")
+
+                    logger.d("ProviderOnboarding") { "ProviderOnboarding: role switch completed" }
+
                     _uiState.value = OnboardingUiState.Content(step = 3, isValid = true, isSubmitting = false, isSubmitted = true)
                     onComplete?.invoke()
                 },

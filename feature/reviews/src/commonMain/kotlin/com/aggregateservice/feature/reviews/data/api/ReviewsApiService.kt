@@ -37,8 +37,9 @@ class ReviewsApiService(
         safeApiCall {
             client.get("$REVIEWS_PATH/provider/$providerId") {
                 contentType(ContentType.Application.Json)
-                parameter("page", page)
-                parameter("page_size", pageSize)
+                // Backend API uses limit/offset (not page/page_size)
+                parameter("limit", pageSize)
+                parameter("offset", (page - 1) * pageSize)
             }
         }
 

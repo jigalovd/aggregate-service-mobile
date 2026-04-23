@@ -1,10 +1,17 @@
 package com.aggregateservice.feature.provider.onboarding.presentation.screenmodel
 
 import co.touchlab.kermit.Logger
+import com.aggregateservice.core.auth.contract.SwitchRoleUseCase
 import com.aggregateservice.core.network.AppError
+import com.aggregateservice.core.storage.TokenStore
 import com.aggregateservice.feature.provider.onboarding.OnboardingState
+import com.aggregateservice.feature.provider.onboarding.data.api.ProviderOnboardingResponse
 import com.aggregateservice.feature.provider.onboarding.domain.repository.ProviderOnboardingRepository
 import com.aggregateservice.feature.provider.onboarding.presentation.model.OnboardingUiState
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -17,7 +24,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -30,12 +36,17 @@ class ProviderOnboardingScreenModelTest {
     private val testDispatcher = StandardTestDispatcher()
 
     private lateinit var repository: MockProviderOnboardingRepository
+    private lateinit var tokenStore: TokenStore
+    private lateinit var switchRoleUseCase: SwitchRoleUseCase
     private lateinit var logger: Logger
 
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         repository = MockProviderOnboardingRepository()
+        tokenStore = mockk(relaxed = true)
+        switchRoleUseCase = mockk(relaxed = true)
+        coEvery { tokenStore.getRefreshToken() } returns "existing_refresh_token"
         logger = Logger.withTag("ProviderOnboardingTest")
     }
 
@@ -47,6 +58,8 @@ class ProviderOnboardingScreenModelTest {
     private fun createScreenModel(): ProviderOnboardingScreenModel {
         return ProviderOnboardingScreenModel(
             repository = repository,
+            tokenStore = tokenStore,
+            switchRoleUseCase = switchRoleUseCase,
             logger = logger,
         )
     }
@@ -72,7 +85,7 @@ class ProviderOnboardingScreenModelTest {
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Fill valid basic info
-        repository.submitOnboardingResult = Result.success(Unit)
+        repository.submitOnboardingResult = Result.success(ProviderOnboardingResponse("OK", "token"))
         screenModel.updateBasicInfo(
             businessName = "Test Business",
             phone = "1234567890",
@@ -142,7 +155,7 @@ class ProviderOnboardingScreenModelTest {
     @Test
     fun `nextStep on last step should submit form`() = runTest {
         val screenModel = createScreenModel()
-        repository.submitOnboardingResult = Result.success(Unit)
+        repository.submitOnboardingResult = Result.success(ProviderOnboardingResponse("OK", "token"))
 
         // Fill all steps
         screenModel.updateBasicInfo(
@@ -335,7 +348,7 @@ class ProviderOnboardingScreenModelTest {
 
     @Test
     fun `submitOnboarding should emit Loading then Content on success`() = runTest {
-        repository.submitOnboardingResult = Result.success(Unit)
+        repository.submitOnboardingResult = Result.success(ProviderOnboardingResponse("Onboarding successful", "new_token"))
         val screenModel = createScreenModel()
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -412,7 +425,7 @@ class ProviderOnboardingScreenModelTest {
 
     @Test
     fun `submitOnboarding should call onComplete callback on success`() = runTest {
-        repository.submitOnboardingResult = Result.success(Unit)
+        repository.submitOnboardingResult = Result.success(ProviderOnboardingResponse("OK", "token"))
         val screenModel = createScreenModel()
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -430,6 +443,37 @@ class ProviderOnboardingScreenModelTest {
         assertTrue(onCompleteCalled)
     }
 
+    // ============ Auth Integration Tests ============
+
+    @Test
+    fun `submitOnboarding should save token and switch role on success`() = runTest {
+        val newAccessToken = "new_provider_access_token"
+        repository.submitOnboardingResult = Result.success(ProviderOnboardingResponse("Onboarding successful", newAccessToken))
+        val screenModel = createScreenModel()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        screenModel.updateBasicInfo(businessName = "Test", phone = "1234567890")
+        screenModel.updateLocation(address = "123 St", serviceRadiusKm = 10f)
+        screenModel.toggleCategory("cleaning")
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        screenModel.submitOnboarding()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Verify token was saved with the new access token and existing refresh token
+        coVerify {
+            tokenStore.saveTokens(
+                accessToken = newAccessToken,
+                refreshToken = "existing_refresh_token",
+            )
+        }
+
+        // Verify SwitchRoleUseCase was called with PROVIDER role
+        coVerify {
+            switchRoleUseCase.invoke("PROVIDER")
+        }
+    }
+
     // ============ Helper Methods ============
 
     private fun createTestBasicInfo(): OnboardingState.BasicInfoStep {
@@ -445,7 +489,7 @@ class ProviderOnboardingScreenModelTest {
  * Mock implementation of ProviderOnboardingRepository for testing.
  */
 private class MockProviderOnboardingRepository : ProviderOnboardingRepository {
-    var submitOnboardingResult: Result<Unit> = Result.success(Unit)
+    var submitOnboardingResult: Result<ProviderOnboardingResponse> = Result.success(ProviderOnboardingResponse("OK", "token"))
     var isOnboardingCompleteResult: Result<Boolean> = Result.success(false)
 
     var submitOnboardingCallCount = 0
@@ -465,7 +509,7 @@ private class MockProviderOnboardingRepository : ProviderOnboardingRepository {
         address: String,
         serviceRadiusKm: Float,
         categoryIds: List<String>,
-    ): Result<Unit> {
+    ): Result<ProviderOnboardingResponse> {
         submitOnboardingCallCount++
         lastBusinessName = businessName
         lastBio = bio

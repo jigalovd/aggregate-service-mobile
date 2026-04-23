@@ -1,5 +1,7 @@
 package com.aggregateservice.feature.provider.onboarding.domain.repository
 
+import com.aggregateservice.feature.provider.onboarding.data.api.ProviderOnboardingResponse
+
 /**
  * Repository interface for provider onboarding.
  *
@@ -20,7 +22,7 @@ interface ProviderOnboardingRepository {
      * @param address Service address
      * @param serviceRadiusKm Coverage radius in kilometers
      * @param categoryIds List of selected service category IDs
-     * @return Result with unit on success or error on failure
+     * @return Result with ProviderOnboardingResponse on success (contains message and accessToken) or error on failure
      */
     suspend fun submitOnboarding(
         businessName: String,
@@ -29,7 +31,7 @@ interface ProviderOnboardingRepository {
         address: String,
         serviceRadiusKm: Float,
         categoryIds: List<String>,
-    ): Result<Unit>
+    ): Result<ProviderOnboardingResponse>
 
     /**
      * Checks if a provider has completed onboarding.

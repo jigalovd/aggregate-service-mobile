@@ -25,10 +25,10 @@ class ProviderOnboardingApiService(
      * Submits provider onboarding data.
      *
      * @param request Onboarding data including business info, location, and services
-     * @return Result with unit on success or error
+     * @return Result with ProviderOnboardingResponse on success or error
      */
-    suspend fun submitOnboarding(request: ProviderOnboardingRequest): Result<Unit> {
-        return safeApiCall<Unit> {
+    suspend fun submitOnboarding(request: ProviderOnboardingRequest): Result<ProviderOnboardingResponse> {
+        return safeApiCall {
             client.post("/api/v1/providers/onboarding") {
                 contentType(ContentType.Application.Json)
                 setBody(request)
@@ -54,4 +54,18 @@ data class ProviderOnboardingRequest(
     val serviceRadiusKm: Float,
     @SerialName("category_ids")
     val categoryIds: List<String>,
+)
+
+/**
+ * Response body for successful provider onboarding.
+ *
+ * @property message Server message (e.g., "Onboarding successful")
+ * @property accessToken New access token for authenticated PROVIDER session
+ */
+@Serializable
+data class ProviderOnboardingResponse(
+    @SerialName("message")
+    val message: String,
+    @SerialName("access_token")
+    val accessToken: String,
 )

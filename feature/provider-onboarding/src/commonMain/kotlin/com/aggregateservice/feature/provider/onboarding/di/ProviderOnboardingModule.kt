@@ -1,11 +1,11 @@
 package com.aggregateservice.feature.provider.onboarding.di
 
+import co.touchlab.kermit.Logger
+import com.aggregateservice.core.auth.contract.SwitchRoleUseCase
 import com.aggregateservice.feature.provider.onboarding.data.api.ProviderOnboardingApiService
 import com.aggregateservice.feature.provider.onboarding.data.repository.ProviderOnboardingRepositoryImpl
 import com.aggregateservice.feature.provider.onboarding.domain.repository.ProviderOnboardingRepository
 import com.aggregateservice.feature.provider.onboarding.presentation.screenmodel.ProviderOnboardingScreenModel
-import co.touchlab.kermit.Logger
-import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
 /**
@@ -39,6 +39,8 @@ val providerOnboardingModule =
         factory<ProviderOnboardingScreenModel> {
             ProviderOnboardingScreenModel(
                 repository = get(),
+                tokenStore = get(),
+                switchRoleUseCase = get(),
                 logger = Logger.withTag("ProviderOnboarding"),
             )
         }

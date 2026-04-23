@@ -5,6 +5,7 @@ import com.aggregateservice.core.network.AppError
 import com.aggregateservice.core.network.toAppError
 import com.aggregateservice.feature.provider.onboarding.data.api.ProviderOnboardingApiService
 import com.aggregateservice.feature.provider.onboarding.data.api.ProviderOnboardingRequest
+import com.aggregateservice.feature.provider.onboarding.data.api.ProviderOnboardingResponse
 import com.aggregateservice.feature.provider.onboarding.domain.repository.ProviderOnboardingRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -35,7 +36,7 @@ class ProviderOnboardingRepositoryImpl(
         address: String,
         serviceRadiusKm: Float,
         categoryIds: List<String>,
-    ): Result<Unit> {
+    ): Result<ProviderOnboardingResponse> {
         return withContext(Dispatchers.IO) {
             logger.d("ProviderOnboarding") {
                 "submitOnboarding(businessName=$businessName, address=$address, categories=${categoryIds.size})"
@@ -51,9 +52,11 @@ class ProviderOnboardingRepositoryImpl(
             )
 
             apiService.submitOnboarding(request).fold(
-                onSuccess = {
-                    logger.d("ProviderOnboarding") { "submitOnboarding: success" }
-                    Result.success(Unit)
+                onSuccess = { response ->
+                    logger.d("ProviderOnboarding") {
+                        "submitOnboarding: success - message=${response.message}, tokenReceived=${response.accessToken.isNotEmpty()}"
+                    }
+                    Result.success(response)
                 },
                 onFailure = { error ->
                     val appError = error as? AppError ?: error.toAppError()

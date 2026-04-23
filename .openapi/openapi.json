@@ -2689,6 +2689,54 @@
         }
       }
     },
+    "/api/v1/providers/onboarding": {
+      "post": {
+        "tags": [
+          "provider",
+          "provider"
+        ],
+        "summary": "Submit Onboarding",
+        "description": "Create or update provider profile and add 'provider' role.\n\nThis endpoint:\n1. Adds 'provider' role to the user\n2. Creates or updates provider profile with business details\n3. Returns a new access token with the 'provider' role included\n\nThe user can immediately switch to provider mode after receiving the new token.",
+        "operationId": "post_providers_onboarding",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProviderOnboardingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextSwitchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/reviews": {
       "post": {
         "tags": [
@@ -3314,7 +3362,7 @@
         "properties": {
           "file": {
             "type": "string",
-            "format": "binary",
+            "contentMediaType": "application/octet-stream",
             "title": "File",
             "description": "Image file (JPEG, PNG, WEBP)"
           }
@@ -4643,6 +4691,98 @@
         ],
         "title": "ProviderListResponse"
       },
+      "ProviderOnboardingRequest": {
+        "properties": {
+          "display_name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Display Name",
+            "description": "Provider display name"
+          },
+          "bio": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bio",
+            "description": "Provider bio"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone",
+            "description": "Contact phone"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address",
+            "description": "Service address"
+          },
+          "latitude": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 90.0,
+                "minimum": -90.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitude",
+            "description": "GPS latitude"
+          },
+          "longitude": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 180.0,
+                "minimum": -180.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitude",
+            "description": "GPS longitude"
+          }
+        },
+        "type": "object",
+        "required": [
+          "display_name"
+        ],
+        "title": "ProviderOnboardingRequest",
+        "description": "Request body for provider onboarding.",
+        "example": {
+          "address": "ул. Пушкина 10, Москва",
+          "bio": "Лучшие мастера города",
+          "display_name": "Салон Красоты",
+          "latitude": 55.7558,
+          "longitude": 37.6173,
+          "phone": "+7 999 123-45-67"
+        }
+      },
       "ProviderResponse": {
         "properties": {
           "id": {
@@ -5936,6 +6076,13 @@
           "type": {
             "type": "string",
             "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
           }
         },
         "type": "object",

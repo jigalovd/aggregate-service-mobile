@@ -47,8 +47,9 @@ class BookingApiService(
                 contentType(ContentType.Application.Json)
                 url {
                     status?.let { parameters.append("status", it) }
-                    parameters.append("page", page.toString())
-                    parameters.append("pageSize", pageSize.toString())
+                    // Backend API uses limit/offset (not page/pageSize)
+                    parameters.append("limit", pageSize.toString())
+                    parameters.append("offset", ((page - 1) * pageSize).toString())
                 }
             }
         }

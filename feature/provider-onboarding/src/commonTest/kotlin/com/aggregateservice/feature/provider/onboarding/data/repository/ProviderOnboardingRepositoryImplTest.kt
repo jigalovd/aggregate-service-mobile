@@ -2,6 +2,7 @@ package com.aggregateservice.feature.provider.onboarding.data.repository
 
 import com.aggregateservice.core.network.AppError
 import com.aggregateservice.feature.provider.onboarding.data.api.ProviderOnboardingRequest
+import com.aggregateservice.feature.provider.onboarding.data.api.ProviderOnboardingResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -38,7 +39,8 @@ class ProviderOnboardingRepositoryImplTest {
 
     @Test
     fun `submitOnboarding should call api and return success on success`() = runTest {
-        val mockApi = MockOnboardingApi(Result.success(Unit))
+        val response = ProviderOnboardingResponse(message = "Onboarding successful", accessToken = "new_token_123")
+        val mockApi = MockOnboardingApi(Result.success(response))
         val repository = TestableRepository(mockApi)
 
         val result = repository.submitOnboarding(
@@ -53,11 +55,15 @@ class ProviderOnboardingRepositoryImplTest {
 
         assertTrue(result.isSuccess)
         assertEquals(1, mockApi.callCount)
+        val successResponse = result.getOrNull()!!
+        assertEquals("Onboarding successful", successResponse.message)
+        assertEquals("new_token_123", successResponse.accessToken)
     }
 
     @Test
     fun `submitOnboarding should pass correct parameters to API`() = runTest {
-        val mockApi = MockOnboardingApi(Result.success(Unit))
+        val response = ProviderOnboardingResponse(message = "OK", accessToken = "token")
+        val mockApi = MockOnboardingApi(Result.success(response))
         val repository = TestableRepository(mockApi)
 
         repository.submitOnboarding(
@@ -74,6 +80,31 @@ class ProviderOnboardingRepositoryImplTest {
         assertEquals("9876543210", mockApi.lastRequest?.phone)
         assertEquals("456 Service Ave", mockApi.lastRequest?.address)
         assertEquals(25f, mockApi.lastRequest?.serviceRadiusKm)
+    }
+
+    @Test
+    fun `submitOnboarding should propagate message and token from API response`() = runTest {
+        val response = ProviderOnboardingResponse(
+            message = "Provider onboarding complete",
+            accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        )
+        val mockApi = MockOnboardingApi(Result.success(response))
+        val repository = TestableRepository(mockApi)
+
+        val result = repository.submitOnboarding(
+            businessName = "Test",
+            bio = "Test",
+            phone = "1234567890",
+            address = "123 St",
+            serviceRadiusKm = 10f,
+            categoryIds = listOf("cleaning"),
+        )
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertTrue(result.isSuccess)
+        val successResponse = result.getOrNull()!!
+        assertEquals("Provider onboarding complete", successResponse.message)
+        assertTrue(successResponse.accessToken.startsWith("eyJ"))
     }
 
     // ============ Submit Onboarding Error Tests ============
@@ -166,7 +197,8 @@ class ProviderOnboardingRepositoryImplTest {
 
     @Test
     fun `isOnboardingComplete should return false`() = runTest {
-        val mockApi = MockOnboardingApi(Result.success(Unit))
+        val response = ProviderOnboardingResponse(message = "OK", accessToken = "token")
+        val mockApi = MockOnboardingApi(Result.success(response))
         val repository = TestableRepository(mockApi)
 
         val result = repository.isOnboardingComplete()
@@ -180,7 +212,8 @@ class ProviderOnboardingRepositoryImplTest {
 
     @Test
     fun `submitOnboarding should handle empty bio`() = runTest {
-        val mockApi = MockOnboardingApi(Result.success(Unit))
+        val response = ProviderOnboardingResponse(message = "OK", accessToken = "token")
+        val mockApi = MockOnboardingApi(Result.success(response))
         val repository = TestableRepository(mockApi)
 
         val result = repository.submitOnboarding(
@@ -199,7 +232,8 @@ class ProviderOnboardingRepositoryImplTest {
 
     @Test
     fun `submitOnboarding should handle large service radius`() = runTest {
-        val mockApi = MockOnboardingApi(Result.success(Unit))
+        val response = ProviderOnboardingResponse(message = "OK", accessToken = "token")
+        val mockApi = MockOnboardingApi(Result.success(response))
         val repository = TestableRepository(mockApi)
 
         val result = repository.submitOnboarding(
@@ -218,7 +252,8 @@ class ProviderOnboardingRepositoryImplTest {
 
     @Test
     fun `submitOnboarding should handle many categories`() = runTest {
-        val mockApi = MockOnboardingApi(Result.success(Unit))
+        val response = ProviderOnboardingResponse(message = "OK", accessToken = "token")
+        val mockApi = MockOnboardingApi(Result.success(response))
         val repository = TestableRepository(mockApi)
         val categories = listOf("cleaning", "plumbing", "electrical", "hvac", "landscaping")
 
@@ -240,11 +275,11 @@ class ProviderOnboardingRepositoryImplTest {
 /**
  * Mock API service using the local interface type.
  */
-private class MockOnboardingApi(var result: Result<Unit>) : TestableApiService {
+private class MockOnboardingApi(var result: Result<ProviderOnboardingResponse>) : TestableApiService {
     var callCount = 0
     var lastRequest: ProviderOnboardingRequest? = null
 
-    override suspend fun submitOnboarding(request: ProviderOnboardingRequest): Result<Unit> {
+    override suspend fun submitOnboarding(request: ProviderOnboardingRequest): Result<ProviderOnboardingResponse> {
         callCount++
         lastRequest = request
         return result
@@ -255,7 +290,7 @@ private class MockOnboardingApi(var result: Result<Unit>) : TestableApiService {
  * Local interface matching the API service contract for testing.
  */
 private interface TestableApiService {
-    suspend fun submitOnboarding(request: ProviderOnboardingRequest): Result<Unit>
+    suspend fun submitOnboarding(request: ProviderOnboardingRequest): Result<ProviderOnboardingResponse>
 }
 
 /**
@@ -269,7 +304,7 @@ private class TestableRepository(private val mockApi: TestableApiService) {
         address: String,
         serviceRadiusKm: Float,
         categoryIds: List<String>,
-    ): Result<Unit> {
+    ): Result<ProviderOnboardingResponse> {
         val request = ProviderOnboardingRequest(
             businessName = businessName,
             bio = bio,
